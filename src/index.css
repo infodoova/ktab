@@ -1,0 +1,67 @@
+/* index.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap');
+@import "tailwindcss";
+@import "tw-animate-css";
+
+:root {
+  /* TYPEOGRAPHY */
+  --font-arabic: "Cairo", sans-serif;
+  --font-english: "Inter", sans-serif;
+
+  /* EARTH PALETTE DEFINITION */
+  /* Backgrounds */
+  --earth-cream: #F4EFE9;       /* Main Page BG */
+  --earth-paper: #FEFCF8;       /* Card/Container BG */
+  
+  /* Primary Colors */
+  --earth-brown: #5D4037;       /* Primary Branding / Borders */
+  --earth-brown-dark: #3E2723;  /* Main Text / Headings (High Contrast) */
+  
+  /* Accents */
+  --earth-olive: #606C38;       /* Primary Action / Success */
+  --earth-olive-dark: #3E4A20;  /* Hover State for Olive */
+  --earth-sand: #D7CCC8;        /* Secondary accents / Disabled */
+  
+  /* Utilities */
+  --earth-shadow: rgba(62, 39, 35, 0.08);
+}
+
+
+* {
+  font-family: var(--font-arabic), var(--font-english) !important;
+}
+
+body {
+  background-color: var(--earth-cream);
+  color: var(--earth-brown-dark);
+}
+
+/* Glass utility */
+.glass {
+  background: rgba(254, 252, 248, 0.75); /* Uses earth-paper opacity */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(93, 64, 55, 0.1); /* Subtle brown border */
+}
+
+/* Animations */
+.fade-up {
+  opacity: 0;
+  transform: translateY(18px);
+  animation: fadeUp 0.6s ease-out forwards;
+}
+
+@keyframes fadeUp {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.slide-up {
+  opacity: 0;
+  transform: translateY(30px);
+  animation: slideUp 0.8s ease-out forwards;
+}
+
+@keyframes slideUp {
+  to { opacity: 1; transform: translateY(0); }
+}
