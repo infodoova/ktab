@@ -79,7 +79,7 @@ export default function ResetPassword({ onClose }) {
         `${import.meta.env.VITE_API_URL}/auth/send-reset`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json","ngrok-skip-browser-warning": "true", },
           credentials: "include",
           body: JSON.stringify({ email }),
         }
@@ -141,8 +141,8 @@ export default function ResetPassword({ onClose }) {
         `${import.meta.env.VITE_API_URL}/auth/reset-password`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
+          headers: { "Content-Type": "application/json","ngrok-skip-browser-warning": "true", },   
+
           body: JSON.stringify({
             email,
             code,
