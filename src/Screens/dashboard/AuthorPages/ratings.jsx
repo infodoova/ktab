@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Navbar from "../../components/myui/Users/navbar";
 import PageHeader from "../../components/myui/Users/sideHeader";
 
-function AITools({ pageName = "   التقييمات " }) {
+function Ratings({ pageName = "   التقييمات " }) {
   const [collapsed, setCollapsed] = useState(false);
 
   const handleButtonPress = () => console.log("Button pressed");
@@ -53,4 +53,4 @@ function AITools({ pageName = "   التقييمات " }) {
   );
 }
 
-export default AITools;
+export default Ratings;

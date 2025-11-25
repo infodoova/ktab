@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Navbar from "../../components/myui/Users/navbar";
 import PageHeader from "../../components/myui/Users/sideHeader";
 
-function AITools({ pageName = "    رفع كتاب جديد " }) {
+function NewBooks({ pageName = "    رفع كتاب جديد " }) {
   const [collapsed, setCollapsed] = useState(false);
 
   const handleButtonPress = () => console.log("Button pressed");
@@ -53,4 +53,4 @@ function AITools({ pageName = "    رفع كتاب جديد " }) {
   );
 }
 
-export default AITools;
+export default NewBooks;
