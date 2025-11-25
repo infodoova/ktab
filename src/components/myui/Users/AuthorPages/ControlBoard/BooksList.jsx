@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from "react";
 import { Eye, Star, BookOpen, Edit3, Users, ArrowLeft } from "lucide-react";
-import LoaderCircle from "../../LoaderCircle";
+import LoaderCircle from "../../../LoaderCircle";
 
 function BooksList({ books, page, setPage, totalPages, loadingMore }) {
   return (
@@ -17,7 +17,8 @@ function BooksList({ books, page, setPage, totalPages, loadingMore }) {
 
       {/* Books Grid/List */}
       {books && books.length > 0 ? (
-        <div className="grid grid-cols-2 gap-4 md:flex md:flex-col md:gap-4">
+        // Adjusted gap for mobile to give cards more breathing room
+        <div className="grid grid-cols-2 gap-3 md:flex md:flex-col md:gap-4">
           {books.map((b) => (
             <BookCard key={b.id} book={b} />
           ))}
@@ -60,29 +61,36 @@ function BookCard({ book }) {
   return (
     <div
       dir="rtl"
-      className="group flex w-full bg-[var(--earth-paper)] border border-[var(--earth-sand)]/50 rounded-xl overflow-hidden shadow-sm hover:shadow-md hover:border-[var(--earth-olive)]/30 transition-all duration-300"
+      // UPDATED: flex-col for mobile (vertical stack), flex-row for sm/desktop (horizontal list)
+      className="group flex flex-col sm:flex-row w-full bg-[var(--earth-paper)] border border-[var(--earth-sand)]/50 rounded-xl overflow-hidden shadow-sm hover:shadow-md hover:border-[var(--earth-olive)]/30 transition-all duration-300"
     >
-      {/* BOOK IMAGE – CLEAN FIT */}
-      <div className="w-[100px] sm:w-[130px] shrink-0 flex items-center justify-center">
+      {/* BOOK IMAGE */}
+      {/* UPDATED: Full width and fixed height on mobile, fixed width on desktop */}
+      <div className="w-full h-[160px] sm:h-auto sm:w-[130px] shrink-0 flex items-center justify-center bg-gray-100 sm:bg-transparent">
         <div className="relative w-full h-full transition-transform duration-300 group-hover:scale-105">
           <img
             src={book.image}
             alt={book.title}
-            className="w-full h-full object-cover rounded-md"
+            // UPDATED: object-cover ensures it fills the mobile card header nicely
+            className="w-full h-full object-cover sm:rounded-r-none sm:rounded-l-none"
           />
         </div>
       </div>
 
       {/* CONTENT */}
-      <div className="flex-1 flex flex-col py-2 px-3 sm:p-4 min-w-0 justify-between">
+      {/* UPDATED: Added h-full to ensure spacing distribution */}
+      <div className="flex-1 flex flex-col p-3 sm:p-4 min-w-0 justify-between h-full">
 
         {/* TITLE + STATUS */}
-        <div>
+        <div className="flex flex-col gap-2">
           <div className="flex justify-between items-start gap-2">
-            <h3 className="text-sm sm:text-base font-bold text-[var(--earth-brown-dark)] leading-snug line-clamp-2">
+            <h3 className="text-sm sm:text-base font-bold text-[var(--earth-brown-dark)] leading-snug line-clamp-2 h-[2.5em] sm:h-auto">
               {book.title}
             </h3>
-
+          </div>
+          
+          {/* Status Badge moved below title for cleaner mobile look */}
+          <div className="flex">
             <span
               className={`shrink-0 px-2 py-0.5 rounded-md text-[10px] sm:text-xs font-medium border ${statusStyle}`}
             >
@@ -90,39 +98,38 @@ function BookCard({ book }) {
             </span>
           </div>
 
-          {/* STATS – MOBILE VISIBLE + CENTERED */}
-          <div className="flex items-center justify-start gap-x-5 gap-y-2 mt-4 mb-1 text-[13px] sm:text-[15px] text-[var(--earth-brown)]/80">
-
+          {/* STATS */}
+          <div className="flex items-center flex-wrap gap-x-3 gap-y-2 mt-2 mb-1 text-[12px] sm:text-[15px] text-[var(--earth-brown)]/80">
+            
             {/* Rating */}
-            <div className="flex items-center gap-1.5">
-              <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+            <div className="flex items-center gap-1">
+              <Star className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-yellow-500 fill-yellow-500" />
               <span className="font-semibold">{book.rating || 0}</span>
             </div>
 
-            <span className="w-px h-4 bg-[var(--earth-sand)]/60" />
+            <span className="w-px h-3 bg-[var(--earth-sand)]/60" />
 
             {/* Views */}
-            <div className="flex items-center gap-1.5">
-              <Eye className="w-5 h-5 opacity-70" />
+            <div className="flex items-center gap-1">
+              <Eye className="w-3.5 h-3.5 sm:w-5 sm:h-5 opacity-70" />
               <span>{book.views?.toLocaleString() || 0}</span>
             </div>
 
-            <span className="w-px h-4 bg-[var(--earth-sand)]/60" />
+            <span className="w-px h-3 bg-[var(--earth-sand)]/60" />
 
-            {/* Reviews – Visible on mobile now */}
-            <div className="flex items-center gap-1.5">
-              <Users className="w-5 h-5 opacity-70" />
+            {/* Reviews */}
+            <div className="flex items-center gap-1">
+              <Users className="w-3.5 h-3.5 sm:w-5 sm:h-5 opacity-70" />
               <span>{book.reviewsCount || 0}</span>
             </div>
           </div>
         </div>
 
-        {/* BUTTONS – PREMIUM STYLE */}
-        <div className="flex gap-2 mt-3 pt-2 border-t border-[var(--earth-sand)]/30">
-
+        {/* BUTTONS */}
+        <div className="flex gap-2 mt-3 pt-3 border-t border-[var(--earth-sand)]/30">
           {/* DETAILS */}
           <button className="
-            flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2
+            flex-1 inline-flex items-center justify-center gap-1.5 px-2 py-2
             rounded-lg text-white text-[11px] sm:text-xs font-bold
             bg-[var(--earth-olive)] hover:bg-[var(--earth-olive-dark)]
             transition-colors duration-200 shadow-sm
@@ -133,15 +140,14 @@ function BookCard({ book }) {
 
           {/* EDIT */}
           <button className="
-            flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2
+            flex-1 inline-flex items-center justify-center gap-1.5 px-2 py-2
             rounded-lg text-white text-[11px] sm:text-xs font-bold
             bg-[var(--earth-brown)] hover:bg-[var(--earth-brown-dark)]
             transition-colors duration-200 shadow-sm
           ">
             <Edit3 className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">تعديل</span>
+            <span className="inline sm:inline">تعديل</span>
           </button>
-
         </div>
       </div>
     </div>

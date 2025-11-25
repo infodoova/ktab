@@ -1,13 +1,12 @@
 const defaultHeaders = {
   "Content-Type": "application/json",
- // "ngrok-skip-browser-warning": "true",
+  "ngrok-skip-browser-warning": "true",
 };
 
 // Build headers
-function buildHeaders(customHeaders = {}, role) {
+function buildHeaders(customHeaders = {}) {
   return {
     ...defaultHeaders,
-  //  "x-ktab-role": role,
     ...customHeaders,
   };
 }
@@ -24,12 +23,11 @@ function buildQuery(pagination, page, size) {
 export async function getHelper({
   url,
   headers = {},
-  role = "all",
   pagination = false,
   page = 1,
   size = 10,
 }) {
-  const finalHeaders = buildHeaders(headers, role);
+  const finalHeaders = buildHeaders(headers);
   const query = buildQuery(pagination, page, size);
 
   const res = await fetch(url + query, {
@@ -45,9 +43,8 @@ export async function postHelper({
   url,
   body = {},
   headers = {},
-  role = "all",
 }) {
-  const finalHeaders = buildHeaders(headers, role);
+  const finalHeaders = buildHeaders(headers);
 
   const res = await fetch(url, {
     method: "POST",
@@ -63,9 +60,8 @@ export async function putHelper({
   url,
   body = {},
   headers = {},
-  role = "all",
 }) {
-  const finalHeaders = buildHeaders(headers, role);
+  const finalHeaders = buildHeaders(headers);
 
   const res = await fetch(url, {
     method: "PUT",
@@ -80,9 +76,8 @@ export async function putHelper({
 export async function deleteHelper({
   url,
   headers = {},
-  role = "all",
 }) {
-  const finalHeaders = buildHeaders(headers, role);
+  const finalHeaders = buildHeaders(headers);
 
   const res = await fetch(url, {
     method: "DELETE",

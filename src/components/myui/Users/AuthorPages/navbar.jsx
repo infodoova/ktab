@@ -4,7 +4,6 @@ import {
   ChevronLeft,
   ChevronRight,
   BookOpen,
-  History,
   FolderOpen,
   MousePointerClick,
   Bot,
@@ -24,33 +23,25 @@ import {
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 
-import ktabLogo from "../../../assets/logo/logo.png";
+import ktabLogo from "../../../../assets/logo/logo.png";
 
 const navLinks = [
-  { label: " لوحة التحكم", icon: BookOpen, href: "../../../Screens/dashboard/controlBoard" },
-  { label: " كتبي ", icon: SquareLibrary, href: "../../../Screens/dashboard/myBooks" },
-  { label: "رفع كتاب جديد", icon: FolderOpen, href: "../../../Screens/dashboard/newBookPublish" },
-  { label: " قصة تفاعلية جديدة ", icon: MousePointerClick, href: "../../../Screens/dashboard/NewInteractiveStory" },
-  { label: "   ادوات الزكاء الاصطناعي ", icon: Bot, href: "../../../Screens/dashboard/aiTools" },
-  { label: "   التقييمات   ", icon: Star, href: "../../../Screens/dashboard/ratings" },
-  { label: "   الاعدادات   ", icon: Settings, href: "../../../Screens/dashboard/Settings" },
+  { label: " لوحة التحكم", icon: BookOpen, href: "../../../Screens/dashboard/AuthorPages/controlBoard" },
+  { label: " كتبي ", icon: SquareLibrary, href: "../../../Screens/dashboard/AuthorPages/myBooks" },
+  { label: "رفع كتاب جديد", icon: FolderOpen, href: "../../../Screens/dashboard/AuthorPages/newBookPublish" },
+  { label: " قصة تفاعلية جديدة ", icon: MousePointerClick, href: "../../../Screens/dashboard/AuthorPages/NewInteractiveStory" },
+  { label: "   ادوات الزكاء الاصطناعي ", icon: Bot, href: "../../../Screens/dashboard/AuthorPages/aiTools" },
+  { label: "   التقييمات   ", icon: Star, href: "../../../Screens/dashboard/AuthorPages/ratings" },
+  { label: "   الاعدادات   ", icon: Settings, href: "../../../Screens/dashboard/AuthorPages/Settings" },
 ];
 
 
-// -------------------------------------------------------------
-// ⭐ MERGED SIDEBAR CONTENT
-// Top = OLD NAV
-// Middle + Footer = NEW NAV
-// -------------------------------------------------------------
 const SidebarContent = ({ collapsed, onToggle }) => {
   const navigate = useNavigate();
 
   return (
     <div className="flex flex-col h-full rtl bg-[#f7f4ef] border-l border-[var(--earth-sand)]/40">
 
-      {/* --------------------------------------------------
-          TOP SECTION FROM OLD NAV (LOGO + COLLAPSE BUTTON)
-      -------------------------------------------------- */}
       {!collapsed ? (
              <div className="h-16 flex items-center justify-center px-4 border-b">
 
@@ -118,9 +109,9 @@ const SidebarContent = ({ collapsed, onToggle }) => {
         </div>
 
         {!collapsed && (
-          <div className="flex flex-col text-[var(--earth-brown)]">
+          <div className="flex flex-col text-[var(--earth-brown)] ">
             <span className="font-semibold text-sm">أحمد علي</span>
-            <span className="text-xs opacity-70">قارئ</span>
+            <span className="text-xs opacity-70">مؤلف</span>
           </div>
         )}
       </div>

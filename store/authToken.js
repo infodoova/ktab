@@ -1,10 +1,10 @@
 const TOKEN_KEY = "token";
 
-export function saveToken(value: string) {
+export function saveToken(value) {
   localStorage.setItem(TOKEN_KEY, value);
 }
 
-export function token(): string | null {
+export function token() {
   return localStorage.getItem(TOKEN_KEY);
 }
 
@@ -12,12 +12,7 @@ export function clearToken() {
   localStorage.removeItem(TOKEN_KEY);
 }
 
-export type JwtPayload = {
-  exp?: number;
-  [key: string]: unknown;
-};
-
-function parseJwt(rawToken: string): JwtPayload | null {
+function parseJwt(rawToken) {
   try {
     const base64Url = rawToken.split(".")[1];
     if (!base64Url) return null;
@@ -30,43 +25,42 @@ function parseJwt(rawToken: string): JwtPayload | null {
         .join("")
     );
 
-    return JSON.parse(jsonPayload) as JwtPayload;
+    return JSON.parse(jsonPayload);
   } catch {
     return null;
   }
 }
 
-export function isTokenExpired(): boolean {
+export function isTokenExpired() {
   const t = token();
   if (!t) return true;
 
   const payload = parseJwt(t);
-  if (!payload || typeof payload.exp !== "number") {
-    return true;
-  }
+  if (!payload || typeof payload.exp !== "number") return true;
 
   const nowInSeconds = Math.floor(Date.now() / 1000);
   return payload.exp < nowInSeconds;
 }
 
-export function getDecodedToken(): JwtPayload | null {
+export function getDecodedToken() {
   const t = token();
   if (!t) return null;
   return parseJwt(t);
 }
 
-export function getUserFullName(): string | null {
+export function getUserFullName() {
   const payload = getDecodedToken();
   if (!payload) return null;
 
   const first =
-    (payload.firstName ||
-      payload.firstname ||
-      payload.given_name) as string | undefined;
+    payload.firstName ||
+    payload.firstname ||
+    payload.given_name;
+
   const last =
-    (payload.lastName ||
-      payload.lastname ||
-      payload.family_name) as string | undefined;
+    payload.lastName ||
+    payload.lastname ||
+    payload.family_name;
 
   if (first && last) return `${first} ${last}`;
   if (first) return first;

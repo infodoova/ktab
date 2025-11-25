@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,11 +15,14 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Eye, EyeOff } from "lucide-react";
-
+import CodeVerify from "@/components/myui/CodeVerify";
 import owlSignup from "../../assets/character/owl5.png";
+import { postHelper } from "../../../apis/apiHelpers";
+import { AlertToast } from "../../components/myui/AlertToast";
+import { useNavigate } from "react-router-dom";
 
 export default function SignupPage() {
-  const navigate = useNavigate();
+  const [verifyOpen, setVerifyOpen] = useState(false);
 
   const [form, setForm] = useState({
     firstName: "",
@@ -34,16 +37,29 @@ export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [errors, setErrors] = useState({});
+const navigate = useNavigate();
+
+const [toast, setToast] = useState({
+  open: false,
+  variant: "info",
+  title: "",
+  description: "",
+});
+
+function showToast(variant, title, description) {
+  setToast({ open: true, variant, title, description });
+}
+
+  // 🔥 Loading state
+  const [loading, setLoading] = useState(false);
 
   const validatePassword = (pw) => {
-    const regex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
     return regex.test(pw);
   };
 
   const validate = () => {
     const e = {};
-
     if (!form.firstName.trim()) e.firstName = "مطلوب";
     if (!form.lastName.trim()) e.lastName = "مطلوب";
 
@@ -65,32 +81,51 @@ export default function SignupPage() {
     return Object.keys(e).length === 0;
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!validate()) return;
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!validate()) return;
 
-    console.log("Signup success:", form);
-    navigate("/Screens/auth/login");
-  };
+  setLoading(true);
+
+  try {
+    const res = await postHelper({
+      url: `${import.meta.env.VITE_API_URL}/auth/register`,
+      body: {
+        firstName: form.firstName,
+        middleName: form.middleName,
+        lastName: form.lastName,
+        email: form.email,
+        password: form.password,
+        role: form.role,
+      },
+    });
+
+    console.log("REGISTER RESPONSE =", res);
+
+    if (!res.success) {
+      showToast("error", "خطأ", res.message || "حدث خطأ غير متوقع");
+      return;
+    }
+
+    // Success → open code verify  
+    setVerifyOpen(true);
+    showToast("success", "تم إنشاء الحساب", "يرجى إدخال رمز التحقق.");
+
+  } catch (err) {
+    console.log(err);
+    showToast("error", "خطأ", "تعذر الاتصال بالخادم");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div
       dir="rtl"
-      className="
-        min-h-screen w-full flex 
-        bg-[var(--earth-cream)] 
-        overflow-y-auto md:overflow-hidden
-      "
+      className="min-h-screen w-full flex bg-[var(--earth-cream)] overflow-y-auto md:overflow-hidden"
     >
-      {/* LEFT — SIGNUP FORM (LIGHT SIDE) */}
-      <div
-        className="
-          flex-1 md:basis-1/2
-          flex flex-col items-center justify-center 
-          px-6 py-10 md:px-12
-          bg-[var(--earth-cream)]
-        "
-      >
+      {/* LEFT — SIGNUP FORM */}
+      <div className="flex-1 md:basis-1/2 flex flex-col items-center justify-center px-6 py-10 md:px-12 bg-[var(--earth-cream)]">
         <div className="w-full max-w-2xl">
           <div className="mb-6 text-center md:text-right">
             <h1 className="text-3xl md:text-4xl font-extrabold text-[var(--earth-brown)]">
@@ -108,7 +143,7 @@ export default function SignupPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="space-y-1.5">
                     <Label className="text-[var(--earth-brown)] text-sm">
-                      الاسم الأول
+                      * الاسم الأول
                     </Label>
                     <Input
                       value={form.firstName}
@@ -118,15 +153,13 @@ export default function SignupPage() {
                       className="bg-white border-[var(--earth-sand)]/60"
                     />
                     {errors.firstName && (
-                      <p className="text-red-500 text-xs">
-                        {errors.firstName}
-                      </p>
+                      <p className="text-red-500 text-xs">{errors.firstName}</p>
                     )}
                   </div>
 
                   <div className="space-y-1.5">
                     <Label className="text-[var(--earth-brown)] text-sm">
-                      الاسم الاوسط (اختياري)
+                      الاسم الاوسط
                     </Label>
                     <Input
                       value={form.middleName}
@@ -139,7 +172,7 @@ export default function SignupPage() {
 
                   <div className="space-y-1.5">
                     <Label className="text-[var(--earth-brown)] text-sm">
-                      الاسم الأخير
+                      * الاسم الأخير
                     </Label>
                     <Input
                       value={form.lastName}
@@ -149,9 +182,7 @@ export default function SignupPage() {
                       className="bg-white border-[var(--earth-sand)]/60"
                     />
                     {errors.lastName && (
-                      <p className="text-red-500 text-xs">
-                        {errors.lastName}
-                      </p>
+                      <p className="text-red-500 text-xs">{errors.lastName}</p>
                     )}
                   </div>
                 </div>
@@ -160,7 +191,7 @@ export default function SignupPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <Label className="text-[var(--earth-brown)] text-sm">
-                      البريد الإلكتروني
+                      * البريد الإلكتروني
                     </Label>
                     <Input
                       value={form.email}
@@ -178,7 +209,7 @@ export default function SignupPage() {
 
                   <div className="space-y-1.5">
                     <Label className="text-[var(--earth-brown)] text-sm">
-                      نوع الحساب
+                      * نوع الحساب
                     </Label>
                     <Select
                       onValueChange={(value) =>
@@ -193,13 +224,9 @@ export default function SignupPage() {
                         align="end"
                         className="bg-white border border-[var(--earth-sand)]/60 shadow-lg rounded-xl z-[999]"
                       >
-                        <SelectItem value="reader">
-                          قارئ (طالب/هاوٍ)
-                        </SelectItem>
-                        <SelectItem value="author">كاتب قصص</SelectItem>
-                        <SelectItem value="educator">
-                          معلّم / ولي أمر
-                        </SelectItem>
+                        <SelectItem value="20">قارئ</SelectItem>
+                        <SelectItem value="10"> مؤلف</SelectItem>
+                        <SelectItem value="educator">coming soon</SelectItem>
                       </SelectContent>
                     </Select>
 
@@ -213,7 +240,7 @@ export default function SignupPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <Label className="text-[var(--earth-brown)] text-sm">
-                      كلمة المرور
+                      * كلمة المرور
                     </Label>
                     <div className="relative">
                       <Input
@@ -229,7 +256,11 @@ export default function SignupPage() {
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--earth-brown)]/70 hover:text-[var(--earth-brown)]"
                       >
-                        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                        {showPassword ? (
+                          <EyeOff size={20} />
+                        ) : (
+                          <Eye size={20} />
+                        )}
                       </button>
                     </div>
                     {errors.password && (
@@ -239,17 +270,14 @@ export default function SignupPage() {
 
                   <div className="space-y-1.5">
                     <Label className="text-[var(--earth-brown)] text-sm">
-                      تأكيد كلمة المرور
+                      * تأكيد كلمة المرور
                     </Label>
                     <div className="relative">
                       <Input
                         type={showConfirm ? "text" : "password"}
                         value={form.confirmPassword}
                         onChange={(e) =>
-                          setForm({
-                            ...form,
-                            confirmPassword: e.target.value,
-                          })
+                          setForm({ ...form, confirmPassword: e.target.value })
                         }
                         onPaste={(e) => e.preventDefault()}
                         className="bg-white border-[var(--earth-sand)]/60 pr-12"
@@ -259,14 +287,9 @@ export default function SignupPage() {
                         onClick={() => setShowConfirm(!showConfirm)}
                         className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--earth-brown)]/70 hover:text-[var(--earth-brown)]"
                       >
-                        {showConfirm ? (
-                          <EyeOff size={20} />
-                        ) : (
-                          <Eye size={20} />
-                        )}
+                        {showConfirm ? <EyeOff size={20} /> : <Eye size={20} />}
                       </button>
                     </div>
-
                     {errors.confirmPassword && (
                       <p className="text-red-500 text-xs">
                         {errors.confirmPassword}
@@ -278,9 +301,14 @@ export default function SignupPage() {
                 {/* Submit */}
                 <Button
                   type="submit"
-                  className="w-full py-6 text-lg font-bold bg-[var(--earth-brown)] text-white hover:bg-[#4e342e] rounded-xl shadow-md transition-all"
+                  disabled={loading} // 🔥 disable button while loading
+                  className={`w-full py-6 text-lg font-bold rounded-xl shadow-md transition-all ${
+                    loading
+                      ? "bg-[var(--earth-brown)]/50 cursor-not-allowed"
+                      : "bg-[var(--earth-brown)] text-white hover:bg-[#4e342e]"
+                  }`}
                 >
-                  تسجيل الحساب
+                  {loading ? "جارٍ إنشاء الحساب..." : "تسجيل الحساب"}
                 </Button>
 
                 <div className="text-center mt-4 text-sm text-[var(--earth-brown)]/70">
@@ -293,25 +321,20 @@ export default function SignupPage() {
                   </Link>
                 </div>
               </form>
+
+              {verifyOpen && (
+                <CodeVerify
+                  onClose={() => setVerifyOpen(false)}
+                  onSubmit={(code) => console.log("Submitted:", code)}
+                />
+              )}
             </CardContent>
           </Card>
         </div>
       </div>
 
-      {/* RIGHT — OWL (DARK SIDE 50%) */}
-      <div
-        className="
-          hidden md:flex 
-          flex-1 md:basis-1/2 
-          items-center justify-center 
-          bg-gradient-to-b 
-          from-[var(--earth-brown)] 
-          via-[#3c271a] 
-          to-[#2b1b12]
-          relative
-        "
-      >
-        {/* Soft glow overlays */}
+      {/* RIGHT — OWL */}
+      <div className="hidden md:flex flex-1 md:basis-1/2 items-center justify-center bg-gradient-to-b from-[var(--earth-brown)] via-[#3c271a] to-[#2b1b12] relative">
         <div className="absolute inset-0 opacity-30 pointer-events-none">
           <div className="absolute -top-24 -right-20 w-80 h-80 bg-[#f5e5c5]/20 blur-3xl rounded-full" />
           <div className="absolute bottom-[-80px] left-[-40px] w-72 h-72 bg-[#f2d3a3]/15 blur-3xl rounded-full" />
@@ -328,7 +351,6 @@ export default function SignupPage() {
             alt="Signup Owl"
             className="w-[360px] h-auto drop-shadow-[0_24px_60px_rgba(0,0,0,0.55)] mx-auto mb-8"
           />
-
           <h2 className="text-3xl md:text-4xl font-bold text-[#fdf7ee] mb-4">
             أهلاً بك في مجتمعنا
           </h2>
@@ -337,6 +359,15 @@ export default function SignupPage() {
           </p>
         </motion.div>
       </div>
+      {verifyOpen && (
+        <div className="fixed inset-0 z-[9999]">
+      <CodeVerify 
+   email={form.email}
+   onClose={() => setVerifyOpen(false)}
+/>
+
+        </div>
+      )}
     </div>
   );
 }

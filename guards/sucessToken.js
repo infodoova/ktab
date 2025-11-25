@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { token, isTokenExpired } from "../store/authToken";
 
 export function useRedirectIfAuthenticated(
-  redirectTo: string = "/Userpages/index"
+  redirectTo = "/Userpages/index"
 ) {
   const navigate = useNavigate();
 

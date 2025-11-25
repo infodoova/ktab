@@ -2,9 +2,11 @@ import React from "react";
 
 const PageHeader = ({
   mainTitle = "Main Title",
-  buttonTitle = "Button",
+  buttonTitle = "",
   onPress = () => {},
 }) => {
+  const showButton = buttonTitle && buttonTitle.trim() !== "";
+
   return (
     <header 
       className="
@@ -29,27 +31,29 @@ const PageHeader = ({
         {mainTitle}
       </div>
 
-      {/* FIXED LEFT BUTTON – does NOT affect title */}
-      <div
-        className="
-          absolute left-6 top-1/2 
-          -translate-y-1/2
-          flex items-center
-        "
-      >
-        <button
-          onClick={onPress}
+      {/* ONLY SHOW BUTTON IF PARAM EXISTS */}
+      {showButton && (
+        <div
           className="
-            h-9 px-4 rounded-md border 
-            border-[var(--earth-olive)]
-            text-[var(--earth-olive)]
-            hover:bg-[var(--earth-olive)]/10
-            transition font-semibold
+            absolute left-6 top-1/2 
+            -translate-y-1/2
+            flex items-center
           "
         >
-          {buttonTitle}
-        </button>
-      </div>
+          <button
+            onClick={onPress}
+            className="
+              h-9 px-4 rounded-md border 
+              border-[var(--earth-olive)]
+              text-[var(--earth-olive)]
+              hover:bg-[var(--earth-olive)]/10
+              transition font-semibold
+            "
+          >
+            {buttonTitle}
+          </button>
+        </div>
+      )}
 
     </header>
   );

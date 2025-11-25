@@ -3,15 +3,13 @@ import { getHelper } from "../apiHelpers";
 
 // ----------- 1. DASHBOARD STATS (REAL DATA) -----------
 
-export async function getDashboardStats(role = "all") {
+export async function getDashboardStats() {
   const posts = await getHelper({
     url: "https://dummyjson.com/posts",
-    role,
   });
 
   const people = await getHelper({
     url: "https://randomuser.me/api/?results=50",
-    role,
   });
 
   return {
@@ -24,12 +22,11 @@ export async function getDashboardStats(role = "all") {
 
 // ----------- 2. REAL BOOK LIST (Google Books API) -----------
 
-export async function getBooks(role = "all", page = 1, size = 10) {
+export async function getBooks( page = 1, size = 10) {
   const startIndex = (page - 1) * size;
 
   const books = await getHelper({
     url: `https://www.googleapis.com/books/v1/volumes?q=subject:fiction&startIndex=${startIndex}&maxResults=${size}`,
-    role,
   });
   return {
     data: books.items?.map((b) => ({
