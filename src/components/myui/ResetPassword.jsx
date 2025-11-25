@@ -184,197 +184,191 @@ export default function ResetPassword({ onClose }) {
   // UI
   // -------------------------------
   return (
-    <div
-      dir="rtl"
-      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[var(--earth-cream)] px-6 py-10"
+  <div
+  dir="rtl"
+  className="fixed inset-0 z-[9999] flex items-center justify-center bg-[var(--earth-cream)] px-4 py-8"
+>
+  <AlertToast
+    open={toastState.open}
+    variant={toastState.variant}
+    title={toastState.title}
+    description={toastState.description}
+    onClose={handleCloseToast}
+  />
+
+  {/* CLOSE BUTTON */}
+  {onClose && (
+    <button
+      onClick={onClose}
+      className="absolute left-6 top-6 text-[var(--earth-brown)]/60 hover:text-[var(--earth-brown)] transition"
     >
-      <AlertToast
-        open={toastState.open}
-        variant={toastState.variant}
-        title={toastState.title}
-        description={toastState.description}
-        onClose={handleCloseToast}
-      />
+      <X className="w-6 h-6" />
+    </button>
+  )}
 
-      {onClose && (
-        <button
-          className="absolute left-4 top-4 text-[var(--earth-brown)]/60 hover:text-[var(--earth-brown)]"
-          onClick={onClose}
-        >
-          <X className="w-6 h-6" />
-        </button>
-      )}
+  {/* CARD */}
+  <div className="
+      w-full max-w-md 
+      bg-white/70 
+      backdrop-blur-lg 
+      shadow-[0_4px_20px_rgba(0,0,0,0.08)]
+      rounded-3xl 
+      px-8 py-10
+      border border-[var(--earth-sand)]/40
+      animate-fadeIn
+    "
+  >
+    {/* TITLE */}
+    <h1 className="text-2xl font-extrabold text-[var(--earth-brown-dark)] text-center">
+      إعادة تعيين كلمة المرور
+    </h1>
 
-      {/* MAIN TITLE */}
-      <h1 className="text-[var(--earth-brown-dark)] text-3xl font-extrabold mb-2 text-center">
-        إعادة تعيين كلمة المرور
-      </h1>
+    <p className="text-center text-[var(--earth-brown)]/60 mt-2 text-sm leading-relaxed">
+      {step === 1 && "أدخل بريدك الإلكتروني لاستعادة كلمة المرور"}
+      {step === 2 && "أدخل رمز التحقق المرسل إلى بريدك الإلكتروني"}
+      {step === 3 && "قم بإنشاء كلمة مرور جديدة لحسابك"}
+    </p>
 
-      {/* STEP 1 */}
-      {step === 1 && (
-        <div className="w-full max-w-sm mt-6 space-y-6">
-          <Label className="text-[var(--earth-brown)]">البريد الإلكتروني</Label>
+    {/* STEP 1 */}
+    {step === 1 && (
+      <div className="mt-10 space-y-6">
+        <Label className="text-[var(--earth-brown)] font-medium">البريد الإلكتروني</Label>
+        <Input
+          dir="ltr"
+          type="email"
+          value={email}
+          placeholder="example@mail.com"
+          onChange={(e) => setEmail(e.target.value)}
+          className="bg-white h-12 text-sm rounded-xl border-[var(--earth-sand)]"
+        />
+        {errors.email && <p className="text-red-600 text-xs">{errors.email}</p>}
+
+        {/* BUTTONS */}
+        <div className="flex gap-3 pt-4">
+          <Button
+            onClick={onClose}
+            className="w-1/2 h-12 bg-gray-200 text-black rounded-xl hover:bg-gray-300"
+          >
+            <ArrowRight className="w-4 ml-2" /> رجوع
+          </Button>
+          <Button
+            onClick={sendEmail}
+            className="w-1/2 h-12 bg-[var(--earth-brown)] text-white rounded-xl hover:bg-[var(--earth-brown-dark)]"
+          >
+            التالي <ArrowLeft className="w-4 mr-2" />
+          </Button>
+        </div>
+      </div>
+    )}
+
+    {/* STEP 2 */}
+    {step === 2 && (
+      <div className="mt-10 space-y-8">
+        <div dir="ltr" className="flex justify-center">
+          <InputOTP maxLength={6} value={code} onChange={setCode}>
+            <InputOTPGroup className="flex gap-3">
+              {[...Array(6)].map((_, i) => (
+                <InputOTPSlot
+                  key={i}
+                  index={i}
+                  className="!w-12 !h-14 text-xl font-bold bg-white border border-[var(--earth-sand)] rounded-xl"
+                />
+              ))}
+            </InputOTPGroup>
+          </InputOTP>
+        </div>
+
+        {errors.code && (
+          <p className="text-red-600 text-xs text-center">{errors.code}</p>
+        )}
+
+        {/* RESEND */}
+        <p className="text-center text-[var(--earth-brown)]/70 text-sm">
+          {cooldown > 0 ? (
+            <>إعادة الإرسال خلال <b>{cooldown}</b> ثانية</>
+          ) : (
+            <span
+              onClick={resendCode}
+              className="cursor-pointer text-[var(--earth-brown)] font-semibold hover:underline"
+            >
+              إعادة إرسال الرمز
+            </span>
+          )}
+        </p>
+
+        {/* BUTTONS */}
+        <div className="flex gap-3">
+          <Button
+            onClick={() => setStep(1)}
+            className="w-1/2 h-12 bg-gray-200 text-black rounded-xl hover:bg-gray-300"
+          >
+            <ArrowRight className="w-4 ml-2" /> رجوع
+          </Button>
+          <Button
+            onClick={verifyCode}
+            className="w-1/2 h-12 bg-[var(--earth-brown)] text-white rounded-xl hover:bg-[var(--earth-brown-dark)]"
+          >
+            التالي <ArrowLeft className="w-4 mr-2" />
+          </Button>
+        </div>
+      </div>
+    )}
+
+    {/* STEP 3 */}
+    {step === 3 && (
+      <div className="mt-10 space-y-6">
+        <Label className="text-[var(--earth-brown)] font-medium">كلمة المرور الجديدة</Label>
+        <div className="relative">
           <Input
-            dir="ltr"
-            type="email"
-            value={email}
-            placeholder="example@mail.com"
-            onChange={(e) => setEmail(e.target.value)}
-            className="bg-white border-[var(--earth-sand)]"
+            type={showPw ? "text" : "password"}
+            value={newPw}
+            onChange={(e) => setNewPw(e.target.value)}
+            className="bg-white h-12 rounded-xl border-[var(--earth-sand)] pr-12"
           />
-          {errors.email && (
-            <p className="text-red-600 text-xs">{errors.email}</p>
-          )}
-
-          <div className="flex items-center justify-between mt-6">
-            <div className="w-1/2 pr-2">
-              <Button
-                className="w-full py-3 bg-gray-300 text-black rounded-xl"
-                onClick={onClose}
-              >
-                <ArrowRight className="w-4 ml-2" /> رجوع
-              </Button>
-            </div>
-            <div className="w-1/2 pl-2">
-              <Button
-                className="w-full py-3 bg-[var(--earth-brown)] text-white rounded-xl"
-                onClick={sendEmail}
-              >
-                التالي <ArrowLeft className="w-4 mr-2" />
-              </Button>
-            </div>
-          </div>
+          <button
+            className="absolute left-3 top-1/2 -translate-y-1/2"
+            onClick={() => setShowPw(!showPw)}
+          >
+            {showPw ? <EyeOff size={20} /> : <Eye size={20} />}
+          </button>
         </div>
-      )}
+        {errors.newPw && <p className="text-red-600 text-xs">{errors.newPw}</p>}
 
-      {/* STEP 2 */}
-      {step === 2 && (
-        <div className="w-full max-w-sm mt-10 space-y-8">
-          <p className="text-center text-[var(--earth-brown)]/70 text-sm">
-            أدخل رمز التحقق المرسل إلى بريدك الإلكتروني
-          </p>
-
-          <div dir="ltr" className="flex justify-center">
-            <InputOTP maxLength={6} value={code} onChange={setCode}>
-              <InputOTPGroup className="flex gap-3">
-                {[...Array(6)].map((_, i) => (
-                  <InputOTPSlot
-                    key={i}
-                    index={i}
-                    className="!w-12 !h-12 sm:!w-14 sm:!h-14 text-xl sm:text-2xl font-bold bg-white border border-[var(--earth-sand)] rounded-xl"
-                  />
-                ))}
-              </InputOTPGroup>
-            </InputOTP>
-          </div>
-
-          {errors.code && (
-            <p className="text-red-600 text-xs text-center">{errors.code}</p>
-          )}
-
-          {/* RESEND WITH COOLDOWN */}
-          <p className="text-center text-[var(--earth-brown)]/70 text-sm">
-            {cooldown > 0 ? (
-              <>إعادة الإرسال خلال <b>{cooldown}</b> ثانية</>
-            ) : (
-              <span
-                className="cursor-pointer text-[var(--earth-brown)] font-semibold hover:underline"
-                onClick={resendCode}
-              >
-                إعادة إرسال الرمز
-              </span>
-            )}
-          </p>
-
-          {/* BUTTONS */}
-          <div className="flex items-center justify-between">
-            <div className="w-1/2 pr-2">
-              <Button
-                className="w-full py-3 bg-gray-300 text-black rounded-xl"
-                onClick={() => setStep(1)}
-              >
-                <ArrowRight className="w-4 ml-2" /> رجوع
-              </Button>
-            </div>
-
-            <div className="w-1/2 pl-2">
-              <Button
-                className="w-full py-3 bg-[var(--earth-brown)] text-white rounded-xl"
-                onClick={verifyCode}
-              >
-                التالي <ArrowLeft className="w-4 mr-2" />
-              </Button>
-            </div>
-          </div>
+        <Label className="text-[var(--earth-brown)] font-medium">تأكيد كلمة المرور</Label>
+        <div className="relative">
+          <Input
+            type={showConfirm ? "text" : "password"}
+            value={confirmPw}
+            onChange={(e) => setConfirmPw(e.target.value)}
+            className="bg-white h-12 rounded-xl border-[var(--earth-sand)] pr-12"
+          />
+          <button
+            className="absolute left-3 top-1/2 -translate-y-1/2"
+            onClick={() => setShowConfirm(!showConfirm)}
+          >
+            {showConfirm ? <EyeOff size={20} /> : <Eye size={20} />}
+          </button>
         </div>
-      )}
+        {errors.confirmPw && <p className="text-red-600 text-xs">{errors.confirmPw}</p>}
 
-      {/* STEP 3 */}
-      {step === 3 && (
-        <div className="w-full max-w-sm mt-10 space-y-6">
-          {/* NEW PASSWORD */}
-          <Label className="text-[var(--earth-brown)]">كلمة المرور الجديدة</Label>
-          <div className="relative">
-            <Input
-              type={showPw ? "text" : "password"}
-              value={newPw}
-              onChange={(e) => setNewPw(e.target.value)}
-              className="bg-white border-[var(--earth-sand)] pr-12"
-            />
-            <button
-              className="absolute left-3 top-1/2 -translate-y-1/2"
-              onClick={() => setShowPw(!showPw)}
-            >
-              {showPw ? <EyeOff size={20} /> : <Eye size={20} />}
-            </button>
-          </div>
-
-          {errors.newPw && (
-            <p className="text-red-600 text-xs">{errors.newPw}</p>
-          )}
-
-          {/* CONFIRM PW */}
-          <Label className="text-[var(--earth-brown)]">تأكيد كلمة المرور</Label>
-          <div className="relative">
-            <Input
-              type={showConfirm ? "text" : "password"}
-              value={confirmPw}
-              onChange={(e) => setConfirmPw(e.target.value)}
-              className="bg-white border-[var(--earth-sand)] pr-12"
-            />
-            <button
-              className="absolute left-3 top-1/2 -translate-y-1/2"
-              onClick={() => setShowConfirm(!showConfirm)}
-            >
-              {showConfirm ? <EyeOff size={20} /> : <Eye size={20} />}
-            </button>
-          </div>
-
-          {errors.confirmPw && (
-            <p className="text-red-600 text-xs">{errors.confirmPw}</p>
-          )}
-
-          <div className="flex items-center justify-between mt-4">
-            <div className="w-1/2 pr-2">
-              <Button
-                className="w-full py-3 bg-gray-300 text-black rounded-xl"
-                onClick={() => setStep(2)}
-              >
-                <ArrowRight className="w-4 ml-2" /> رجوع
-              </Button>
-            </div>
-
-            <div className="w-1/2 pl-2">
-              <Button
-                className="w-full py-3 bg-[var(--earth-brown)] text-white rounded-xl"
-                onClick={savePassword}
-              >
-                حفظ <ArrowLeft className="w-4 mr-2" />
-              </Button>
-            </div>
-          </div>
+        <div className="flex gap-3 pt-4">
+          <Button
+            onClick={() => setStep(2)}
+            className="w-1/2 h-12 bg-gray-200 text-black rounded-xl hover:bg-gray-300"
+          >
+            <ArrowRight className="w-4 ml-2" /> رجوع
+          </Button>
+          <Button
+            onClick={savePassword}
+            className="w-1/2 h-12 bg-[var(--earth-brown)] text-white rounded-xl hover:bg-[var(--earth-brown-dark)]"
+          >
+            حفظ <ArrowLeft className="w-4 mr-2" />
+          </Button>
         </div>
-      )}
-    </div>
+      </div>
+    )}
+  </div>
+</div>
+
   );
 }
