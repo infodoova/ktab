@@ -22,8 +22,9 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
-
+import { getUserData } from "../../../../../store/authToken";
 import ktabLogo from "../../../../assets/logo/logo.png";
+
 
 const navLinks = [
   { label: " لوحة التحكم", icon: BookOpen, href: "../../../Screens/dashboard/AuthorPages/controlBoard" },
@@ -38,15 +39,16 @@ const navLinks = [
 
 const SidebarContent = ({ collapsed, onToggle }) => {
   const navigate = useNavigate();
+  
+
+  const userData = getUserData() || {}; 
 
   return (
     <div className="flex flex-col h-full rtl bg-[#f7f4ef] border-l border-[var(--earth-sand)]/40">
 
       {!collapsed ? (
-             <div className="h-16 flex items-center justify-center px-4 border-b">
-
+        <div className="h-16 flex items-center justify-center px-4 border-b">
           <img src={ktabLogo} className="h-30 w-auto object-contain" alt="Logo" />
-
           <button
             onClick={onToggle}
             className="h-9 w-9 rounded-full bg-[var(--earth-paper)] hover:bg-[var(--earth-sand)]/40 shadow flex items-center justify-center"
@@ -56,7 +58,6 @@ const SidebarContent = ({ collapsed, onToggle }) => {
         </div>
       ) : (
         <div className="h-16 flex items-center justify-center px-4 border-b">
-
           <button
             onClick={onToggle}
             className="h-9 w-9 rounded-full bg-[var(--earth-paper)] hover:bg-[var(--earth-sand)]/40 shadow flex items-center justify-center"
@@ -105,12 +106,14 @@ const SidebarContent = ({ collapsed, onToggle }) => {
         )}
       >
         <div className="h-11 w-11 rounded-full bg-[var(--earth-olive)]/30 border border-[var(--earth-brown)]/20 text-[var(--earth-brown)] flex items-center justify-center font-bold text-lg">
-          أ
+          {/* Optional: Display first letter if available */}
+          {userData.firstName ? userData.firstName[0] : 'أ'}
         </div>
 
         {!collapsed && (
           <div className="flex flex-col text-[var(--earth-brown)] ">
-            <span className="font-semibold text-sm">أحمد علي</span>
+             {/* Optional chaining helps safety: userData?.firstName */}
+            <span className="font-semibold text-sm">{userData.firstName || 'User'} {userData.lastName || ''} </span>
             <span className="text-xs opacity-70">مؤلف</span>
           </div>
         )}

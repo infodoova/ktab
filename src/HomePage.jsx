@@ -7,7 +7,6 @@ import RolesSection from './components/myui/HomePage/roles'
 import Footer from './components/myui/HomePage/footer'
 import FAQ from './components/myui/HomePage/FAQ'
 const HomePage = () => {
-
   return (
     <>
   <Navbar/>

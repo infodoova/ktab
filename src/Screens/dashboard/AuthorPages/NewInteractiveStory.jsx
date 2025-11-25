@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import Navbar from "../../components/myui/Users/navbar";
-import PageHeader from "../../components/myui/Users/sideHeader";
+import Navbar from "../../../components/myui/Users/AuthorPages/navbar";
+import PageHeader from "../../../components/myui/Users/AuthorPages/sideHeader";
 
 function InterActiveStory({ pageName = "     قصة تفاعلية جديدة " }) {
   const [collapsed, setCollapsed] = useState(false);

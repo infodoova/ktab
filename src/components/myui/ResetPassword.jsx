@@ -1,30 +1,66 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
-import { Eye, EyeOff, X } from "lucide-react";
-import { postHelper } from "../../../apis/apiHelpers"; // Ensure postHelper is correctly imported
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
+import { Eye, EyeOff, X, ArrowRight, ArrowLeft } from "lucide-react";
+import { AlertToast } from "./AlertToast"; // Adjust path as needed
 
 export default function ResetPassword({ onClose }) {
   const [step, setStep] = useState(1);
+
+  // Form States
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [newPw, setNewPw] = useState("");
   const [confirmPw, setConfirmPw] = useState("");
+
+  // UI States
   const [showPw, setShowPw] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [errors, setErrors] = useState({});
+  const [cooldown, setCooldown] = useState(0);
 
-  // Password regex
-  const passwordRegex =
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+  // Toast State
+  const [toastState, setToastState] = useState({
+    open: false,
+    variant: "info", // 'success', 'error', 'info'
+    title: "",
+    description: "",
+  });
 
-  // Email regex
-  const emailRegex =
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  // Helper to show toast
+  const showToast = (variant, title, description) => {
+    setToastState({
+      open: true,
+      variant,
+      title,
+      description,
+    });
+  };
 
-  // Step 1 - Send Email
+  // Close toast handler
+  const handleCloseToast = () => {
+    setToastState((prev) => ({ ...prev, open: false }));
+  };
+
+  useEffect(() => {
+    if (cooldown > 0) {
+      const timer = setTimeout(() => setCooldown((c) => c - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [cooldown]);
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+
+  // -------------------------------
+  // STEP 1 — Send Email (Fetch)
+  // -------------------------------
   const sendEmail = async () => {
     const e = {};
 
@@ -38,71 +74,128 @@ export default function ResetPassword({ onClose }) {
 
     setErrors({});
 
-    // Send reset password code to email
     try {
-      const res = await postHelper({
-        url: `${import.meta.env.VITE_API_URL}/auth/send-reset`,
-        body: { email },
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/auth/send-reset`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ email }),
+        }
+      );
 
-      if (!res.success) {
-        setErrors({ email: "تعذر إرسال رمز إعادة تعيين كلمة المرور" });
+      const data = await response.json();
+
+      if (!data.success) {
+        // ERROR TOAST
+        showToast("error", "فشل الإرسال", "تعذر إرسال رمز إعادة تعيين كلمة المرور");
         return;
       }
 
       setStep(2);
-    } catch (err) {
-      setErrors({ email: "حدث خطأ أثناء إرسال البريد الإلكتروني",err });
+      setCooldown(15); // Start cooldown
+      // OPTIONAL INFO TOAST
+      showToast("success", "تم الإرسال", "تحقق من بريدك الإلكتروني للحصول على الرمز");
+
+    } catch {
+      showToast("error", "خطأ في الاتصال", "تعذر الاتصال بالخادم، يرجى المحاولة لاحقاً");
     }
   };
 
-  // Step 2 - Verify Code
+  // -------------------------------
+  // STEP 2 — Verify Code
+  // -------------------------------
   const verifyCode = async () => {
+    if (code.length < 6) {
+      setErrors({ code: "الرمز غير مكتمل" });
+      showToast("error", "الرمز غير صالح", "يرجى إدخال الرمز المكون من 6 أرقام بالكامل");
+      return;
+    }
 
-          setStep(3);
-
+    setErrors({});
+    setStep(3);
   };
 
-  // Step 3 - Save New Password
+  // -------------------------------
+  // STEP 3 — Save New Password (Fetch)
+  // -------------------------------
   const savePassword = async () => {
     const e = {};
 
     if (!newPw) e.newPw = "كلمة المرور مطلوبة";
     else if (!passwordRegex.test(newPw))
-      e.newPw =
-        "يجب أن تحتوي على 8 أحرف على الأقل، حرف كبير، حرف صغير، رقم ورمز.";
+      e.newPw = "يجب أن تحتوي على 8 أحرف على الأقل، حرف كبير، حرف صغير، رقم ورمز.";
 
     if (!confirmPw) e.confirmPw = "يرجى تأكيد كلمة المرور";
     else if (newPw !== confirmPw) e.confirmPw = "كلمتا المرور غير متطابقتين";
 
     if (Object.keys(e).length) {
       setErrors(e);
+      showToast("error", "خطأ في البيانات", "يرجى التأكد من صحة البيانات المدخلة");
       return;
     }
 
     try {
-      const res = await postHelper({
-        url: `${import.meta.env.VITE_API_URL}/auth/reset-password`,
-        body: { email, code, newPassword: newPw },
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/auth/reset-password`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            email,
+            code,
+            newPassword: newPw,
+          }),
+        }
+      );
 
-      if (!res.success) {
-        setErrors({ newPw: "حدث خطأ أثناء تغيير كلمة المرور" });
+      const data = await response.json();
+
+      if (!data.success) {
+        showToast("error", "فشل التغيير", "حدث خطأ أثناء تغيير كلمة المرور، حاول مرة أخرى");
         return;
       }
 
-      alert("تم تغيير كلمة المرور بنجاح");
-      onClose?.();
-    } catch (err) {
-      setErrors({ newPw: "حدث خطأ أثناء تغيير كلمة المرور" ,err});
+      // SUCCESS TOAST
+      showToast("success", "تم بنجاح", "تم تغيير كلمة المرور بنجاح");
+      
+      // Delay close slightly so user sees the toast
+      setTimeout(() => {
+        onClose?.();
+      }, 2000);
+
+    } catch {
+      showToast("error", "خطأ في النظام", "لم يتم حفظ كلمة المرور بسبب مشكلة في الاتصال");
     }
   };
 
+  // -------------------------------
+  // FAKE RESEND WITH COOLDOWN
+  // -------------------------------
+  const resendCode = () => {
+    if (cooldown > 0) return;
+    setCooldown(15);
+    showToast("info", "إعادة إرسال", "تم إرسال رمز جديد إلى بريدك الإلكتروني");
+  };
+
+  // -------------------------------
+  // UI
+  // -------------------------------
   return (
     <div
       dir="rtl"
       className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[var(--earth-cream)] px-6 py-10"
     >
+      <AlertToast
+        open={toastState.open}
+        variant={toastState.variant}
+        title={toastState.title}
+        description={toastState.description}
+        onClose={handleCloseToast}
+      />
+
       {onClose && (
         <button
           className="absolute left-4 top-4 text-[var(--earth-brown)]/60 hover:text-[var(--earth-brown)]"
@@ -112,117 +205,174 @@ export default function ResetPassword({ onClose }) {
         </button>
       )}
 
-      {/* TITLE */}
+      {/* MAIN TITLE */}
       <h1 className="text-[var(--earth-brown-dark)] text-3xl font-extrabold mb-2 text-center">
         إعادة تعيين كلمة المرور
       </h1>
 
-      {/* ========================= STEP 1 ========================= */}
+      {/* STEP 1 */}
       {step === 1 && (
         <div className="w-full max-w-sm mt-6 space-y-6">
-          <div className="space-y-2">
-            <Label className="text-[var(--earth-brown)] font-medium">البريد الإلكتروني</Label>
-            <Input
-              dir="ltr"
-              type="email"
-              value={email}
-              placeholder="example@mail.com"
-              onChange={(e) => setEmail(e.target.value)}
-              className="bg-white border-[var(--earth-sand)]"
-            />
-            {errors.email && <p className="text-red-600 text-xs">{errors.email}</p>}
-          </div>
+          <Label className="text-[var(--earth-brown)]">البريد الإلكتروني</Label>
+          <Input
+            dir="ltr"
+            type="email"
+            value={email}
+            placeholder="example@mail.com"
+            onChange={(e) => setEmail(e.target.value)}
+            className="bg-white border-[var(--earth-sand)]"
+          />
+          {errors.email && (
+            <p className="text-red-600 text-xs">{errors.email}</p>
+          )}
 
-          <Button
-            className="w-full py-3 text-lg bg-[var(--earth-brown)] text-white rounded-xl"
-            onClick={sendEmail}
-          >
-            إرسال الرمز
-          </Button>
+          <div className="flex items-center justify-between mt-6">
+            <div className="w-1/2 pr-2">
+              <Button
+                className="w-full py-3 bg-gray-300 text-black rounded-xl"
+                onClick={onClose}
+              >
+                <ArrowRight className="w-4 ml-2" /> رجوع
+              </Button>
+            </div>
+            <div className="w-1/2 pl-2">
+              <Button
+                className="w-full py-3 bg-[var(--earth-brown)] text-white rounded-xl"
+                onClick={sendEmail}
+              >
+                التالي <ArrowLeft className="w-4 mr-2" />
+              </Button>
+            </div>
+          </div>
         </div>
       )}
 
-      {/* ========================= STEP 2 ========================= */}
+      {/* STEP 2 */}
       {step === 2 && (
-        <div className="w-full max-w-sm mt-8 space-y-8">
+        <div className="w-full max-w-sm mt-10 space-y-8">
           <p className="text-center text-[var(--earth-brown)]/70 text-sm">
-            أدخل الرمز المرسل إلى بريدك الإلكتروني.
+            أدخل رمز التحقق المرسل إلى بريدك الإلكتروني
           </p>
 
           <div dir="ltr" className="flex justify-center">
             <InputOTP maxLength={6} value={code} onChange={setCode}>
               <InputOTPGroup className="flex gap-3">
-                {[0, 1, 2, 3, 4, 5].map((i) => (
+                {[...Array(6)].map((_, i) => (
                   <InputOTPSlot
                     key={i}
                     index={i}
-                    className="!w-12 !h-12 sm:!w-14 sm:!h-14 text-xl sm:text-2xl font-bold bg-white border border-[var(--earth-sand)] rounded-xl shadow-sm"
+                    className="!w-12 !h-12 sm:!w-14 sm:!h-14 text-xl sm:text-2xl font-bold bg-white border border-[var(--earth-sand)] rounded-xl"
                   />
                 ))}
               </InputOTPGroup>
             </InputOTP>
           </div>
 
-          {errors.code && <p className="text-red-600 text-xs text-center">{errors.code}</p>}
+          {errors.code && (
+            <p className="text-red-600 text-xs text-center">{errors.code}</p>
+          )}
 
-          <Button
-            className="w-full py-3 bg-[var(--earth-brown)] text-white rounded-xl"
-            onClick={verifyCode}
-          >
-            تحقق من الرمز
-          </Button>
+          {/* RESEND WITH COOLDOWN */}
+          <p className="text-center text-[var(--earth-brown)]/70 text-sm">
+            {cooldown > 0 ? (
+              <>إعادة الإرسال خلال <b>{cooldown}</b> ثانية</>
+            ) : (
+              <span
+                className="cursor-pointer text-[var(--earth-brown)] font-semibold hover:underline"
+                onClick={resendCode}
+              >
+                إعادة إرسال الرمز
+              </span>
+            )}
+          </p>
+
+          {/* BUTTONS */}
+          <div className="flex items-center justify-between">
+            <div className="w-1/2 pr-2">
+              <Button
+                className="w-full py-3 bg-gray-300 text-black rounded-xl"
+                onClick={() => setStep(1)}
+              >
+                <ArrowRight className="w-4 ml-2" /> رجوع
+              </Button>
+            </div>
+
+            <div className="w-1/2 pl-2">
+              <Button
+                className="w-full py-3 bg-[var(--earth-brown)] text-white rounded-xl"
+                onClick={verifyCode}
+              >
+                التالي <ArrowLeft className="w-4 mr-2" />
+              </Button>
+            </div>
+          </div>
         </div>
       )}
 
-      {/* ========================= STEP 3 ========================= */}
+      {/* STEP 3 */}
       {step === 3 && (
-        <div className="w-full max-w-sm mt-8 space-y-6">
+        <div className="w-full max-w-sm mt-10 space-y-6">
           {/* NEW PASSWORD */}
-          <div className="space-y-1">
-            <Label className="text-[var(--earth-brown)]">كلمة المرور الجديدة</Label>
-            <div className="relative">
-              <Input
-                type={showPw ? "text" : "password"}
-                value={newPw}
-                onChange={(e) => setNewPw(e.target.value)}
-                className="bg-white border-[var(--earth-sand)] pr-12"
-              />
-              <button
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--earth-brown)]/70"
-                onClick={() => setShowPw(!showPw)}
-              >
-                {showPw ? <EyeOff size={20} /> : <Eye size={20} />}
-              </button>
-            </div>
-            {errors.newPw && <p className="text-red-600 text-xs">{errors.newPw}</p>}
+          <Label className="text-[var(--earth-brown)]">كلمة المرور الجديدة</Label>
+          <div className="relative">
+            <Input
+              type={showPw ? "text" : "password"}
+              value={newPw}
+              onChange={(e) => setNewPw(e.target.value)}
+              className="bg-white border-[var(--earth-sand)] pr-12"
+            />
+            <button
+              className="absolute left-3 top-1/2 -translate-y-1/2"
+              onClick={() => setShowPw(!showPw)}
+            >
+              {showPw ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
           </div>
 
-          {/* CONFIRM PASSWORD */}
-          <div className="space-y-1">
-            <Label className="text-[var(--earth-brown)]">تأكيد كلمة المرور</Label>
-            <div className="relative">
-              <Input
-                type={showConfirm ? "text" : "password"}
-                value={confirmPw}
-                onChange={(e) => setConfirmPw(e.target.value)}
-                className="bg-white border-[var(--earth-sand)] pr-12"
-              />
-              <button
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--earth-brown)]/70"
-                onClick={() => setShowConfirm(!showConfirm)}
-              >
-                {showConfirm ? <EyeOff size={20} /> : <Eye size={20} />}
-              </button>
-            </div>
-            {errors.confirmPw && <p className="text-red-600 text-xs">{errors.confirmPw}</p>}
+          {errors.newPw && (
+            <p className="text-red-600 text-xs">{errors.newPw}</p>
+          )}
+
+          {/* CONFIRM PW */}
+          <Label className="text-[var(--earth-brown)]">تأكيد كلمة المرور</Label>
+          <div className="relative">
+            <Input
+              type={showConfirm ? "text" : "password"}
+              value={confirmPw}
+              onChange={(e) => setConfirmPw(e.target.value)}
+              className="bg-white border-[var(--earth-sand)] pr-12"
+            />
+            <button
+              className="absolute left-3 top-1/2 -translate-y-1/2"
+              onClick={() => setShowConfirm(!showConfirm)}
+            >
+              {showConfirm ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
           </div>
 
-          <Button
-            className="w-full py-3 bg-[var(--earth-brown)] text-white rounded-xl"
-            onClick={savePassword}
-          >
-            حفظ كلمة المرور الجديدة
-          </Button>
+          {errors.confirmPw && (
+            <p className="text-red-600 text-xs">{errors.confirmPw}</p>
+          )}
+
+          <div className="flex items-center justify-between mt-4">
+            <div className="w-1/2 pr-2">
+              <Button
+                className="w-full py-3 bg-gray-300 text-black rounded-xl"
+                onClick={() => setStep(2)}
+              >
+                <ArrowRight className="w-4 ml-2" /> رجوع
+              </Button>
+            </div>
+
+            <div className="w-1/2 pl-2">
+              <Button
+                className="w-full py-3 bg-[var(--earth-brown)] text-white rounded-xl"
+                onClick={savePassword}
+              >
+                حفظ <ArrowLeft className="w-4 mr-2" />
+              </Button>
+            </div>
+          </div>
         </div>
       )}
     </div>

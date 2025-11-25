@@ -6,7 +6,6 @@ import {
 } from "@/components/ui/input-otp";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
-import { postHelper } from "../../../apis/apiHelpers";
 import { AlertToast } from "../myui/AlertToast";
 import { useNavigate } from "react-router-dom";
 
@@ -46,32 +45,47 @@ export default function CodeVerify({ email, onClose }) {
   };
 
   // Submit handler
-  const handleVerify = async () => {
-    if (code.length < 6) return;
+const handleVerify = async () => {
+  if (code.length < 6) return;
 
-    setLoading(true);
+  setLoading(true);
 
-    try {
-      const res = await postHelper({
-        url: `${import.meta.env.VITE_API_URL}/auth/verify`,
-        body: { email, code },
-      });
-
-      if (!res.success) {
-        showToast("error", "رمز غير صحيح", res.message || "يرجى المحاولة مجدداً.");
-        return;
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/auth/verify`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, code }),
       }
+    );
 
-      showToast("success", "تم التحقق", "يمكنك الآن تسجيل الدخول.");
+    const data = await response.json();
+    console.log("VERIFY RESPONSE =", data);
 
-      setTimeout(() => navigate("/Screens/auth/login"), 1200);
-
-    } catch  {
-      showToast("error", "خطأ", "تعذر الاتصال بالخادم.");
-    } finally {
-      setLoading(false);
+    if (!data.success) {
+      showToast(
+        "error",
+        "رمز غير صحيح",
+        data.message || "يرجى المحاولة مجدداً."
+      );
+      return;
     }
-  };
+
+    showToast("success", "تم التحقق", "يمكنك الآن تسجيل الدخول.");
+
+    setTimeout(() => navigate("/Screens/auth/login"), 1000);
+
+  } catch (error) {
+    console.error(error);
+    showToast("error", "خطأ", "تعذر الاتصال بالخادم.");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div

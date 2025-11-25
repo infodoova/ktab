@@ -1,19 +1,22 @@
 import React, { useEffect, useState } from "react";
-import Navbar from "../../components/myui/Users/navbar";
-import PageHeader from "../../components/myui/Users/sideHeader";
-import SkeletonLoader from "../../components/myui/Users/ControlBoard/skeletonLoader";
-import { AlertToast } from "../../components/myui/AlertToast";
+import Navbar from "../../../components/myui/Users/AuthorPages/navbar";
+import PageHeader from "../../../components/myui/Users/AuthorPages/sideHeader";
+import SkeletonLoader from "../../../components/myui/Users/AuthorPages/ControlBoard/skeletonLoader";
+import { AlertToast } from "../../../components/myui/AlertToast";
 import {
   getDashboardStats,
   getBooks,
-} from "../../../apis/pageHelpers/controlBoardHelper";
+} from "../../../../apis/pageHelpers/controlBoardHelper";
 
-// Imported Sub-Components
-import CardStates from "../../components/myui/Users/ControlBoard/CardStates";
-import BooksList from "../../components/myui/Users/ControlBoard/BooksList";
+import CardStates from "../../../components/myui/Users/AuthorPages/ControlBoard/CardStates";
+import BooksList from "../../../components/myui/Users/AuthorPages/ControlBoard/BooksList";
+import {  useNavigate } from "react-router-dom";
+
+
 
 function ControlBoard({ pageName = "لوحة التحكم" }) {
-  // Layout State
+  const navigate = useNavigate();
+
   const [collapsed, setCollapsed] = useState(false);
   
   // Data State
@@ -32,7 +35,6 @@ function ControlBoard({ pageName = "لوحة التحكم" }) {
     description: "",
   });
 
-  const role = "all";
 
   const handleCloseToast = () => {
     setToast((prev) => ({ ...prev, open: false }));
@@ -48,8 +50,8 @@ function ControlBoard({ pageName = "لوحة التحكم" }) {
         else setLoadingMore(true);
 
         const [statsRes, booksRes] = await Promise.all([
-          getDashboardStats(role),
-          getBooks(role, page, 10),
+          getDashboardStats(),
+          getBooks(page, 10),
         ]);
 
         if (!isMounted) return;
@@ -92,13 +94,7 @@ function ControlBoard({ pageName = "لوحة التحكم" }) {
   }, [page]);
 
   const handleButtonPress = () => {
-    console.log("Button pressed");
-    setToast({
-      open: true,
-      variant: "success",
-      title: "تم الإجراء",
-      description: "تم الضغط على الزر بنجاح (رسالة تجريبية).",
-    });
+navigate('/Screens/dashboard/AuthorPages/newBookPublish');
   };
 
   return (
@@ -120,14 +116,12 @@ function ControlBoard({ pageName = "لوحة التحكم" }) {
       >
         <main className="flex-1 flex flex-col w-full">
           
-          {/* ✅ FIX: PageHeader is now a direct child of main (No wrapper div) */}
           <PageHeader
             mainTitle={pageName}
             buttonTitle={"رفع كتاب جديد"}
             onPress={handleButtonPress}
           />
 
-          {/* CONTENT CONTAINER */}
           <div className="px-4 md:px-10 py-10 max-w-7xl mx-auto w-full">
             {loading ? (
               <SkeletonLoader />

@@ -10,7 +10,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { AlertToast } from "../../components/myui/AlertToast"; 
 import owlLogin from "../../assets/character/owl4.png";
-import { postHelper } from "../../../apis/apiHelpers";
 import { saveToken } from "../../../store/authToken";
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -53,54 +52,50 @@ const handleSubmit = async () => {
   setLoading(true);
 
   try {
-    const res = await postHelper({
-      url: `${import.meta.env.VITE_API_URL}/auth/login`,
-      body: {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
         email,
         password,
-      },
+      }),
     });
 
-    console.log("LOGIN RESPONSE =", res);
+    const data = await res.json();
+    console.log("LOGIN RESPONSE =", data);
 
-    // Backend returned an error
-    if (!res.success) {
+    if (!data.success) {
       showToast(
         "error",
         "خطأ في تسجيل الدخول",
-        res.message || "البريد الإلكتروني أو كلمة المرور غير صحيحة."
+        data.message || "البريد الإلكتروني أو كلمة المرور غير صحيحة."
       );
       return;
     }
 
-    // If token not returned → backend issue
-    if (!res.data) {
-      showToast(
-        "error",
-        "خطأ",
-        "لم يتم استلام رمز الدخول من الخادم."
-      );
+    if (!data.data) {
+      showToast("error", "خطأ", "لم يتم استلام رمز الدخول من الخادم.");
       return;
     }
 
-    // Save token
-    saveToken(res.data);
+    saveToken(data.data);
 
-    // Success toast
     showToast("success", "تم تسجيل الدخول", "مرحباً بعودتك!");
 
-    // Redirect after a short delay
     setTimeout(() => {
-      navigate("/Screens/dashboard/AuthorPages/controlBoard"); // change to your home page
+      navigate("/Screens/dashboard/AuthorPages/controlBoard");
     }, 900);
 
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    console.error(error);
     showToast("error", "خطأ", "تعذر الاتصال بالخادم.");
   } finally {
     setLoading(false);
   }
 };
+
 
   return (
     <>

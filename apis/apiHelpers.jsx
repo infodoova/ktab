@@ -1,88 +1,51 @@
+// use only for tokenized request . it could damage if used in not tokenized once 
+import { apiFetch } from "./ApiFetchInterceptor";
+
 const defaultHeaders = {
   "Content-Type": "application/json",
-  "ngrok-skip-browser-warning": "true",
+   "ngrok-skip-browser-warning": "true",
 };
 
-// Build headers
-function buildHeaders(customHeaders = {}) {
-  return {
-    ...defaultHeaders,
-    ...customHeaders,
-  };
+function buildHeaders(custom = {}) {
+  return { ...defaultHeaders, ...custom };
 }
 
-// Build pagination
 function buildQuery(pagination, page, size) {
   if (!pagination) return "";
-  const p = page || 1;
-  const s = size || 10;
-  return `?page=${p}&size=${s}`;
+  return `?page=${page || 1}&size=${size || 10}`;
 }
 
-// --------------- GET -----------------
-export async function getHelper({
-  url,
-  headers = {},
-  pagination = false,
-  page = 1,
-  size = 10,
-}) {
-  const finalHeaders = buildHeaders(headers);
+export async function getHelper({ url, headers = {}, pagination, page, size }) {
   const query = buildQuery(pagination, page, size);
-
-  const res = await fetch(url + query, {
+  const res = await apiFetch(url + query, {
     method: "GET",
-    headers: finalHeaders,
+    headers: buildHeaders(headers),
   });
-
   return res.json();
 }
 
-// --------------- POST -----------------
-export async function postHelper({
-  url,
-  body = {},
-  headers = {},
-}) {
-  const finalHeaders = buildHeaders(headers);
-
-  const res = await fetch(url, {
+export async function postHelper({ url, body, headers = {} }) {
+  const res = await apiFetch(url, {
     method: "POST",
-    headers: finalHeaders,
+    headers: buildHeaders(headers),
     body: JSON.stringify(body),
   });
-
   return res.json();
 }
 
-// --------------- PUT -----------------
-export async function putHelper({
-  url,
-  body = {},
-  headers = {},
-}) {
-  const finalHeaders = buildHeaders(headers);
-
-  const res = await fetch(url, {
+export async function putHelper({ url, body, headers = {} }) {
+  const res = await apiFetch(url, {
     method: "PUT",
-    headers: finalHeaders,
+    headers: buildHeaders(headers),
     body: JSON.stringify(body),
   });
-
   return res.json();
 }
 
-// --------------- DELETE -----------------
-export async function deleteHelper({
-  url,
-  headers = {},
-}) {
-  const finalHeaders = buildHeaders(headers);
-
-  const res = await fetch(url, {
+export async function deleteHelper({ url, headers = {} }) {
+  const res = await apiFetch(url, {
     method: "DELETE",
-    headers: finalHeaders,
+    headers: buildHeaders(headers),
   });
-
   return res.json();
 }

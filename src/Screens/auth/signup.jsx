@@ -17,9 +17,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Eye, EyeOff } from "lucide-react";
 import CodeVerify from "@/components/myui/CodeVerify";
 import owlSignup from "../../assets/character/owl5.png";
-import { postHelper } from "../../../apis/apiHelpers";
-import { AlertToast } from "../../components/myui/AlertToast";
-import { useNavigate } from "react-router-dom";
 
 export default function SignupPage() {
   const [verifyOpen, setVerifyOpen] = useState(false);
@@ -37,7 +34,6 @@ export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [errors, setErrors] = useState({});
-const navigate = useNavigate();
 
 const [toast, setToast] = useState({
   open: false,
@@ -81,43 +77,47 @@ function showToast(variant, title, description) {
     return Object.keys(e).length === 0;
   };
 
- const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
   e.preventDefault();
   if (!validate()) return;
 
   setLoading(true);
 
   try {
-    const res = await postHelper({
-      url: `${import.meta.env.VITE_API_URL}/auth/register`,
-      body: {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
         firstName: form.firstName,
         middleName: form.middleName,
         lastName: form.lastName,
         email: form.email,
         password: form.password,
         role: form.role,
-      },
+      }),
     });
 
-    console.log("REGISTER RESPONSE =", res);
+    const data = await response.json();
+    console.log("REGISTER RESPONSE =", data);
 
-    if (!res.success) {
-      showToast("error", "خطأ", res.message || "حدث خطأ غير متوقع");
+    if (!data.success) {
+      showToast("error", "خطأ", data.message || "حدث خطأ غير متوقع");
       return;
     }
 
-    // Success → open code verify  
     setVerifyOpen(true);
-    showToast("success", "تم إنشاء الحساب", "يرجى إدخال رمز التحقق.");
+    showToast("success", "تم إنشاء الحساب", "تم إرسال رمز التحقق.");
 
   } catch (err) {
-    console.log(err);
+    console.error(err);
     showToast("error", "خطأ", "تعذر الاتصال بالخادم");
   } finally {
     setLoading(false);
   }
 };
+
 
   return (
     <div

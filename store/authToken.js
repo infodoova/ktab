@@ -48,22 +48,13 @@ export function getDecodedToken() {
   return parseJwt(t);
 }
 
-export function getUserFullName() {
+export function getUserData() {
   const payload = getDecodedToken();
   if (!payload) return null;
 
-  const first =
-    payload.firstName ||
-    payload.firstname ||
-    payload.given_name;
-
-  const last =
-    payload.lastName ||
-    payload.lastname ||
-    payload.family_name;
-
-  if (first && last) return `${first} ${last}`;
-  if (first) return first;
-  if (last) return last;
-  return null;
+  return {
+    firstName: payload.firstName ,
+    lastName: payload.lastName ,
+    role: payload.role
+  };
 }
