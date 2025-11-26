@@ -11,6 +11,7 @@ const links = [
   { label: "رحلة لكل الأعمار", target: "for-all-ages" },
   { label: "الأدوار", target: "roles" },
   { label: "ما هو كُتّاب؟", target: "what-about" },
+  {label: "لماذا نثق بكتاب", target:"trusted-section"},
   { label: "الأسعار", target: "pricing" },
   { label: "الاسئلة الشائعة", target: "FAQ" },
 ];
@@ -19,6 +20,7 @@ export default function Navbar() {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobileLike, setIsMobileLike] = useState(false);
   const scrollTimeout = useRef(null);
 
   const collapsedWidth = "120px";
@@ -45,6 +47,15 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [open]);
 
+  // Treat tablets as mobile within this component only (<= 1024px)
+  useEffect(() => {
+    const mq = window.matchMedia(`(max-width: 1024px)`);
+    const update = () => setIsMobileLike(mq.matches);
+    update();
+    mq.addEventListener?.("change", update);
+    return () => mq.removeEventListener?.("change", update);
+  }, []);
+
   return (
     <motion.header
       dir="rtl"
@@ -62,43 +73,33 @@ export default function Navbar() {
       "
       style={{ maxWidth: isCollapsed ? collapsedWidth : "1400px" }}
     >
-      {/* 📌 MOBILE LOGIN BUTTON ON THE LEFT */}
-      {!isCollapsed && (
+      {/* 📌 MOBILE/TABLET LOGIN BUTTON ON THE LEFT */}
+      {!isCollapsed && isMobileLike && (
         <Button
           onClick={() => navigate("/Screens/auth/login")}
-          className="
-            md:hidden absolute left-3 
-            bg-[var(--earth-brown)] text-white
-            rounded-full px-4 py-2 text-sm
-          "
+          className="absolute left-3 bg-[var(--earth-brown)] text-white rounded-full px-4 py-2 text-sm"
         >
           تسجيل دخول
         </Button>
       )}
 
-      {/* 📌 MOBILE HAMBURGER ON THE RIGHT */}
-      {!isCollapsed && (
+      {/* 📌 MOBILE/TABLET HAMBURGER ON THE RIGHT */}
+      {!isCollapsed && isMobileLike && (
         <button
           onClick={() => setOpen(!open)}
-          className="
-            md:hidden absolute right-3 p-2 rounded-full
-            text-[var(--earth-brown)]
-            hover:bg-[var(--earth-brown)]/10
-          "
+          className="absolute right-3 p-2 rounded-full text-[var(--earth-brown)] hover:bg-[var(--earth-brown)]/10"
         >
           {open ? <X size={24} /> : <Menu size={24} />}
         </button>
       )}
 
       {/* 📌 DESKTOP LOGO */}
-      <div
-        className={`
-          hidden md:flex h-full items-center justify-center cursor-pointer overflow-visible
-          ${isCollapsed ? "absolute inset-0" : "absolute right-6"}
-        `}
-        style={{ width: isCollapsed ? "100%" : "auto" }}
-        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-      >
+      {!isMobileLike && (
+        <div
+          className={`h-full items-center justify-center cursor-pointer overflow-visible ${isCollapsed ? "absolute inset-0" : "absolute right-6"}`}
+          style={{ width: isCollapsed ? "100%" : "auto" }}
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+        >
         <img
           src={logo}
           alt="logo"
@@ -111,17 +112,16 @@ export default function Navbar() {
             }
           `}
         />
-      </div>
+        </div>
+      )}
 
-      {/* 📌 MOBILE LOGO */}
-      <div
-        className="
-          md:hidden flex items-center justify-center cursor-pointer h-full
-          absolute left-1/2 -translate-x-1/2 overflow-visible
-        "
-        style={{ width: "70%" }} // ✅ more width so it feels bigger
-        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-      >
+      {/* 📌 MOBILE/TABLET LOGO */}
+      {isMobileLike && (
+        <div
+          className="flex items-center justify-center cursor-pointer h-full absolute left-1/2 -translate-x-1/2 overflow-visible"
+          style={{ width: "70%" }}
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+        >
         <img
           src={logo}
           alt="logo"
@@ -134,20 +134,17 @@ export default function Navbar() {
             }
           `}
         />
-      </div>
+        </div>
+      )}
 
       {/* DESKTOP LINKS */}
-      {!isCollapsed && (
-        <nav className="hidden md:flex gap-3 absolute left-1/2 -translate-x-1/2">
+      {!isCollapsed && !isMobileLike && (
+        <nav className="flex gap-2 absolute left-1/2 -translate-x-1/2">
           {links.map((link) => (
             <button
               key={link.target}
               onClick={() => scrollToSection(link.target)}
-              className="
-                text-[var(--earth-brown)] font-semibold text-[15px]
-                px-3 py-1.5 rounded-full hover:bg-[var(--earth-brown)]/10
-                transition whitespace-nowrap
-              "
+              className="text-[var(--earth-brown)] font-semibold text-[15px] px-3 py-1.5 rounded-full hover:bg-[var(--earth-brown)]/10 transition whitespace-nowrap"
             >
               {link.label}
             </button>
@@ -156,13 +153,10 @@ export default function Navbar() {
       )}
 
       {/* DESKTOP BUTTONS */}
-      {!isCollapsed && (
-        <div className="hidden md:flex absolute left-6 gap-2 items-center">
+      {!isCollapsed && !isMobileLike && (
+        <div className="absolute left-6 gap-2 items-center flex">
           <Button
-            className="
-              rounded-full bg-[var(--earth-brown)] text-white 
-              px-6 h-10 hover:bg-[var(--earth-olive)]
-            "
+            className="rounded-full bg-[var(--earth-brown)] text-white px-6 h-10 hover:bg-[var(--earth-olive)]"
             onClick={() => navigate("/Screens/auth/signup")}
           >
             تسجيل حساب
@@ -170,11 +164,7 @@ export default function Navbar() {
 
           <Button
             variant="outline"
-            className="
-              rounded-full border-[var(--earth-brown)]
-              text-[var(--earth-brown)] h-10 px-6
-              hover:bg-[var(--earth-brown)] hover:text-white
-            "
+            className="rounded-full border-[var(--earth-brown)] text-[var(--earth-brown)] h-10 px-6 hover:bg-[var(--earth-brown)] hover:text-white"
             onClick={() => navigate("/Screens/auth/login")}
           >
             تسجيل دخول
@@ -184,16 +174,12 @@ export default function Navbar() {
 
       {/* MOBILE DROPDOWN */}
       <AnimatePresence>
-        {open && !isCollapsed && (
+        {open && !isCollapsed && isMobileLike && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="
-              absolute top-[105%] left-0 w-full md:hidden
-              bg-[var(--earth-paper)] border border-[var(--earth-brown)]/10
-              rounded-3xl shadow-xl p-4 flex flex-col gap-3
-            "
+            className="absolute top-[105%] left-0 w-full bg-[var(--earth-paper)] border border-[var(--earth-brown)]/10 rounded-3xl shadow-xl p-4 flex flex-col gap-3"
           >
             {links.map((link) => (
               <button

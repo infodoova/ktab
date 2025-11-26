@@ -1,20 +1,18 @@
 import React, { useState } from "react";
-import { Upload, ChevronDown } from "lucide-react";
+import { Upload, ChevronDown, Info } from "lucide-react";
 import Navbar from "../../../components/myui/Users/AuthorPages/navbar";
 import PageHeader from "../../../components/myui/Users/AuthorPages/sideHeader";
 import { AlertToast } from "../../../components/myui/AlertToast";
 import { postFormDataHelper } from "../../../../apis/apiHelpers";
-import { getUserData } from '../../../../store/authToken';
+import UploadModal from "../../../components/myui/Users/AuthorPages/createnewbook/UploadModal";
 
 import * as pdfjsLib from "pdfjs-dist";
-
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
 
 const categories = ["روايات", "قصص قصيرة", "تطوير الذات", "علوم وتكنولوجيا", "تاريخ", "شعر"];
-const ageGroups = ["أطفال (3-8 سنوات)", "ناشئة (9-15 سنة)", "شباب (16-24 سنة)", "كبار (25+)" ];
+const ageGroups = ["أطفال (3-8 سنوات)", "ناشئة (9-15 سنة)", "شباب (16-24 سنة)", "كبار (25+)"];
 
 export default function NewBooks({ pageName = "رفع كتاب جديد" }) {
-  const userData = getUserData();
   const [collapsed, setCollapsed] = useState(false);
 
   const [title, setTitle] = useState("");
@@ -25,19 +23,25 @@ export default function NewBooks({ pageName = "رفع كتاب جديد" }) {
   const [pdfFile, setPdfFile] = useState(null);
 
   const [loading, setLoading] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [toast, setToast] = useState({ open: false, variant: "info", title: "", description: "" });
+  const [setProgress] = useState(0);
+  const [toast, setToast] = useState({
+    open: false,
+    variant: "info",
+    title: "",
+    description: "",
+  });
 
-  // --- Helper: Calculate Page Count ---
+  const showError = (title, description) =>
+    setToast({ open: true, variant: "error", title, description });
+
+  // ---------------- PDF Page Count ---------------- //
   const getPdfPageCount = async (file) => {
     try {
       const arrayBuffer = await file.arrayBuffer();
-      // Load the PDF document
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
       return pdf.numPages;
-    } catch (error) {
-      console.error("Error reading PDF:", error);
-      return 0; 
+    } catch {
+      return 0;
     }
   };
 
@@ -45,25 +49,116 @@ export default function NewBooks({ pageName = "رفع كتاب جديد" }) {
     if (ageString.includes("3-8")) return { min: 3, max: 8 };
     if (ageString.includes("9-15")) return { min: 9, max: 15 };
     if (ageString.includes("16-24")) return { min: 16, max: 24 };
-    if (ageString.includes("25+")) return { min: 25, max: 100 }; // Arbitrary max for adults
-    return { min: 0, max: 0 }; // Default fallback
+    if (ageString.includes("25+")) return { min: 25, max: 100 };
+    return { min: 0, max: 0 };
   };
 
-  const handleCreateBook = async () => {
-    if (!title || !description || !selectedCategory || !selectedAge || !coverFile || !pdfFile) {
-      return setToast({ open: true, variant: "error", title: "خطأ", description: "يرجى تعبئة جميع الحقول." });
+  // ---------------- VALIDATION ---------------- //
+
+  const validateTitle = () => {
+    if (!title.trim()) {
+      showError("خطأ في العنوان", "الرجاء إدخال عنوان الكتاب.");
+      return false;
     }
+    if (title.length > 255) {
+      showError("العنوان طويل جداً", "الحد الأقصى للعنوان هو 255 حرف.");
+      return false;
+    }
+    return true;
+  };
+
+  const validatePDF = (file) => {
+    if (!file) {
+      showError("ملف PDF مفقود", "يرجى رفع ملف الكتاب.");
+      return false;
+    }
+
+    if (file.type !== "application/pdf") {
+      showError("صيغة غير صحيحة", "الملف يجب أن يكون PDF فقط.");
+      return false;
+    }
+
+    if (file.size > 50 * 1024 * 1024) {
+      showError("PDF كبير جداً", "الحد الأقصى لحجم PDF هو 50MB.");
+      return false;
+    }
+
+    return true;
+  };
+
+  const validateImage = (file) => {
+    return new Promise((resolve) => {
+      if (!file) {
+        showError("صورة الغلاف مفقودة", "يرجى رفع صورة الغلاف.");
+        return resolve(false);
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        showError("الصورة كبيرة جداً", "الحد الأقصى لحجم الصورة هو 5MB.");
+        return resolve(false);
+      }
+
+      if (!["image/jpeg", "image/png" , "image/jpg"].includes(file.type)) {
+        showError("صيغة الصورة غير مدعومة", "الرجاء استخدام JPG أو PNG فقط.");
+        return resolve(false);
+      }
+
+const img = new Image();
+    img.src = URL.createObjectURL(file);
+
+    img.onload = () => {
+      const w = img.width;
+      const h = img.height;
+      const ratio = h / w;
+
+      const min = 1.5; // lower bound
+      const max = 1.7; // upper bound
+
+      if (ratio < min || ratio > max) {
+        showError(
+          "نسبة الأبعاد غير صحيحة",
+          "يجب أن تكون الصورة بنسبة تقريبية 1.6:1 (مسموح بين 1.5 إلى 1.7)"
+        );
+        return resolve(false);
+      }
+
+      resolve(true);
+    };
+
+    img.onerror = () => {
+      showError("خطأ في قراءة الصورة", "يرجى رفع صورة صالحة.");
+      resolve(false);
+    };
+  });
+};
+
+  // ---------------- SUBMIT ---------------- //
+
+  const handleCreateBook = async () => {
+    if (
+      !title ||
+      !description ||
+      !selectedCategory ||
+      !selectedAge ||
+      !coverFile ||
+      !pdfFile
+    ) {
+      return showError("حقول ناقصة", "يرجى تعبئة جميع الحقول.");
+    }
+
+    if (!validateTitle()) return;
+    if (!validatePDF(pdfFile)) return;
+    const imgValid = await validateImage(coverFile);
+    if (!imgValid) return;
 
     setLoading(true);
 
     try {
-      // 1. Get dynamic page count
-      const calculatedPageCount = await getPdfPageCount(pdfFile);
-      if (calculatedPageCount === 0) {
-        throw new Error("لم نتمكن من قراءة ملف الكتاب للتأكد من عدد الصفحات.");
+      const pageCount = await getPdfPageCount(pdfFile);
+      if (pageCount === 0) {
+        throw new Error("لم نتمكن من قراءة ملف PDF للتأكد من عدد الصفحات.");
       }
 
-      // 2. Get dynamic age range
       const { min: ageMin, max: ageMax } = getAgeRange(selectedAge);
 
       const formData = new FormData();
@@ -72,17 +167,21 @@ export default function NewBooks({ pageName = "رفع كتاب جديد" }) {
 
       formData.append(
         "bookDto",
-        new Blob([JSON.stringify({
-          title,
-          description,
-          authorId: userData.userId,
-          genre: selectedCategory,
-          language: "arabic",
-          ageRangeMin: ageMin, // Dynamic Min
-          ageRangeMax: ageMax, // Dynamic Max
-          pageCount: calculatedPageCount, // Dynamic Page Count
-          hasAudio: false,
-        })], { type: "application/json" })
+        new Blob(
+          [
+            JSON.stringify({
+              title,
+              description,
+              genre: selectedCategory,
+              language: "arabic",
+              ageRangeMin: ageMin,
+              ageRangeMax: ageMax,
+              pageCount,
+              hasAudio: false,
+            }),
+          ],
+          { type: "application/json" }
+        )
       );
 
       await postFormDataHelper({
@@ -91,18 +190,28 @@ export default function NewBooks({ pageName = "رفع كتاب جديد" }) {
         onProgress: (p) => setProgress(p),
       });
 
-      setToast({ open: true, variant: "success", title: "تم الرفع", description: "تم نشر الكتاب بنجاح" });
-      
-      // Optional: Reset form
-      // setTitle(""); setDescription(""); setCoverFile(null); setPdfFile(null); 
-      
+      setToast({
+        open: true,
+        variant: "success",
+        title: "تم النشر",
+        description: "تم نشر الكتاب بنجاح!",
+      });
     } catch (err) {
-      setToast({ open: true, variant: "error", title: "خطأ", description: err?.message || "حدث خطأ أثناء الرفع" });
+      showError("فشل الرفع", err?.message || "حدث خطأ غير متوقع." );
     } finally {
       setLoading(false);
       setProgress(0);
     }
   };
+
+  // ---------------- UI ---------------- //
+
+  const WarningBox = ({ children }) => (
+    <div className="mt-2 text-[var(--earth-brown)]/60 text-xs flex items-start gap-2 leading-tight">
+      <Info className="w-4 h-4 text-[var(--earth-olive)] mt-0.5 flex-shrink-0" />
+      <div>{children}</div>
+    </div>
+  );
 
   return (
     <div dir="rtl" className="min-h-screen bg-[var(--earth-cream)] font-[family-name:var(--font-arabic)]">
@@ -113,70 +222,144 @@ export default function NewBooks({ pageName = "رفع كتاب جديد" }) {
       <div className={`flex flex-col min-h-screen transition-all duration-300 ${collapsed ? "md:mr-20" : "md:mr-64"}`}>
         <main className="flex-1 flex flex-col" dir="rtl">
           <PageHeader mainTitle={pageName} />
-          <div className="flex-1 p-6 md:p-10">
-            <div className="w-full max-w-6xl mx-auto bg-[var(--earth-paper)] rounded-2xl shadow-sm border p-6 md:p-10">
-              <div className="mb-8 text-right">
-                <h2 className="text-2xl font-bold text-[var(--earth-brown-dark)] mb-2">رفع كتاب جديد</h2>
-                <p className="text-[var(--earth-brown)]/70">املأ المعلومات التالية لنشر كتابك على المنصة</p>
+
+          <div className="flex-1 px-4 sm:px-6 md:px-12 py-10">
+            <div className="w-full max-w-6xl mx-auto bg-[var(--earth-paper)] rounded-3xl shadow-md border p-8 md:p-14">
+
+              {/* Page Title */}
+              <div className="mb-10 text-right">
+                <h2 className="text-3xl font-bold text-[var(--earth-brown-dark)]">رفع كتاب جديد</h2>
+                <p className="text-[var(--earth-brown)]/70 mt-2">املأ المعلومات التالية لنشر كتابك على المنصة</p>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
-                <div className="lg:col-span-7 space-y-6 order-2 lg:order-1">
-                  <div className="space-y-2 text-right">
-                    <label className="block text-sm font-semibold text-[var(--earth-brown-dark)]">عنوان الكتاب *</label>
-                    <input type="text" className="w-full h-12 px-4 rounded-lg bg-white border" placeholder="أدخل عنوان الكتاب" value={title} onChange={(e) => setTitle(e.target.value)} />
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+
+                {/* LEFT SIDE */}
+                <div className="lg:col-span-7 space-y-8">
+
+                  {/* Title */}
+                  <div>
+                    <label className="font-semibold text-[var(--earth-brown-dark)]">عنوان الكتاب *</label>
+                    <input
+                      type="text"
+                      className="w-full h-14 px-5 rounded-xl bg-white border text-lg"
+                      placeholder="أدخل عنوان الكتاب"
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                    />
+
+                    <WarningBox>
+                      الحد الأقصى للعنوان هو <span className="font-semibold">255 حرف</span>.
+                    </WarningBox>
                   </div>
 
-                  <div className="space-y-2 text-right">
-                    <label className="block text-sm font-semibold text-[var(--earth-brown-dark)]">التصنيف *</label>
+                  {/* Category */}
+                  <div>
+                    <label className="font-semibold text-[var(--earth-brown-dark)]">التصنيف *</label>
                     <div className="relative">
-                      <select className="w-full h-12 px-4 rounded-lg bg-white border appearance-none" value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
-                        <option value="" disabled hidden>اختر التصنيف</option>
-                        {categories.map((cat) => (<option key={cat}>{cat}</option>))}
+                      <select
+                        className="w-full h-14 px-5 rounded-xl bg-white border text-lg appearance-none"
+                        value={selectedCategory}
+                        onChange={(e) => setSelectedCategory(e.target.value)}
+                      >
+                        <option value="">اختر التصنيف</option>
+                        {categories.map((c) => <option key={c}>{c}</option>)}
                       </select>
-                      <ChevronDown className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <ChevronDown className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-400" />
                     </div>
                   </div>
 
-                  <div className="space-y-2 text-right">
-                    <label className="block text-sm font-semibold text-[var(--earth-brown-dark)]">الفئة العمرية *</label>
+                  {/* Age */}
+                  <div>
+                    <label className="font-semibold text-[var(--earth-brown-dark)]">الفئة العمرية *</label>
                     <div className="relative">
-                      <select className="w-full h-12 px-4 rounded-lg bg-white border appearance-none" value={selectedAge} onChange={(e) => setSelectedAge(e.target.value)}>
-                        <option value="" disabled hidden>اختر الفئة العمرية</option>
-                        {ageGroups.map((age) => (<option key={age}>{age}</option>))}
+                      <select
+                        className="w-full h-14 px-5 rounded-xl bg-white border text-lg appearance-none"
+                        value={selectedAge}
+                        onChange={(e) => setSelectedAge(e.target.value)}
+                      >
+                        <option value="">اختر الفئة العمرية</option>
+                        {ageGroups.map((a) => <option key={a}>{a}</option>)}
                       </select>
-                      <ChevronDown className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <ChevronDown className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-400" />
                     </div>
                   </div>
 
-                  <div className="space-y-2 text-right">
-                    <label className="block text-sm font-semibold text-[var(--earth-brown-dark)]">وصف الكتاب *</label>
-                    <textarea className="w-full p-4 rounded-lg bg-white border h-32" placeholder="اكتب وصفاً للكتاب" value={description} onChange={(e) => setDescription(e.target.value)} />
+                  {/* Description */}
+                  <div>
+                    <label className="font-semibold text-[var(--earth-brown-dark)]">وصف الكتاب *</label>
+                    <textarea
+                      className="w-full p-5 rounded-xl bg-white border text-lg h-40"
+                      placeholder="اكتب وصفاً للكتاب"
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                    />
+
+                    <WarningBox>
+                      حاول كتابة وصف مختصر وواضح ليساعد القراء على فهم محتوى الكتاب.
+                    </WarningBox>
                   </div>
                 </div>
 
-                <div className="lg:col-span-5 space-y-6 order-1 lg:order-2 text-right">
-                  <input id="coverInput" type="file" accept="image/*" className="hidden" onChange={(e) => setCoverFile(e.target.files[0])} />
+                {/* RIGHT SIDE */}
+                <div className="lg:col-span-5 flex flex-col gap-8 mt-4">
+
+                  {/* Cover Upload */}
+                  <input id="coverInput" type="file" accept="image/*" className="hidden"
+                    onChange={(e) => setCoverFile(e.target.files[0])}
+                  />
+
                   <label htmlFor="coverInput">
-                    <div className="border-2 border-dashed rounded-xl h-56 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors">
-                      <Upload className="w-6 h-6 mb-2" />
-                      <span>{coverFile ? coverFile.name : "اضغط لرفع صورة الغلاف"}</span>
+                    <div className="border-2 border-dashed rounded-2xl h-[180px] w-full flex flex-col items-center justify-center text-center cursor-pointer bg-white shadow-sm p-6">
+                      {coverFile ? (
+                        <img src={URL.createObjectURL(coverFile)} className="w-full h-full rounded-2xl object-cover" />
+                      ) : (
+                        <>
+                          <Upload className="w-8 h-8 mb-3 text-gray-600" />
+                          <p className="text-lg text-gray-700">اضغط لرفع صورة الغلاف</p>
+                        </>
+                      )}
                     </div>
                   </label>
 
-                  <input id="pdfInput" type="file" accept="application/pdf" className="hidden" onChange={(e) => setPdfFile(e.target.files[0])} />
+                  <WarningBox>
+                    يجب أن تكون الصورة بنسبة <span className="font-semibold">1.6 : 1</span>. <br />
+                    يفضّل المقاسات: 2000×3200 أو 1875×3000 أو 1600×2560. <br />
+                    الحد الأدنى المقبول: 1400×2240. <br />
+                    الحجم الأقصى: 5MB.
+                  </WarningBox>
+
+                  {/* PDF Upload */}
+                  <input id="pdfInput" type="file" accept="application/pdf" className="hidden"
+                    onChange={(e) => setPdfFile(e.target.files[0])}
+                  />
+
                   <label htmlFor="pdfInput">
-                    <div className="border-2 border-dashed rounded-xl h-40 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors">
-                      <Upload className="w-6 h-6 mb-2" />
-                      <span>{pdfFile ? pdfFile.name : "اضغط لرفع ملف الكتاب (PDF)"}</span>
+                    <div className="border-2 border-dashed rounded-2xl h-[180px] w-full flex flex-col items-center justify-center text-center cursor-pointer bg-white shadow-sm p-6">
+                      <Upload className="w-8 h-8 mb-3 text-gray-600" />
+                      <p className="text-lg text-gray-700">
+                        {pdfFile ? pdfFile.name : "اضغط لرفع ملف الكتاب (PDF)"}
+                      </p>
                     </div>
                   </label>
+
+                  <WarningBox>
+                    يجب أن يكون الملف بصيغة PDF فقط. <br />
+                    الحجم الأقصى: 50MB. <br />
+                    سيتم حساب عدد الصفحات تلقائياً.
+                  </WarningBox>
+
                 </div>
               </div>
 
-              <div className="mt-10 pt-6 border-t flex gap-4">
-                <button onClick={handleCreateBook} disabled={loading} className="px-8 py-2.5 bg-[var(--earth-olive)] text-white rounded-lg disabled:opacity-50">
-                  {loading ? `جاري معالجة الملف والرفع ${progress}%` : "نشر الكتاب"}
+              {/* BUTTON */}
+              <div className="mt-14 border-t pt-8 flex justify-start">
+                <button
+                  onClick={handleCreateBook}
+                  disabled={loading}
+                  className="px-12 py-4 bg-[var(--earth-olive)] text-white rounded-xl text-lg font-semibold disabled:opacity-60"
+                >
+                  {loading ? "..." : "نشر الكتاب"}
                 </button>
               </div>
             </div>
@@ -184,7 +367,14 @@ export default function NewBooks({ pageName = "رفع كتاب جديد" }) {
         </main>
       </div>
 
-      <AlertToast open={toast.open} variant={toast.variant} title={toast.title} description={toast.description} onClose={() => setToast({ ...toast, open: false })} />
+      <UploadModal open={loading} />
+      <AlertToast
+        open={toast.open}
+        variant={toast.variant}
+        title={toast.title}
+        description={toast.description}
+        onClose={() => setToast({ ...toast, open: false })}
+      />
     </div>
   );
 }

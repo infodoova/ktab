@@ -99,20 +99,18 @@ const SidebarContent = ({ collapsed, onToggle }) => {
       </ScrollArea>
 
 
-      <div
+      <div dir="rtl"
         className={cn(
           "h-20 border-t border-[var(--earth-sand)]/40 flex px-4 items-center gap-3",
           collapsed && "flex-col justify-center gap-1"
         )}
       >
         <div className="h-11 w-11 rounded-full bg-[var(--earth-olive)]/30 border border-[var(--earth-brown)]/20 text-[var(--earth-brown)] flex items-center justify-center font-bold text-lg">
-          {/* Optional: Display first letter if available */}
           {userData.firstName ? userData.firstName[0] : 'أ'}
         </div>
 
         {!collapsed && (
-          <div className="flex flex-col text-[var(--earth-brown)] ">
-             {/* Optional chaining helps safety: userData?.firstName */}
+          <div className="flex flex-col text-[var(--earth-brown)] justify-start ">
             <span className="font-semibold text-sm">{userData.firstName || 'User'} {userData.lastName || ''} </span>
             <span className="text-xs opacity-70">مؤلف</span>
           </div>
