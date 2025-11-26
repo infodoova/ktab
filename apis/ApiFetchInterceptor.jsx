@@ -62,12 +62,6 @@ export async function apiFetch(url, options = {}) {
 
   const payload = decodeJwt(token);
 
-  // Invalid token → logout
-  if (!payload?.exp) {
-    localStorage.removeItem("token");
-    window.location.href = "/Screens/auth/login";
-    return;
-  }
 
   const now = Date.now();
   const expiresAt = payload.exp * 1000;

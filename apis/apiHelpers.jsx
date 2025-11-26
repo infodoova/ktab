@@ -49,3 +49,22 @@ export async function deleteHelper({ url, headers = {} }) {
   });
   return res.json();
 }
+export async function postFormDataHelper({ url, formData }) {
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      "ngrok-skip-browser-warning": "true"
+    },
+    body: formData
+  });
+
+  try {
+    return await response.json();
+  } catch {
+    return {};
+  }
+}
+

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
   Loader2, 
@@ -11,14 +11,36 @@ import {
 } from "lucide-react";
 
 // --- IMPORTS ---
-import { getBooks } from "../../../../apis/pageHelpers/controlBoardHelper";
 import { AlertToast } from "../../../components/myui/AlertToast";
 import Navbar from "../../../components/myui/Users/AuthorPages/navbar";
 import PageHeader from "../../../components/myui/Users/AuthorPages/sideHeader";
 
+// --- 1. FAKE LOCAL DATA ---
+const ALL_FAKE_BOOKS = [
+  { id: 1, title: "فن اللامبالاة", image: "https://via.placeholder.com/300x450", rating: 4.5, views: 1205 },
+  { id: 2, title: "قواعد العشق الأربعون", image: "https://via.placeholder.com/300x450", rating: 4.8, views: 3400 },
+  { id: 3, title: "أرض زيكولا", image: "", rating: 4.2, views: 890 }, // No image test
+  { id: 4, title: "شيفرة دافنشي", image: "https://via.placeholder.com/300x450", rating: 4.0, views: 1500 },
+  { id: 5, title: "الخيميائي", image: "https://via.placeholder.com/300x450", rating: 4.9, views: 5200 },
+  { id: 6, title: "1984", image: "https://via.placeholder.com/300x450", rating: 4.7, views: 2100 },
+  { id: 7, title: "الجريمة والعقاب", image: "https://via.placeholder.com/300x450", rating: 4.6, views: 1800 },
+  { id: 8, title: "مائة عام من العزلة", image: "https://via.placeholder.com/300x450", rating: 4.3, views: 900 },
+  { id: 9, title: "الأب الغني والأب الفقير", image: "https://via.placeholder.com/300x450", rating: 4.8, views: 4100 },
+  { id: 10, title: "نظرية الفستق", image: "https://via.placeholder.com/300x450", rating: 4.4, views: 1350 },
+  { id: 11, title: "كافكا على الشاطئ", image: "https://via.placeholder.com/300x450", rating: 4.1, views: 780 },
+  { id: 12, title: "البؤساء", image: "https://via.placeholder.com/300x450", rating: 4.9, views: 6000 },
+  { id: 13, title: "عالم صوفي", image: "", rating: 4.0, views: 500 },
+  { id: 14, title: "أن تقتل طائراً بريئاً", image: "https://via.placeholder.com/300x450", rating: 4.7, views: 2200 },
+  { id: 15, title: "أماريتا", image: "https://via.placeholder.com/300x450", rating: 4.2, views: 1100 },
+  { id: 16, title: "شيفرة بلال", image: "https://via.placeholder.com/300x450", rating: 4.5, views: 1600 },
+  { id: 17, title: "ليطمئن قلبي", image: "https://via.placeholder.com/300x450", rating: 4.6, views: 1950 },
+];
+
+const ITEMS_PER_PAGE = 8; // Adjust to test pagination
+
 // --- SUB-COMPONENTS ---
 
-// 1. Modern Book Card with Earth Theme
+// Modern Book Card with Earth Theme
 const BookCard = ({ book, index }) => (
   <div 
     className="group relative flex flex-col fade-up"
@@ -30,7 +52,7 @@ const BookCard = ({ book, index }) => (
       <div className="relative aspect-[2/3] w-full overflow-hidden bg-[var(--earth-sand)]/20">
         {book.image ? (
           <img
-            src={book.image.replace('http://', 'https://')}
+            src={book.image}
             alt={book.title}
             className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
             loading="lazy"
@@ -42,7 +64,7 @@ const BookCard = ({ book, index }) => (
           </div>
         )}
 
-        {/* Overlay Actions (Dummy Design for Author Controls) */}
+        {/* Overlay Actions */}
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-[var(--earth-brown-dark)]/80 opacity-0 backdrop-blur-[2px] transition-all duration-300 group-hover:opacity-100">
           <button className="flex h-9 w-32 items-center justify-center gap-2 rounded-full bg-[var(--earth-olive)] text-xs text-white transition-colors hover:bg-[var(--earth-olive-dark)]">
             <Edit3 size={14} />
@@ -54,7 +76,7 @@ const BookCard = ({ book, index }) => (
           </button>
         </div>
 
-        {/* Rating Badge (Glassmorphism) */}
+        {/* Rating Badge */}
         <div className="glass absolute top-3 left-3 flex items-center gap-1 rounded-full px-2 py-1 text-xs font-bold text-[var(--earth-brown-dark)] shadow-sm opacity-0 transform -translate-x-2 transition-all duration-500 group-hover:opacity-100 group-hover:translate-x-0">
           <span>{book.rating}</span>
           <Star size={10} className="fill-yellow-500 text-yellow-500" />
@@ -85,7 +107,7 @@ const BookCard = ({ book, index }) => (
   </div>
 );
 
-// 2. Custom Skeleton Loader (Matches new card design)
+// Custom Skeleton Loader
 const BookSkeleton = () => (
   <div className="flex flex-col space-y-3 rounded-xl border border-[var(--earth-sand)]/40 bg-[var(--earth-paper)] p-3">
     <div className="aspect-[2/3] w-full animate-pulse rounded-lg bg-[var(--earth-sand)]/20" />
@@ -109,7 +131,6 @@ function MyBooks({ pageName = "كتبي" }) {
   
   // Refs for Infinite Scroll
   const observerTarget = useRef(null);
-  const isFetching = useRef(false);
 
   // Alert State
   const [alert, setAlert] = useState({
@@ -119,47 +140,47 @@ function MyBooks({ pageName = "كتبي" }) {
     description: "",
   });
 
-  // --- API Fetch Function ---
-  const fetchBooksData = useCallback(async (currentPage) => {
-    if (isFetching.current) return;
-    isFetching.current = true;
+  // --- SIMULATED FETCH FUNCTION ---
+  useEffect(() => {
+    let isMounted = true;
 
-    try {
-      if (currentPage === 1) setLoading(true);
+    const fetchFakeData = () => {
+      // 1. Set Loading State
+      if (page === 1) setLoading(true);
       else setLoadMore(true);
 
-      const res = await getBooks(currentPage, 10);
-      
-      setBooks((prev) => {
-        // If it's the first page, replace all books
-        if (currentPage === 1) return res.data || [];
-        
-        // Filter duplicates for safety
-        const existingIds = new Set(prev.map(b => b.id));
-        const newBooks = (res.data || []).filter(b => !existingIds.has(b.id));
-        return [...prev, ...newBooks];
-      });
-      
-      setTotal(res.totalPages || 1);
-    } catch (err) {
-      console.error(err);
-      setAlert({
-        open: true,
-        variant: "error",
-        title: "خطأ في التحميل",
-        description: "تعذر تحميل قائمة الكتب. يرجى المحاولة مرة أخرى.",
-      });
-    } finally {
-      setLoading(false);
-      setLoadMore(false);
-      isFetching.current = false;
-    }
-  }, []);
+      // 2. Simulate Network Delay (1.2 seconds)
+      setTimeout(() => {
+        if (!isMounted) return;
 
-  // Initial Load
-  useEffect(() => {
-    fetchBooksData(page);
-  }, [page, fetchBooksData]);
+        // 3. Logic to slice data based on page
+        const startIndex = (page - 1) * ITEMS_PER_PAGE;
+        const endIndex = startIndex + ITEMS_PER_PAGE;
+        const newBatch = ALL_FAKE_BOOKS.slice(startIndex, endIndex);
+
+        const calculatedTotalPages = Math.ceil(ALL_FAKE_BOOKS.length / ITEMS_PER_PAGE);
+
+        // 4. Update State
+        setTotal(calculatedTotalPages);
+        
+        setBooks((prev) => {
+          if (page === 1) return newBatch;
+          return [...prev, ...newBatch];
+        });
+
+        // 5. Turn off loaders
+        if (page === 1) setLoading(false);
+        else setLoadMore(false);
+
+      }, 1200);
+    };
+
+    fetchFakeData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [page]);
 
   // Infinite Scroll Observer
   useEffect(() => {
@@ -188,7 +209,7 @@ function MyBooks({ pageName = "كتبي" }) {
 
   return (
     <div className="min-h-screen bg-[var(--earth-cream)] text-[var(--earth-brown-dark)]" dir="rtl">
-      {/* 1. Navbar (Original Import) */}
+      {/* 1. Navbar */}
       <Navbar
         mobileButtonTitle={buttonTitleText}
         onMobileButtonPress={handleButtonPress}
@@ -205,7 +226,7 @@ function MyBooks({ pageName = "كتبي" }) {
       >
         <main className="flex flex-1 flex-col">
           
-          {/* 3. PageHeader (Original Import) */}
+          {/* 3. PageHeader */}
           <PageHeader
             mainTitle={pageName}
             buttonTitle={buttonTitleText}
@@ -254,7 +275,7 @@ function MyBooks({ pageName = "كتبي" }) {
         </main>
       </div>
 
-      {/* 5. Alert Toast (Original Import) */}
+      {/* 5. Alert Toast */}
       <AlertToast
         open={alert.open}
         variant={alert.variant}

@@ -55,6 +55,7 @@ export function getUserData() {
   return {
     firstName: payload.firstName ,
     lastName: payload.lastName ,
-    role: payload.role
+    role: payload.role,
+    userId: payload.userId
   };
 }

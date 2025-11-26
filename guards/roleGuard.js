@@ -16,10 +16,9 @@ export default function RoleGuard({ allowedRoles = [] }) {
 
   useEffect(() => {
     if (isLoginNeeded) {
-      if (tokenExpired) localStorage.removeItem("token"); // Clean up
+      if (tokenExpired) localStorage.removeItem("token"); 
       navigate("/Screens/auth/login", { replace: true });
     } else if (!isAuthorized) {
-      // User exists but wrong role
       navigate("/Screens/roleError", { replace: true });
     }
   }, [isLoginNeeded, isAuthorized, navigate, tokenExpired]);
