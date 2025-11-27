@@ -6,11 +6,9 @@ export default function RoleGuard({ allowedRoles = [] }) {
   const navigate = useNavigate();
   const outlet = useOutlet();
 
-  // 1. Get data synchronously so we can block rendering immediately
   const user = getUserData();
   const tokenExpired = isTokenExpired();
   
-  // 2. Determine validity
   const isAuthorized = user && !tokenExpired && allowedRoles.includes(user.role);
   const isLoginNeeded = !user || tokenExpired;
 
@@ -23,7 +21,6 @@ export default function RoleGuard({ allowedRoles = [] }) {
     }
   }, [isLoginNeeded, isAuthorized, navigate, tokenExpired]);
 
-  // 3. Block rendering if not authorized (prevents flicker/data fetching)
   if (!isAuthorized) return null;
 
   return outlet;

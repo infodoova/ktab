@@ -310,7 +310,7 @@ const img = new Image();
                   />
 
                   <label htmlFor="coverInput">
-                    <div className="border-2 border-dashed rounded-2xl h-[180px] w-full flex flex-col items-center justify-center text-center cursor-pointer bg-white shadow-sm p-6">
+                    <div className="border-2 border-dashed rounded-2xl w-full flex flex-col items-center justify-center text-center cursor-pointer bg-white shadow-sm p-6" style={{ aspectRatio: '1 / 1.6' }}>
                       {coverFile ? (
                         <img src={URL.createObjectURL(coverFile)} className="w-full h-full rounded-2xl object-cover" />
                       ) : (
@@ -323,10 +323,9 @@ const img = new Image();
                   </label>
 
                   <WarningBox>
-                    يجب أن تكون الصورة بنسبة <span className="font-semibold">1.6 : 1</span>. <br />
-                    يفضّل المقاسات: 2000×3200 أو 1875×3000 أو 1600×2560. <br />
-                    الحد الأدنى المقبول: 1400×2240. <br />
-                    الحجم الأقصى: 5MB.
+                    يجب أن تكون الصورة بنسبة تقريبية <span className="font-semibold">1.6 : 1</span> (مسموح بين 1.5 إلى 1.7). <br />
+                    الحد الأقصى للحجم: <span className="font-semibold">5MB</span>. <br />
+                    الصيغ المدعومة: <span className="font-semibold">JPG أو PNG</span>.
                   </WarningBox>
 
                   {/* PDF Upload */}

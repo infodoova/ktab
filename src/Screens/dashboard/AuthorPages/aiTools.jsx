@@ -1,56 +1,91 @@
 import React, { useState } from "react";
 import Navbar from "../../../components/myui/Users/AuthorPages/navbar";
 import PageHeader from "../../../components/myui/Users/AuthorPages/sideHeader";
+import { AlertToast } from "../../../components/myui/AlertToast";
 
-function AITools({ pageName = "   ادوات الزكاء الاصطناعي " }) {
+import SummaryPanel from "../../../components/myui/Users/AuthorPages/AITools/SummaryPanel";
+import PdfInputCard from "../../../components/myui/Users/AuthorPages/AITools/PdfInputCard";
+
+export default function AITools({ pageName = "مولّد الخلاصات الذكي" }) {
   const [collapsed, setCollapsed] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [summary, setSummary] = useState("");
 
-  const handleButtonPress = () => console.log("Button pressed");
-  const buttonTitleText = "زر";
+  const [alert, setAlert] = useState({
+    open: false,
+    variant: "info",
+    title: "",
+    description: "",
+  });
+
+  const notify = (variant, title, description) => {
+    setAlert({ open: true, variant, title, description });
+  };
+
+  const onGenerate = (title, pdfFile, errTitle, errMsg) => {
+    if (errTitle) {
+      return notify("error", errTitle, errMsg);
+    }
+
+    // Start loading
+    setLoading(true);
+    setSummary("");
+
+    // Fake AI processing delay
+    setTimeout(() => {
+      setLoading(false);
+      setSummary("هذا مثال خلاصة يتم عرضها بعد اكتمال التوليد...");
+      notify("success", "تم التوليد", "الخلاصة جاهزة الآن.");
+    }, 2800);
+  };
 
   return (
     <div className="min-h-screen bg-[var(--earth-cream)] rtl">
-      
-      {/* NAVBAR WITH COLLAPSE CONTROL */}
+      {/* NAVBAR */}
       <Navbar
-        mobileButtonTitle={buttonTitleText}
-        onMobileButtonPress={handleButtonPress}
-        pageName={pageName}
         collapsed={collapsed}
         setCollapsed={setCollapsed}
+        pageName={pageName}
       />
 
-      {/* DYNAMIC LAYOUT SPACING BASED ON COLLAPSED STATE */}
       <div
-        className={`flex flex-col md:flex-row-reverse min-h-screen transition-all duration-300
+        className={`flex flex-col md:flex-row-reverse min-h-screen transition-all duration-300 
           ${collapsed ? "md:mr-20" : "md:mr-64"}
         `}
       >
         <main className="flex-1 flex flex-col">
 
-          {/* ✅ FIX: Removed wrapper div. PageHeader is now a direct child. */}
+          {/* ✅ PAGE HEADER IS BACK HERE */}
           <PageHeader
             mainTitle={pageName}
-            buttonTitle={buttonTitleText}
-            onPress={handleButtonPress}
+            buttonTitle=""
+            onPress={() => {}}
           />
 
-          {/* Content */}
-          <div className="flex flex-1 items-center justify-center p-10">
-            <div className="text-center">
-              <h1 className="text-3xl font-bold text-[var(--earth-brown)] mb-4">
-                Hi this is {pageName}
-              </h1>
-              <p className="text-[var(--earth-brown)]/70 text-lg">
-                مرحباً بك في صفحة {pageName}
-              </p>
-            </div>
-          </div>
+          {/* MAIN CONTENT */}
+    {/* MAIN CONTENT */}
+<div className="flex flex-col-reverse lg:flex-row flex-1 p-4 lg:p-8 gap-6 lg:gap-8">
+
+  {/* LEFT — AI RESULT / LOADER */}
+  <SummaryPanel loading={loading} summary={summary} />
+
+  {/* RIGHT — FORM */}
+  <PdfInputCard onGenerate={onGenerate} loading={loading} />
+
+</div>
+
 
         </main>
       </div>
+
+      {/* ALERT TOAST */}
+      <AlertToast
+        open={alert.open}
+        variant={alert.variant}
+        title={alert.title}
+        description={alert.description}
+        onClose={() => setAlert({ ...alert, open: false })}
+      />
     </div>
   );
 }
-
-export default AITools;

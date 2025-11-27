@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Navbar from "../../../components/myui/Users/AuthorPages/navbar";
@@ -19,7 +19,7 @@ export default function MyBooks({ pageName = "كتبي" }) {
     description: "",
   });
 
-  const fetchBooks = async (page = 0) => {
+  const fetchBooks = useCallback(async (page = 0) => {
     const user = getUserData();
     if (!user?.userId) return { content: [], totalPages: 1 };
 
@@ -35,7 +35,7 @@ export default function MyBooks({ pageName = "كتبي" }) {
       content: data.content || [],
       totalPages: data.totalPages || 1,
     };
-  };
+  }, []);
 
   return (
     <div dir="rtl" className="bg-[var(--earth-cream)] min-h-screen">
