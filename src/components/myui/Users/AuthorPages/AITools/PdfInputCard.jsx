@@ -3,10 +3,10 @@ import { Upload } from "lucide-react";
 
 export default function PdfInputCard({ onGenerate, loading }) {
   const [pdf, setPdf] = useState(null);
+const [type, setType] = useState("ملخص شامل");
+const [wordCount, setWordCount] = useState(300);
+const [audience, setAudience] = useState("الجمهور العام");
 
-  const [type, setType] = useState("SUMMARY"); 
-  const [wordCount, setWordCount] = useState(300);
-  const [audience, setAudience] = useState("GENERAL");
 
   const pickPDF = (e) => {
     const file = e.target.files[0];
@@ -45,61 +45,68 @@ export default function PdfInputCard({ onGenerate, loading }) {
     >
 
       {/* 🔵 نوع الخلاصة */}
-      <div>
-        <label className="font-semibold text-[var(--earth-brown)] text-sm mb-2 block">
-          نوع الخلاصة
-        </label>
+     <div>
+  <label className="font-semibold text-[var(--earth-brown)] text-sm mb-2 block">
+    نوع الخلاصة
+  </label>
 
-        <div className="grid grid-cols-2 gap-3">
-          <button
-            onClick={() => setType("SUMMARY")}
-            className={`
-              px-4 py-3 rounded-xl border text-sm
-              ${type === "SUMMARY"
-                ? "bg-[var(--earth-olive)] text-white border-[var(--earth-olive)]"
-                : "bg-[var(--earth-cream)]/70 border-[var(--earth-sand)]"}
-            `}
-          >
-            ملخص شامل
-          </button>
+  <div className="grid grid-cols-2 gap-3">
 
-          <button
-            onClick={() => setType("POINTS")}
-            className={`
-              px-4 py-3 rounded-xl border text-sm
-              ${type === "POINTS"
-                ? "bg-[var(--earth-olive)] text-white border-[var(--earth-olive)]"
-                : "bg-[var(--earth-cream)]/70 border-[var(--earth-sand)]"}
-            `}
-          >
-            النقاط الرئيسية
-          </button>
+    {/* ملخص شامل */}
+    <button
+      onClick={() => setType("ملخص شامل")}
+      className={`
+        px-4 py-3 rounded-xl border text-sm
+        ${type === "ملخص شامل"
+          ? "bg-[var(--earth-olive)] text-white border-[var(--earth-olive)]"
+          : "bg-[var(--earth-cream)]/70 border-[var(--earth-sand)]"}
+      `}
+    >
+      ملخص شامل
+    </button>
 
-          <button
-            onClick={() => setType("EDU")}
-            className={`
-              px-4 py-3 rounded-xl border text-sm
-              ${type === "EDU"
-                ? "bg-[var(--earth-olive)] text-white border-[var(--earth-olive)]"
-                : "bg-[var(--earth-cream)]/70 border-[var(--earth-sand)]"}
-            `}
-          >
-            رؤى تعليمية
-          </button>
+    {/* النقاط الرئيسية */}
+    <button
+      onClick={() => setType("النقاط الرئيسية")}
+      className={`
+        px-4 py-3 rounded-xl border text-sm
+        ${type === "النقاط الرئيسية"
+          ? "bg-[var(--earth-olive)] text-white border-[var(--earth-olive)]"
+          : "bg-[var(--earth-cream)]/70 border-[var(--earth-sand)]"}
+      `}
+    >
+      النقاط الرئيسية
+    </button>
 
-          <button
-            onClick={() => setType("TAKEAWAYS")}
-            className={`
-              px-4 py-3 rounded-xl border text-sm
-              ${type === "TAKEAWAYS"
-                ? "bg-[var(--earth-olive)] text-white border-[var(--earth-olive)]"
-                : "bg-[var(--earth-cream)]/70 border-[var(--earth-sand)]"}
-            `}
-          >
-            الاستنتاجات الرئيسية
-          </button>
-        </div>
-      </div>
+    {/* رؤى تعليمية */}
+    <button
+      onClick={() => setType("رؤى تعليمية")}
+      className={`
+        px-4 py-3 rounded-xl border text-sm
+        ${type === "رؤى تعليمية"
+          ? "bg-[var(--earth-olive)] text-white border-[var(--earth-olive)]"
+          : "bg-[var(--earth-cream)]/70 border-[var(--earth-sand)]"}
+      `}
+    >
+      رؤى تعليمية
+    </button>
+
+    {/* الاستنتاجات الرئيسية */}
+    <button
+      onClick={() => setType("الاستنتاجات الرئيسية")}
+      className={`
+        px-4 py-3 rounded-xl border text-sm
+        ${type === "الاستنتاجات الرئيسية"
+          ? "bg-[var(--earth-olive)] text-white border-[var(--earth-olive)]"
+          : "bg-[var(--earth-cream)]/70 border-[var(--earth-sand)]"}
+      `}
+    >
+      الاستنتاجات الرئيسية
+    </button>
+
+  </div>
+</div>
+
 
       {/* 🔵 عدد الكلمات */}
       <div>
@@ -124,28 +131,28 @@ export default function PdfInputCard({ onGenerate, loading }) {
       </div>
 
       {/* 🔵 الجمهور */}
-      <div>
-        <label className="font-semibold text-[var(--earth-brown)] text-sm mb-2 block">
-          مستوى الجمهور
-        </label>
+     <div>
+  <label className="font-semibold text-[var(--earth-brown)] text-sm mb-2 block">
+    مستوى الجمهور
+  </label>
 
-        <select
-          value={audience}
-          onChange={(e) => setAudience(e.target.value)}
-          className="
-            w-full h-12 px-3 rounded-xl
-            border border-[var(--earth-sand)]
-            bg-[var(--earth-cream)]/80
-            focus:outline-none
-          "
-        >
-          <option value="GENERAL">الجمهور العام</option>
-          <option value="BABYIES">الاطفال</option>
-          <option value="TEENAGERS">المراهقون</option>
-          <option value="PROFESSIONALS">الاكادميون و الباحثون</option>
+  <select
+    value={audience}
+    onChange={(e) => setAudience(e.target.value)}
+    className="
+      w-full h-12 px-3 rounded-xl
+      border border-[var(--earth-sand)]
+      bg-[var(--earth-cream)]/80
+      focus:outline-none
+    "
+  >
+    <option value="الجمهور العام">الجمهور العام</option>
+    <option value="الأطفال">الأطفال</option>
+    <option value="المراهقون">المراهقون</option>
+    <option value="الأكاديميون والباحثون">الأكاديميون والباحثون</option>
+  </select>
+</div>
 
-        </select>
-      </div>
 
       {/* 🔵 PDF UPLOAD */}
       <div className="flex flex-col gap-2">

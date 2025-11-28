@@ -13,11 +13,21 @@ import {
 
 import SkeletonBookLoader from "./SkeletonBookLoader";
 import BookDetailsModal from "./BookDetailsModal";
+import DeleteBook from "./DeleteBook";
+import UpdateBookModal from "./UpdateBook";
 
 const ITEMS_PER_PAGE = 8;
 
-const MinimalBookCard = ({ book, onClick }) => {
-  const [menuOpen, setMenuOpen] = useState(false);
+/* -----------------------------------------------------------
+   🔹 MINIMAL BOOK CARD — FIXED MENU LOGIC
+----------------------------------------------------------- */
+const MinimalBookCard = ({ book, onClick, onDelete, onEdit, openMenuId, setOpenMenuId }) => {
+  const isOpen = openMenuId === book.id;
+
+  const toggleMenu = (e) => {
+    e.stopPropagation();
+    setOpenMenuId(isOpen ? null : book.id);
+  };
 
   const handleShare = async () => {
     if (navigator.share) {
@@ -30,26 +40,23 @@ const MinimalBookCard = ({ book, onClick }) => {
       navigator.clipboard.writeText(book.pdfDownloadUrl);
       alert("تم نسخ رابط الكتاب");
     }
-    setMenuOpen(false);
+    setOpenMenuId(null);
   };
 
   return (
     <div className="relative group flex flex-col gap-3" dir="rtl">
-      {/* Three-dots menu */}
-      <div className="absolute top-2 left-2 z-20">
+      {/* MENU WRAPPER */}
+      <div className="absolute top-2 left-2 z-20 book-menu-area">
         <button
-          onClick={(e) => {
-            e.stopPropagation();
-            setMenuOpen((p) => !p);
-          }}
+          onClick={toggleMenu}
           className="p-1.5 rounded-full bg-white/80 backdrop-blur-md shadow text-[var(--earth-brown)] hover:bg-[var(--earth-cream)]"
         >
           <MoreVertical size={16} />
         </button>
 
-        {menuOpen && (
+        {isOpen && (
           <div
-            className="absolute top-8 left-0 w-40 bg-white shadow-lg rounded-xl border border-[var(--earth-sand)]/50 p-2 text-sm z-30"
+            className="absolute top-8 left-0 w-40 bg-white shadow-lg rounded-xl border border-[var(--earth-sand)]/50 p-2 text-sm z-30 book-menu-area"
             onClick={(e) => e.stopPropagation()}
           >
             <button
@@ -60,15 +67,21 @@ const MinimalBookCard = ({ book, onClick }) => {
             </button>
 
             <button
-              disabled
-              className="w-full flex items-center justify-between px-2 py-2 text-[var(--earth-brown)]/40 cursor-not-allowed"
+              onClick={() => {
+                onEdit(book);
+                setOpenMenuId(null);
+              }}
+              className="w-full flex items-center justify-between px-2 py-2 hover:bg-[var(--earth-cream)] rounded-lg text-[var(--earth-brown)]"
             >
               <span>تعديل</span> <Edit size={14} />
             </button>
 
             <button
-              disabled
-              className="w-full flex items-center justify-between px-2 py-2 text-[var(--earth-brown)]/40 cursor-not-allowed"
+              onClick={() => {
+                onDelete(book);
+                setOpenMenuId(null);
+              }}
+              className="w-full flex items-center justify-between px-2 py-2 hover:bg-[var(--earth-cream)] rounded-lg text-red-600"
             >
               <span>حذف</span> <Trash size={14} />
             </button>
@@ -76,7 +89,7 @@ const MinimalBookCard = ({ book, onClick }) => {
         )}
       </div>
 
-      {/* Main card */}
+      {/* MAIN CARD CLICK */}
       <div onClick={() => onClick(book)} className="cursor-pointer">
         <div
           className="
@@ -97,19 +110,17 @@ const MinimalBookCard = ({ book, onClick }) => {
             </div>
           )}
 
-          {/* Rating bubble */}
           <div
             className="
             absolute top-3 right-3 flex items-center gap-1 rounded-full
             bg-white/90 px-2.5 py-1 text-[10px] font-bold text-[var(--earth-brown)] shadow
-text-[14px]
+            text-[14px]
           "
           >
             <Star size={14} className="fill-yellow-400" />
             {book.averageRating?.toFixed(1) ?? "0.0"}
           </div>
 
-          {/* View count */}
           <div
             className="
             absolute bottom-3 right-3 flex items-center gap-1 rounded-full
@@ -120,7 +131,6 @@ text-[14px]
           </div>
         </div>
 
-        {/* Title & genre */}
         <div className="px-1 mt-2">
           <h3
             className="
@@ -139,9 +149,19 @@ text-[14px]
   );
 };
 
+/* -----------------------------------------------------------
+   🔹 MAIN BOOK PAGE
+----------------------------------------------------------- */
+
 export default function Books({ fetchFunction }) {
   const [books, setBooks] = useState([]);
   const [selectedBook, setSelectedBook] = useState(null);
+
+  const [bookToDelete, setBookToDelete] = useState(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [bookToUpdate, setBookToUpdate] = useState(null);
 
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
@@ -150,12 +170,16 @@ export default function Books({ fetchFunction }) {
   const [loadingMore, setLoadingMore] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState("");
+
+  const [openMenuId, setOpenMenuId] = useState(null); // << FIXED HERE
+
   const lastRef = useRef(null);
 
   const filteredBooks = books.filter((b) =>
     b.title?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  /* FETCHING */
   useEffect(() => {
     const load = async () => {
       page === 0 ? setLoading(true) : setLoadingMore(true);
@@ -173,6 +197,7 @@ export default function Books({ fetchFunction }) {
     load();
   }, [page, fetchFunction]);
 
+  /* SCROLL LOAD */
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -191,9 +216,19 @@ export default function Books({ fetchFunction }) {
     return () => lastRef.current && observer.unobserve(lastRef.current);
   }, [page, totalPages, loadingMore]);
 
+  /* CLICK OUTSIDE TO CLOSE MENUS */
+  useEffect(() => {
+    const close = (e) => {
+      if (!e.target.closest(".book-menu-area")) {
+        setOpenMenuId(null);
+      }
+    };
+    document.addEventListener("click", close);
+    return () => document.removeEventListener("click", close);
+  }, []);
+
   return (
     <div className="w-full min-h-screen bg-[var(--earth-cream)]">
-      {/* HEADER */}
       <div
         className="
         sticky top-0 z-40 
@@ -202,7 +237,6 @@ export default function Books({ fetchFunction }) {
       "
       >
         <div className="max-w-7xl mx-auto px-6 py-4 flex flex-row items-center justify-between">
-          {/* SEARCH ON THE RIGHT */}
           <div className="relative w-full sm:w-96">
             <input
               type="text"
@@ -247,29 +281,52 @@ export default function Books({ fetchFunction }) {
                 key={book.id}
                 book={book}
                 onClick={setSelectedBook}
+                onDelete={(b) => {
+                  setBookToDelete(b);
+                  setShowDeleteDialog(true);
+                }}
+                onEdit={(b) => {
+                  setBookToUpdate(b);
+                  setShowUpdateModal(true);
+                }}
+                openMenuId={openMenuId}
+                setOpenMenuId={setOpenMenuId}
               />
             ))}
           </div>
         )}
 
-        {/* INFINITE SCROLL LOADER */}
-        <div
-          ref={lastRef}
-          className="h-20 flex items-center justify-center mt-8"
-        >
+        {/* LOAD MORE */}
+        <div ref={lastRef} className="h-20 flex items-center justify-center mt-8">
           {loadingMore && (
-            <Loader2
-              size={24}
-              className="animate-spin text-[var(--earth-brown)]/50"
-            />
+            <Loader2 size={24} className="animate-spin text-[var(--earth-brown)]/50" />
           )}
         </div>
       </div>
 
-      {/* POPUP MODAL */}
-      <BookDetailsModal
-        book={selectedBook}
-        onClose={() => setSelectedBook(null)}
+      <BookDetailsModal book={selectedBook} onClose={() => setSelectedBook(null)} />
+
+      {showDeleteDialog && (
+        <DeleteBook
+          book={bookToDelete}
+          open={showDeleteDialog}
+          onClose={() => setShowDeleteDialog(false)}
+          onDeleted={(id) => {
+            setBooks((prev) => prev.filter((b) => b.id !== id));
+            setShowDeleteDialog(false);
+          }}
+        />
+      )}
+
+      <UpdateBookModal
+        open={showUpdateModal}
+        book={bookToUpdate}
+        onClose={() => setShowUpdateModal(false)}
+        onUpdated={(updated) => {
+          setBooks((prev) =>
+            prev.map((b) => (b.id === updated.id ? updated : b))
+          );
+        }}
       />
     </div>
   );

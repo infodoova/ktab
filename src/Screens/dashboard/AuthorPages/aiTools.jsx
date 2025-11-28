@@ -25,89 +25,60 @@ export default function AITools({ pageName = "مولّد الخلاصات الذ
     setAlert({ open: true, variant, title, description });
   };
 
-  const onGenerate = async (values, errTitle, errMsg) => {
-    if (errTitle) return notify("error", errTitle, errMsg);
+ const onGenerate = async (values, errTitle, errMsg) => {
+  if (errTitle) return notify("error", errTitle, errMsg);
 
-    const { type, wordCount, audience, file } = values;
+  const { type, wordCount, audience, file } = values;
 
-    setLoading(true);
-    setSummary("");
-    setHasStarted(false); // START fresh before generation
+  setLoading(true);
+  setSummary("");
+  setHasStarted(false);
 
-    try {
-      const formData = new FormData();
-      formData.append("type", type);
-      formData.append("wordCount", wordCount);
-      formData.append("audience", audience);
-      formData.append("file", file);
+  try {
+    const formData = new FormData();
+    formData.append("type", type);
+    formData.append("wordCount", wordCount);
+    formData.append("audience", audience);
+    formData.append("file", file);
 
-      const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token");
 
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/conclusion/stream`,
-        {
-          method: "POST",
-          headers: {
-            Accept: "text/event-stream",
-            Authorization: token ? `Bearer ${token}` : undefined,
-          },
-          body: formData,
-        }
-      );
-
-      if (!response.ok) {
-        setLoading(false);
-        return notify("error", "فشل التوليد", "حدث خطأ أثناء الاتصال بالخادم");
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/conclusion/generate`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: token ? `Bearer ${token}` : undefined
+        },
+        body: formData,
       }
+    );
 
-      // --- TRUE SSE STREAMING FIX ---
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder("utf-8");
-
-      let buffer = "";
-      let fullText = "";
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-
-        let lines = buffer.split("\n");
-        buffer = lines.pop(); // keep last partial line
-
-        for (const line of lines) {
-          if (!line.trim()) continue;
-
-          if (line.startsWith("data:")) {
-            const msg = line.replace("data:", "").trim();
-            if (!msg) continue;
-
-            // ⭐ FIRST SSE CHUNK ARRIVED — hide robot overlay
-            if (!hasStarted) setHasStarted(true);
-
-            fullText += msg + " ";
-            setSummary(fullText);
-          }
-
-          if (line.includes("[DONE]")) {
-            try {
-              reader.cancel();
-            } catch {
-              //
-            }
-          }
-        }
-      }
-
-      notify("success", "تم التوليد", "الخلاصة جاهزة الآن.");
-
-    } catch (error) {
-      notify("error", "خطأ غير متوقع", error.message);
+    if (!response.ok) {
+      setLoading(false);
+      return notify("error", "فشل التوليد", "حدث خطأ أثناء الاتصال بالخادم");
     }
 
-    setLoading(false);
-  };
+    //------------------------------
+    // ⭐ NON-STREAM RESPONSE PARSING
+    //------------------------------
+    const data = await response.json();
+
+   if (!data || !data.data || !data.data.content) {
+  setLoading(false);
+  return notify("error", "استجابة غير صالحة", "الخادم لم يرجع نص الخلاصة");
+}
+
+setSummary(data.data.content);
+
+    notify("success", "تم التوليد", "الخلاصة جاهزة الآن.");
+  } catch (error) {
+    notify("error", "خطأ غير متوقع", error.message);
+  }
+
+  setLoading(false);
+};
+
 
   return (
     <div className="min-h-screen bg-[var(--earth-cream)] rtl">

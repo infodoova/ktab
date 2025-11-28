@@ -72,6 +72,18 @@ export async function deleteHelper({ url, headers = {} }) {
   return res.json();
 }
 
+export async function patchHelper({ url, body, headers = {} }) {
+  await tokenManager.refreshIfNeeded();  
+
+  const res = await fetch(url, {
+    method: "PATCH",
+    headers: buildHeaders(headers),
+    body: JSON.stringify(body),
+  });
+
+  return res.json();
+}
+
 export async function postFormDataHelper({ url, formData }) {
       await tokenManager.refreshIfNeeded(); 
 

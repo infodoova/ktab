@@ -15,7 +15,7 @@ import {
   Smile,
 } from "lucide-react";
 
-export default function BookDetailsModal({ book, onClose, onEdit, onDelete }) {
+export default function BookDetailsModal({ book, onClose }) {
   // Prevent background scrolling when modal is open
   useEffect(() => {
     if (book) {
@@ -196,24 +196,7 @@ export default function BookDetailsModal({ book, onClose, onEdit, onDelete }) {
               </button>
             </div>
 
-            {/* Admin/Edit Actions Row */}
-            <div className="flex gap-3 pt-3 border-t border-[var(--earth-sand)]/30">
-              <button
-                onClick={() => onEdit && onEdit(book)}
-                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium text-[var(--earth-brown)]/70 hover:bg-[var(--earth-sand)]/20 hover:text-[var(--earth-brown)] transition-colors"
-              >
-                <Edit size={16} />
-                <span>تعديل التفاصيل</span>
-              </button>
-              
-              <button
-                onClick={() => onDelete && onDelete(book.id)}
-                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium text-red-500/80 hover:bg-red-50 hover:text-red-600 transition-colors"
-              >
-                <Trash2 size={16} />
-                <span>حذف الكتاب</span>
-              </button>
-            </div>
+         
           </div>
 
         </div>
