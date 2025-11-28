@@ -11,6 +11,9 @@ export default function AITools({ pageName = "مولّد الخلاصات الذ
   const [loading, setLoading] = useState(false);
   const [summary, setSummary] = useState("");
 
+  // ⭐ NEW — detect first SSE chunk
+  const [hasStarted, setHasStarted] = useState(false);
+
   const [alert, setAlert] = useState({
     open: false,
     variant: "info",
@@ -22,21 +25,88 @@ export default function AITools({ pageName = "مولّد الخلاصات الذ
     setAlert({ open: true, variant, title, description });
   };
 
-  const onGenerate = (title, pdfFile, errTitle, errMsg) => {
-    if (errTitle) {
-      return notify("error", errTitle, errMsg);
-    }
+  const onGenerate = async (values, errTitle, errMsg) => {
+    if (errTitle) return notify("error", errTitle, errMsg);
 
-    // Start loading
+    const { type, wordCount, audience, file } = values;
+
     setLoading(true);
     setSummary("");
+    setHasStarted(false); // START fresh before generation
 
-    // Fake AI processing delay
-    setTimeout(() => {
-      setLoading(false);
-      setSummary("هذا مثال خلاصة يتم عرضها بعد اكتمال التوليد...");
+    try {
+      const formData = new FormData();
+      formData.append("type", type);
+      formData.append("wordCount", wordCount);
+      formData.append("audience", audience);
+      formData.append("file", file);
+
+      const token = localStorage.getItem("token");
+
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/conclusion/stream`,
+        {
+          method: "POST",
+          headers: {
+            Accept: "text/event-stream",
+            Authorization: token ? `Bearer ${token}` : undefined,
+          },
+          body: formData,
+        }
+      );
+
+      if (!response.ok) {
+        setLoading(false);
+        return notify("error", "فشل التوليد", "حدث خطأ أثناء الاتصال بالخادم");
+      }
+
+      // --- TRUE SSE STREAMING FIX ---
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+
+      let buffer = "";
+      let fullText = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+
+        let lines = buffer.split("\n");
+        buffer = lines.pop(); // keep last partial line
+
+        for (const line of lines) {
+          if (!line.trim()) continue;
+
+          if (line.startsWith("data:")) {
+            const msg = line.replace("data:", "").trim();
+            if (!msg) continue;
+
+            // ⭐ FIRST SSE CHUNK ARRIVED — hide robot overlay
+            if (!hasStarted) setHasStarted(true);
+
+            fullText += msg + " ";
+            setSummary(fullText);
+          }
+
+          if (line.includes("[DONE]")) {
+            try {
+              reader.cancel();
+            } catch {
+              //
+            }
+          }
+        }
+      }
+
       notify("success", "تم التوليد", "الخلاصة جاهزة الآن.");
-    }, 2800);
+
+    } catch (error) {
+      notify("error", "خطأ غير متوقع", error.message);
+    }
+
+    setLoading(false);
   };
 
   return (
@@ -55,30 +125,25 @@ export default function AITools({ pageName = "مولّد الخلاصات الذ
       >
         <main className="flex-1 flex flex-col">
 
-          {/* ✅ PAGE HEADER IS BACK HERE */}
-          <PageHeader
-            mainTitle={pageName}
-            buttonTitle=""
-            onPress={() => {}}
-          />
+          <PageHeader mainTitle={pageName} buttonTitle="" onPress={() => {}} />
 
-          {/* MAIN CONTENT */}
-    {/* MAIN CONTENT */}
-<div className="flex flex-col-reverse lg:flex-row flex-1 p-4 lg:p-8 gap-6 lg:gap-8">
+          <div className="flex flex-col-reverse lg:flex-row flex-1 p-4 lg:p-8 gap-6 lg:gap-8">
 
-  {/* LEFT — AI RESULT / LOADER */}
-  <SummaryPanel loading={loading} summary={summary} />
+            {/* LEFT — AI RESULT */}
+            <SummaryPanel
+              loading={loading}
+              summary={summary}
+              hasStarted={hasStarted}
+            />
 
-  {/* RIGHT — FORM */}
-  <PdfInputCard onGenerate={onGenerate} loading={loading} />
-
-</div>
-
+            {/* RIGHT — FORM */}
+            <PdfInputCard onGenerate={onGenerate} loading={loading} />
+          </div>
 
         </main>
       </div>
 
-      {/* ALERT TOAST */}
+      {/* TOAST */}
       <AlertToast
         open={alert.open}
         variant={alert.variant}

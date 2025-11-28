@@ -56,6 +56,26 @@ const float = {
   y: [0, -10, 0],
   transition: { duration: 5, repeat: Infinity, repeatType: "reverse" },
 };
+function EarthToggle({ checked, onChange }) {
+  return (
+    <button
+      onClick={() => onChange(!checked)}
+      className={`
+        w-16 h-8 rounded-full p-1 flex items-center 
+        transition-all duration-300 border
+        ${checked 
+          ? "bg-[var(--earth-brown)] border-[var(--earth-brown)] justify-end"
+          : "bg-[var(--earth-sand)]/60 border-[var(--earth-sand)] justify-start"
+        }
+      `}
+    >
+      <div className="
+        w-6 h-6 bg-white rounded-full shadow-md 
+        transition-all duration-300
+      " />
+    </button>
+  );
+}
 
 export default function PricingSection() {
   const [yearly, setYearly] = useState(false);
@@ -96,12 +116,12 @@ export default function PricingSection() {
           whileInView={{ opacity: 1 }}
           className="flex justify-center mt-10"
         >
-          <div className="flex items-center gap-3 bg-white px-6 py-3 rounded-full shadow-md border border-[var(--earth-sand)]/50">
+          <div className="flex items-center gap-3 bg-white px-6 py-3 rounded-full shadow-md border border-[var(--earth-brown)]/50">
             <Label className={!yearly ? "text-[var(--earth-brown)]" : "text-[var(--earth-brown)]/40"}>
               شهري
             </Label>
 
-            <Switch checked={yearly} onCheckedChange={setYearly} />
+<EarthToggle checked={yearly} onChange={setYearly} />
 
             <Label className={yearly ? "text-[var(--earth-brown)]" : "text-[var(--earth-brown)]/40"}>
               سنوي

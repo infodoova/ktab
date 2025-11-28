@@ -1,27 +1,49 @@
 import { useNavigate, useOutlet } from "react-router-dom";
-import { useEffect } from "react";
-import { getUserData, isTokenExpired } from "../store/authToken";
+import { useEffect, useState } from "react";
+import tokenManager from "../services/tokenManager";
+import { getUserData } from "../store/authToken";
 
-export default function RoleGuard({ allowedRoles = [] }) {
+export default function RoleGuard({ allowedRoles }) {
   const navigate = useNavigate();
   const outlet = useOutlet();
-
-  const user = getUserData();
-  const tokenExpired = isTokenExpired();
-  
-  const isAuthorized = user && !tokenExpired && allowedRoles.includes(user.role);
-  const isLoginNeeded = !user || tokenExpired;
+  const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    if (isLoginNeeded) {
-      if (tokenExpired) localStorage.removeItem("token"); 
-      navigate("/Screens/auth/login", { replace: true });
-    } else if (!isAuthorized) {
-      navigate("/Screens/roleError", { replace: true });
-    }
-  }, [isLoginNeeded, isAuthorized, navigate, tokenExpired]);
+    const validate = async () => {
+      const token = tokenManager.getToken();
 
-  if (!isAuthorized) return null;
+      // No token -> login
+      if (!token) {
+        navigate("/Screens/auth/login", { replace: true });
+        return;
+      }
 
+      try {
+        // Refresh BEFORE deciding authorization
+        await tokenManager.refreshIfNeeded();
+
+        const user = getUserData();
+        if (!user) {
+          navigate("/Screens/auth/login", { replace: true });
+          return;
+        }
+
+        if (!allowedRoles.includes(user.role)) {
+          navigate("/Screens/roleError", { replace: true });
+          return;
+        }
+
+        // Done
+        setChecking(false);
+
+      } catch  {
+        navigate("/Screens/auth/login", { replace: true });
+      }
+    };
+
+    validate();
+  }, [allowedRoles, navigate]);
+
+  if (checking) return null;
   return outlet;
 }

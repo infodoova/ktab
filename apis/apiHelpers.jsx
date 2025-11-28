@@ -1,3 +1,4 @@
+import tokenManager from "../services/tokenManager";
 
 const defaultHeaders = {
   "Content-Type": "application/json",
@@ -21,6 +22,8 @@ function buildQuery(pagination, page, size) {
 }
 
 export async function getHelper({ url, headers = {}, pagination, page, size }) {
+    await tokenManager.refreshIfNeeded(); 
+
   const query = buildQuery(pagination, page, size);
   const res = await fetch(url + query, {
     method: "GET",
@@ -32,6 +35,8 @@ export async function getHelper({ url, headers = {}, pagination, page, size }) {
 }
 
 export async function postHelper({ url, body, headers = {} }) {
+    await tokenManager.refreshIfNeeded(); 
+
   const res = await fetch(url, { 
     method: "POST",
     headers: buildHeaders(headers),
@@ -43,6 +48,8 @@ export async function postHelper({ url, body, headers = {} }) {
 }
 
 export async function putHelper({ url, body, headers = {} }) {
+      await tokenManager.refreshIfNeeded(); 
+
   const res = await fetch(url, { 
     method: "PUT",
     headers: buildHeaders(headers),
@@ -54,6 +61,8 @@ export async function putHelper({ url, body, headers = {} }) {
 }
 
 export async function deleteHelper({ url, headers = {} }) {
+      await tokenManager.refreshIfNeeded(); 
+
   const res = await fetch(url, { 
     method: "DELETE",
     headers: buildHeaders(headers),
@@ -64,6 +73,8 @@ export async function deleteHelper({ url, headers = {} }) {
 }
 
 export async function postFormDataHelper({ url, formData }) {
+      await tokenManager.refreshIfNeeded(); 
+
   const token = localStorage.getItem("token");
 
   const response = await fetch(url, {

@@ -1,4 +1,3 @@
-// TokenManager.js
 import { decodeJwt } from "./authService";
 
 let isRefreshing = false;
@@ -39,23 +38,22 @@ class TokenManager {
   }
 
   async safeRefresh() {
-    if (isRefreshing) return refreshPromise;
+  if (isRefreshing) return refreshPromise;
 
-    isRefreshing = true;
+  isRefreshing = true;
 
-    refreshPromise = new Promise( (resolve, reject) => {
-      try {
-        const newToken =  this.callRefreshAPI();
-        isRefreshing = false;
-        resolve(newToken);
-      } catch (err) {
-        isRefreshing = false;
-        reject(err);
-      }
+  refreshPromise = this.callRefreshAPI()
+    .then((newToken) => {
+      isRefreshing = false;
+      return newToken;
+    })
+    .catch((err) => {
+      isRefreshing = false;
+      throw err;
     });
 
-    return refreshPromise;
-  }
+  return refreshPromise;
+}
 
   async callRefreshAPI() {
     const token = this.getToken();

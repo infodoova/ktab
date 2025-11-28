@@ -1,6 +1,3 @@
-/* -------------------------------------------------------
-   Decode JWT payload
---------------------------------------------------------- */
 export function decodeJwt(token) {
   try {
     // Decode base64 URL-safe string
@@ -12,47 +9,3 @@ export function decodeJwt(token) {
   }
 }
 
-/* -------------------------------------------------------
-   Refresh token function
---------------------------------------------------------- */
-export async function refreshAccessToken() {
-  const token = localStorage.getItem("token");
-
-  if (!token) {
-    localStorage.removeItem("token");
-    window.location.href = "/Screens/auth/login";
-    return null;
-  }
-
-  try {
-    const res = await fetch(
-      `${import.meta.env.VITE_API_URL}/auth/refresh-token`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // 
-        },
-      }
-    );
-
-    if (!res.ok) {
-      localStorage.removeItem("token");
-      window.location.href = "/Screens/auth/login";
-      return null;
-    }
-
-    const data = await res.json();
-
-    // backend returns a new token inside data.data.token
-    const newToken = data.data.token;
-
-    localStorage.setItem("token", newToken);
-    return newToken;
-  } catch (error) {
-    console.error("Token refresh failed:", error);
-    localStorage.removeItem("token");
-    window.location.href = "/Screens/auth/login";
-    return null;
-  }
-}

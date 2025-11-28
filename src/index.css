@@ -65,3 +65,20 @@ body {
 @keyframes slideUp {
   to { opacity: 1; transform: translateY(0); }
 }
+/* Custom smooth scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--earth-sand);
+  border-radius: 20px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--earth-brown);
+}

@@ -44,13 +44,13 @@ function App() {
               
                 
         <Route path="/Screens/dashboard/AuthorPages/aiTools" element={<AITools />} />
+         <Route path="/Screens/dashboard/AuthorPages/myBooks" element={<MyBooks />} />
 
 
       <Route element={<RoleGuard allowedRoles={["AUTHOR"]} />}>
         <Route path="/Screens/dashboard/AuthorPages/controlBoard" element={<ControlBoard />} />
         <Route path="/Screens/dashboard/AuthorPages/NewInteractiveStory" element={<InterActiveStory />} />
           <Route path="/Screens/dashboard/AuthorPages/newBookPublish" element={<NewBooks />} />
-         <Route path="/Screens/dashboard/AuthorPages/myBooks" element={<MyBooks />} />
         <Route path="/Screens/dashboard/AuthorPages/Settings" element={<Settings />} />
         <Route path="/Screens/dashboard/AuthorPages/ratings" element={<Ratings />} />
       </Route>

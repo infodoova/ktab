@@ -96,7 +96,7 @@ export default function Navbar() {
       {/* 📌 DESKTOP LOGO */}
       {!isMobileLike && (
         <div
-          className={`h-full items-center justify-center cursor-pointer overflow-visible ${isCollapsed ? "absolute inset-0" : "absolute right-6"}`}
+          className={`items-center justify-center cursor-pointer overflow-visible ${isCollapsed ? "absolute inset-0" : "absolute right-6"}`}
           style={{ width: isCollapsed ? "100%" : "auto" }}
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         >
@@ -107,8 +107,8 @@ export default function Navbar() {
             object-contain select-none transition-transform duration-300
             ${
               isCollapsed
-                ? "h-20 lg:h-24 scale-110"   // ✅ collapsed desktop (you already like this)
-                : "h-16 lg:h-20"              // ✅ bigger in normal desktop
+                ? "h-20 lg:h-24 scale-110"   //  collapsed desktop
+                : "h-16 lg:h-20"              // bigger in normal desktop
             }
           `}
         />
