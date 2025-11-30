@@ -82,3 +82,20 @@ body {
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: var(--earth-brown);
 }
+/* book flip css */
+
+.stf__shadow {
+  opacity: 0.25 !important;         /* soft, realistic shadow */
+  box-shadow: 0 0 25px rgba(0,0,0,0.25) !important;
+}
+
+/* Remove silver/metallic shine */
+.stf__page {
+  background-image: none !important;
+}
+
+
+/* Optional: keep page corner visible but remove glow */
+.stf__corner {
+  background: none !important;
+}

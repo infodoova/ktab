@@ -18,6 +18,9 @@ import InteractiveStories from "./Screens/dashboard/ReaderPages/InteractiveStori
 import Profile from "./Screens/dashboard/ReaderPages/Profile";
 import Library from "./Screens/dashboard/ReaderPages/library";
 import ReaderSettings from "./Screens/dashboard/ReaderPages/Settings"; 
+import BookDetails from "./Screens/dashboard/ReaderPages/BookDetails/[id]";
+import BookDisplay from "./Screens/dashboard/ReaderPages/BookDisplayPage/[id]";
+
 
 import RoleError from "./Screens/roleError";
 
@@ -39,13 +42,13 @@ function App() {
         <Route path="/Screens/auth/signup" element={<SignupPage />} />
       </Route>
 
+
       {/* ===========================
           AUTHOR PAGES (role = AUTHOR)
          =========================== */}
               
                 
-        <Route path="/Screens/dashboard/AuthorPages/aiTools" element={<AITools />} />
-         <Route path="/Screens/dashboard/AuthorPages/myBooks" element={<MyBooks />} />
+    
 
 
       <Route element={<RoleGuard allowedRoles={["AUTHOR"]} />}>
@@ -54,13 +57,17 @@ function App() {
           <Route path="/Screens/dashboard/AuthorPages/newBookPublish" element={<NewBooks />} />
         <Route path="/Screens/dashboard/AuthorPages/Settings" element={<Settings />} />
         <Route path="/Screens/dashboard/AuthorPages/ratings" element={<Ratings />} />
+            <Route path="/Screens/dashboard/AuthorPages/aiTools" element={<AITools />} />
+         <Route path="/Screens/dashboard/AuthorPages/myBooks" element={<MyBooks />} />
       </Route>
 
       {/* ===========================
           READER PAGES (role = READER)
          =========================== */}
+                 <Route path="/Screens/dashboard/ReaderPages/MainPage" element={<MainPage />} />
+        <Route path="/Screens/dashboard/ReaderPages/BookDetails/:id" element={<BookDetails />} />
+        <Route path="/Screens/dashboard/ReaderPages/BookDisplayPage/:id" element={<BookDisplay />} />
       <Route element={<RoleGuard allowedRoles={["READER"]} />}>
-        <Route path="/Screens/dashboard/ReaderPages/MainPage" element={<MainPage />} />
         <Route path="/Screens/dashboard/ReaderPages/InteractiveStories" element={<InteractiveStories />} />
         <Route path="/Screens/dashboard/ReaderPages/Profile" element={<Profile />} />
         <Route path="/Screens/dashboard/ReaderPages/library" element={<Library />} />
