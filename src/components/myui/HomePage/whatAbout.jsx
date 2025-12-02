@@ -181,6 +181,7 @@ export default function WhatAbout() {
                     <img
                       src={feature.image}
                       alt={feature.title}
+                      loading="lazy"
                       className="
                         w-full h-full object-cover
                         transition-transform duration-700

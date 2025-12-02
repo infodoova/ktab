@@ -9,7 +9,8 @@ import {
   Bot,
   Star,
   Settings,
-  SquareLibrary
+  SquareLibrary,
+  Search, // Imported Search Icon
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -26,12 +27,12 @@ import { useNavigate } from "react-router-dom";
 import ktabLogo from "../../../../assets/logo/logo.png";
 
 const navLinks = [
-  { label: "  الصفحة الرئيسية  ", icon: BookOpen, href: "../../../Screens/dashboard/ReaderPages/MainPage" },
+  { label: "  الصفحة الرئيسية  ", icon: BookOpen, href: "../../../Screens/dashboard/ReaderPages/MainPage" },
   { label: " المكتبة ", icon: SquareLibrary, href: "../../../Screens/dashboard/ReaderPages/library" },
-  { label: "  القصص التفاعلية  ", icon: FolderOpen, href: "../../../Screens/dashboard/ReaderPages/InteractiveStories" },
+  { label: "  القصص التفاعلية  ", icon: FolderOpen, href: "../../../Screens/dashboard/ReaderPages/InteractiveStories" },
  
-  { label: "   الملف الشخصي   ", icon: Star, href: "../../../Screens/dashboard/ReaderPages/Profile" },
-  { label: "   الاعدادات   ", icon: Settings, href: "../../../Screens/dashboard/ReaderPages/Settings" },
+  { label: "   الملف الشخصي   ", icon: Star, href: "../../../Screens/dashboard/ReaderPages/Profile" },
+  { label: "   الاعدادات   ", icon: Settings, href: "../../../Screens/dashboard/ReaderPages/Settings" },
 ];
 
 
@@ -124,15 +125,34 @@ const Navbar = ({
   pageName,
   collapsed,
   setCollapsed,
+  onSearchClick, // Prop used to open the modal
 }) => {
   const [isSheetOpen, setSheetOpen] = useState(false);
 
   return (
     <>
       {/* MOBILE HEADER */}
-      <header className="md:hidden grid grid-cols-[1fr_auto_1fr] items-center px-4 py-3 bg-[#f7f4ef] border-b rtl h-16">
-        <div className="flex justify-start">
-          {mobileButtonTitle ? (
+      {/* ADDED fixed top-0 z-50 w-full */}
+      <header className="md:hidden fixed top-0 z-50 w-full grid grid-cols-[1fr_auto_1fr] items-center px-4 py-3 bg-[#f7f4ef] border-b rtl h-16">
+        
+        {/* LEFT COLUMN (START) - Now includes Search Icon */}
+        <div className="flex justify-start items-center gap-2">
+          
+          {/* SEARCH BUTTON (Moved to Left) */}
+          <button
+            onClick={onSearchClick}
+            aria-label="بحث"
+            className="
+              p-2 rounded-full h-10 w-10 
+              text-[var(--earth-brown)] 
+              hover:bg-[var(--earth-brown)]/10 
+              transition-colors
+            "
+          >
+            <Search size={20} strokeWidth={2} />
+          </button>
+
+          {mobileButtonTitle && (
             <Button
               variant="outline"
               onClick={onMobileButtonPress}
@@ -140,8 +160,6 @@ const Navbar = ({
             >
               {mobileButtonTitle}
             </Button>
-          ) : (
-            <div className="w-10" />
           )}
         </div>
 
@@ -151,7 +169,8 @@ const Navbar = ({
           </h1>
         </div>
 
-        <div className="flex justify-end">
+        {/* RIGHT COLUMN (END) - Menu only */}
+        <div className="flex justify-end items-center gap-2">
           <Sheet open={isSheetOpen} onOpenChange={setSheetOpen}>
             <SheetTrigger asChild>
               <Button variant="outline" size="icon" className="h-10 w-10">
@@ -171,6 +190,8 @@ const Navbar = ({
           </Sheet>
         </div>
       </header>
+      
+      <div className="md:hidden h-16 w-full" />
 
       {/* DESKTOP SIDEBAR */}
       <aside

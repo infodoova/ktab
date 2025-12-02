@@ -50,6 +50,7 @@ export default function ForAllAges() {
   "
   style={{
     backgroundImage: `url(${owl2})`,
+    lazy: "loading",
     filter: "blur(2px)", 
     maskImage: "radial-gradient(circle, rgba(0,0,0,1) 40%, transparent 80%)",
     WebkitMaskImage:

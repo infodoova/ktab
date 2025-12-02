@@ -1,65 +1,62 @@
 import React, { useEffect, useRef, useState } from "react";
 import { MoreVertical, Share2, Loader2, BookOpen } from "lucide-react";
 import SkeletonBookLoader from "./SkeletonBookLoader";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const ITEMS_PER_PAGE = 8;
 
 /* -----------------------------------------------------------
-   🔹 MINIMAL BOOK CARD  — with hover + click fix
+   🔹 MINIMAL BOOK CARD 
 ----------------------------------------------------------- */
-const MinimalBookCard = ({ book, openMenuId, setOpenMenuId, onCardClick }) => {
+const MinimalBookCard = React.memo(({ book, openMenuId, setOpenMenuId, index }) => {
   const isOpen = openMenuId === book.id;
+  const isAboveFold = index < 8;
 
   const toggleMenu = (e) => {
-    e.stopPropagation(); 
+    e.preventDefault(); 
+    e.stopPropagation();
     setOpenMenuId(isOpen ? null : book.id);
   };
 
   const handleShare = async (e) => {
+    e.preventDefault(); 
     e.stopPropagation();
-
     if (navigator.share) {
-      await navigator.share({
-        title: book.title,
-        text: "اطّلع على هذا الكتاب",
-        url: book.pdfDownloadUrl,
-      });
+      try {
+        await navigator.share({
+          title: book.title,
+          text: "اطّلع على هذا الكتاب",
+          url: book.pdfDownloadUrl,
+        });
+      } catch (err) {
+        console.log("Share dismissed",err);
+      }
     } else {
       navigator.clipboard.writeText(book.pdfDownloadUrl);
       alert("تم نسخ رابط الكتاب");
     }
-
     setOpenMenuId(null);
   };
 
   return (
-    <div
-      className="relative flex flex-col gap-3 cursor-pointer"
-      dir="rtl"
-      onClick={onCardClick}
-    >
-      {/* MENU BUTTON */}
-      <div
-        className="absolute top-2 left-2 z-20 book-menu-area"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className="relative flex flex-col gap-3 group" dir="rtl">
+      <div className="absolute top-2 left-2 z-20 book-menu-area">
         <button
           onClick={toggleMenu}
-          className="p-1.5 rounded-full bg-white/80 backdrop-blur-md shadow text-[var(--earth-brown)] hover:bg-[var(--earth-cream)]"
+          aria-label="خيارات إضافية"
+          aria-expanded={isOpen}
+          className="p-1.5 rounded-full bg-white/80 backdrop-blur-md shadow-sm text-[var(--earth-brown)] hover:bg-[var(--earth-cream)] transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--earth-brown)]"
         >
           <MoreVertical size={16} />
         </button>
-
-        {/* MENU CONTENT */}
         {isOpen && (
           <div
-            className="absolute top-8 left-0 w-40 bg-white shadow-lg rounded-xl border border-[var(--earth-sand)]/50 p-2 text-sm z-30"
+            className="absolute top-9 left-0 w-36 bg-white shadow-xl rounded-xl border border-[var(--earth-sand)]/50 p-1.5 text-sm z-30 animate-in fade-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               onClick={handleShare}
-              className="w-full flex items-center justify-between px-2 py-2 hover:bg-[var(--earth-cream)] rounded-lg text-[var(--earth-brown)]"
+              className="w-full flex items-center justify-between px-3 py-2 hover:bg-[var(--earth-cream)] rounded-lg text-[var(--earth-brown)] transition-colors"
             >
               <span>مشاركة</span> <Share2 size={14} />
             </button>
@@ -67,52 +64,64 @@ const MinimalBookCard = ({ book, openMenuId, setOpenMenuId, onCardClick }) => {
         )}
       </div>
 
-      {/* COVER ONLY has hover effect */}
-      <div className="w-full rounded-xl overflow-hidden shadow bg-white">
-        <img
-          src={book.coverImageUrl}
-          alt={book.title}
-          className="
-            w-full h-full object-cover 
-            transition-transform duration-300
-            hover:scale-105
-          "
-          style={{ aspectRatio: "1 / 1.5" }}
-        />
-      </div>
-
-      {/* Title */}
-      <p className="text-[var(--earth-brown-dark)] text-sm font-semibold line-clamp-1">
-        {book.title}
-      </p>
+      <Link
+        to={`/Screens/dashboard/ReaderPages/BookDetails/${book.id}`}
+        state={{ book }}
+        className="flex flex-col gap-3 w-full"
+        aria-label={`عرض تفاصيل كتاب ${book.title}`}
+      >
+        <div className="w-full relative rounded-xl overflow-hidden shadow-sm bg-gray-100 pb-[160%]">
+          <img
+            src={book.coverImageUrl}
+            alt={`غلاف كتاب ${book.title}`}
+            loading={isAboveFold ? "eager" : "lazy"} 
+            fetchPriority={isAboveFold ? "high" : "auto"}
+            decoding="async"
+            className="
+              absolute inset-0 w-full h-full object-cover 
+              transition-transform duration-500 ease-out
+              group-hover:scale-105 will-change-transform
+            "
+          />
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300 pointer-events-none" />
+        </div>
+        <h3 
+          className="text-[var(--earth-brown-dark)] text-xs font-bold line-clamp-1 group-hover:text-[var(--earth-brown)] transition-colors"
+          title={book.title}
+        >
+          {book.title}
+        </h3>
+      </Link>
     </div>
   );
-};
+});
 
 
 /* -----------------------------------------------------------
-   🔹 MAIN BOOK PAGE 
+   🔹 MAIN BOOK GRID 
 ----------------------------------------------------------- */
-export default function Books({ fetchFunction }) {
-  const navigate = useNavigate();
+// Now receives 'activeFilters' from props instead of internal state
+export default function BooksGrid({ fetchFunction, activeFilters }) {
   const [books, setBooks] = useState([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
-
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-
   const [openMenuId, setOpenMenuId] = useState(null);
 
   const lastRef = useRef(null);
 
-  /* FETCHING */
+  /* FETCHING TRIGGERED BY FILTERS OR PAGE */
   useEffect(() => {
     const load = async () => {
+      // Reset logic: if activeFilters changed, the parent should have reset 'page' 
+      // but here we just react to the page/filter combo.
+      
       if (page === 0) setLoading(true);
       else setLoadingMore(true);
 
-      const res = await fetchFunction(page);
+      // Pass activeFilters to fetchFunction
+      const res = await fetchFunction(page, activeFilters);
 
       setBooks((prev) =>
         page === 0 ? res.content : [...prev, ...res.content]
@@ -125,10 +134,22 @@ export default function Books({ fetchFunction }) {
     };
 
     load();
-  }, [page, fetchFunction]);
+  }, [page, fetchFunction, activeFilters]);
+
+  // When filters change externally, we must reset the list and page locally? 
+  // Actually, standard practice is to let the Effect handle the fetch, 
+  // but we need to ensure page is 0 when filters change.
+  // We can do this with a separate useEffect just for filters:
+  useEffect(() => {
+    // Avoid synchronous setState in effect — schedule reset on next tick
+    const id = setTimeout(() => setPage(0), 0);
+    return () => clearTimeout(id);
+  }, [activeFilters]);
+
 
   /* INFINITE SCROLL */
   useEffect(() => {
+    const currentLastRef = lastRef.current;
     const observer = new IntersectionObserver(
       (entries) => {
         if (
@@ -141,11 +162,11 @@ export default function Books({ fetchFunction }) {
       },
       { threshold: 0.15 }
     );
-
-    if (lastRef.current) observer.observe(lastRef.current);
-    return () =>
-      lastRef.current && observer.unobserve(lastRef.current);
-  }, [page, totalPages, loadingMore]);
+    if (currentLastRef) observer.observe(currentLastRef);
+    return () => {
+      if (currentLastRef) observer.unobserve(currentLastRef);
+    };
+  }, [page, totalPages, loadingMore]);  
 
   /* CLICK OUTSIDE MENU */
   useEffect(() => {
@@ -160,11 +181,13 @@ export default function Books({ fetchFunction }) {
 
   return (
     <div className="w-full min-h-screen bg-[var(--earth-cream)]">
-      {/* GRID */}
       <div className="max-w-7xl mx-auto px-6 py-8">
+        
+        {/* Note: Search Bar removed from here */}
+
         {/* LOADING STATE */}
         {loading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
               <SkeletonBookLoader key={i} />
             ))}
@@ -172,17 +195,21 @@ export default function Books({ fetchFunction }) {
         ) : books.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-[var(--earth-brown)]/50">
             <BookOpen size={48} strokeWidth={1} />
-            <p className="mt-4 text-lg font-medium">لا توجد كتب</p>
+            <p className="mt-4 text-lg font-medium">
+                {activeFilters?.query 
+                 ? `لا توجد نتائج لـ "${activeFilters.query}"`
+                 : "لا توجد كتب"}
+            </p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {books.map((book) => (
               <MinimalBookCard
                 key={book.id}
                 book={book}
                 openMenuId={openMenuId}
                 setOpenMenuId={setOpenMenuId}
-                onCardClick={() => navigate(`/Screens/dashboard/ReaderPages/BookDetails/${book.id}`,{ state: { book } })}
+                index={books.indexOf(book)}
               />
             ))}
           </div>

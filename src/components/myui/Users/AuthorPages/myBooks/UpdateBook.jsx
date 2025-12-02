@@ -36,12 +36,9 @@ export default function UpdateBookModal({ open, onClose, book, onUpdated }) {
     ageRangeMax: 8,
   });
 
-  /* STATE TRACKING (Replaces useEffect) */
-  // We track the currently loaded book ID to know when to reset the form
+  
   const [activeBookId, setActiveBookId] = useState(null);
 
-  // LOGIC: If modal is open and the book ID has changed (or modal was just opened),
-  // reset the form state immediately.
   if (open && book && book.id !== activeBookId) {
     setActiveBookId(book.id);
     setForm({
@@ -53,7 +50,6 @@ export default function UpdateBookModal({ open, onClose, book, onUpdated }) {
     });
   }
 
-  // LOGIC: If modal closes, reset the tracker so the form refreshes next time it opens
   if (!open && activeBookId !== null) {
     setActiveBookId(null);
   }
@@ -72,32 +68,64 @@ export default function UpdateBookModal({ open, onClose, book, onUpdated }) {
   const showSuccess = (t, d) =>
     setToast({ open: true, variant: "success", title: t, description: d });
 
-  /* HANDLE UPDATE */
- const handleUpdate = async () => {
-  if (!form.title || !form.genre || !form.description) {
-    return showError("حقول ناقصة", "يرجى تعبئة جميع الحقول.");
-  }
 
+  const [isLoading, setIsLoading] = useState(false);
+
+  const isFormChanged = () => {
+    if (!book) return false;
+    return (
+      form.title !== (book.title || "") ||
+      form.description !== (book.description || "") ||
+      form.genre !== (book.genre || "") ||
+      form.ageRangeMin !== (book.ageRangeMin || 3) ||
+      form.ageRangeMax !== (book.ageRangeMax || 8)
+    );
+  };
+
+  const isDirty = isFormChanged();
+  const isValid = Boolean(form.title && form.genre && form.description);
+
+const handleUpdate = async () => {
+  if (!isValid) return showError("حقول ناقصة", "يرجى تعبئة جميع الحقول.");
+  if (!isDirty) return showError("لم يتغير شيء", "لم تقم بتعديل أي بيانات.");
+
+  setIsLoading(true);
   try {
+    const formData = new FormData();
+
+    const bookData = {
+      title: form.title,
+      description: form.description,
+      genre: form.genre,
+      language: "arabic",
+      ageRangeMin: form.ageRangeMin,
+      ageRangeMax: form.ageRangeMax,
+    };
+
+   
+    const jsonBlob = new Blob([JSON.stringify(bookData)], {
+      type: "application/json",
+    });
+
+    formData.append("bookDto", jsonBlob);
+
     const res = await patchHelper({
-      url: `${import.meta.env.VITE_API_URL}/books/${book.id}`,
-      body: {
-        title: form.title,
-        description: form.description,
-        genre: form.genre,
-        language: "arabic",
-        ageRangeMin: form.ageRangeMin,
-        ageRangeMax: form.ageRangeMax,
-      },
+      url: `${import.meta.env.VITE_API_URL}/authors/updateBook/${book.id}`,
+      body: formData,
     });
 
     showSuccess("تم التحديث", "تم تحديث بيانات الكتاب بنجاح");
     onUpdated(res);
+    setIsLoading(false);
     onClose();
   } catch (err) {
+    console.error("Update Error:", err);
+    setIsLoading(false);
     showError("فشل التحديث", err?.message || "حدث خطأ أثناء تحديث الكتاب.");
   }
 };
+
+
 
 
   if (!open || !book) return null;
@@ -154,6 +182,7 @@ export default function UpdateBookModal({ open, onClose, book, onUpdated }) {
                     onChange={(e) =>
                       setForm({ ...form, title: e.target.value })
                     }
+                    disabled={isLoading}
                   />
                   <WarningBox>الحد الأقصى 255 حرف.</WarningBox>
                 </div>
@@ -169,6 +198,7 @@ export default function UpdateBookModal({ open, onClose, book, onUpdated }) {
                         onChange={(e) =>
                           setForm({ ...form, genre: e.target.value })
                         }
+                        disabled={isLoading}
                       >
                         <option value="">اختر التصنيف</option>
                         {categories.map((c) => (
@@ -196,6 +226,7 @@ export default function UpdateBookModal({ open, onClose, book, onUpdated }) {
                             ageRangeMax: max,
                           });
                         }}
+                        disabled={isLoading}
                       >
                         <option value="">اختر الفئة</option>
                         {ageGroups.map((g) => (
@@ -218,6 +249,7 @@ export default function UpdateBookModal({ open, onClose, book, onUpdated }) {
                     onChange={(e) =>
                       setForm({ ...form, description: e.target.value })
                     }
+                    disabled={isLoading}
                   />
                   <WarningBox>يرجى كتابة وصف مختصر وواضح.</WarningBox>
                 </div>
@@ -268,9 +300,20 @@ export default function UpdateBookModal({ open, onClose, book, onUpdated }) {
             <div className="mt-8 md:mt-10 border-t pt-6 flex justify-end lg:justify-start">
               <button
                 onClick={handleUpdate}
-                className="w-full md:w-auto px-10 py-3 bg-[var(--earth-olive)] hover:bg-[var(--earth-olive)]/90 text-white rounded-xl text-base font-semibold shadow-lg shadow-[var(--earth-olive)]/20 transition-all"
+                disabled={!isDirty || !isValid || isLoading}
+                className={`w-full md:w-auto px-10 py-3 bg-[var(--earth-olive)] hover:bg-[var(--earth-olive)]/90 text-white rounded-xl text-base font-semibold shadow-lg shadow-[var(--earth-olive)]/20 transition-all ${(!isDirty || !isValid || isLoading) ? "opacity-60 cursor-not-allowed pointer-events-none" : ""}`}
               >
-                حفظ التعديلات
+                {isLoading ? (
+                  <span className="inline-flex items-center gap-2">
+                    <svg className="animate-spin w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                    </svg>
+                    جارٍ الحفظ...
+                  </span>
+                ) : (
+                  "حفظ التعديلات"
+                )}
               </button>
             </div>
           </div>

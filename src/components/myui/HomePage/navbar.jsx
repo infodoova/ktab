@@ -11,7 +11,7 @@ const links = [
   { label: "رحلة لكل الأعمار", target: "for-all-ages" },
   { label: "الأدوار", target: "roles" },
   { label: "ما هو كُتّاب؟", target: "what-about" },
-  {label: "لماذا نثق بكتاب", target:"trusted-section"},
+  { label: "لماذا نثق بكتاب", target: "trusted-section" },
   { label: "الأسعار", target: "pricing" },
   { label: "الاسئلة الشائعة", target: "FAQ" },
 ];
@@ -33,20 +33,6 @@ export default function Navbar() {
     setOpen(false);
   };
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (open) return;
-      setIsCollapsed(true);
-      clearTimeout(scrollTimeout.current);
-      scrollTimeout.current = setTimeout(() => {
-        setIsCollapsed(false);
-      }, 600);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [open]);
-
   // Treat tablets as mobile within this component only (<= 1024px)
   useEffect(() => {
     const mq = window.matchMedia(`(max-width: 1024px)`);
@@ -56,12 +42,30 @@ export default function Navbar() {
     return () => mq.removeEventListener?.("change", update);
   }, []);
 
+  // Handle Scroll (Collapsing effect)
+  useEffect(() => {
+    const handleScroll = () => {
+      // 🛑 MODIFICATION: Disable collapse logic completely on mobile
+      if (open || isMobileLike) return;
+
+      setIsCollapsed(true);
+      clearTimeout(scrollTimeout.current);
+      scrollTimeout.current = setTimeout(() => {
+        setIsCollapsed(false);
+      }, 600);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [open, isMobileLike]); // Added isMobileLike to dependencies
+
   return (
     <motion.header
       dir="rtl"
+      // On mobile, we force width to 95% (or 92%) and don't animate the width change
       initial={{ width: "92%", borderRadius: "9999px" }}
       animate={{
-        width: isCollapsed ? collapsedWidth : "92%",
+        width: isMobileLike ? "95%" : (isCollapsed ? collapsedWidth : "92%"),
         borderRadius: "9999px",
       }}
       transition={{ duration: 0.35, ease: "easeInOut" }}
@@ -71,69 +75,59 @@ export default function Navbar() {
         border border-[var(--earth-brown)]/15
         h-20 sm:h-24 flex items-center justify-center
       "
-      style={{ maxWidth: isCollapsed ? collapsedWidth : "1400px" }}
+      style={{ maxWidth: isCollapsed && !isMobileLike ? collapsedWidth : "1400px" }}
     >
-      {/* 📌 MOBILE/TABLET LOGIN BUTTON ON THE LEFT */}
-      {!isCollapsed && isMobileLike && (
-        <Button
-          onClick={() => navigate("/Screens/auth/login")}
-          className="absolute left-3 bg-[var(--earth-brown)] text-white rounded-full px-4 py-2 text-sm"
-        >
-          تسجيل دخول
-        </Button>
-      )}
+      {/* 🛑 MODIFICATION: Mobile Login Button Removed */}
 
       {/* 📌 MOBILE/TABLET HAMBURGER ON THE RIGHT */}
-      {!isCollapsed && isMobileLike && (
+      {isMobileLike && (
         <button
           onClick={() => setOpen(!open)}
-          className="absolute right-3 p-2 rounded-full text-[var(--earth-brown)] hover:bg-[var(--earth-brown)]/10"
+          className="absolute right-4 p-2 rounded-full text-[var(--earth-brown)] hover:bg-[var(--earth-brown)]/10"
         >
-          {open ? <X size={24} /> : <Menu size={24} />}
+          {open ? <X size={28} /> : <Menu size={28} />}
         </button>
       )}
 
       {/* 📌 DESKTOP LOGO */}
       {!isMobileLike && (
         <div
-          className={`items-center justify-center cursor-pointer overflow-visible ${isCollapsed ? "absolute inset-0" : "absolute right-6"}`}
+          className={`items-center justify-center cursor-pointer overflow-visible ${
+            isCollapsed ? "absolute inset-0" : "absolute right-6"
+          }`}
           style={{ width: isCollapsed ? "100%" : "auto" }}
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         >
-        <img
-          src={logo}
-          alt="logo"
-          className={`
+          <img
+            src={logo}
+            alt="logo of project ktab"
+            loading="lazy"
+            className={`
             object-contain select-none transition-transform duration-300
             ${
               isCollapsed
-                ? "h-20 lg:h-24 scale-110"   //  collapsed desktop
-                : "h-16 lg:h-20"              // bigger in normal desktop
+                ? "h-20 lg:h-24 scale-110" // collapsed desktop
+                : "h-16 lg:h-20" // bigger in normal desktop
             }
           `}
-        />
+          />
         </div>
       )}
 
-      {/* 📌 MOBILE/TABLET LOGO */}
+      {/* 📌 MOBILE/TABLET LOGO (Centered) */}
       {isMobileLike && (
         <div
           className="flex items-center justify-center cursor-pointer h-full absolute left-1/2 -translate-x-1/2 overflow-visible"
           style={{ width: "70%" }}
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         >
-        <img
-          src={logo}
-          alt="logo"
-          className={`
-            object-contain transition-transform duration-300
-            ${
-              isCollapsed
-                ? "h-30 scale-110"  // ✅ bigger when collapsed on mobile
-                : "h-30"            // ✅ bigger when not collapsed on mobile
-            }
-          `}
-        />
+          <img
+            src={logo}
+            alt="logo of project ktab"
+            loading="lazy"
+            // Removed the isCollapsed logic for mobile classes
+            className="object-contain h-16 sm:h-20" 
+          />
         </div>
       )}
 
@@ -174,7 +168,7 @@ export default function Navbar() {
 
       {/* MOBILE DROPDOWN */}
       <AnimatePresence>
-        {open && !isCollapsed && isMobileLike && (
+        {open && isMobileLike && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}

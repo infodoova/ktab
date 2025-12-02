@@ -3,13 +3,25 @@ import Navbar from "../../../components/myui/Users/ReaderPages/navbar";
 import PageHeader from "../../../components/myui/Users/ReaderPages/sideHeader";
 import { AlertToast } from "../../../components/myui/AlertToast";
 import BooksGrid from "../../../components/myui/Users/ReaderPages/MainPage/BooksCardComponent";
+// Import the new Modal component
+import BookSearchModal from "../../../components/myui/Users/ReaderPages/MainPage/BookSearchComponent"; 
 
 import { getHelper } from "../../../../apis/apiHelpers";
 import { getUserData } from "../../../../store/authToken";
 
-
 export default function MyBooks({ pageName = "المكتبة" }) {
   const [collapsed, setCollapsed] = useState(false);
+  
+  // State for Search/Filter Modal (Lifted State)
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [activeFilters, setActiveFilters] = useState({
+    query: "",
+    genres: [],
+    features: [],
+    rating: 1,
+    age: ""
+  });
+
   const [alert, setAlert] = useState({
     open: false,
     variant: "info",
@@ -17,10 +29,14 @@ export default function MyBooks({ pageName = "المكتبة" }) {
     description: "",
   });
 
-  /* FETCH BOOKS */
+  const handleSearchClick = () => setIsSearchOpen(true);
+
+  /* FETCH BOOKS - Now accepts filters as second arg */
   const fetchBooks = useCallback(async (page = 0) => {
- const dummy = [
-  {
+
+
+    const dummy = [
+     {
     id: "fb1",
     title: "الغابة المفقودة",
     genre: "فانتازيا",
@@ -122,7 +138,9 @@ export default function MyBooks({ pageName = "المكتبة" }) {
     coverImageUrl:
       "https://images.pexels.com/photos/30206439/pexels-photo-30206439.jpeg",
   },
-];
+     
+    ];
+
     try {
       const user = getUserData();
       if (!user?.userId) return { content: dummy, totalPages: 1 };
@@ -154,6 +172,7 @@ export default function MyBooks({ pageName = "المكتبة" }) {
           pageName={pageName}
           collapsed={collapsed}
           setCollapsed={setCollapsed}
+          onSearchClick={handleSearchClick} 
         />
       </div>
 
@@ -163,8 +182,28 @@ export default function MyBooks({ pageName = "المكتبة" }) {
         }`}
       >
         <main className="flex-1">
-          <PageHeader mainTitle={pageName} />
-          <BooksGrid fetchFunction={fetchBooks} />
+          
+          {/* DESKTOP HEADER with Search Trigger */}
+          <PageHeader 
+            mainTitle={pageName} 
+            onSearchClick={handleSearchClick} 
+          />
+          
+          {/* GRID - receives filters */}
+          <BooksGrid 
+            fetchFunction={fetchBooks} 
+            activeFilters={activeFilters}
+          />
+
+          {/* SEARCH MODAL */}
+          <BookSearchModal 
+            isOpen={isSearchOpen}
+            onClose={() => setIsSearchOpen(false)}
+            onApply={(newFilters) => {
+              setActiveFilters(newFilters);
+              setIsSearchOpen(false); // Close on apply
+            }}
+          />
         </main>
       </div>
 

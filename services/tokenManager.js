@@ -1,4 +1,5 @@
 import { decodeJwt } from "./authService";
+import { isTokenExpired} from '../store/authToken';
 
 let isRefreshing = false;
 let refreshPromise = null;
@@ -58,6 +59,8 @@ class TokenManager {
   async callRefreshAPI() {
     const token = this.getToken();
     if (!token) throw new Error("No token found");
+   if (isTokenExpired()) return  ;
+
 
     const res = await fetch(
       `${import.meta.env.VITE_API_URL}/auth/refresh-token`,

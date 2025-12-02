@@ -31,12 +31,12 @@ import GuestGuard from "../guards/GuestGuard";
 function App() {
   return (
     <Routes>
+            <Route path="/" element={<HomePage />} />
 
       {/* ===========================
           GUEST PAGES (Redirects if logged in)
          =========================== */}
       <Route element={<GuestGuard />}>
-            <Route path="/" element={<HomePage />} />
 
         <Route path="/Screens/auth/login" element={<LoginPage />} />
         <Route path="/Screens/auth/signup" element={<SignupPage />} />

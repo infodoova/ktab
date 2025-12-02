@@ -38,25 +38,20 @@ export default function DeleteBook({ book, open, onClose, onDeleted }) {
 
     try {
       const res = await deleteHelper({
-        url: `${import.meta.env.VITE_API_URL}/books/${book.id}`,
+        url: `${import.meta.env.VITE_API_URL}/authors/deleteBook/${book.id}`,
       });
 
 
-      if (res && Object.keys(res).length === 0) {
-        // treat as successful delete
-        showToast("success", "تم حذف الكتاب", "تم حذف الكتاب بنجاح من المنصة ومن ملفات S3.");
-        onDeleted(book.id);
-        return;
-      }
 
-      // If backend returns actual JSON (rare for DELETE)
-      if (res?.status === "OK") {
-        showToast("success", "تم حذف الكتاب", "تم حذف الكتاب بنجاح.");
-        onDeleted(book.id);
-        return;
-      }
+   if (res.success) {
+  showToast("success", "تم حذف الكتاب", "تم حذف الكتاب بنجاح.");
+  onDeleted(book.id);
+  onClose(); 
+  return;
+}
 
-      // Otherwise → failure
+      
+
       showToast("error", "فشل حذف الكتاب", "حدث خطأ أثناء الحذف. الرجاء المحاولة لاحقاً.");
 
     } catch (err) {
@@ -73,7 +68,7 @@ export default function DeleteBook({ book, open, onClose, onDeleted }) {
 
   return (
     <>
-      <AlertDialog open={open} onOpenChange={onClose}>
+      <AlertDialog open={open} onOpenChange={() => {}}>
         <AlertDialogContent className="bg-[var(--earth-cream)] border-[var(--earth-sand)]">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-[var(--earth-brown)] text-lg">

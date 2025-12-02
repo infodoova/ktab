@@ -116,6 +116,7 @@ export default function ModernTrustedSection() {
   <img 
     src={owl6} 
     alt="Ktab Owl Character"
+  loading="lazy"
     className="w-full h-full fill drop-shadow-lg rounded-3xl"
   />
 </div>

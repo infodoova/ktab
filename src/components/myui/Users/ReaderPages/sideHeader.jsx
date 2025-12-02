@@ -1,9 +1,11 @@
 import React from "react";
+import { Search } from "lucide-react";
 
 const PageHeader = ({
   mainTitle = "Main Title",
   buttonTitle = "",
   onPress = () => {},
+  onSearchClick, // New Prop
 }) => {
   const showButton = buttonTitle && buttonTitle.trim() !== "";
 
@@ -31,7 +33,7 @@ const PageHeader = ({
         {mainTitle}
       </div>
 
-      {/* ONLY SHOW BUTTON IF PARAM EXISTS */}
+      {/* LEFT ACTION BUTTON */}
       {showButton && (
         <div
           className="
@@ -54,6 +56,28 @@ const PageHeader = ({
           </button>
         </div>
       )}
+
+      {/* Left SEARCH BUTTON */}
+      <div 
+        className="
+          absolute left-6 top-1/2 
+          -translate-y-1/2 
+          flex items-center
+        "
+      >
+        <button
+          onClick={onSearchClick}
+          aria-label="بحث"
+          className="
+            p-2 rounded-full 
+            text-[var(--earth-brown)] 
+            hover:bg-[var(--earth-brown)]/10 
+            transition-colors
+          "
+        >
+          <Search size={22} strokeWidth={2} />
+        </button>
+      </div>
 
     </header>
   );

@@ -149,7 +149,8 @@ export default function Hero() {
         
               <img
                 src={owl}
-                alt="Animated Owl"
+                alt="Animated Owl of project ktab"
+                loading="lazy"
                 className="w-full h-auto object-contain"
               />
 

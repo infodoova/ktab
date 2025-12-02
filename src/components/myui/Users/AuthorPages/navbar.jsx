@@ -31,9 +31,9 @@ const navLinks = [
   { label: " كتبي ", icon: SquareLibrary, href: "../../../Screens/dashboard/AuthorPages/myBooks" },
   { label: "رفع كتاب جديد", icon: FolderOpen, href: "../../../Screens/dashboard/AuthorPages/newBookPublish" },
   { label: " قصة تفاعلية جديدة ", icon: MousePointerClick, href: "../../../Screens/dashboard/AuthorPages/NewInteractiveStory" },
-  { label: "   ادوات الزكاء الاصطناعي ", icon: Bot, href: "../../../Screens/dashboard/AuthorPages/aiTools" },
-  { label: "   التقييمات   ", icon: Star, href: "../../../Screens/dashboard/AuthorPages/ratings" },
-  { label: "   الاعدادات   ", icon: Settings, href: "../../../Screens/dashboard/AuthorPages/Settings" },
+  { label: "   ادوات الزكاء الاصطناعي ", icon: Bot, href: "../../../Screens/dashboard/AuthorPages/aiTools" },
+  { label: "   التقييمات   ", icon: Star, href: "../../../Screens/dashboard/AuthorPages/ratings" },
+  { label: "   الاعدادات   ", icon: Settings, href: "../../../Screens/dashboard/AuthorPages/Settings" },
 ];
 
 
@@ -131,8 +131,8 @@ const Navbar = ({
 
   return (
     <>
-      {/* MOBILE HEADER */}
-      <header className="md:hidden grid grid-cols-[1fr_auto_1fr] items-center px-4 py-3 bg-[#f7f4ef] border-b rtl h-16">
+      {/* MOBILE HEADER - ADDED fixed top-0 w-full and a high z-index */}
+      <header className="md:hidden fixed top-0 z-[100] w-full grid grid-cols-[1fr_auto_1fr] items-center px-4 py-3 bg-[#f7f4ef] border-b rtl h-16">
         <div className="flex justify-start">
           {mobileButtonTitle ? (
             <Button
@@ -173,6 +173,8 @@ const Navbar = ({
           </Sheet>
         </div>
       </header>
+
+      <div className="md:hidden h-16 w-full" />
 
       {/* DESKTOP SIDEBAR */}
       <aside

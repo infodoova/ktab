@@ -73,16 +73,42 @@ export async function deleteHelper({ url, headers = {} }) {
 }
 
 export async function patchHelper({ url, body, headers = {} }) {
-  await tokenManager.refreshIfNeeded();  
+  await tokenManager.refreshIfNeeded();
+  const finalHeaders = {
+    ...headers,
+    'Authorization': `Bearer ${localStorage.getItem("token")}`,
+  };
 
-  const res = await fetch(url, {
+  const fetchOptions = {
     method: "PATCH",
-    headers: buildHeaders(headers),
-    body: JSON.stringify(body),
-  });
+    headers: finalHeaders,
+  };
 
-  return res.json();
+  if (body instanceof FormData) {
+    fetchOptions.body = body;
+  } else {
+    finalHeaders['Content-Type'] = 'application/json';
+    fetchOptions.body = JSON.stringify(body);
+  }
+
+  try {
+    const res = await fetch(url, fetchOptions);
+
+    if (!res.ok) {
+      throw new Error(`HTTP error! Status: ${res.status}`);
+    }
+
+    return res.json(); 
+  } catch (err) {
+    console.error("Request failed", err);
+    throw new Error(err.message || "Error occurred while processing the PATCH request.");
+  }
 }
+
+
+
+
+
 
 export async function postFormDataHelper({ url, formData }) {
       await tokenManager.refreshIfNeeded(); 

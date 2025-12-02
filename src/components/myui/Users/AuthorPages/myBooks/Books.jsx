@@ -18,9 +18,6 @@ import UpdateBookModal from "./UpdateBook";
 
 const ITEMS_PER_PAGE = 8;
 
-/* -----------------------------------------------------------
-   🔹 MINIMAL BOOK CARD — FIXED MENU LOGIC
------------------------------------------------------------ */
 const MinimalBookCard = ({ book, onClick, onDelete, onEdit, openMenuId, setOpenMenuId }) => {
   const isOpen = openMenuId === book.id;
 
@@ -149,9 +146,7 @@ const MinimalBookCard = ({ book, onClick, onDelete, onEdit, openMenuId, setOpenM
   );
 };
 
-/* -----------------------------------------------------------
-   🔹 MAIN BOOK PAGE
------------------------------------------------------------ */
+/* MAIN BOOK PAGE*/
 
 export default function Books({ fetchFunction }) {
   const [books, setBooks] = useState([]);
@@ -198,25 +193,31 @@ export default function Books({ fetchFunction }) {
   }, [page, fetchFunction]);
 
   /* SCROLL LOAD */
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (
-          entries[0].isIntersecting &&
-          page + 1 < totalPages &&
-          !loadingMore
-        ) {
-          setPage((p) => p + 1);
-        }
-      },
-      { threshold: 0.15 }
-    );
+ useEffect(() => {
+  // Store the current ref value in a variable
+  const currentLastRef = lastRef.current;
 
-    if (lastRef.current) observer.observe(lastRef.current);
-    return () => lastRef.current && observer.unobserve(lastRef.current);
-  }, [page, totalPages, loadingMore]);
+  const observer = new IntersectionObserver(
+    (entries) => {
+      if (
+        entries[0].isIntersecting &&
+        page + 1 < totalPages &&
+        !loadingMore
+      ) {
+        setPage((p) => p + 1);
+      }
+    },
+    { threshold: 0.15 }
+  );
 
-  /* CLICK OUTSIDE TO CLOSE MENUS */
+  if (currentLastRef) observer.observe(currentLastRef);
+
+  // Cleanup function
+  return () => {
+    if (currentLastRef) observer.unobserve(currentLastRef);
+  };
+}, [page, totalPages, loadingMore]);  
+
   useEffect(() => {
     const close = (e) => {
       if (!e.target.closest(".book-menu-area")) {

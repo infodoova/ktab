@@ -185,7 +185,7 @@ const img = new Image();
       );
 
       await postFormDataHelper({
-        url: `${import.meta.env.VITE_API_URL}/books`,
+        url: `${import.meta.env.VITE_API_URL}/authors/createBook`,
         formData,
         onProgress: (p) => setProgress(p),
       });
