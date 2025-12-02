@@ -7,7 +7,6 @@ import PricingSection from './components/myui/HomePage/pricing';
 import RolesSection from './components/myui/HomePage/roles';
 import Footer from './components/myui/HomePage/footer';
 import FAQ from './components/myui/HomePage/FAQ';
-import TrustedSection from './components/myui/HomePage/TrustedSection';
 
 const HomePage = () => {
   const [showNavbar, setShowNavbar] = useState(false);
@@ -51,7 +50,6 @@ const HomePage = () => {
       <ForAllAges />
       <RolesSection />
       <OwlFeatureDirections />
-      <TrustedSection />
       <PricingSection />
       <FAQ />
       <Footer />

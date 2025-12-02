@@ -1,129 +1,234 @@
-import { useEffect, useRef, useState } from "react";
-import { Card } from "@/components/ui/card";
-import owl2 from "../../../assets/character/owl2.png";
+/* eslint-disable no-unused-vars */
+import { useRef, useState } from "react";
+import {
+  motion,
+  useScroll,
+  useTransform,
+  useSpring,
+  useMotionValueEvent,
+  AnimatePresence,
+} from "framer-motion";
 
+import { BookOpen, Sparkles, GraduationCap, Coffee } from "lucide-react";
+
+import babyage from "../../../assets/images/babyage.png";
+import teenage from "../../../assets/images/teenage.png";
+import adultage from "../../../assets/images/adultage.png";
+import teacherage from "../../../assets/images/teacherage.png";
+
+/* -------------------------------------------
+    DATA
+------------------------------------------- */
 const steps = [
-  { title: "للأطفال", text: "قصص بسيطة ومصوّرة تساعدهم على حب القراءة." },
-  { title: "لليافعين", text: "كتب وروايات تواكب فضولهم وتدعم مهاراتهم." },
-  { title: "للكبار", text: "مكتبة عربية متنوّعة تناسب وقت الراحة والعمل." },
-  { title: "للمعلّمين", text: "متابعة تقدّم القرّاء وإعداد تقارير سهلة." },
+  {
+    title: "للأطفال",
+    subtitle: "بداية الخيال",
+    text: "قصص مصوّرة وحكايات تفاعلية تبني مفردات الطفل وتغرس فيه حب الاستكشاف منذ الصغر.",
+    icon: Sparkles,
+    imgSrc: babyage,
+  },
+  {
+    title: "لليافعين",
+    subtitle: "عالم من المغامرة",
+    text: "روايات خيال علمي وكتب تطوير ذات تواكب فضولهم وتجيب على تساؤلاتهم المتزايدة.",
+    icon: BookOpen,
+    imgSrc: teenage,
+  },
+  {
+    title: "للكبار",
+    subtitle: "واحة المعرفة",
+    text: "مكتبة عربية وعالمية ثرية تناسب استراحة القهوة، وتعمّق الفهم في شتى المجالات.",
+    icon: Coffee,
+    imgSrc: adultage,
+  },
+  {
+    title: "للمعلّمين",
+    subtitle: "شريك التعليم",
+    text: "أدوات تتبع دقيقة وموارد تعليمية مساندة تساعد في بناء جيل قارئ ومثقف.",
+    icon: GraduationCap,
+    imgSrc: teacherage,
+  },
 ];
 
-export default function ForAllAges() {
-  const [active, setActive] = useState(0);
-  const refs = useRef([]);
+export default function ForAllAgesPro() {
+  const containerRef = useRef(null);
+  const [activeStep, setActiveStep] = useState(0);
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) {
-            const index = Number(e.target.getAttribute("data-index"));
-            setActive(index);
-          }
-        });
-      },
-      { threshold: 0.4 }
-    );
+  /* Scroll control */
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end end"],
+  });
 
-    refs.current.forEach((el) => el && observer.observe(el));
-    return () => observer.disconnect();
-  }, []);
+  const smoothProgress = useSpring(scrollYProgress, {
+    stiffness: 90,
+    damping: 26,
+  });
+
+  useMotionValueEvent(scrollYProgress, "change", (v) => {
+    const stepLength = 1 / steps.length;
+    const idx = Math.min(Math.floor(v / stepLength), steps.length - 1);
+    setActiveStep(idx);
+  });
+
+  const verticalLineHeight = useTransform(smoothProgress, [0, 1], ["0%", "100%"]);
 
   return (
     <section
-      id="for-all-ages"
+      ref={containerRef}
       dir="rtl"
-      className="
-        relative w-full py-20 md:py-32 
-        bg-gradient-to-b from-[#f7f3ec] to-[#e8ddd0]
-        overflow-hidden
-      "
+      className="relative w-full bg-[var(--earth-cream)]"
+      style={{ height: `${steps.length * 100}vh` }}
     >
 
- <div
-  className="
-    pointer-events-none absolute inset-0 
-    opacity-[0.22]     /* increased from 0.09 → more visible */
-    bg-no-repeat bg-center bg-contain
-    scale-105
-  "
-  style={{
-    backgroundImage: `url(${owl2})`,
-    lazy: "loading",
-    filter: "blur(2px)", 
-    maskImage: "radial-gradient(circle, rgba(0,0,0,1) 40%, transparent 80%)",
-    WebkitMaskImage:
-      "radial-gradient(circle, rgba(0,0,0,1) 40%, transparent 80%)",
-  }}
-      />
+      <div className="sticky top-0 h-screen flex flex-col md:flex-row overflow-hidden">
+        
+        {/* MOBILE FULLSCREEN IMAGE - Moved inside the sticky container */}
+        <div className="absolute inset-0 md:hidden">
+          <AnimatePresence mode="popLayout">
+            <motion.img
+              key={activeStep}
+              src={steps[activeStep].imgSrc}
+              alt={steps[activeStep].title}
+              initial={{ opacity: 0, scale: 1.0 }} 
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 1.05 }}
+              transition={{ duration: 0.6 }}
+              className="w-full h-full object-cover"
+            />
+          </AnimatePresence>
 
-      {/* Title */}
-      <div className="relative text-center mb-16 z-10">
-        <h2 className="text-4xl md:text-5xl font-bold text-[var(--earth-brown)]">
-          رحلة لكل الأعمار
-        </h2>
-        <p className="text-[var(--earth-brown)]/70 mt-3 text-lg">
-          تجربة مصممة لتناسب كل قارئ.
-        </p>
-      </div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent" />
+        </div>
 
-      <div className="relative max-w-5xl mx-auto px-6 z-10">
+        {/* DESKTOP LAYOUT elements (Timeline, Dots, Text Block, Image Side) */}
+        
+        {/* DESKTOP TIMELINE */}
+        <div className="hidden md:block absolute right-10 top-[18%] bottom-[18%] w-[3px] bg-[var(--earth-brown)]/20 rounded-full overflow-hidden">
+          <motion.div
+            style={{ height: verticalLineHeight }}
+            className="w-full bg-[var(--earth-olive)]"
+          />
+        </div>
 
-        {/* Vertical line */}
-        <div className="
-          absolute top-0 left-1/2 -translate-x-1/2 
-          w-[4px] h-full bg-[var(--earth-olive)]/30 rounded-full
-        " />
-
-        <div className="flex flex-col gap-20 relative">
-
-          {steps.map((step, i) => (
+        {/* DESKTOP DOTS */}
+        <div className="hidden md:flex absolute right-[34px] top-[18%] bottom-[18%] flex-col justify-between">
+          {steps.map((_, i) => (
             <div
               key={i}
-              data-index={i}
-              ref={(el) => (refs.current[i] = el)}
-              className="relative flex flex-col md:flex-row items-center md:items-start gap-6"
-            >
-              {/* Dot */}
-              <div className="
-                absolute left-1/2 -translate-x-1/2 
-                w-6 h-6 rounded-full
-                bg-[var(--earth-olive)] 
-                shadow-md z-10
-              " />
-
-              {/* Card */}
-              <Card
-                className={`
-                  w-full md:w-[45%]
-                  p-8 
-                  bg-white/80 backdrop-blur-md 
-                  shadow-lg rounded-2xl border
-                  transition-all duration-500
-                  ${
-                    active === i
-                      ? "scale-[1.04] border-[var(--earth-olive)] shadow-xl"
-                      : "opacity-70"
-                  }
-                  ${
-                    i % 2 === 0
-                      ? "md:mr-auto md:translate-x-[-20px]"
-                      : "md:ml-auto md:translate-x-[20px]"
-                  }
-                `}
-              >
-                <h3 className="text-2xl font-bold text-[var(--earth-brown)] mb-3">
-                  {step.title}
-                </h3>
-                <p className="text-[var(--earth-brown)]/70 text-lg leading-relaxed">
-                  {step.text}
-                </p>
-              </Card>
-            </div>
+              className={`
+                rounded-full border-[3px] transition-all duration-300
+                ${
+                  i <= activeStep
+                    ? "w-5 h-5 bg-[var(--earth-olive)] border-[var(--earth-olive)]"
+                    : "w-4 h-4 bg-white border-[var(--earth-brown)]/20"
+                }
+              `}
+            />
           ))}
+        </div>
+
+        {/* MOBILE + DESKTOP TEXT BLOCK */}
+        <div className="relative w-full md:w-1/2 h-full flex items-center justify-center z-20 px-6">
+
+          {/* Mobile Glass Card */}
+          <div className="
+            md:hidden
+            absolute bottom-10 inset-x-4
+            bg-white/15 backdrop-blur-xl
+            rounded-3xl p-6 
+            border border-white/20 shadow-xl
+          ">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeStep}
+                initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
+                transition={{ duration: 0.45 }}
+                className="text-center"
+              >
+                {/* Icon */}
+                <div className="inline-flex items-center justify-center p-4 rounded-2xl mb-4 text-white bg-[var(--earth-olive)] shadow-md mx-auto">
+                  {(() => {
+                    const Icon = steps[activeStep].icon;
+                    return <Icon size={24} />;
+                  })()}
+                </div>
+
+                <h4 className="text-sm font-bold text-white/70 mb-1">
+                  {steps[activeStep].subtitle}
+                </h4>
+
+                <h2 className="text-3xl font-extrabold text-white mb-4 leading-tight">
+                  {steps[activeStep].title}
+                </h2>
+
+                <p className="text-white/95 text-lg leading-relaxed">
+                  {steps[activeStep].text}
+                </p>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+
+          {/* DESKTOP TEXT BLOCK */}
+          <div className="hidden md:block w-full max-w-lg text-right">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeStep}
+                initial={{ opacity: 0, x: 40, filter: "blur(10px)" }}
+                animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+                exit={{ opacity: 0, x: -40, filter: "blur(10px)" }}
+                transition={{ duration: 0.55, ease: "easeOut" }}
+              >
+                <div className="inline-flex items-center justify-center p-4 rounded-2xl mb-6 text-white bg-[var(--earth-olive)]">
+                  {(() => {
+                    const Icon = steps[activeStep].icon;
+                    return <Icon size={28} />;
+                  })()}
+                </div>
+
+                <h4 className="text-sm font-bold text-[var(--earth-brown)]/60 mb-1">
+                  {steps[activeStep].subtitle}
+                </h4>
+
+                <h2 className="text-5xl font-extrabold text-[var(--earth-brown-dark)] mb-6 leading-tight font-[family-name:var(--font-arabic)]">
+                  {steps[activeStep].title}
+                </h2>
+
+                <p className="text-xl text-[var(--earth-brown)]/90 leading-relaxed">
+                  {steps[activeStep].text}
+                </p>
+              </motion.div>
+            </AnimatePresence>
+          </div>
 
         </div>
+
+        {/* DESKTOP IMAGE SIDE */}
+        <div className="hidden md:block relative w-1/2 h-full overflow-hidden">
+          <AnimatePresence mode="popLayout">
+            <motion.div
+              key={activeStep}
+              initial={{ scale: 1.1, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 1.05, opacity: 0 }}
+              transition={{ duration: 0.6 }}
+              className="absolute inset-0"
+              
+            >
+              <img
+                src={steps[activeStep].imgSrc}
+                alt={steps[activeStep].title}
+                loading="lazy"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-[var(--earth-brown)]/15 mix-blend-multiply" />
+              <div className="absolute inset-0 bg-[var(--earth-olive)]/15" />
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
       </div>
     </section>
   );

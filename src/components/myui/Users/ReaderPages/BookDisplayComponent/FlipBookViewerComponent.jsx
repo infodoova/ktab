@@ -1,130 +1,7 @@
 import React, { forwardRef, useEffect, useRef, useState } from "react";
 import HTMLFlipBook from "react-pageflip";
 
-/* ---------------- PAGE ---------------- */
-function splitTextByWords(text, wordsPerPage = 300) {
-  const words = text.trim().split(/\s+/);
-  const pages = [];
-  for (let i = 0; i < words.length; i += wordsPerPage) {
-    pages.push(words.slice(i, i + wordsPerPage).join(' '));
-  }
-  return pages;
-}
-
-const Page = forwardRef(({ number, children }, ref) => {
-  return (
-    <div
-      ref={ref}
-      className="bg-white border-r border-gray-200 overflow-hidden"
-      style={{ direction: "rtl" }}
-    >
-      <div className="h-full p-6 flex flex-col">
-        <div className="flex-grow flex flex-col justify-center text-center">
-          <div
-            className="font-serif leading-8 text-gray-700"
-            style={{
-              fontSize: '13px', // fallback if class below doesn't override
-            }}
-          >
-            {/* Responsive font size classes - mobile smaller! */}
-            <span className="block text-[13px]">
-              {children}
-            </span>
-          </div>
-        </div>
-        {number && (
-          <div className="mt-3 flex justify-center">
-            <span className="text-xs text-gray-400 font-serif">{number}</span>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-});
-
-/* --- Custom scrollbar CSS --- */
-const style = document.createElement("style");
-style.innerHTML = `
-.custom-scroll::-webkit-scrollbar {
-  width: 6px;
-}
-.custom-scroll::-webkit-scrollbar-thumb {
-  background: #ddd;
-  border-radius: 3px;
-}
-.custom-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
-.custom-scroll {
-  scrollbar-width: thin;
-  scrollbar-color: #ddd transparent;
-}
-`;
-document.head.appendChild(style);
-
-/* ---------------- COVER ---------------- */
-const Cover = ({ image, title, subtitle, onClick, animateOut }) => {
-  return (
-    <div
-      className={
-        `absolute inset-0 flex items-center justify-center transition-transform transition-opacity duration-700 ease-in-out z-50 ` +
-        (animateOut ? 'scale-110 opacity-0 pointer-events-none' : 'scale-100 opacity-100')
-      }
-      onClick={onClick}
-      role="button"
-      tabIndex={0}
-      style={{ cursor: 'pointer', background: 'none' }}
-    >
-      <div className={
-        "relative shadow-2xl rounded-3xl overflow-hidden w-72 h-[420px] flex flex-col items-center justify-center group bg-black " +
-        "hover:scale-105 hover:shadow-3xl transition-transform duration-300"}
-      >
-        <img
-          src={image.trim()}
-          alt="Cover"
-          className="w-full h-full object-cover scale-100 group-hover:scale-110 transition-transform duration-500"
-        />
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6"
-             style={{
-               background: 'rgba(20, 24, 34, 0.45)',
-               backdropFilter: 'blur(6px)',
-               WebkitBackdropFilter: 'blur(6px)',
-               borderRadius: 'inherit'
-             }}
-        >
-          <h1 className="text-white drop-shadow-lg text-3xl font-serif mb-3 tracking-wide font-bold">
-            {title}
-          </h1>
-          {subtitle && <p className="text-gray-200 text-base mb-2 drop-shadow-sm">{subtitle}</p>}
-          <span className="mt-8 text-white bg-gradient-to-r from-pink-600/80 to-sky-500/80 px-4 py-1 rounded-2xl shadow font-semibold animate-pulse">
-            اضغط لفتح الكتاب
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// SKELETON
-const BookSkeleton = ({height, width}) => (
-  <div
-    className="flex items-center justify-center w-full h-full absolute inset-0 z-40"
-    style={{ pointerEvents: 'none', direction: 'rtl' }}
-  >
-    <div
-      className="relative rounded-3xl bg-gradient-to-tr from-gray-200/70 to-gray-100/90 shadow-inner flex flex-col items-center justify-center"
-      style={{width: width || 288, height: height || 420}}
-    >
-      <div className="w-3/5 h-5 my-4 rounded bg-gray-300 animate-pulse" />
-      <div className="w-4/5 h-3 rounded bg-gray-200 mb-4 animate-pulse" />
-      <div className="w-5/6 h-32 rounded-lg bg-gray-300 animate-pulse" />
-      <div className="w-2/6 h-4 my-6 rounded bg-gray-200 animate-pulse" />
-      <div className="w-[80%] h-8 mt-8 bg-gradient-to-r from-slate-400/80 via-gray-100/70 to-slate-300/80 rounded-lg animate-pulse" />
-    </div>
-  </div>
-);
-
-// --- Dummy Book Content (for demo: replace with real content later) ---
+/* ---------------- DUMMY BOOK CONTENT ---------------- */
 const DUMMY_TEXT = `
 في بداية الرحلة، كان كل شيء يبدو ساكناً؛ الكثبان الرملية تمتد إلى الأفق بلا نهاية، والسماء العالية تعكس وهج الشمس كمرآة من نار. ومع ذلك، كانت هناك قصة تنتظر من يكتشفها بين تلك الرمال التي تحفظ أسرارها في صمت عميق. يوسف، الذي اختار الطريق دون أن يفهم سببه تماماً، شعر بأن الصحراء تناديه منذ سنوات، تصرخ باسمه في أحلامه، وتلوّح له بأن هناك شيئاً يخصه هنا، تحت هذا الاتساع المهيب.
 
@@ -149,27 +26,58 @@ const DUMMY_TEXT = `
 ومع كل خطوة جديدة، كان يشعر أن حياته تتشكل من جديد، ببطء، بحكمة، وبلغة لا يسمعها إلا من يعبر الرمال بقلب مفتوح.
 `;
 
-// -- END PAGE COMPONENT --
-const EndPage = ({ onReturnToCover }) => (
+/* ---------------- HELPERS ---------------- */
+function splitTextByWords(text, wordsPerPage = 300) {
+  const words = text.trim().split(/\s+/);
+  const pages = [];
+  for (let i = 0; i < words.length; i += wordsPerPage) {
+    pages.push(words.slice(i, i + wordsPerPage).join(" "));
+  }
+  return pages;
+}
+
+/* ---------------- PAGE ---------------- */
+const Page = forwardRef(({ number, children }, ref) => {
+  return (
+    <div
+      ref={ref}
+      className="bg-white border-r border-gray-200 overflow-hidden"
+   
+    >
+      <div className="h-full p-6 flex flex-col bg-white/70 backdrop-blur-sm">
+        <div className="flex-grow flex flex-col justify-center text-center">
+          <div className="font-serif leading-8 " style={{ fontSize: "13px" }}>
+            <span className="block text-[13px]">{children}</span>
+          </div>
+        </div>
+
+        {number && (
+          <div className="mt-3 flex justify-center">
+            <span className="text-xs text-gray-400 font-serif">{number}</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+});
+
+/* ---------------- BOOK SKELETON ---------------- */
+const BookSkeleton = ({ width, height }) => (
   <div
-    className="h-full w-full flex flex-col items-center justify-center bg-white text-center"
-    style={{ minHeight: 300, direction: "rtl" }}
+    className="flex items-center justify-center w-full h-full absolute inset-0 z-40"
+    style={{ pointerEvents: "none", direction: "rtl" }}
   >
-    <div className="rounded-xl shadow-md bg-white px-10 py-16 border border-gray-200 max-w-md w-full">
-      <h1 className="text-4xl md:text-5xl font-serif font-bold text-gray-800 mb-4">
-        النهاية
-      </h1>
-
-      <p className="text-base md:text-lg text-gray-500 font-serif mb-10">
-        نتمنى أن تكون رحلتك مع هذا الكتاب ممتعة ومُلهمة
-      </p>
-
-      <button
-        onClick={onReturnToCover}
-        className="px-8 py-2 rounded-full bg-indigo-600 text-white font-medium text-lg shadow-sm hover:bg-indigo-700 transition"
-      >
-        العودة إلى الغلاف
-      </button>
+    <div
+      className="relative flex shadow-2xl rounded-xl overflow-hidden"
+      style={{
+        width: width || 550,
+        height: height || 380,
+        background: "linear-gradient(90deg,#f5f5f5 0%,#fafafa 50%,#f5f5f5 100%)",
+      }}
+    >
+      <div className="w-1/2 h-full bg-gray-100 animate-pulse" />
+      <div className="w-[4px] bg-gray-300" />
+      <div className="w-1/2 h-full bg-gray-100 animate-pulse" />
     </div>
   </div>
 );
@@ -178,15 +86,23 @@ const EndPage = ({ onReturnToCover }) => (
 export default function FlipBookViewer({ bookRef, isRTL = true }) {
   const containerRef = useRef(null);
   const [showFlipbook, setShowFlipbook] = useState(false);
-  const [coverAnim, setCoverAnim] = useState(false);
-  const [showSkeleton, setShowSkeleton] = useState(false);
+  const [showSkeleton, setShowSkeleton] = useState(true);
+
+  // Auto-hide skeleton after 1 sec
+useEffect(() => {
+  const t = setTimeout(() => {
+    setShowFlipbook(true);
+    setShowSkeleton(false); // ✅ Hide skeleton
+  }, 1000);
+  return () => clearTimeout(t);
+}, []);
+
 
   /* Scroll-to-Flip */
   useEffect(() => {
     const handleWheel = (e) => {
       if (!bookRef.current) return;
       e.preventDefault();
-
       try {
         const flip = bookRef.current.pageFlip();
         if (e.deltaY > 0) {
@@ -194,8 +110,8 @@ export default function FlipBookViewer({ bookRef, isRTL = true }) {
         } else {
           isRTL ? flip.flipNext() : flip.flipPrev();
         }
-      } catch (err) {
-        console.error("Flip error:", err.message);
+      } catch {
+        //
       }
     };
 
@@ -205,18 +121,45 @@ export default function FlipBookViewer({ bookRef, isRTL = true }) {
       return () => container.removeEventListener("wheel", handleWheel);
     }
   }, [bookRef, isRTL]);
+
   const getBookHeight = () => {
     const w = window.innerWidth;
-    // On desktop (lg: ≥1024), match the cover h-[420px]
     if (w >= 1024) return 420;
     if (w < 700) return window.innerHeight * 0.35;
     if (w < 1200) return window.innerHeight * 0.55;
     return window.innerHeight * 0.85;
   };
 
-  // Set words per page based on window width
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 600;
-  const wordsPerPage = isMobile ? 100 : 200;
+  // Force 100 words per page across all screens
+  const wordsPerPage = 100;
+
+  // Expose a goToPage method on the external bookRef so parent/header can teleport with animation
+  useEffect(() => {
+    if (!bookRef || !bookRef.current) return;
+    // attach only when flipbook is mounted (showFlipbook)
+    const attach = () => {
+      try {
+        bookRef.current.goToPage = (pageNumber) => {
+          try {
+            const flip = bookRef.current.pageFlip();
+            // convert 1-based page number to 0-based index expected by the flip API
+            const targetIndex = Math.max(0, (Number(pageNumber) || 1) - 1);
+            if (flip && typeof flip.flip === "function") {
+              flip.flip(targetIndex);
+            } else if (flip && typeof flip.turnToPage === "function") {
+              flip.turnToPage(targetIndex);
+            }
+          } catch  {
+            // no-op fallback
+          }
+        };
+      } catch {
+        //
+      }
+    };
+    attach();
+  }, [bookRef, showFlipbook]);
+
   const paginatedText = splitTextByWords(DUMMY_TEXT, wordsPerPage);
 
   return (
@@ -225,27 +168,13 @@ export default function FlipBookViewer({ bookRef, isRTL = true }) {
       className="w-full h-full flex items-center justify-center"
       style={{ direction: "rtl" }}
     >
-      {!showFlipbook && !showSkeleton && (
-        <Cover
-          image="https://images.pexels.com/photos/247599/pexels-photo-247599.jpeg"
-          title="أسرار الواحة"
-          subtitle="رحلة في المجهول"
-          animateOut={coverAnim}
-          onClick={() => {
-            setCoverAnim(true);
-            setTimeout(() => {
-              setShowSkeleton(true);
-              setTimeout(() => {
-                setShowFlipbook(true);
-                setShowSkeleton(false);
-              }, 1200); // skeleton show duration
-            }, 650); // Cover animation duration
-          }}
+      {showSkeleton && !showFlipbook && (
+        <BookSkeleton
+          width={Math.min(window.innerWidth * 0.45, 800)}
+          height={getBookHeight()}
         />
       )}
-      {showSkeleton && (
-        <BookSkeleton width={Math.min(window.innerWidth * 0.45, 800)} height={getBookHeight()} />
-      )}
+
       {showFlipbook && (
         <HTMLFlipBook
           width={Math.min(window.innerWidth * 0.45, 800)}
@@ -265,32 +194,25 @@ export default function FlipBookViewer({ bookRef, isRTL = true }) {
           style={{ direction: "rtl" }}
           flipDirection="rtl"
         >
-          {/* Title Page */}
-          <Page number={1}>
-            <h2 className="text-2xl font-serif text-gray-700">
-              أسرار الواحة المنسية
+          {/* FIRST PAGE — COVER PAGE */}
+          <Page
+            number={1}
+            bgImage="https://images.pexels.com/photos/17567462/pexels-photo-17567462.jpeg"
+          >
+            <h2 className="text-3xl font-serif  drop-shadow mb-3">
+              أسرار الواحة
             </h2>
-            <p className="mt-2 text-gray-500">د. إبراهيم الكوني</p>
+            <p className=" text-lg drop-shadow">د. إبراهيم الكوني</p>
           </Page>
-          {/* Dynamic Book Content Pages */}
+
+          {/* TEXT PAGES */}
           {paginatedText.map((pageText, idx) => (
-            <Page key={idx+2} number={idx + 2}>
-              <p style={{textAlign: 'justify', whiteSpace: 'pre-line'}}>{pageText}</p>
+            <Page key={idx + 2} number={idx + 2}>
+              <p style={{ textAlign: "justify", whiteSpace: "pre-line" }}>
+                {pageText}
+              </p>
             </Page>
           ))}
-          {/* END PAGE */}
-          <Page number={null}>
-            <EndPage onReturnToCover={() => {
-              if (bookRef.current && bookRef.current.pageFlip) {
-                try {
-                  bookRef.current.pageFlip().flip(0);
-                } catch {
-                  // fallback for direct flip method
-                  if (bookRef.current.flip) bookRef.current.flip(0);
-                }
-              }
-            }} />
-          </Page>
         </HTMLFlipBook>
       )}
     </div>
