@@ -8,7 +8,7 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { Eye, EyeOff, X, ArrowRight, ArrowLeft } from "lucide-react";
-import { AlertToast } from "./AlertToast"; // Adjust path as needed
+import { AlertToast } from "./AlertToast"; 
 
 export default function ResetPassword({ onClose }) {
   const [step, setStep] = useState(1);
@@ -80,7 +80,6 @@ export default function ResetPassword({ onClose }) {
         {
           method: "POST",
           headers: { "Content-Type": "application/json","ngrok-skip-browser-warning": "true", },
-          credentials: "include",
           body: JSON.stringify({ email }),
         }
       );

@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { AlertToast } from "../../components/myui/AlertToast"; 
 import owlLogin from "../../assets/character/owl4.png";
-import { saveToken } from "../../../store/authToken";
+import { saveToken,getUserData } from "../../../store/authToken";
 export default function LoginPage() {
   const navigate = useNavigate();
 const [resetOpen, setResetOpen] = useState(false);
@@ -85,10 +85,26 @@ const handleSubmit = async () => {
     saveToken(data.data);
 
     showToast("success", "تم تسجيل الدخول", "مرحباً بعودتك!");
+    const user = getUserData()
 
+   
+    if(user.role === "AUTHOR")
+    {
     setTimeout(() => {
       navigate("/Screens/dashboard/AuthorPages/controlBoard");
     }, 900);
+  } else if(user.role === "READER"){
+       setTimeout(() => {
+      navigate("/Screens/dashboard/ReaderPages/MainPage");
+    }, 900);
+  } else{
+        showToast(" تحويل للصفحة الرئيسية");
+          setTimeout(() => {
+      navigate("/");
+    }, 900);
+
+  }
+  
 
   } catch (error) {
     console.error(error);

@@ -36,15 +36,14 @@ export default function AITools({ pageName = "مولّد الخلاصات الذ
 
   try {
     const formData = new FormData();
-    formData.append("type", type);
-    formData.append("wordCount", wordCount);
-    formData.append("audience", audience);
+    formData.append("approxWordCountForEnding", wordCount);
+    formData.append("audienceProfile ","18-25");
     formData.append("file", file);
 
     const token = localStorage.getItem("token");
 
     const response = await fetch(
-      `${import.meta.env.VITE_API_URL}/conclusion/generate`,
+      `${import.meta.env.VITE_API_URL}/book-ending/upload`,
       {
         method: "POST",
         headers: {

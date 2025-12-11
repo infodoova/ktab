@@ -21,7 +21,8 @@
   /* Accents */
   --earth-olive: #606C38;       /* Primary Action / Success */
   --earth-olive-dark: #3E4A20;  /* Hover State for Olive */
-  --earth-sand: #D7CCC8;        /* Secondary accents / Disabled */
+  --earth-sand: #D7CCC8;    
+  --earth-sand-dark: #DEC59E;   /* Secondary accents / Disabled */
   
   /* Utilities */
   --earth-shadow: rgba(62, 39, 35, 0.08);
@@ -85,7 +86,7 @@ body {
 /* book flip css */
 
 .stf__shadow {
-  opacity: 0.25 !important;         /* soft, realistic shadow */
+  opacity: 0.25 !important;        
   box-shadow: 0 0 25px rgba(0,0,0,0.25) !important;
 }
 
@@ -133,3 +134,54 @@ body {
 .animate-float-fast { animation: float-fast 4.5s ease-in-out infinite; }
 .animate-slow-pan { animation: slow-pan 25s linear infinite; }
 .animate-noise { animation: noise 5s ease-in-out infinite; }
+
+/* --------------------------------------
+ * 1. Initial Drop Animation Keyframes
+ * -------------------------------------- */
+@keyframes dropIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px); /* Start 20px above final position */
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --------------------------------------
+ * 2. Base Styles for Bento Items
+ * -------------------------------------- */
+
+.bento-item {
+  /* Initial state for the animation */
+  opacity: 0; 
+  /* Apply the animation to all items */
+  animation: dropIn 0.8s ease-out forwards;
+  
+  /* Smooth transition for hover effects */
+  transition: transform 0.3s ease, box-shadow 0.3s ease, z-index 0s;
+  will-change: transform, box-shadow; /* Optimizes performance */
+}
+
+/* --------------------------------------
+ * 3. Hover Effect
+ * -------------------------------------- */
+
+.bento-item:hover {
+  /* Lift the container slightly */
+  transform: translateY(-4px) scale(1.01); 
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  z-index: 10; /* Bring it to the front when hovered */
+}
+
+/* Ensure the image inside also scales a bit for depth */
+.bento-item:hover .bento-item-img {
+  transform: scale(1.02);
+  transition: transform 0.3s ease;
+}
+
+/* Initial state for the image inside (needs smooth transition) */
+.bento-item-img {
+  transition: transform 0.3s ease;
+}

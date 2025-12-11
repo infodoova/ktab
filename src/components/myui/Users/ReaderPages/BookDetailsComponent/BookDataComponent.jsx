@@ -1,192 +1,494 @@
-import React, { useState } from "react";
-import { Share2, BookOpen, Star, MessageSquare, NotebookPen, X } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import {
+  Share2,
+  BookOpen,
+  Star,
+  Download,
+  Headphones,
+  X,
+  BookPlus,
+} from "lucide-react";
+
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { getUserData } from "../../../../../../store/authToken";
+import { getHelper, postHelper, deleteHelper ,patchHelper} from "../../../../../../apis/apiHelpers";
+import { AlertToast } from "../../../AlertToast";
 
-export default function BookDataComponent({ book, navigate }) {
+export default function BookDataComponent({ bookId, navigate }) {
+  const [bookData, setBookData] = useState(null);
+  const [loadingBook, setLoadingBook] = useState(true);
+  
+  const [toast, setToast] = useState({
+    open: false,
+    variant: "info",
+    title: "",
+    description: "",
+  });
+
+  const showToast = (variant, title, description) =>
+    setToast({ open: true, variant, title, description });
+
+  const closeToast = () => setToast((prev) => ({ ...prev, open: false }));
+
+  // Review state
   const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
+  const [userRating, setUserRating] = useState(0);
+  const [userReview, setUserReview] = useState("");
+  const [isReviewed, setIsReviewed] = useState(false);
+  const [reviewId, setReviewId] = useState(null);
 
-  const renderStars = (rating) => (
-    <div className="flex items-center gap-1">
-      {[...Array(5)].map((_, i) => (
-        <Star
-          key={i}
-          className={`w-4 h-4 ${
-            i < Math.floor(rating)
-              ? "fill-amber-400 text-amber-400"
-              : "fill-gray-300 text-gray-300"
-          }`}
-        />
-      ))}
-    </div>
-  );
+  // Assignment toggle
+  const [isAssigned, setIsAssigned] = useState(false);
+    useEffect(() => {
+    const fetchBookDetails = async () => {
+      if (!bookId) return;
+
+      try {
+        const res = await getHelper({
+          url: `${import.meta.env.VITE_API_URL}/reader/viewBook/${bookId}`,
+        });
+
+        const b = res?.data ?? res;
+
+        setBookData({
+          id: b.id,
+          title: b.title ?? "كتاب",
+          description: b.description ?? "",
+          genre: b.genre ?? null,
+          language: b.language ?? null,
+          pageCount: b.pageCount ?? null,
+          ageRangeMin: b.ageRangeMin ?? null,
+          ageRangeMax: b.ageRangeMax ?? null,
+          hasAudio: b.hasAudio ?? false,
+          averageRating: b.averageRating ?? 0,
+          totalReviews: b.totalReviews ?? 0,
+          coverImageUrl: b.coverImageUrl ?? "",
+          pdfDownloadUrl: b.pdfDownloadUrl ?? null,
+        });
+      } catch  {
+        showToast("error", "خطأ", "تعذر تحميل بيانات الكتاب.");
+      } finally {
+        setLoadingBook(false);
+      }
+    };
+
+    fetchBookDetails();
+  }, [bookId]);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [bookId]);
+
+  // Encrypt share link
+  const encryptLink = (text) => {
+    try { return btoa(encodeURIComponent(text)); }
+    catch { return text; }
+  };
+
+  const generateEncryptedShareUrl = () => {
+    const original = window.location.href;
+    const encrypted = encryptLink(original);
+    return `${window.location.origin}/share?r=${encrypted}`;
+  };
+
+  const handleShare = async () => {
+    const shareUrl = generateEncryptedShareUrl();
+
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: bookData.title, url: shareUrl });
+        return;
+      }
+    } catch {
+      //
+    }
+
+    await navigator.clipboard.writeText(shareUrl);
+    showToast("success", "تم النسخ", "✔ تم نسخ الرابط المشفّر!");
+  };
+
+  // ============================
+  // CHECK ASSIGNMENT STATUS
+  // ============================
+  useEffect(() => {
+    const fetchAssignment = async () => {
+      const user = getUserData();
+      if (!user.userId || !bookId) return;
+
+      try {
+        const res = await getHelper({
+          url: `${import.meta.env.VITE_API_URL}/library/myLibrary/${user.userId}`,
+        });
+
+        if (res?.content?.some((b) => b.id === bookId)) {
+          setIsAssigned(true);
+        } else {
+          setIsAssigned(false);
+        }
+      } catch {
+        //
+      }
+    };
+
+    fetchAssignment();
+  }, [bookId]);
+
+  // ============================
+  // CHECK REVIEW STATE
+  // ============================
+  useEffect(() => {
+    const fetchReviewState = async () => {
+      const user = getUserData();
+      if (!user.userId || !bookId) return;
+
+      try {
+        const res = await getHelper({
+          url: `${import.meta.env.VITE_API_URL}/reader/books/${bookId}/isReviewed?userId=${user.userId}`,
+        });
+
+        if (res?.data?.reviewed) {
+          setIsReviewed(true);
+          setReviewId(res.data.reviewId);
+          setUserRating(res.data.rating ?? 0);
+          setUserReview(res.data.comment ?? "");
+        } else {
+          setIsReviewed(false);
+          setReviewId(null);
+        }
+      } catch {
+        //
+      }
+    };
+
+    fetchReviewState();
+  }, [bookId]);
+
+  // ============================
+  // ADD / EDIT REVIEW
+  // ============================
+const handleSubmitReview = async () => {
+  const user = getUserData();
+  if (!user?.userId || !bookId) return;
+
+  if (userRating < 0 || userRating > 5) {
+    showToast("error", "خطأ", "التقييم يجب أن يكون بين 0 و 5.");
+    return;
+  }
+
+  const payload = {
+    userId: user.userId,
+    rating: userRating,
+    comment: userReview.trim(),
+  };
+
+  try {
+    let response;
+
+    if (isReviewed && reviewId) {
+      response = await patchHelper({
+        url: `${import.meta.env.VITE_API_URL}/reader/books/${bookId}/reviews`,
+        body: payload,
+      });
+    } else {
+      // POST — new review
+      response = await postHelper({
+        url: `${import.meta.env.VITE_API_URL}/reader/books/${bookId}/reviews`,
+        body: payload,
+      });
+    }
+
+    if (response?.success !== false) {
+      setIsRatingModalOpen(false);
+      setIsReviewed(true);
+      showToast("success", "تم الحفظ", isReviewed ? "✔ تم تعديل تقييمك." : "✔ تم إرسال تقييمك.");
+    } else {
+      showToast("error", "تعذر الحفظ", response?.message ?? "حدث خطأ أثناء حفظ التقييم.");
+    }
+
+  } catch (err) {
+    console.error("Review Error:", err);
+    showToast("error", "مشكلة", "تعذر حفظ تقييمك.");
+  }
+};
+
+
+  // ============================
+  // DELETE REVIEW
+  // ============================
+  const handleDeleteReview = async () => {
+    const user = getUserData();
+    if (!user?.userId || !reviewId || !bookId) return;
+
+    try {
+      const res = await deleteHelper({
+        url: `${import.meta.env.VITE_API_URL}/reader/books/${bookId}/reviews?userId=${user.userId}`,
+      });
+
+      if (res?.success) {
+        setIsReviewed(false);
+        setReviewId(null);
+        setUserRating(0);
+        setUserReview("");
+        setIsRatingModalOpen(false);
+        showToast("success", "تم الحذف", "✔ تم حذف تقييمك.");
+      } else {
+        showToast("error", "فشل الحذف", res?.message ?? "تعذر الحذف.");
+      }
+    } catch {
+      showToast("error", "خطأ", "تعذر حذف تقييمك.");
+    }
+  };
+
+  // ============================
+  // ASSIGN / REMOVE BOOK
+  // ============================
+  const toggleAssignBook = async () => {
+    const user = getUserData();
+    if (!user?.userId || !bookId) return;
+
+    if (!isAssigned) {
+      try {
+        const res = await postHelper({
+          url: `${import.meta.env.VITE_API_URL}/library/assignBook`,
+          body: { userId: user.userId, bookId: bookId },
+        });
+
+        if (res?.success) {
+          setIsAssigned(true);
+          showToast("success", "تمت الإضافة", "✔ أُضيف الكتاب إلى مكتبتك.");
+        } else {
+          showToast("error", "فشل", res?.message ?? "تعذر الإضافة.");
+        }
+      } catch {
+        showToast("error", "شبكة", "تعذر الإضافة.");
+      }
+    } else {
+      try {
+        const res = await deleteHelper({
+          url: `${import.meta.env.VITE_API_URL}/library/removeBook?userId=${user.userId}&bookId=${bookId}`,
+        });
+
+        if (res?.success) {
+          setIsAssigned(false);
+          showToast("success", "تم الحذف", "✔ أُزيل الكتاب من مكتبتك.");
+        } else {
+          showToast("error", "فشل الحذف", res?.message ?? "تعذر الحذف.");
+        }
+      } catch {
+        showToast("error", "شبكة", "تعذر الحذف.");
+      }
+    }
+  };
+if (loadingBook || !bookData) {
+  return <div className="text-center py-10">جارٍ التحميل...</div>;
+}
+
+  const filledStars = Math.round(bookData.averageRating);
 
   return (
-    <div className="w-full p-8" dir="rtl">
-      <div className="max-w-7xl mx-auto rounded-2xl shadow-xl overflow-hidden
-        bg-gradient-to-br from-[#f4efe6] to-[#ebe6dd] border border-[#d3c8b8]">
+    <div className="w-full animate-fade-in-up">
+      {/* MAIN LAYOUT */}
+      <div className="flex flex-col md:flex-row gap-8 lg:gap-16 items-start">
+        {/* COVER */}
+        <div className="w-full max-w-[280px] md:w-1/3 lg:w-1/4 mx-auto md:mx-0 group">
+          <div className="aspect-[2/3] rounded-2xl overflow-hidden shadow-2xl ring-4 ring-[#FEFCF8]/50 relative">
+            <img
+              src={bookData.coverImageUrl}
+              alt={bookData.title}
+              className="w-full h-full object-cover group-hover:scale-105 transition duration-700"
+            />
+          </div>
+        </div>
 
-        <div className="flex flex-col lg:flex-row">
-          
-          {/* LEFT – Book Cover */}
-          <div className="w-full lg:w-80 p-8 flex flex-col items-center gap-6
-            bg-gradient-to-br from-[#faf7f1] to-[#f0ebe3] border-l border-[#d3c8b8]">
+        {/* INFO */}
+        <div className="flex-1 space-y-8 md:pt-4 text-center md:text-right">
+          {/* TITLE */}
+          <h1 className="text-4xl md:text-6xl font-black text-[#3E2723]">
+            {bookData.title}
+          </h1>
 
-            <div className="w-full max-w-[240px] aspect-[2/3] rounded-xl overflow-hidden
-              shadow-xl ring-1 ring-black/10">
-              <img
-                src={book.coverImageUrl}
-                alt={book.title}
-                className="w-full h-full object-cover"
+          {/* STARS */}
+          <div className="flex justify-center md:justify-start gap-2">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <Star
+                key={i}
+                className={`w-6 h-6 ${
+                  i <= filledStars
+                    ? "text-[#DEC59E] fill-[yellow]"
+                    : "text-[#D7CCC8]"
+                }`}
               />
-            </div>
-
-            <Button
-              onClick={() => navigate("/Screens/dashboard/ReaderPages/BookDisplayPage/g")}
-              className="w-full h-12 text-base font-bold rounded-xl
-              bg-[#645c45] hover:bg-[#4e4735] text-white shadow-lg transition-all hover:shadow-xl"
-            >
-              <BookOpen className="w-5 h-5 ml-2" />
-              قراءة الآن
-            </Button>
-
-            {/* Action Buttons */}
-            <div className="w-full grid grid-cols-2 gap-3">
-              
-              {/* Rate Button */}
-              <button
-                onClick={() => setIsRatingModalOpen(true)}
-                className="p-3 rounded-lg bg-white border border-[#d3c8b8]
-                hover:bg-[#fdf8ea] transition-all group shadow-sm"
-                aria-label="تقييم"
-              >
-                <Star className="w-6 h-6 mx-auto text-[#aaa08d] group-hover:text-amber-500 transition-colors" />
-              </button>
-
-              {/* Share */}
-              <button
-                onClick={() => navigator.clipboard.writeText(window.location.href)}
-                className="p-3 rounded-lg bg-white border border-[#d3c8b8]
-                hover:bg-[#e7f3ff] transition-all group shadow-sm"
-                aria-label="مشاركة"
-              >
-                <Share2 className="w-6 h-6 mx-auto text-[#aaa08d] group-hover:text-blue-500 transition-colors" />
-              </button>
-
-            </div>
-
+            ))}
+            <span className="text-[#5D4037] font-medium">
+              ({bookData.totalReviews} مراجعة)
+            </span>
           </div>
 
-          {/* RIGHT – Book Details */}
-          <div className="flex-1 p-8 lg:p-10 space-y-6">
+          {/* DESCRIPTION */}
+          {bookData.description && (
+            <p className="text-[#5D4037] text-lg max-w-3xl line-clamp-4 font-medium cursor-pointer hover:line-clamp-none">
+              {bookData.description}
+            </p>
+          )}
 
-            {/* Title & Author */}
-            <div className="space-y-3 border-b border-[#d3c8b8] pb-6">
-              <h1 className="text-4xl font-bold text-[#2a2d28] leading-tight">
-                {book.title}
-              </h1>
-
-              {book?.author && (
-                <p className="text-xl text-[#645c45] font-medium">
-                  بقلم: <span className="text-[#3d4a43] font-semibold">{book.author}</span>
-                </p>
-              )}
-            </div>
-
-            {/* Ratings */}
-            <div className="flex flex-wrap items-center gap-6 py-4 text-[#3d4a43]">
-              <div className="flex items-center gap-3">
-                {renderStars(book.averageRating)}
-                <span className="text-2xl font-bold">{book.averageRating}</span>
-                <span className="text-[#645c45]">({book.totalReviews} تقييم)</span>
-              </div>
-
-              <div className="h-6 w-px bg-[#c7bbaa]"></div>
-
-              <div className="flex items-center gap-2 text-[#3d4a43]">
-                <BookOpen className="w-5 h-5" />
-                <span className="font-semibold">{book.pageCount} صفحة</span>
-              </div>
-            </div>
-
-            {/* Badges */}
-            <div className="flex flex-wrap gap-3 py-4">
-              {book.genre && (
-                <Badge className="px-4 py-2 text-sm font-semibold rounded-full
-                  bg-[#6e8b50] text-white">
-                  {book.genre}
-                </Badge>
-              )}
-              {book.language && (
-                <Badge className="px-4 py-2 text-sm font-semibold rounded-full
-                  bg-[#5f6748] text-white">
-                  {book.language}
-                </Badge>
-              )}
-              {(book.ageRangeMin || book.ageRangeMax) && (
-                <Badge className="px-4 py-2 text-sm font-semibold rounded-full
-                  bg-[#c79a3b] text-white">
-                  {book.ageRangeMin}–{book.ageRangeMax} سنة
-                </Badge>
-              )}
-            </div>
-
-            {/* Description */}
-            {book?.description && (
-              <div className="space-y-3 pt-4">
-                <h3 className="text-lg font-bold text-[#2a2d28] flex items-center gap-2">
-                  <NotebookPen className="w-5 h-5 text-[#6e8b50]" />
-                  نبذة عن الكتاب
-                </h3>
-
-                <p className="text-[#3f4a2f] leading-relaxed text-base">
-                  {book.description}
-                </p>
-              </div>
+          {/* TAGS */}
+          <div className="flex flex-wrap justify-center md:justify-start gap-3 text-sm font-semibold text-[#5D4037]">
+            {bookData.genre && (
+              <span className="bg-[#ECE7E3] px-3 py-1 rounded-xl">
+                التصنيف: {bookData.genre}
+              </span>
             )}
+            {bookData.language && (
+              <span className="bg-[#ECE7E3] px-3 py-1 rounded-xl">
+                اللغة: {bookData.language}
+              </span>
+            )}
+            {bookData.pageCount && (
+              <span className="bg-[#ECE7E3] px-3 py-1 rounded-xl">
+                {bookData.pageCount} صفحة
+              </span>
+            )}
+            {bookData.ageRangeMin && bookData.ageRangeMax && (
+              <span className="bg-[#ECE7E3] px-3 py-1 rounded-xl">
+                الفئة العمرية: {bookData.ageRangeMin}–{bookData.ageRangeMax}
+              </span>
+            )}
+            {bookData.hasAudio && (
+              <span className="bg-[#606C38]/10 text-[#606C38] px-3 py-1 rounded-xl flex items-center gap-1">
+                <Headphones className="w-4 h-4" /> نسخة صوتية
+              </span>
+            )}
+          </div>
+
+          {/* ACTIONS */}
+          <div className="flex flex-col sm:flex-row items-center gap-4 pt-6">
+            {/* READ */}
+            <Button
+              onClick={() => navigate("/Screens/dashboard/ReaderPages/BookDisplayPage/g")}
+              className="w-full sm:w-auto px-10 h-14 text-lg font-bold bg-[#606C38] text-white rounded-xl hover:bg-[#3E4A20]"
+            >
+              <BookOpen className="w-6 h-6" /> قراءة الآن
+            </Button>
+
+            {/* ICON GROUP */}
+           <div className="flex gap-3">
+  {/* REVIEW TOGGLE */}
+  <button
+    onClick={() => setIsRatingModalOpen(true)}
+    className={`w-14 h-14 rounded-full border-2 flex items-center justify-center bg-[#FEFCF8] transition
+      ${
+        isReviewed
+          ? "border-[#B800D0] text-[#B800D0] shadow-[0_0_12px_rgba(184,0,208,0.5)]"
+          : "border-[#D7CCC8] text-[#5D4037] hover:border-yellow-500 hover:text-yellow-500"
+      }
+    `}
+  >
+    <Star className="w-6 h-6" />
+  </button>
+
+  {/* ASSIGN */}
+  <button
+    onClick={toggleAssignBook}
+    className={`w-14 h-14 rounded-full border-2 flex items-center justify-center bg-[#FEFCF8] transition
+      ${
+        isAssigned
+          ? "border-[#006A6A] text-[#006A6A] shadow-[0_0_10px_rgba(0,106,106,0.6)]"
+          : "border-[#D7CCC8] text-[#5D4037] hover:border-green-500 hover:text-green-500"
+      }
+    `}
+  >
+    <BookPlus className="w-6 h-6" />
+  </button>
+
+  {/* DOWNLOAD */}
+  {bookData.pdfDownloadUrl && (
+    <button
+      onClick={() => window.open(bookData.pdfDownloadUrl, "_blank")}
+      className="w-14 h-14 rounded-full border-2 flex items-center justify-center bg-[#FEFCF8] border-[#D7CCC8] hover:border-black text-[#5D4037] hover:text-black transition"
+    >
+      <Download className="w-6 h-6" />
+    </button>
+  )}
+
+  {/* SHARE */}
+  <button
+    onClick={handleShare}
+    className="w-14 h-14 rounded-full border-2 flex items-center justify-center bg-[#FEFCF8] border-[#D7CCC8] hover:border-blue-500 text-[#5D4037] hover:text-blue-500 transition"
+  >
+    <Share2 className="w-6 h-6" />
+  </button>
+</div>
 
           </div>
         </div>
       </div>
 
-      {/* ========================== */}
-      {/* ⭐ Rating Modal */}
-      {/* ========================== */}
+      {/* RATING MODAL */}
       {isRatingModalOpen && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-8 w-full max-w-md shadow-2xl relative">
-
-            {/* Close Button */}
+        <div className="fixed inset-0 bg-[#3E2723]/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-[#FEFCF8] rounded-2xl p-8 w-full max-w-md shadow-2xl relative text-center border border-[#D7CCC8]">
             <button
               onClick={() => setIsRatingModalOpen(false)}
-              className="absolute top-4 left-4 text-gray-400 hover:text-gray-600"
+              className="absolute top-4 left-4 text-[#D7CCC8] hover:text-[#3E2723]"
             >
               <X className="w-6 h-6" />
             </button>
 
-            <h2 className="text-2xl font-bold text-center text-[#2a2d28] mb-6">
-              قيّم هذا الكتاب
+            <h2 className="text-2xl font-bold text-[#3E2723] mb-6">
+              ما رأيك في الكتاب؟
             </h2>
 
-            <div className="flex justify-center gap-3 mb-6">
+            {/* INTERACTIVE STARS */}
+            <div className="flex justify-center gap-4 mb-6">
               {[1, 2, 3, 4, 5].map((i) => (
                 <Star
                   key={i}
-                  className="w-8 h-8 cursor-pointer text-gray-300 hover:text-amber-400 hover:scale-110 transition-all"
+                  onClick={() => setUserRating(i)}
+                  className={`w-10 h-10 cursor-pointer transition hover:scale-110 ${
+                    i <= userRating
+                      ? "text-[#DEC59E] fill-[yellow]"
+                      : "text-[#D7CCC8]"
+                  }`}
                 />
               ))}
             </div>
 
+            {/* REVIEW INPUT */}
+            <textarea
+              className="w-full h-32 p-4 rounded-xl border-2 border-[#D7CCC8] bg-[#F4EFE9] text-[#3E2723] focus:border-[#606C38] outline-none resize-none text-right"
+              placeholder="اكتب مراجعتك هنا..."
+              value={userReview}
+              onChange={(e) => setUserReview(e.target.value)}
+            />
+
+            {/* SUBMIT BUTTON */}
             <Button
-              onClick={() => setIsRatingModalOpen(false)}
-              className="w-full h-12 rounded-xl bg-[#6e8b50] hover:bg-[#5f6748] text-white font-bold"
+              onClick={handleSubmitReview}
+              className="w-full h-12 bg-[#606C38] text-white rounded-xl font-bold hover:bg-[#3E4A20]"
             >
-              حفظ التقييم
+              {isReviewed ? "تعديل التقييم" : "تأكيد التقييم"}
             </Button>
+
+            {isReviewed && (
+              <button
+                onClick={handleDeleteReview}
+                className="mt-3 w-full h-12 bg-red-600 text-white rounded-xl hover:bg-red-700"
+              >
+                حذف التقييم
+              </button>
+            )}
           </div>
         </div>
       )}
 
+      {/* TOAST */}
+      <AlertToast
+        open={toast.open}
+        variant={toast.variant}
+        title={toast.title}
+        description={toast.description}
+        onClose={closeToast}
+      />
     </div>
   );
 }

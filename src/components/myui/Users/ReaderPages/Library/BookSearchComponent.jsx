@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
-import { Search, X, Filter, Check } from "lucide-react";
+import { Search, X, Filter } from "lucide-react";
 
 export default function BookSearchModal({ isOpen, onClose, onApply }) {
   // Local state for the form
@@ -7,11 +7,10 @@ export default function BookSearchModal({ isOpen, onClose, onApply }) {
   const [selectedGenres, setSelectedGenres] = useState([]);
   const [selectedFeatures, setSelectedFeatures] = useState([]);
   const [selectedRating, setSelectedRating] = useState(3.5);
-  const [selectedAge, setSelectedAge] = useState("");
+  const [selectedAge, setSelectedAge] = useState();
 
   const inputRef = useRef(null);
 
-  // Focus input when modal opens
   useEffect(() => {
     if (isOpen) {
       setTimeout(() => inputRef.current?.focus(), 100);
@@ -20,22 +19,15 @@ export default function BookSearchModal({ isOpen, onClose, onApply }) {
 
   if (!isOpen) return null;
 
-  const GENRES = [
-    { key: "children", label: "أطفال" },
-    { key: "fantasy", label: "خيال" },
-    { key: "adventure", label: "مغامرات" },
-    { key: "educational", label: "تعليمي" },
-    { key: "romance", label: "رومانسـي" },
-    { key: "historical", label: "تاريخي" },
-    { key: "science", label: "علمي" },
-    { key: "religious", label: "ديني" },
-  ];
+const GENRES = [
+  { key: "novels", label: "روايات" },
+  { key: "short_stories", label: "قصص قصيرة" },
+  { key: "self_development", label: "تطوير الذات" },
+  { key: "science_tech", label: "علوم وتكنولوجيا" },
+  { key: "history", label: "تاريخ" },
+  { key: "poetry", label: "شعر" }
+];
 
-  const FEATURES = [
-    { key: "audio", label: "كتب صوتية" },
-    { key: "interactive", label: "قصص تفاعلية" },
-    { key: "simple_texts", label: "نصوص مبسطة" },
-  ];
 
   const toggleGenre = (key) => {
     setSelectedGenres((prev) =>
@@ -43,11 +35,6 @@ export default function BookSearchModal({ isOpen, onClose, onApply }) {
     );
   };
 
-  const toggleFeature = (key) => {
-    setSelectedFeatures((prev) =>
-      prev.includes(key) ? prev.filter((p) => p !== key) : [...prev, key]
-    );
-  };
 
   const handleApply = () => {
     onApply({
@@ -71,10 +58,6 @@ export default function BookSearchModal({ isOpen, onClose, onApply }) {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 md:p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
       
-      {/* MODAL CONTAINER 
-         Mobile: Full width/height (h-full w-full)
-         Desktop: Fixed width, auto height (md:w-[600px] md:h-auto md:max-h-[85vh])
-      */}
       <div
         className="
           bg-white 
@@ -154,32 +137,7 @@ export default function BookSearchModal({ isOpen, onClose, onApply }) {
               </div>
             </div>
 
-            {/* Features */}
-            <div>
-              <h3 className="text-sm font-semibold text-[var(--earth-brown)] mb-3">المزايا</h3>
-              <div className="flex flex-col gap-2">
-                {FEATURES.map((f) => {
-                  const active = selectedFeatures.includes(f.key);
-                  return (
-                    <label key={f.key} className="flex items-center gap-3 cursor-pointer group">
-                      <div className={`
-                        w-5 h-5 rounded border flex items-center justify-center transition-colors
-                        ${active ? "bg-[var(--earth-olive)] border-[var(--earth-olive)]" : "bg-white border-gray-300 group-hover:border-[var(--earth-olive)]"}
-                      `}>
-                         {active && <Check size={12} className="text-white" />}
-                      </div>
-                      <input 
-                        type="checkbox" 
-                        className="hidden" 
-                        checked={active} 
-                        onChange={() => toggleFeature(f.key)}
-                      />
-                      <span className="text-sm text-gray-600 group-hover:text-[var(--earth-brown)]">{f.label}</span>
-                    </label>
-                  );
-                })}
-              </div>
-            </div>
+      
           </div>
 
           <div className="h-px bg-gray-100 w-full" />
@@ -208,25 +166,55 @@ export default function BookSearchModal({ isOpen, onClose, onApply }) {
              </div>
 
              {/* Age Range */}
-             <div>
-                <h3 className="text-sm font-semibold text-[var(--earth-brown)] mb-3">الفئة العمرية</h3>
-                <div className="flex bg-gray-100 p-1 rounded-lg">
-                    {["", "3-8", "9-15", "16-24"].map((range) => (
-                        <button
-                            key={range}
-                            onClick={() => setSelectedAge(range)}
-                            className={`
-                                flex-1 py-1.5 text-xs font-medium rounded-md transition-all
-                                ${selectedAge === range 
-                                    ? "bg-white text-[var(--earth-brown)] shadow-sm" 
-                                    : "text-gray-500 hover:text-gray-700"}
-                            `}
-                        >
-                            {range === "" ? "الكل" : range}
-                        </button>
-                    ))}
-                </div>
-             </div>
+       <div>
+  <h3 className="text-sm font-semibold text-[var(--earth-brown)] mb-3">
+    الفئة العمرية
+  </h3>
+
+  <div
+    className="
+      flex items-center gap-3 
+      bg-gray-100 
+      rounded-xl 
+      px-4 py-3 
+      border border-gray-200 
+      focus-within:ring-2 
+      focus-within:ring-[var(--earth-olive)]/20 
+      focus-within:border-[var(--earth-olive)] 
+      transition-all
+    "
+  >
+    <input
+      type="number"
+      min="1"
+      max="80"
+      step="1"
+      placeholder="أدخل العمر (حتى ٨٠)"
+      className="
+        bg-transparent 
+        w-full 
+        outline-none 
+        text-[var(--earth-brown-dark)] 
+        placeholder:text-gray-400 
+        text-sm
+      "
+      value={selectedAge}
+      onChange={(e) => setSelectedAge(e.target.value)}
+    />
+
+    {selectedAge && (
+      <button
+        onClick={() => setSelectedAge("")}
+        className="text-gray-400 hover:text-red-500 transition"
+      >
+        <X size={16} />
+      </button>
+    )}
+  </div>
+
+
+</div>
+
           </div>
         </div>
 

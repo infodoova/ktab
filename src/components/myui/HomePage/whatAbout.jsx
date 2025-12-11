@@ -1,6 +1,5 @@
-/* eslint-disable no-unused-vars */
+/* eslint-disable */
 import { motion } from "framer-motion";
-
 import imgAI from "../../../assets/images/ai.png";
 import imgListen from "../../../assets/images/listen.png";
 import imgInteractive from "../../../assets/images/interactive.png";
@@ -10,190 +9,115 @@ const FEATURES = [
   {
     id: "ai",
     title: "مساعد ذكي لتبسيط المعرفة",
-    desc: "لا تكتفِ بالقراءة السطحية. اسأل مساعد الذكاء الاصطناعي ليشرح لك الفقرات المعقدة، يلخص الفصول، أو يختبر فهمك لحظياً.",
+    desc: "القارئ لم يعد مضطرًا للبحث خارج الكتاب عن تفسير أو شرح أو تلخيص. مساعد كُتّاب الذكي يتفاعل معك داخل التجربة نفسها—يفهم الفقرة التي تقرأها، يبسّط المعاني الصعبة، يقدّم أمثلة توضيحية، ويولّد أسئلة اختبار لفهمك. ليس مجرد روبوت؛ بل مدرس خاص يعمل بالذكاء الاصطناعي، حاضر معك في كل صفحة، يصنع لك تجربة تعلم سلسة، شخصية، وسريعة.",
     image: imgAI,
   },
   {
     id: "interactive",
     title: "مسارات قصصية تفاعلية",
-    desc: "أنت بطل القصة. اتخذ قرارات مصيرية تغير مجرى الأحداث، واستمتع بنهايات متعددة تجعل كل قراءة تجربة جديدة كلياً.",
+    desc: "القراءة هنا ليست مجرد تقليب صفحات… بل مغامرة تتغيّر وفق قراراتك. اختر مسارك، واجه المواقف، واتخذ الخيارات التي تغيّر النهاية كليًا. كل قصة تحتوي على نقاط تفرّع تجعل كل إعادة قراءة مختلفة عن السابقة، مما يخلق تجربة غامرة تشبه اللعب، ويحوّل القارئ من متلقٍ سلبي إلى مشارك أساسي في بناء الأحداث.",
     image: imgInteractive,
   },
   {
     id: "audio",
     title: "استماع غامر أثناء التنقل",
-    desc: "حوّل مكتبتك إلى بودكاست. استمتع بسرد صوتي طبيعي ومريح للأعصاب أثناء القيادة أو الرياضة دون إجهاد عينيك.",
+    desc: "لا حاجة للتوقّف عن القراءة بسبب الانشغال. اضغط زرًا واحدًا، وسيتحوّل أي كتاب إلى تجربة صوتية طبيعية بفضل محرّك القراءة البشرية. يمكنك متابعة رحلتك المعرفية في السيارة، في النادي، أو أثناء ترتيب المنزل—بجودة صوت نقية ووتيرة تراعي راحتك. صُمّم هذا الأسلوب ليجعل المعرفة مرافقة لك طوال اليوم دون أي مجهود بصري.",
     image: imgListen,
   },
   {
     id: "progress",
     title: "لوحة إنجازات متطورة",
-    desc: "راقب نموك المعرفي. تتبع صفحاتك، ساعات القراءة، والكتب المنجزة برسوم بيانية جميلة ومحفزة.",
+    desc: "لكل قارئ رحلة، ولكل رحلة إنجازات. كُتّاب يقدم لوحة متابعة ذكية تعرض تقدّمك بأسلوب بصري جميل—الصفحات التي قرأتها، الساعات التي قضيتها، الكتب التي أنهيتها، والمستويات التي حققتها. تتلقى شارات تحفيزية، تحديات أسبوعية، وتنبيهات ذكية تساعدك على بناء عادة قراءة مستمرة. هنا، لا تحفظ المعلومات فقط… بل ترى أثرها ينبض أمامك.",
     image: imgProgress,
   },
 ];
 
 export default function WhatAbout() {
   return (
-    <section
-      id="what-about"
-      dir="rtl"
-      className="w-full py-24 overflow-hidden bg-[var(--earth-cream)] relative"
-    >
-      {/* OPTIONAL: Global subtle noise or pattern here if desired */}
-      
-      <div className="max-w-7xl mx-auto px-6 relative">
-        
-        {/* CONNECTING LINE (Desktop Only) - Guides the eye */}
-        <div className="hidden md:block absolute top-40 bottom-20 left-1/2 -translate-x-1/2 w-px bg-gradient-to-b from-transparent via-[var(--earth-olive)]/30 to-transparent dashed-line" />
+    <section className="py-24 bg-white relative" dir="rtl" id="what-about">
+      {/* thin vertical timeline */}
+      <div
+        className="hidden md:block absolute top-32 bottom-32 left-1/2 w-[2px] bg-gradient-to-b
+          from-transparent via-[var(--earth-olive)]/40 to-transparent"
+      />
 
-        {/* HEADER */}
-        <div className="text-center mb-24 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-          >
-            <h2 className="text-4xl md:text-6xl font-extrabold text-[var(--earth-brown-dark)] mb-6">
-              تجربة قراءة{" "}
-              <span className="relative inline-block">
-                <span className="relative z-10 text-[var(--earth-olive)]">استثنائية</span>
-                {/* Subtle underline highlight */}
-                <svg className="absolute w-full h-3 -bottom-1 left-0 text-[var(--earth-sand)] -z-0" viewBox="0 0 100 10" preserveAspectRatio="none">
-                  <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="8" fill="none" opacity="0.4" />
-                </svg>
-              </span>
-            </h2>
+      {/* HEADER */}
+      <div className="text-center mb-20 px-6">
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-4xl md:text-6xl font-black text-[var(--earth-brown-dark)]"
+        >
+          كيف تبدو التجربة؟
+        </motion.h2>
+        <motion.p
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.2, duration: 0.6 }}
+          className="max-w-2xl mx-auto mt-4 text-lg md:text-2xl text-[var(--earth-brown)]/80"
+        >
+          نسرد لك رحلة القارئ مع كل ميزة بشكلٍ قصصي تصاعدي.
+        </motion.p>
+      </div>
 
-            <p className="text-lg md:text-2xl max-w-3xl mx-auto text-[var(--earth-brown)]/80 leading-relaxed">
-              ندمج بين أصالة الكتاب الورقي وقوة التكنولوجيا الحديثة لنقدم لك منصة
-              تفهمك وتتفاعل معك.
-            </p>
-          </motion.div>
-        </div>
+      {/* TIMELINE LIST */}
+      <div className="max-w-6xl mx-auto space-y-28 px-6">
+        {FEATURES.map((f, i) => {
+          const right = i % 2 === 0;
+          return (
+            <motion.div
+              key={f.id}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.6 }}
+              className="relative md:flex md:items-center gap-12"
+            >
+              {/* connector dot */}
+              <div
+                className="absolute hidden md:block left-1/2 -translate-x-1/2 
+                              w-8 h-8 rounded-full bg-[var(--earth-paper)]
+                              border-[3px] border-[var(--earth-olive)] shadow-md"
+              />
 
-        {/* FEATURES SECTION */}
-        <div className="flex flex-col gap-24 md:gap-40">
-          {FEATURES.map((feature, index) => {
-            const isEven = index % 2 === 0;
-
-            return (
-              <motion.div
-                key={feature.id}
-                initial="hidden"
-                whileInView="visible"
-                // 'amount: 0.4' ensures animation triggers only when 40% of the item is visible
-                viewport={{ once: true, amount: 0.4 }} 
-                variants={{
-                  hidden: { opacity: 0 },
-                  visible: { opacity: 1, transition: { staggerChildren: 0.2 } }
-                }}
+              {/* image bubble */}
+              <div
                 className={`
-                  relative flex flex-col items-center justify-between gap-12
-                  ${isEven ? "md:flex-row" : "md:flex-row-reverse"}
-                `}
+                mx-auto md:mx-0 w-40 h-40 md:w-56 md:h-56
+                rounded-full overflow-hidden shadow-xl border-4
+                bg-white flex-shrink-0 z-10
+                ${right ? "md:order-2" : ""}
+              `}
               >
-                {/* TEXT SIDE */}
-                <motion.div 
-                  className="flex-1 text-center md:text-right space-y-6 relative z-10"
-                  variants={{
-                    hidden: { opacity: 0, x: isEven ? 50 : -50 },
-                    visible: { 
-                      opacity: 1, 
-                      x: 0,
-                      transition: { duration: 0.8, ease: "easeOut" } 
-                    }
-                  }}
-                >
-                  {/* Feature Number / Icon placeholder (Optional) */}
-                  <span className="inline-block px-4 py-1 rounded-full bg-[var(--earth-sand)]/20 text-[var(--earth-brown)] text-sm font-bold mb-2">
-                    0{index + 1}
-                  </span>
+                <img
+                  src={f.image}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </div>
 
-                  <h3 className="text-3xl md:text-5xl font-bold text-[var(--earth-brown-dark)]">
-                    {feature.title}
-                  </h3>
-
-                  <p className="text-lg md:text-xl text-[var(--earth-brown)]/80 leading-loose max-w-xl mx-auto md:mx-0">
-                    {feature.desc}
-                  </p>
-                </motion.div>
-
-                {/* IMAGE SIDE */}
-                <motion.div 
-                  className="flex-1 w-full flex justify-center relative"
-                  variants={{
-                    hidden: { opacity: 0, scale: 0.9, x: isEven ? -50 : 50 },
-                    visible: { 
-                      opacity: 1, 
-                      scale: 1, 
-                      x: 0,
-                      transition: { duration: 0.8, ease: "easeOut" } 
-                    }
-                  }}
-                >
-                  {/* ATMOSPHERIC GLOW (Behind Image) */}
-                  <div className={`
-                    absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
-                    w-[140%] h-[140%] rounded-full blur-3xl -z-10 opacity-40
-                    ${isEven ? 'bg-[var(--earth-sand)]' : 'bg-[var(--earth-olive)]/20'}
-                  `} />
-
-                  {/* Decorative Card Background */}
-                  <div
-                    className={`
-                      hidden md:block
-                      absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
-                      w-[110%] h-[110%]
-                      rounded-[2.5rem]
-                      bg-[var(--earth-paper)]
-                      border border-[var(--earth-sand)]/60
-                      shadow-sm
-                      -z-0
-                      transition-transform duration-700
-                      ${isEven ? "rotate-6 group-hover:rotate-3" : "-rotate-6 group-hover:-rotate-3"}
-                    `}
-                  />
-
-                  {/* Main Image Container with Float Animation */}
-                  <motion.div
-                    animate={{ y: [0, -10, 0] }}
-                    transition={{ 
-                      duration: 4, 
-                      ease: "easeInOut", 
-                      repeat: Infinity,
-                      delay: index * 1 // Stagger the floating effect so they don't all move in sync
-                    }}
-                    // CHANGED: Reduced sizes here
-                    className="
-                      relative z-10
-                      overflow-hidden rounded-[2rem]
-                      border-4 border-[var(--earth-paper)]
-                      bg-[var(--earth-cream)]
-                      shadow-2xl shadow-[var(--earth-shadow)]/20
-                      aspect-square
-                      w-[240px] h-[240px]        
-                      md:w-[320px] md:h-[320px]
-                      lg:w-[400px] lg:h-[400px]
-                    "
-                  >
-                    <img
-                      src={feature.image}
-                      alt={feature.title}
-                      loading="lazy"
-                      className="
-                        w-full h-full object-cover
-                        transition-transform duration-700
-                        hover:scale-110
-                      "
-                    />
-                  </motion.div>
-                </motion.div>
-              </motion.div>
-            );
-          })}
-        </div>
+              {/* text bubble */}
+              <div
+                className={`
+                bg-[var(--earth-paper)]/95 border border-[var(--earth-sand)]/60
+                rounded-3xl shadow-sm p-6 md:p-10 text-center md:text-right
+                max-w-xl mx-auto md:mx-0 md:my-0 backdrop-blur-sm
+                ${right ? "md:mr-auto" : "md:ml-auto"}
+              `}
+              >
+                <h3 className="text-2xl md:text-3xl font-bold text-[var(--earth-brown-dark)] mb-3">
+                  {f.title}
+                </h3>
+                <p className="text-[var(--earth-brown)]/85 text-lg leading-relaxed">
+                  {f.desc}
+                </p>
+              </div>
+            </motion.div>
+          );
+        })}
       </div>
     </section>
   );

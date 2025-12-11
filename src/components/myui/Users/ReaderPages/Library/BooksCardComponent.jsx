@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import { MoreVertical, Share2, Loader2, BookOpen } from "lucide-react";
 import SkeletonBookLoader from "./SkeletonBookLoader";
 import { Link } from "react-router-dom";
@@ -100,8 +100,7 @@ const MinimalBookCard = React.memo(({ book, openMenuId, setOpenMenuId, index }) 
 /* -----------------------------------------------------------
    🔹 MAIN BOOK GRID 
 ----------------------------------------------------------- */
-// Now receives 'activeFilters' from props instead of internal state
-export default function BooksGrid({ fetchFunction, activeFilters }) {
+export default function BooksGrid({ fetchFunction, activeFilters, sortOptions }) {
   const [books, setBooks] = useState([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
@@ -111,21 +110,51 @@ export default function BooksGrid({ fetchFunction, activeFilters }) {
 
   const lastRef = useRef(null);
 
-  /* FETCHING TRIGGERED BY FILTERS OR PAGE */
   useEffect(() => {
     const load = async () => {
-      // Reset logic: if activeFilters changed, the parent should have reset 'page' 
-      // but here we just react to the page/filter combo.
       
       if (page === 0) setLoading(true);
       else setLoadingMore(true);
 
-      // Pass activeFilters to fetchFunction
       const res = await fetchFunction(page, activeFilters);
 
-      setBooks((prev) =>
-        page === 0 ? res.content : [...prev, ...res.content]
-      );
+      const incoming = Array.isArray(res.content) ? res.content : [];
+
+      // Helper to extract comparable field values
+      const getFieldValue = (item, field) => {
+        if (!item) return "";
+        switch (field) {
+          case "rating":
+            return item.averageRating ?? item.rating ?? 0;
+          case "date":
+            return item.publishedYear ?? item.publishedDate ?? item.year ?? 0;
+          case "title":
+          default:
+            return item.title ?? "";
+        }
+      };
+
+      const compareItems = (a, b) => {
+        const aVal = getFieldValue(a, sortOptions?.field ?? "title");
+        const bVal = getFieldValue(b, sortOptions?.field ?? "title");
+        const asc = sortOptions?.ascending ?? true;
+
+        const bothNumbers = typeof aVal === "number" && typeof bVal === "number";
+        if (bothNumbers) {
+          return asc ? aVal - bVal : bVal - aVal;
+        }
+
+        const aStr = String(aVal);
+        const bStr = String(bVal);
+        const cmp = aStr.localeCompare(bStr, undefined, { numeric: true, sensitivity: "base" });
+        return asc ? cmp : -cmp;
+      };
+
+      if (page === 0) {
+        setBooks(() => [...incoming].sort(compareItems));
+      } else {
+        setBooks((prev) => [...prev, ...incoming].sort(compareItems));
+      }
 
       setTotalPages(res.totalPages || 1);
 
@@ -134,17 +163,48 @@ export default function BooksGrid({ fetchFunction, activeFilters }) {
     };
 
     load();
-  }, [page, fetchFunction, activeFilters]);
+  }, [page, fetchFunction, activeFilters, sortOptions]);
 
-  // When filters change externally, we must reset the list and page locally? 
-  // Actually, standard practice is to let the Effect handle the fetch, 
-  // but we need to ensure page is 0 when filters change.
-  // We can do this with a separate useEffect just for filters:
   useEffect(() => {
-    // Avoid synchronous setState in effect — schedule reset on next tick
     const id = setTimeout(() => setPage(0), 0);
     return () => clearTimeout(id);
-  }, [activeFilters]);
+  }, [activeFilters, sortOptions]);
+
+  // derive a sorted list for rendering to avoid calling setState inside effects
+  const displayedBooks = useMemo(() => {
+    if (!books || books.length === 0) return [];
+
+    const getFieldValue = (item, field) => {
+      if (!item) return "";
+      switch (field) {
+        case "rating":
+          return item.averageRating ?? item.rating ?? 0;
+        case "date":
+          return item.publishedYear ?? item.publishedDate ?? item.year ?? 0;
+        case "title":
+        default:
+          return item.title ?? "";
+      }
+    };
+
+    const compareItems = (a, b) => {
+      const aVal = getFieldValue(a, sortOptions?.field ?? "title");
+      const bVal = getFieldValue(b, sortOptions?.field ?? "title");
+      const asc = sortOptions?.ascending ?? true;
+
+      const bothNumbers = typeof aVal === "number" && typeof bVal === "number";
+      if (bothNumbers) {
+        return asc ? aVal - bVal : bVal - aVal;
+      }
+
+      const aStr = String(aVal);
+      const bStr = String(bVal);
+      const cmp = aStr.localeCompare(bStr, undefined, { numeric: true, sensitivity: "base" });
+      return asc ? cmp : -cmp;
+    };
+
+    return [...books].sort(compareItems);
+  }, [books, sortOptions]);
 
 
   /* INFINITE SCROLL */
@@ -203,13 +263,13 @@ export default function BooksGrid({ fetchFunction, activeFilters }) {
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {books.map((book) => (
+            {displayedBooks.map((book) => (
               <MinimalBookCard
                 key={book.id}
                 book={book}
                 openMenuId={openMenuId}
                 setOpenMenuId={setOpenMenuId}
-                index={books.indexOf(book)}
+                index={displayedBooks.indexOf(book)}
               />
             ))}
           </div>

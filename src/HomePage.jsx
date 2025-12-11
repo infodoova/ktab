@@ -1,55 +1,34 @@
-import React, { useState, useEffect, useRef } from 'react';
-import Navbar from "./components/myui/HomePage/navbar";
+import React, { useState, useEffect } from "react";
 import HeroSection from "./components/myui/HomePage/hero";
-import ForAllAges from './components/myui/HomePage/ForAllAges';
-import OwlFeatureDirections from './components/myui/HomePage/whatAbout';
-import PricingSection from './components/myui/HomePage/pricing';
-import RolesSection from './components/myui/HomePage/roles';
-import Footer from './components/myui/HomePage/footer';
-import FAQ from './components/myui/HomePage/FAQ';
-
+import ForAllAges from "./components/myui/HomePage/ForAllAges";
+import OwlFeatureDirections from "./components/myui/HomePage/whatAbout";
+import PricingSection from "./components/myui/HomePage/pricing";
+import RolesSection from "./components/myui/HomePage/roles";
+import Footer from "./components/myui/HomePage/footer";
+import FAQ from "./components/myui/HomePage/FAQ";
+import CinematicIntro from "./components/myui/HomePage/CinematicIntro";
+import Navbar from "./components/myui/HomePage/navbar";
+import BooksMasonry from './components/myui/HomePage/BooksMasonry'
 const HomePage = () => {
-  const [showNavbar, setShowNavbar] = useState(false);
-  const heroRef = useRef(null);
+  const [playIntro, setPlayIntro] = useState(true);
 
   useEffect(() => {
-    // 1. Capture the current ref value in a variable
-    const currentHeroRef = heroRef.current;
+    const timer = setTimeout(() => setPlayIntro(false), 2500);
+    return () => clearTimeout(timer);
+  }, []);
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setShowNavbar(!entry.isIntersecting);
-      },
-      {
-        root: null,
-        threshold: 0,
-      }
-    );
-
-    // 2. Use the variable to observe
-    if (currentHeroRef) {
-      observer.observe(currentHeroRef);
-    }
-
-    // 3. Use the variable for cleanup
-    return () => {
-      if (currentHeroRef) {
-        observer.unobserve(currentHeroRef);
-      }
-    };
-  }, []); 
+  if (playIntro) {
+    return <CinematicIntro />;
+  }
 
   return (
     <>
-      {showNavbar && <Navbar />}
-      
-      <div ref={heroRef}>
-        <HeroSection />
-      </div>
-
+      <Navbar />
+      <HeroSection />
       <ForAllAges />
       <RolesSection />
       <OwlFeatureDirections />
+      <BooksMasonry/>
       <PricingSection />
       <FAQ />
       <Footer />

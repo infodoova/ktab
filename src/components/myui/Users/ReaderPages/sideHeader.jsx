@@ -5,12 +5,13 @@ const PageHeader = ({
   mainTitle = "Main Title",
   buttonTitle = "",
   onPress = () => {},
-  onSearchClick, // New Prop
+  onSearchClick, 
 }) => {
   const showButton = buttonTitle && buttonTitle.trim() !== "";
+  const showSearch = typeof onSearchClick === "function"; 
 
   return (
-    <header 
+    <header
       className="
         hidden md:block 
         sticky top-0 z-50
@@ -21,7 +22,7 @@ const PageHeader = ({
       "
     >
 
-      {/* TITLE – always centered */}
+      {/* TITLE CENTERED */}
       <div
         className="
           absolute left-1/2 top-1/2 
@@ -33,12 +34,12 @@ const PageHeader = ({
         {mainTitle}
       </div>
 
-      {/* LEFT ACTION BUTTON */}
+      {/* BUTTON (LEFT SIDE) */}
       {showButton && (
         <div
           className="
             absolute left-6 top-1/2 
-            -translate-y-1/2
+            -translate-y-1/2 
             flex items-center
           "
         >
@@ -50,6 +51,7 @@ const PageHeader = ({
               text-[var(--earth-olive)]
               hover:bg-[var(--earth-olive)]/10
               transition font-semibold
+              whitespace-nowrap
             "
           >
             {buttonTitle}
@@ -57,27 +59,29 @@ const PageHeader = ({
         </div>
       )}
 
-      {/* Left SEARCH BUTTON */}
-      <div 
-        className="
-          absolute left-6 top-1/2 
-          -translate-y-1/2 
-          flex items-center
-        "
-      >
-        <button
-          onClick={onSearchClick}
-          aria-label="بحث"
-          className="
-            p-2 rounded-full 
-            text-[var(--earth-brown)] 
-            hover:bg-[var(--earth-brown)]/10 
-            transition-colors
-          "
+      {/* SEARCH BUTTON (ONLY IF PROVIDED) */}
+      {showSearch && (
+        <div
+          className={`
+            absolute ${showButton ? "left-20" : "left-6"} 
+            top-1/2 -translate-y-1/2 
+            flex items-center
+          `}
         >
-          <Search size={22} strokeWidth={2} />
-        </button>
-      </div>
+          <button
+            onClick={onSearchClick}
+            aria-label="بحث"
+            className="
+              p-2 rounded-full 
+              text-[var(--earth-brown)]
+              hover:bg-[var(--earth-brown)]/10 
+              transition-colors
+            "
+          >
+            <Search size={22} strokeWidth={2} />
+          </button>
+        </div>
+      )}
 
     </header>
   );

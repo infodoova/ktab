@@ -30,6 +30,14 @@ export default function NewBooks({ pageName = "رفع كتاب جديد" }) {
     title: "",
     description: "",
   });
+const resetForm = () => {
+  setTitle("");
+  setDescription("");
+  setSelectedCategory("");
+  setSelectedAge("");
+  setCoverFile(null);
+  setPdfFile(null);
+};
 
   const showError = (title, description) =>
     setToast({ open: true, variant: "error", title, description });
@@ -190,12 +198,16 @@ const img = new Image();
         onProgress: (p) => setProgress(p),
       });
 
-      setToast({
-        open: true,
-        variant: "success",
-        title: "تم النشر",
-        description: "تم نشر الكتاب بنجاح!",
-      });
+    setToast({
+  open: true,
+  variant: "success",
+  title: "تم النشر",
+  description: "تم نشر الكتاب بنجاح!",
+});
+
+// Reset form inputs
+resetForm();
+
     } catch (err) {
       showError("فشل الرفع", err?.message || "حدث خطأ غير متوقع." );
     } finally {

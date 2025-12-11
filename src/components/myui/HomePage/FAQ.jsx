@@ -11,7 +11,7 @@ export default function FAQ() {
   return (
     <section
       id="FAQ"
-      className="w-full py-20 bg-[var(--earth-beige)]/30 rtl text-right px-6 md:px-20"
+      className="w-full py-12 bg-white rtl text-right px-6 md:px-20"
     >
       <h2 className="text-2xl md:text-3xl font-bold text-[var(--earth-brown)] mb-10">
         الأسئلة الشائعة

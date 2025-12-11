@@ -32,10 +32,12 @@ export default function Footer() {
     <footer
       dir="rtl"
       className="
-        relative mt-32 pt-24 pb-12 
-        bg-[#faf7f2] 
+        relative pt-24 pb-12 
+     
         overflow-hidden
       "
+            style={{ backgroundColor: "var(--earth-cream)" }}
+
     >
       {/* FLOATING BACKGROUND BLOBS */}
       <motion.div

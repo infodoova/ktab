@@ -1,159 +1,208 @@
-/* eslint-disable no-unused-vars */
+/* eslint-disable */
+import React from "react";
 import { motion } from "framer-motion";
-import {
-  BookOpen,
-  Users,
-  GraduationCap,
-  Building2,
-} from "lucide-react";
 
-const roles = [
+const rolesData = [
   {
     id: "reader",
-    label: "قارئ",
-    summary: "تجربة قراءة جذابة وسهلة للأطفال واليافعين.",
-    icon: BookOpen,
+    heading: "قارئ",
+    description:
+      "القارئ يحتاج إلى تجربة قراءة واضحة ومريحة تُساعده على الاستمرار. المنصّة تجمع بين تصميم نظيف وأدوات ذكية مثل تتبّع التقدّم، الإشارات المرجعية، والمكتبة الشخصية.",
+    images: [
+      "https://images.pexels.com/photos/3494806/pexels-photo-3494806.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "https://images.pexels.com/photos/373465/pexels-photo-373465.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "https://images.pexels.com/photos/3095621/pexels-photo-3095621.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "https://images.pexels.com/photos/6549631/pexels-photo-6549631.jpeg?auto=compress&cs=tinysrgb&w=600",
+    ],
   },
   {
-    id: "parent",
-    label: "أهل",
-    summary: "متابعة دقيقة لسلوك أطفالك القرائي.",
-    icon: Users,
+    id: "author",
+    heading: "مؤلّف",
+    description:
+      "المؤلّف يحتاج إلى بيئة نشر تدعم الإبداع وتُسهّل الوصول إلى الجمهور. المنصّة توفّر أدوات لعرض الكتب، متابعة تفاعل القرّاء، وتحليل الأداء.",
+    images: [
+      "https://images.pexels.com/photos/8717959/pexels-photo-8717959.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "https://images.pexels.com/photos/6037566/pexels-photo-6037566.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "https://images.pexels.com/photos/6752320/pexels-photo-6752320.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "https://images.pexels.com/photos/11025214/pexels-photo-11025214.jpeg?auto=compress&cs=tinysrgb&w=600",
+    ],
   },
   {
-    id: "teacher",
-    label: "معلّم",
-    summary: "أدوات متقدمة لإدارة القراءة داخل الصف.",
-    icon: GraduationCap,
+    id: "educator",
+    heading: "معلّم",
+    description:
+      "المعلّم يحتاج إلى أدوات تُبسّط إدارة الصف وتُعزّز من جودة التفاعل. المنصّة تقدّم نظامًا لتعيين الواجبات، قياس مستوى الطلاب، وتحليل النتائج مباشرة.",
+    images: [
+      "https://images.pexels.com/photos/6266987/pexels-photo-6266987.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "https://images.pexels.com/photos/7582590/pexels-photo-7582590.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "https://images.pexels.com/photos/6326377/pexels-photo-6326377.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "https://images.pexels.com/photos/5212682/pexels-photo-5212682.jpeg?auto=compress&cs=tinysrgb&w=600",
+    ],
   },
   {
-    id: "school",
-    label: "مدرسة",
-    summary: "رؤية مؤسسية واضحة لمستوى القراءة.",
-    icon: Building2,
+    id: "student",
+    heading: "طالب",
+    description:
+      "الطالب يحتاج إلى أدوات تُساعده على الدراسة بذكاء وليس بكثرة. المنصّة توفّر ملخصات ذكية، تتبّع للإنجاز، ومحتوى تعليمي مبسّط يمكّنه من الفهم بسرعة.",
+    images: [
+      "https://images.pexels.com/photos/1251861/pexels-photo-1251861.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "https://images.pexels.com/photos/1326947/pexels-photo-1326947.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "https://images.pexels.com/photos/3807755/pexels-photo-3807755.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "https://images.pexels.com/photos/261895/pexels-photo-261895.jpeg?auto=compress&cs=tinysrgb&w=600",
+    ],
   },
 ];
 
-// Seamless loop data
-const loopData = [...roles, ...roles];
 
-export default function RolesSection() {
+// Section wrapper fade animation
+const sectionFade = {
+  hidden: { opacity: 0, y: 40 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: "easeOut" },
+  },
+};
+
+
+// Grid stagger animation
+const gridStagger = {
+  hidden: {},
+  show: {
+    transition: { staggerChildren: 0.15 },
+  },
+};
+
+const gridItem = {
+  hidden: { opacity: 0, scale: 0.95 },
+  show: { opacity: 1, scale: 1, transition: { duration: 0.45 } },
+};
+
+
+// Image grid component
+const ImageGrid = ({ images }) => {
   return (
-    <section
-      id="roles"
-      dir="rtl"
-      className="w-full py-24 bg-[#faf7f2] border-t border-[var(--earth-sand)]/30 overflow-hidden"
+    <motion.div
+      className="grid grid-cols-2 gap-4"
+      variants={gridStagger}
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, amount: 0.3 }}
     >
-      {/* 1. Define the CSS Scroll Animation */}
-      <style>{`
-        @keyframes infinite-scroll {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        .animate-scroll-loop {
-          animation: infinite-scroll 15s linear infinite;
-        }
-        /* PAUSE ON HOVER */
-        .animate-scroll-loop:hover {
-          animation-play-state: paused;
-        }
-      `}</style>
+      {images.map((src, i) => (
+        <motion.div
+          key={i}
+          variants={gridItem}
+          whileHover={{ scale: 1.04, rotate: 1 }}
+          className="relative overflow-hidden rounded-2xl shadow-md will-change-transform"
+          style={{ aspectRatio: "1/1" }}
+        >
+          <img
+            src={src}
+            alt=""
+            loading="lazy"
+            className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110"
+          />
+        </motion.div>
+      ))}
+    </motion.div>
+  );
+};
 
-      {/* HEADER */}
-      <div className="text-center mb-16 px-6">
-        <h2 className="text-4xl md:text-5xl font-bold text-[var(--earth-brown)]">
-          أدوار مختلفة. منصة واحدة.
-        </h2>
-        <p className="mt-4 text-lg text-[var(--earth-brown)]/65 max-w-2xl mx-auto">
-          تجربة مصمّمة لتناسب القارئ، الأهل، المعلّم، والمدرسة.
-        </p>
-      </div>
+const RoleSection = ({ role, index }) => {
+  const isEven = index % 2 === 0;
 
-      {/* INFINITE LOOP CONTAINER */}
-      <div className="relative w-full overflow-hidden py-10" dir="ltr">
-        
-        {/* THE TRACK */}
-        <div className="flex gap-10 w-max animate-scroll-loop">
-          {loopData.map((role, index) => {
-            const Icon = role.icon;
+  return (
+    <motion.section
+      variants={sectionFade}
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, amount: 0.2 }}
+      className="py-20 border-t border-[var(--earth-brown)]/10"
+    >
+      <div
+        className="
+          grid grid-cols-1 md:grid-cols-2 
+          gap-12 items-center 
+          px-6 md:px-16
+        "
+      >
+        {/* TEXT SIDE - Now centered on all screens */}
+        <div
+          className={`
+            w-full
+            flex flex-col justify-center
+            items-center text-center
+            ${isEven ? "md:order-1" : "md:order-2"}
+          `}
+        >
+          <h2 className="text-[32px] md:text-[42px] font-black text-[var(--earth-brown-dark)] mb-4">
+            {role.heading}
+          </h2>
 
-            return (
-              <motion.div
-                dir="rtl"
-                key={index}
-                // --- UPDATED ANIMATION ---
-                whileHover={{
-                  scale: 1.02, // Slightly less zoom for a cleaner feel
-                  rotate: [0, -0.5, 0.5, -0.5, 0], // Much smaller degrees (subtle wobble)
-                  transition: {
-                    rotate: {
-                      repeat: Infinity,
-                      repeatType: "mirror",
-                      duration: 0.4, // Slower duration for a "floating" feel rather than "shaking"
-                      ease: "easeInOut"
-                    },
-                    scale: { duration: 0.2 }
-                  }
-                }}
-                className="
-                  min-w-[380px] md:min-w-[420px] lg:min-w-[480px]
-                  bg-[var(--earth-paper)] /* Used paper color from index.css */
-                  p-10 
-                  rounded-[2rem] /* More modern rounded corners */
-                  shadow-lg
-                  
-                  /* --- NEW BORDER STYLING --- */
-                  border-2 
-                  border-[var(--earth-sand)] 
-                  hover:border-[var(--earth-olive)] /* Transitions to Olive */
-                  hover:shadow-2xl 
-                  hover:shadow-[var(--earth-olive)]/10 /* Subtle colored glow */
-                  transition-colors duration-300 /* Smooths the border color change */
-                  
-                  cursor-pointer group relative
-                  flex flex-col items-center
-                "
-              >
-                {/* HOVER GLOW EFFECT */}
-                <div
-                  className="
-                    absolute inset-0 rounded-[2rem] 
-                    opacity-0 group-hover:opacity-100 
-                    blur-xl 
-                    bg-gradient-to-br 
-                    from-[var(--earth-olive)]/10 
-                    to-[var(--earth-brown)]/5
-                    transition-all duration-500 pointer-events-none
-                  "
-                />
+          <p className="italic text-[18px] md:text-[20px] leading-[1.9] text-[var(--earth-brown)]/85 mb-8">
+            {role.description}
+          </p>
+        </div>
 
-                {/* ICON */}
-                <div className="flex justify-center mb-6 relative z-10">
-                  <div className="
-                    w-20 h-20 flex items-center justify-center
-                    rounded-2xl 
-                    bg-[var(--earth-cream)] /* Contrast against paper bg */
-                    border border-[var(--earth-sand)]
-                    group-hover:scale-110 transition-transform duration-300
-                  ">
-                    <Icon className="h-10 w-10 text-[var(--earth-brown)] group-hover:text-[var(--earth-olive)] transition-colors duration-300" />
-                  </div>
-                </div>
-
-                {/* TITLE */}
-                <h3 className="text-3xl font-bold text-[var(--earth-brown-dark)] text-center relative z-10">
-                  {role.label}
-                </h3>
-
-                {/* SUMMARY */}
-                <p className="text-[var(--earth-brown)]/80 text-lg mt-3 text-center relative z-10">
-                  {role.summary}
-                </p>
-              </motion.div>
-            );
-          })}
+        {/* IMAGES SIDE */}
+        <div
+          className={`
+            w-full
+            ${isEven ? "md:order-2" : "md:order-1"}
+          `}
+        >
+          <ImageGrid images={role.images} />
         </div>
       </div>
-    </section>
+    </motion.section>
+  );
+};
+
+// Main page
+export default function RolesPage() {
+  return (
+    <div dir="rtl" className="bg-[var(--earth-cream)] min-h-screen" id="roles">
+      
+      {/* HEADER */}
+      <header className="pt-24 pb-16 text-center px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="inline-block px-6 py-2 rounded-full border border-[var(--earth-brown)]/20 bg-[var(--earth-paper)] text-[var(--earth-brown)] text-sm mb-6"
+        >
+          منظومة متكاملة
+        </motion.div>
+
+        <motion.h1
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-4xl md:text-6xl font-black text-[var(--earth-brown-dark)] mb-4"
+        >
+          أدوار تتناغم معاً
+        </motion.h1>
+
+        <motion.div
+          initial={{ width: 0 }}
+          whileInView={{ width: "96px" }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="h-1 bg-[var(--earth-olive)] mx-auto rounded-full"
+        />
+      </header>
+
+
+      {/* SECTIONS */}
+   {rolesData.map((role, index) => (
+  <RoleSection key={role.id} role={role} index={index} />
+))}
+
+
+      <div className="h-24"></div>
+    </div>
   );
 }

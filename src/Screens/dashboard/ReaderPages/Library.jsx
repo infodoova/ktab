@@ -1,56 +1,198 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import Navbar from "../../../components/myui/Users/ReaderPages/navbar";
 import PageHeader from "../../../components/myui/Users/ReaderPages/sideHeader";
+import { AlertToast } from "../../../components/myui/AlertToast";
+import BooksGrid from "../../../components/myui/Users/ReaderPages/Library/BooksCardComponent";
+import BookSearchModal from "../../../components/myui/Users/ReaderPages/Library/BookSearchComponent"; 
+import SortBar from "../../../components/myui/Users/ReaderPages/Library/SortBarComponent";
 
-function Library({ pageName = "      المكتبة  " }) {
+import { getHelper,postHelper } from "../../../../apis/apiHelpers";
+import { getUserData } from "../../../../store/authToken";
+
+export default function MyBooks({ pageName = "المكتبة" }) {
   const [collapsed, setCollapsed] = useState(false);
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [activeFilters, setActiveFilters] = useState({
+    query: "",
+    genres: [],
+    features: [],
+    rating: 1,
+    age: ""
+  });
+  const [sortOptions, setSortOptions] = useState({
+    field: "title",
+    ascending: true,
+  });
 
-  const handleButtonPress = () => console.log("Button pressed");
-  const buttonTitleText = "زر";
+  const [alert, setAlert] = useState({
+    open: false,
+    variant: "info",
+    title: "",
+    description: "",
+  });
+
+  const handleSearchClick = () => setIsSearchOpen(true);
+  const showAlert = (variant, title, description) => {
+  setAlert({
+    open: true,
+    variant,
+    title,
+    description,
+  });
+};
+
+
+const fetchBooks = useCallback(async (page = 0) => {
+  try {
+    const user = getUserData();
+    if (!user?.userId) {
+      showAlert(
+        "error",
+        "غير مسجل",
+        "يرجى تسجيل الدخول لرؤية مكتبتك."
+      );
+      return { content: [], totalPages: 1 };
+    }
+
+    const hasActiveFilters =
+      activeFilters.query ||
+      (activeFilters.genres?.length > 0) ||
+      activeFilters.age ||
+      activeFilters.rating > 1;
+
+    if (!hasActiveFilters) {
+      const res = await getHelper({
+        url: `${import.meta.env.VITE_API_URL}/reader/viewBooks`,
+        pagination: true,
+        page,
+        size: 8,
+      });
+
+      const data = res?.data;
+
+      if (!data) {
+        showAlert(
+          "error",
+          "خطأ في الاستجابة",
+          "فشل تحميل بيانات الكتب."
+        );
+        return { content: [], totalPages: 1 };
+      }
+
+      return {
+        content: data?.content || [],
+        totalPages: data?.totalPages || 1,
+      };
+    }
+
+    const requestBody = {
+      title: activeFilters.query || "",
+      genres: Array.isArray(activeFilters.genres)
+        ? activeFilters.genres
+        : [],
+      age: activeFilters.age ? Number(activeFilters.age) : null,
+      minAverageRating: activeFilters.rating || 1,
+      page,
+      size: 8,
+    };
+
+    const res = await postHelper({
+      url: `${import.meta.env.VITE_API_URL}/reader/search`,
+      method: "POST",
+      body: requestBody,
+      pagination: true,
+    });
+
+    const data = res?.data;
+
+    if (!data) {
+      showAlert(
+        "error",
+        "خطأ في الاستجابة",
+        "تعذر تحميل نتائج البحث."
+      );
+      return { content: [], totalPages: 1 };
+    }
+
+    return {
+      content: data?.content || [],
+      totalPages: data?.totalPages || 1,
+    };
+  } catch (error) {
+    console.error("BOOKS API ERROR:", error);
+
+    showAlert(
+      "error",
+      "خطأ في الشبكة",
+      "تعذر الاتصال بالخادم، حاول لاحقاً."
+    );
+
+    return { content: [], totalPages: 1 };
+  }
+}, [activeFilters]);
+
+
+
+
 
   return (
-    <div className="min-h-screen bg-[var(--earth-cream)] rtl">
-      
-      {/* NAVBAR WITH COLLAPSE CONTROL */}
-      <Navbar
-        mobileButtonTitle={buttonTitleText}
-        onMobileButtonPress={handleButtonPress}
-        pageName={pageName}
-        collapsed={collapsed}
-        setCollapsed={setCollapsed}
-      />
+    <div dir="rtl" className="bg-[var(--earth-cream)] min-h-screen">
+      <div dir="ltr">
+        <Navbar
+          pageName={pageName}
+          collapsed={collapsed}
+          setCollapsed={setCollapsed}
+          onSearchClick={handleSearchClick} 
+        />
+      </div>
 
-      {/* DYNAMIC LAYOUT SPACING BASED ON COLLAPSED STATE */}
       <div
-        className={`flex flex-col md:flex-row-reverse min-h-screen transition-all duration-300
-          ${collapsed ? "md:mr-20" : "md:mr-64"}
-        `}
+        className={`flex min-h-screen transition-all duration-300 md:flex-row-reverse ${
+          collapsed ? "md:mr-20" : "md:mr-64"
+        }`}
       >
-        <main className="flex-1 flex flex-col">
+        <main className="flex-1">
+          
+          {/* DESKTOP HEADER with Search Trigger */}
+          <PageHeader 
+            mainTitle={pageName} 
+            onSearchClick={handleSearchClick} 
+          />
+          <SortBar
+  sortField={sortOptions.field}
+  ascending={sortOptions.ascending}
+  onSortChange={({ field, ascending }) => {
+    setSortOptions({ field, ascending });
+  }}
+/>
 
-          {/* ✅ FIX: Removed wrapper div. PageHeader is now a direct child. */}
-          <PageHeader
-            mainTitle={pageName}
-            buttonTitle={buttonTitleText}
-            onPress={handleButtonPress}
+          
+          {/* GRID - receives filters */}
+          <BooksGrid 
+            fetchFunction={fetchBooks} 
+            activeFilters={activeFilters}
+            sortOptions={sortOptions}
           />
 
-          {/* Content */}
-          <div className="flex flex-1 items-center justify-center p-10">
-            <div className="text-center">
-              <h1 className="text-3xl font-bold text-[var(--earth-brown)] mb-4">
-                Hi this is {pageName}
-              </h1>
-              <p className="text-[var(--earth-brown)]/70 text-lg">
-                مرحباً بك في صفحة {pageName}
-              </p>
-            </div>
-          </div>
-
+          {/* SEARCH MODAL */}
+          <BookSearchModal 
+            isOpen={isSearchOpen}
+            onClose={() => setIsSearchOpen(false)}
+            onApply={(newFilters) => {
+              setActiveFilters(newFilters);
+              setIsSearchOpen(false); // Close on apply
+            }}
+          />
         </main>
       </div>
+
+      <AlertToast
+        open={alert.open}
+        variant={alert.variant}
+        title={alert.title}
+        description={alert.description}
+        onClose={() => setAlert({ ...alert, open: false })}
+      />
     </div>
   );
 }
-
-export default Library;

@@ -5,12 +5,11 @@ import {
   ChevronRight,
   BookOpen,
   FolderOpen,
-  MousePointerClick,
-  Bot,
   Star,
   Settings,
   SquareLibrary,
-  Search, // Imported Search Icon
+  Search, 
+
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -23,12 +22,13 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
-
+import { getUserData } from "../../../../../store/authToken";
 import ktabLogo from "../../../../assets/logo/logo.png";
-
+const user = getUserData();
 const navLinks = [
-  { label: "  الصفحة الرئيسية  ", icon: BookOpen, href: "../../../Screens/dashboard/ReaderPages/MainPage" },
-  { label: " المكتبة ", icon: SquareLibrary, href: "../../../Screens/dashboard/ReaderPages/library" },
+
+  { label: "  الصفحة الرئيسية   ", icon: SquareLibrary, href: "../../../Screens/dashboard/ReaderPages/MainPage" },
+    { label: "المكتبة ", icon: BookOpen, href: "../../../Screens/dashboard/ReaderPages/library" },
   { label: "  القصص التفاعلية  ", icon: FolderOpen, href: "../../../Screens/dashboard/ReaderPages/InteractiveStories" },
  
   { label: "   الملف الشخصي   ", icon: Star, href: "../../../Screens/dashboard/ReaderPages/Profile" },
@@ -98,23 +98,24 @@ const SidebarContent = ({ collapsed, onToggle }) => {
       </ScrollArea>
 
 
-      <div
+ <div dir="rtl"
         className={cn(
           "h-20 border-t border-[var(--earth-sand)]/40 flex px-4 items-center gap-3",
           collapsed && "flex-col justify-center gap-1"
         )}
       >
         <div className="h-11 w-11 rounded-full bg-[var(--earth-olive)]/30 border border-[var(--earth-brown)]/20 text-[var(--earth-brown)] flex items-center justify-center font-bold text-lg">
-          أ
+          {user.firstName ? user.firstName[0] : 'أ'}
         </div>
 
         {!collapsed && (
-          <div className="flex flex-col text-[var(--earth-brown)] ">
-            <span className="font-semibold text-sm">أحمد علي</span>
+          <div className="flex flex-col text-[var(--earth-brown)] justify-start ">
+            <span className="font-semibold text-sm">{user.firstName || 'User'} {user.lastName || ''} </span>
             <span className="text-xs opacity-70">قارئ</span>
           </div>
         )}
       </div>
+
     </div>
   );
 };
