@@ -16,24 +16,27 @@ function buildHeaders(custom = {}) {
   };
 }
 
-function buildQuery(pagination, page, size) {
+function buildQuery(pagination, page, size, url) {
   if (!pagination) return "";
-  return `?page=${page || 0}&size=${size || 10}`;
+
+  const hasQuery = url.includes("?");
+  const prefix = hasQuery ? "&" : "?";
+
+  return `${prefix}page=${page ?? 0}&size=${size ?? 10}`;
 }
 
 export async function getHelper({ url, headers = {}, pagination, page, size }) {
-    await tokenManager.refreshIfNeeded(); 
+  await tokenManager.refreshIfNeeded();
 
-  const query = buildQuery(pagination, page, size);
+  const query = buildQuery(pagination, page, size, url);
+
   const res = await fetch(url + query, {
     method: "GET",
     headers: buildHeaders(headers),
   });
 
-
   return res.json();
 }
-
 export async function postHelper({ url, body, headers = {} }) {
     await tokenManager.refreshIfNeeded(); 
 

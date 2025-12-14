@@ -12,6 +12,7 @@ import { getUserData } from "../../../../store/authToken";
 export default function MyBooks({ pageName = "كتبي" }) {
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
+
   const [alert, setAlert] = useState({
     open: false,
     variant: "info",
@@ -19,31 +20,24 @@ export default function MyBooks({ pageName = "كتبي" }) {
     description: "",
   });
 
-const fetchBooks = useCallback(async (page = 0) => {
+const fetchBooks = useCallback(async (page = 0, status = "PUBLISHED") => {
+  const user = getUserData();
 
+  const res = await getHelper({
+    url: `${import.meta.env.VITE_API_URL}/authors/getBooksByAuthor/${
+      user.userId
+    }?status=${status}`,
+    pagination: true,
+    page,
+    size: 8,
+  });
 
-  try {
-    const user = getUserData();
+  const data = res?.data ?? {};
 
-    const res = await getHelper({
-      url: `${import.meta.env.VITE_API_URL}/authors/getBooksByAuthor/${user.userId}`,
-      pagination: true,
-      page,
-      size: 8,
-    });
-
-    const data = res?.data;
-    if (!data) return;
-
-
-
-    return {
-      content: data.content,
-      totalPages: data.totalPages || 1,
-    };
-  } catch  {
-    return ;
-  }
+  return {
+    content: Array.isArray(data.content) ? data.content : [],
+    totalPages: typeof data.totalPages === "number" ? data.totalPages : 1,
+  };
 }, []);
 
 
@@ -75,7 +69,9 @@ const fetchBooks = useCallback(async (page = 0) => {
             }
           />
 
-          <BooksGrid fetchFunction={fetchBooks} />
+          <BooksGrid
+            fetchFunction={(page, status) => fetchBooks(page, status)}
+          />
         </main>
       </div>
 

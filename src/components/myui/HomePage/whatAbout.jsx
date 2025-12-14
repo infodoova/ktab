@@ -4,7 +4,7 @@ import imgAI from "../../../assets/images/ai.png";
 import imgListen from "../../../assets/images/listen.png";
 import imgInteractive from "../../../assets/images/interactive.png";
 import imgProgress from "../../../assets/images/progress.png";
-
+import ResponsiveImageSkeleton from "../imageSkeletonLoaderCP";
 const FEATURES = [
   {
     id: "ai",
@@ -86,16 +86,21 @@ export default function WhatAbout() {
               {/* image bubble */}
               <div
                 className={`
-                mx-auto md:mx-0 w-40 h-40 md:w-56 md:h-56
-                rounded-full overflow-hidden shadow-xl border-4
-                bg-white flex-shrink-0 z-10
-                ${right ? "md:order-2" : ""}
-              `}
+                  mb-6 md:mb-0
+
+    mx-auto md:mx-0 w-40 h-40 md:w-56 md:h-56
+    rounded-full overflow-hidden shadow-xl border-4
+   
+    bg-white flex-shrink-0 z-10
+    ${right ? "md:order-2" : ""}
+  `}
               >
-                <img
+                <ResponsiveImageSkeleton
                   src={f.image}
-                  className="w-full h-full object-cover"
-                  loading="lazy"
+                  alt=""
+                  className="w-full h-full"
+                  imgClassName="object-cover"
+                  rounded="rounded-full"
                 />
               </div>
 

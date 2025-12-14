@@ -68,7 +68,12 @@ export default function DeleteBook({ book, open, onClose, onDeleted }) {
 
   return (
     <>
-      <AlertDialog open={open} onOpenChange={() => {}}>
+      <AlertDialog
+        open={open}
+        onOpenChange={(isOpen) => {
+          if (!isOpen) onClose();
+        }}
+      >
         <AlertDialogContent className="bg-[var(--earth-cream)] border-[var(--earth-sand)]">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-[var(--earth-brown)] text-lg">
@@ -89,11 +94,7 @@ export default function DeleteBook({ book, open, onClose, onDeleted }) {
               onClick={handleDelete}
               className="bg-red-600 hover:bg-red-700 text-white rounded-lg px-6"
             >
-              {loading ? (
-                <Loader2 className="animate-spin h-4 w-4" />
-              ) : (
-                "حذف"
-              )}
+              {loading ? <Loader2 className="animate-spin h-4 w-4" /> : "حذف"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

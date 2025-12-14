@@ -10,7 +10,7 @@ import {
   BookOpen,
   Search,
 } from "lucide-react";
-
+import { useNavigate } from "react-router-dom";
 import SkeletonBookLoader from "./SkeletonBookLoader";
 import BookDetailsModal from "./BookDetailsModal";
 import DeleteBook from "./DeleteBook";
@@ -18,8 +18,17 @@ import UpdateBookModal from "./UpdateBook";
 
 const ITEMS_PER_PAGE = 8;
 
-const MinimalBookCard = ({ book, onClick, onDelete, onEdit, openMenuId, setOpenMenuId }) => {
+const MinimalBookCard = ({
+  book,
+  onClick,
+  onDelete,
+  onEdit,
+  openMenuId,
+  setOpenMenuId,
+}) => {
+  const navigate = useNavigate();
   const isOpen = openMenuId === book.id;
+const isDraft = book.status === "DRAFT";
 
   const toggleMenu = (e) => {
     e.stopPropagation();
@@ -56,23 +65,30 @@ const MinimalBookCard = ({ book, onClick, onDelete, onEdit, openMenuId, setOpenM
             className="absolute top-8 left-0 w-40 bg-white shadow-lg rounded-xl border border-[var(--earth-sand)]/50 p-2 text-sm z-30 book-menu-area"
             onClick={(e) => e.stopPropagation()}
           >
-            <button
-              onClick={handleShare}
-              className="w-full flex items-center justify-between px-2 py-2 hover:bg-[var(--earth-cream)] rounded-lg text-[var(--earth-brown)]"
-            >
-              <span>مشاركة</span> <Share2 size={14} />
-            </button>
+            {/* SHARE — PUBLISHED ONLY */}
+            {!isDraft && (
+              <button
+                onClick={handleShare}
+                className="w-full flex items-center justify-between px-2 py-2 hover:bg-[var(--earth-cream)] rounded-lg text-[var(--earth-brown)]"
+              >
+                <span>مشاركة</span> <Share2 size={14} />
+              </button>
+            )}
 
-            <button
-              onClick={() => {
-                onEdit(book);
-                setOpenMenuId(null);
-              }}
-              className="w-full flex items-center justify-between px-2 py-2 hover:bg-[var(--earth-cream)] rounded-lg text-[var(--earth-brown)]"
-            >
-              <span>تعديل</span> <Edit size={14} />
-            </button>
+            {/* EDIT — PUBLISHED ONLY */}
+            {!isDraft && (
+              <button
+                onClick={() => {
+                  onEdit(book);
+                  setOpenMenuId(null);
+                }}
+                className="w-full flex items-center justify-between px-2 py-2 hover:bg-[var(--earth-cream)] rounded-lg text-[var(--earth-brown)]"
+              >
+                <span>تعديل</span> <Edit size={14} />
+              </button>
+            )}
 
+            {/* DELETE — ALWAYS */}
             <button
               onClick={() => {
                 onDelete(book);
@@ -87,7 +103,18 @@ const MinimalBookCard = ({ book, onClick, onDelete, onEdit, openMenuId, setOpenM
       </div>
 
       {/* MAIN CARD CLICK */}
-      <div onClick={() => onClick(book)} className="cursor-pointer">
+      <div
+        onClick={() => {
+          if (book.status === "DRAFT") {
+            navigate("/Screens/dashboard/AuthorPages/newBookPublish", {
+              state: { draft: book },
+            });
+          } else {
+            onClick(book);
+          }
+        }}
+        className="cursor-pointer"
+      >
         <div
           className="
           relative aspect-[2/3] w-full overflow-hidden rounded-[20px]
@@ -169,54 +196,58 @@ export default function Books({ fetchFunction }) {
   const [openMenuId, setOpenMenuId] = useState(null); // << FIXED HERE
 
   const lastRef = useRef(null);
+  const [activeTab, setActiveTab] = useState("PUBLISHED");
 
   const filteredBooks = books.filter((b) =>
     b.title?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   /* FETCHING */
-  useEffect(() => {
-    const load = async () => {
-      page === 0 ? setLoading(true) : setLoadingMore(true);
+useEffect(() => {
+  const load = async () => {
+    page === 0 ? setLoading(true) : setLoadingMore(true);
 
-      const res = await fetchFunction(page);
+    const res = await fetchFunction(page, activeTab);
 
-      setBooks((prev) =>
-        page === 0 ? res.content : [...prev, ...res.content]
-      );
+    const content = Array.isArray(res?.content) ? res.content : [];
+    const total = typeof res?.totalPages === "number" ? res.totalPages : 1;
 
-      setTotalPages(res.totalPages || 1);
-      page === 0 ? setLoading(false) : setLoadingMore(false);
-    };
+    setBooks((prev) => (page === 0 ? content : [...prev, ...content]));
 
-    load();
-  }, [page, fetchFunction]);
+    setTotalPages(total);
+
+    page === 0 ? setLoading(false) : setLoadingMore(false);
+  };
+
+  load();
+}, [page, activeTab, fetchFunction]);
+
 
   /* SCROLL LOAD */
- useEffect(() => {
-  // Store the current ref value in a variable
-  const currentLastRef = lastRef.current;
+  useEffect(() => {
+    // Store the current ref value in a variable
+    const currentLastRef = lastRef.current;
 
-  const observer = new IntersectionObserver(
-    (entries) => {
-      if (
-        entries[0].isIntersecting &&
-        page + 1 < totalPages &&
-        !loadingMore
-      ) {
-        setPage((p) => p + 1);
-      }
-    },
-    { threshold: 0.15 }
-  );
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (
+          entries[0].isIntersecting &&
+          page + 1 < totalPages &&
+          !loadingMore
+        ) {
+          setPage((p) => p + 1);
+        }
+      },
+      { threshold: 0.15 }
+    );
 
-  if (currentLastRef) observer.observe(currentLastRef);
+    if (currentLastRef) observer.observe(currentLastRef);
 
-  // Cleanup function
-  return () => {
-    if (currentLastRef) observer.unobserve(currentLastRef);
-  };
-}, [page, totalPages, loadingMore]);  
+    // Cleanup function
+    return () => {
+      if (currentLastRef) observer.unobserve(currentLastRef);
+    };
+  }, [page, totalPages, loadingMore]);
 
   useEffect(() => {
     const close = (e) => {
@@ -230,34 +261,79 @@ export default function Books({ fetchFunction }) {
 
   return (
     <div className="w-full min-h-screen bg-[var(--earth-cream)]">
+      {/* STICKY HEADER ROW */}
       <div
         className="
-        sticky top-0 z-40 
-        bg-[var(--earth-cream)]/80 backdrop-blur-xl 
-        border-b border-[var(--earth-sand)]/40
-      "
+    sticky top-0 z-40
+    bg-[var(--earth-cream)]/90 backdrop-blur-xl
+    border-b border-[var(--earth-sand)]/40
+  "
       >
-        <div className="max-w-7xl mx-auto px-6 py-4 flex flex-row items-center justify-between">
-          <div className="relative w-full sm:w-96">
-            <input
-              type="text"
-              placeholder="ابحث عن كتاب..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="
-                w-full pl-4 pr-10 py-2.5 
-                bg-[var(--earth-sand)]/20 
-                text-[var(--earth-brown)]
-                border border-[var(--earth-sand)]/40
-                rounded-xl text-sm outline-none text-right
-                focus:bg-white focus:ring-2 focus:ring-[var(--earth-olive)]/30
-              "
-              dir="rtl"
-            />
-            <Search
-              size={16}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--earth-brown)]/60"
-            />
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex flex-col gap-4 md:flex-row-reverse md:items-center md:justify-between">
+            {/* TABS */}
+            <div className="flex gap-2 w-full md:w-auto">
+              <button
+                onClick={() => {
+                  if (activeTab === "PUBLISHED") return;
+                  setActiveTab("PUBLISHED");
+                  setBooks([]);
+                  setPage(0);
+                }}
+                className={`
+            flex-1 md:flex-none px-6 py-3 rounded-xl text-sm font-bold transition-all
+            ${
+              activeTab === "PUBLISHED"
+                ? "bg-[var(--earth-olive)] text-white shadow-md"
+                : "bg-white text-[var(--earth-brown)] border border-[var(--earth-sand)]"
+            }
+          `}
+              >
+                منشورة
+              </button>
+
+              <button
+                onClick={() => {
+                  if (activeTab === "DRAFT") return;
+                  setActiveTab("DRAFT");
+                  setBooks([]);
+                  setPage(0);
+                }}
+                className={`
+            flex-1 md:flex-none px-6 py-3 rounded-xl text-sm font-bold transition-all
+            ${
+              activeTab === "DRAFT"
+                ? "bg-[var(--earth-olive)] text-white shadow-md"
+                : "bg-white text-[var(--earth-brown)] border border-[var(--earth-sand)]"
+            }
+          `}
+              >
+                مسودات
+              </button>
+            </div>
+
+            {/* SEARCH */}
+            <div className="relative w-full md:w-80">
+              <input
+                type="text"
+                placeholder="ابحث عن كتاب..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="
+            w-full pl-4 pr-10 py-2.5
+            bg-[var(--earth-sand)]/20
+            text-[var(--earth-brown)]
+            border border-[var(--earth-sand)]/40
+            rounded-xl text-sm outline-none text-right
+            focus:bg-white focus:ring-2 focus:ring-[var(--earth-olive)]/30
+          "
+                dir="rtl"
+              />
+              <Search
+                size={16}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--earth-brown)]/60"
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -298,14 +374,23 @@ export default function Books({ fetchFunction }) {
         )}
 
         {/* LOAD MORE */}
-        <div ref={lastRef} className="h-20 flex items-center justify-center mt-8">
+        <div
+          ref={lastRef}
+          className="h-20 flex items-center justify-center mt-8"
+        >
           {loadingMore && (
-            <Loader2 size={24} className="animate-spin text-[var(--earth-brown)]/50" />
+            <Loader2
+              size={24}
+              className="animate-spin text-[var(--earth-brown)]/50"
+            />
           )}
         </div>
       </div>
 
-      <BookDetailsModal book={selectedBook} onClose={() => setSelectedBook(null)} />
+      <BookDetailsModal
+        book={selectedBook}
+        onClose={() => setSelectedBook(null)}
+      />
 
       {showDeleteDialog && (
         <DeleteBook

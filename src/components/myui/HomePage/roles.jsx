@@ -1,7 +1,7 @@
 /* eslint-disable */
 import React from "react";
 import { motion } from "framer-motion";
-
+import ResponsiveImageSkeleton from "../imageSkeletonLoaderCP"
 const rolesData = [
   {
     id: "reader",
@@ -97,11 +97,12 @@ const ImageGrid = ({ images }) => {
           className="relative overflow-hidden rounded-2xl shadow-md will-change-transform"
           style={{ aspectRatio: "1/1" }}
         >
-          <img
+          <ResponsiveImageSkeleton
             src={src}
             alt=""
-            loading="lazy"
-            className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110"
+            className="w-full h-full"
+            imgClassName="object-cover transition-all duration-500 group-hover:scale-110"
+            rounded="rounded-2xl"
           />
         </motion.div>
       ))}

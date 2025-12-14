@@ -9,7 +9,6 @@ export default function AssignedBooksCP() {
   const [books, setBooks] = useState([]);
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
 
-
   const [toast, setToast] = useState({
     open: false,
     variant: "info",
@@ -29,61 +28,61 @@ export default function AssignedBooksCP() {
     }));
 
   // Fetch assigned books
- const fetchAssignedBooks = useCallback(async () => {
-  if (!user.userId || hasLoadedOnce) return; 
+  const fetchAssignedBooks = useCallback(async () => {
+    if (!user.userId || hasLoadedOnce) return;
 
-  setLoading(true);
+    setLoading(true);
 
-  try {
-    const res = await getHelper({
-      url: `${import.meta.env.VITE_API_URL}/library/myLibrary/${user.userId}`,
-      page: 0,
-      size: 8,
-    });
+    try {
+      const res = await getHelper({
+        url: `${import.meta.env.VITE_API_URL}/library/myLibrary`,
+        page: 0,
+        size: 8,
+      });
 
-    if (!res || !res.content) {
-      showToast("error", "فشل التحميل", "تعذر تحميل مكتبتك الآن.");
+      if (!res || !res.content) {
+        showToast("error", "فشل التحميل", "تعذر تحميل مكتبتك الآن.");
+        setBooks([]);
+      } else {
+        setBooks(res.content);
+      }
+
+      setHasLoadedOnce(true); // avoid recursive rerender
+    } catch (error) {
+      console.error("Library fetch error:", error);
+      showToast("error", "مشكلة شبكة", "حدث خطأ أثناء تحميل المكتبة.");
+
+      setHasLoadedOnce(true); // avoid retry loop
       setBooks([]);
-    } else {
-      setBooks(res.content);
     }
 
-    setHasLoadedOnce(true); // avoid recursive rerender
-  } catch (error) {
-    console.error("Library fetch error:", error);
-    showToast("error", "مشكلة شبكة", "حدث خطأ أثناء تحميل المكتبة.");
+    setLoading(false);
+  }, [user.userId, hasLoadedOnce]);
 
-    setHasLoadedOnce(true); // avoid retry loop
-    setBooks([]);
-  }
+  useEffect(() => {
+    const load = async () => {
+      await fetchAssignedBooks();
+    };
 
-  setLoading(false);
-}, [user.userId, hasLoadedOnce]);
-
-
-useEffect(() => {
-  const load = async () => {
-    await fetchAssignedBooks();
-  };
-
-  load();
-}, [fetchAssignedBooks]);
-
+    load();
+  }, [fetchAssignedBooks]);
 
   // Remove assigned book
   const handleRemoveBook = async (bookId) => {
-
-
     try {
       const res = await deleteHelper({
-        url: `${import.meta.env.VITE_API_URL}/library/removeBook?userId=${user.userId}&bookId=${bookId}`,
+        url: `${import.meta.env.VITE_API_URL}/library/removeBook/${bookId}`,
       });
 
       if (res?.success) {
         showToast("success", "تم الحذف", "✔ تمت إزالة الكتاب من مكتبتك.");
         setBooks((prev) => prev.filter((b) => b.id !== bookId));
       } else {
-        showToast("error", "تعذر الحذف", res?.message || "حاول مرة أخرى لاحقاً.");
+        showToast(
+          "error",
+          "تعذر الحذف",
+          res?.message || "حاول مرة أخرى لاحقاً."
+        );
       }
     } catch (err) {
       console.error("Remove book error:", err);
@@ -98,9 +97,7 @@ useEffect(() => {
         <div className="p-1.5 rounded-lg bg-red-50">
           <BookPlus size={20} className="text-[var(--earth-olive)]" />
         </div>
-        <h2 className="text-xl font-bold text-[var(--earth-brown)]">
-          المفضلة
-        </h2>
+        <h2 className="text-xl font-bold text-[var(--earth-brown)]">المفضلة</h2>
       </div>
 
       {loading ? (

@@ -1,6 +1,7 @@
 /* eslint-disable */
 
 import { motion } from "framer-motion";
+import ResponsiveImageSkeleton from '../imageSkeletonLoaderCP'
 
 const BOOKS = [
   { title: "رحلة البدء", img: "https://images.pexels.com/photos/1907785/pexels-photo-1907785.jpeg?auto=compress&cs=tinysrgb&w=600" }, 
@@ -61,11 +62,14 @@ const handleDownload = async (url, title) => {
 export default function BooksPinterest() {
 
   const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
-  const visibleBooks = isMobile ? BOOKS.slice(0, BOOKS.length / 2) : BOOKS;
+  const visibleBooks = isMobile ? BOOKS.slice(0, BOOKS.length / 2-1) : BOOKS;
 
   return (
-    <section className="w-full min-h-screen bg-gray-50 pb-10" dir="rtl" id="library">
-      
+    <section
+      className="w-full min-h-screen bg-gray-50 pb-10"
+      dir="rtl"
+      id="library"
+    >
       {/* Title Header */}
       <div className="pt-10 pb-8 text-center">
         <h2 className="text-4xl md:text-5xl font-black text-gray-800 tracking-tight">
@@ -75,8 +79,7 @@ export default function BooksPinterest() {
       </div>
 
       <div className="px-2 md:px-4 w-full">
-
-        <div 
+        <div
           className="
             columns-2 
             md:columns-3 
@@ -102,19 +105,19 @@ export default function BooksPinterest() {
                 mb-3
               "
             >
-
-              <img
+              <ResponsiveImageSkeleton
                 src={b.img}
                 alt={b.title}
-                loading="lazy"
-                className="
-                  w-full h-auto object-cover 
-                  transform transition-transform duration-700 
-                  group-hover:scale-110
-                "
+                className="w-full h-full"
+                imgClassName="
+    object-cover
+    transform transition-transform duration-700
+    group-hover:scale-110
+  "
+                rounded="rounded-none"
               />
 
-              <div 
+              <div
                 className="
                   absolute inset-0 
                   bg-gradient-to-t from-black/80 via-black/20 to-transparent
@@ -123,7 +126,7 @@ export default function BooksPinterest() {
                 "
               />
 
-              <div 
+              <div
                 className="
                   absolute inset-0 p-4 
                   flex flex-col justify-between 
@@ -132,7 +135,7 @@ export default function BooksPinterest() {
                 "
               >
                 <div className="flex justify-end translate-y-[-10px] group-hover:translate-y-0 transition-transform duration-300">
-                  <button 
+                  <button
                     className="bg-[var(--earth-cream)] text-black font-bold text-sm px-4 py-2 rounded-full hover:bg-black hover:text-white shadow-md"
                     onClick={() => handleDownload(b.img, b.title)}
                   >
@@ -147,9 +150,7 @@ export default function BooksPinterest() {
                     </span>
                   </div>
                 </div>
-
               </div>
-
             </motion.div>
           ))}
         </div>
