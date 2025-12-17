@@ -12,13 +12,14 @@ import { getUserData } from "../../../../store/authToken";
 export default function MyBooks({ pageName = "المكتبة" }) {
   const [collapsed, setCollapsed] = useState(false);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [activeFilters, setActiveFilters] = useState({
-    query: "",
-    genres: [],
-    features: [],
-    rating: 1,
-    age: ""
-  });
+const [activeFilters, setActiveFilters] = useState({
+  query: "",
+  mainGenreIds: [],
+  subGenreIds: [],
+  rating: 0,
+  age: null,
+});
+
   const [sortOptions, setSortOptions] = useState({
     field: "title",
     ascending: true,
@@ -41,95 +42,87 @@ export default function MyBooks({ pageName = "المكتبة" }) {
   });
 };
 
+const fetchBooks = useCallback(
+  async (page = 0) => {
+    try {
+      const user = getUserData();
+      if (!user?.userId) {
+        showAlert("error", "غير مسجل", "يرجى تسجيل الدخول لرؤية مكتبتك.");
+        return { content: [], totalPages: 1 };
+      }
 
-const fetchBooks = useCallback(async (page = 0) => {
-  try {
-    const user = getUserData();
-    if (!user?.userId) {
-      showAlert(
-        "error",
-        "غير مسجل",
-        "يرجى تسجيل الدخول لرؤية مكتبتك."
-      );
-      return { content: [], totalPages: 1 };
-    }
+      const hasActiveFilters =
+        activeFilters.query ||
+        activeFilters.mainGenreIds?.length > 0 ||
+        activeFilters.subGenreIds?.length > 0 ||
+        activeFilters.age ||
+        activeFilters.rating >= 0;
 
-    const hasActiveFilters =
-      activeFilters.query ||
-      (activeFilters.genres?.length > 0) ||
-      activeFilters.age ||
-      activeFilters.rating > 1;
+      /* ===========================
+       NO FILTERS
+    ============================ */
+      if (!hasActiveFilters) {
+        const res = await getHelper({
+          url: `${import.meta.env.VITE_API_URL}/reader/viewBooks`,
+          pagination: true,
+          page,
+          size: 8,
+        });
 
-    if (!hasActiveFilters) {
-      const res = await getHelper({
-        url: `${import.meta.env.VITE_API_URL}/reader/viewBooks`,
-        pagination: true,
+        const data = res?.data;
+
+        if (!data?.content) {
+          showAlert("error", "خطأ في الاستجابة", "فشل تحميل بيانات الكتب.");
+          return { content: [], totalPages: 1 };
+        }
+
+        return {
+          content: data.content,
+          totalPages: data.totalPages || 1,
+        };
+      }
+
+      /* ===========================
+       SEARCH
+    ============================ */
+      const requestBody = {
+        title: activeFilters.query || null,
+        mainGenreIds: activeFilters.mainGenreIds || [],
+        subGenreIds: activeFilters.subGenreIds || [],
+        age: activeFilters.age ? Number(activeFilters.age) : null,
+        minAverageRating: activeFilters.rating || 0,
         page,
         size: 8,
+      };
+
+      const res = await postHelper({
+        url: `${import.meta.env.VITE_API_URL}/reader/search`,
+        method: "POST",
+        body: requestBody,
       });
 
       const data = res?.data;
 
-      if (!data) {
-        showAlert(
-          "error",
-          "خطأ في الاستجابة",
-          "فشل تحميل بيانات الكتب."
-        );
+      if (!data?.content) {
+        showAlert("error", "خطأ في الاستجابة", "تعذر تحميل نتائج البحث.");
         return { content: [], totalPages: 1 };
       }
 
       return {
-        content: data?.content || [],
-        totalPages: data?.totalPages || 1,
+        content: data.content,
+        totalPages: data.totalPages || 1,
       };
-    }
+    } catch (error) {
+      console.error("BOOKS API ERROR:", error);
 
-    const requestBody = {
-      title: activeFilters.query || "",
-      genres: Array.isArray(activeFilters.genres)
-        ? activeFilters.genres
-        : [],
-      age: activeFilters.age ? Number(activeFilters.age) : null,
-      minAverageRating: activeFilters.rating || 1,
-      page,
-      size: 8,
-    };
+      showAlert("error", "خطأ في الشبكة", "تعذر الاتصال بالخادم، حاول لاحقاً.");
 
-    const res = await postHelper({
-      url: `${import.meta.env.VITE_API_URL}/reader/search`,
-      method: "POST",
-      body: requestBody,
-      pagination: true,
-    });
-
-    const data = res?.data;
-
-    if (!data) {
-      showAlert(
-        "error",
-        "خطأ في الاستجابة",
-        "تعذر تحميل نتائج البحث."
-      );
       return { content: [], totalPages: 1 };
     }
+  },
+  [activeFilters]
+);
 
-    return {
-      content: data?.content || [],
-      totalPages: data?.totalPages || 1,
-    };
-  } catch (error) {
-    console.error("BOOKS API ERROR:", error);
-
-    showAlert(
-      "error",
-      "خطأ في الشبكة",
-      "تعذر الاتصال بالخادم، حاول لاحقاً."
-    );
-
-    return { content: [], totalPages: 1 };
-  }
-}, [activeFilters]);
 
 
 
@@ -142,7 +135,7 @@ const fetchBooks = useCallback(async (page = 0) => {
           pageName={pageName}
           collapsed={collapsed}
           setCollapsed={setCollapsed}
-          onSearchClick={handleSearchClick} 
+          onSearchClick={handleSearchClick}
         />
       </div>
 
@@ -152,35 +145,37 @@ const fetchBooks = useCallback(async (page = 0) => {
         }`}
       >
         <main className="flex-1">
-          
           {/* DESKTOP HEADER with Search Trigger */}
-          <PageHeader 
-            mainTitle={pageName} 
-            onSearchClick={handleSearchClick} 
-          />
+          <PageHeader mainTitle={pageName} onSearchClick={handleSearchClick} />
           <SortBar
-  sortField={sortOptions.field}
-  ascending={sortOptions.ascending}
-  onSortChange={({ field, ascending }) => {
-    setSortOptions({ field, ascending });
-  }}
-/>
+            sortField={sortOptions.field}
+            ascending={sortOptions.ascending}
+            onSortChange={({ field, ascending }) => {
+              setSortOptions({ field, ascending });
+            }}
+          />
 
-          
           {/* GRID - receives filters */}
-          <BooksGrid 
-            fetchFunction={fetchBooks} 
+          <BooksGrid
+            fetchFunction={fetchBooks}
             activeFilters={activeFilters}
             sortOptions={sortOptions}
           />
 
           {/* SEARCH MODAL */}
-          <BookSearchModal 
+          <BookSearchModal
             isOpen={isSearchOpen}
             onClose={() => setIsSearchOpen(false)}
             onApply={(newFilters) => {
-              setActiveFilters(newFilters);
-              setIsSearchOpen(false); // Close on apply
+              setActiveFilters({
+                query: newFilters.title || "",
+                mainGenreIds: newFilters.mainGenreIds || [],
+                subGenreIds: newFilters.subGenreIds || [],
+                age: newFilters.age,
+                rating: newFilters.minAverageRating || 0,
+              });
+
+              setIsSearchOpen(false);
             }}
           />
         </main>

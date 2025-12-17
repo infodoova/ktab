@@ -4,7 +4,6 @@ import {
   Eye,
   MoreVertical,
   Share2,
-  Edit,
   Trash,
   Loader2,
   BookOpen,
@@ -14,7 +13,6 @@ import { useNavigate } from "react-router-dom";
 import SkeletonBookLoader from "./SkeletonBookLoader";
 import BookDetailsModal from "./BookDetailsModal";
 import DeleteBook from "./DeleteBook";
-import UpdateBookModal from "./UpdateBook";
 
 const ITEMS_PER_PAGE = 8;
 
@@ -22,7 +20,6 @@ const MinimalBookCard = ({
   book,
   onClick,
   onDelete,
-  onEdit,
   openMenuId,
   setOpenMenuId,
 }) => {
@@ -75,19 +72,6 @@ const isDraft = book.status === "DRAFT";
               </button>
             )}
 
-            {/* EDIT — PUBLISHED ONLY */}
-            {!isDraft && (
-              <button
-                onClick={() => {
-                  onEdit(book);
-                  setOpenMenuId(null);
-                }}
-                className="w-full flex items-center justify-between px-2 py-2 hover:bg-[var(--earth-cream)] rounded-lg text-[var(--earth-brown)]"
-              >
-                <span>تعديل</span> <Edit size={14} />
-              </button>
-            )}
-
             {/* DELETE — ALWAYS */}
             <button
               onClick={() => {
@@ -107,7 +91,7 @@ const isDraft = book.status === "DRAFT";
         onClick={() => {
           if (book.status === "DRAFT") {
             navigate("/Screens/dashboard/AuthorPages/newBookPublish", {
-              state: { draft: book },
+              state: { draftId: book.id },
             });
           } else {
             onClick(book);
@@ -164,9 +148,8 @@ const isDraft = book.status === "DRAFT";
           >
             {book.title}
           </h3>
-          <p className="text-sm text-[var(--earth-brown)]/60 line-clamp-1">
-            {book.genre || "عام"}
-          </p>
+        
+        
         </div>
       </div>
     </div>
@@ -182,8 +165,7 @@ export default function Books({ fetchFunction }) {
   const [bookToDelete, setBookToDelete] = useState(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-  const [showUpdateModal, setShowUpdateModal] = useState(false);
-  const [bookToUpdate, setBookToUpdate] = useState(null);
+
 
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
@@ -362,10 +344,7 @@ useEffect(() => {
                   setBookToDelete(b);
                   setShowDeleteDialog(true);
                 }}
-                onEdit={(b) => {
-                  setBookToUpdate(b);
-                  setShowUpdateModal(true);
-                }}
+            
                 openMenuId={openMenuId}
                 setOpenMenuId={setOpenMenuId}
               />
@@ -404,16 +383,6 @@ useEffect(() => {
         />
       )}
 
-      <UpdateBookModal
-        open={showUpdateModal}
-        book={bookToUpdate}
-        onClose={() => setShowUpdateModal(false)}
-        onUpdated={(updated) => {
-          setBooks((prev) =>
-            prev.map((b) => (b.id === updated.id ? updated : b))
-          );
-        }}
-      />
     </div>
   );
 }

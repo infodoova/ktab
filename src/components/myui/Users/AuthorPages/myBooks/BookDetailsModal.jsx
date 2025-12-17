@@ -5,13 +5,10 @@ import {
   Download,
   Share2,
   BookOpen,
-  Calendar,
-  Eye,
+
   Headphones,
   Globe,
-  Users,
-  Edit,
-  Trash2,
+
   Smile,
 } from "lucide-react";
 
@@ -44,7 +41,10 @@ export default function BookDetailsModal({ book, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" dir="rtl">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      dir="rtl"
+    >
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-[var(--earth-brown)]/60 backdrop-blur-sm transition-opacity"
@@ -86,7 +86,7 @@ export default function BookDetailsModal({ book, onClose }) {
                 <BookOpen size={48} />
               </div>
             )}
-            
+
             {/* Audio Badge Overlay */}
             {book.hasAudio && (
               <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-md text-white p-1.5 rounded-full">
@@ -101,14 +101,15 @@ export default function BookDetailsModal({ book, onClose }) {
 
         {/* --- RIGHT SIDE: Content --- */}
         <div className="flex-1 flex flex-col p-6 md:p-10 overflow-y-auto custom-scrollbar bg-white">
-          
           {/* 1. Header & Rating */}
           <div className="mb-6">
             <div className="flex flex-wrap items-center gap-2 mb-3">
               <span className="px-3 py-1 rounded-full bg-[var(--earth-olive)]/10 text-[var(--earth-olive)] text-xs font-bold border border-[var(--earth-olive)]/20">
-                {book.genre || "تصنيف عام"}
+                {book.mainGenreName || "تصنيف عام"}
               </span>
-              
+              <span className="px-3 py-1 rounded-full bg-[var(--earth-olive)]/10 text-[var(--earth-olive)] text-xs font-bold border border-[var(--earth-olive)]/20">
+                {book.subGenreName || "تصنيف عام"}
+              </span>
               {/* Rating Pill */}
               <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-[var(--earth-sand)]/20 text-[var(--earth-brown)] text-xs font-medium">
                 <Star size={12} className="fill-yellow-400 text-yellow-400" />
@@ -128,38 +129,63 @@ export default function BookDetailsModal({ book, onClose }) {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
             {/* Age Range */}
             <div className="flex flex-col items-center justify-center p-3 rounded-2xl bg-[var(--earth-cream)]/50 border border-[var(--earth-sand)]/20 text-center">
-                <Smile size={18} className="text-[var(--earth-olive)] mb-1" />
-                <span className="text-xs text-[var(--earth-brown)]/60">العمر</span>
-                <span className="font-bold text-[var(--earth-brown)] text-sm">
-                  {book.ageRangeMin}-{book.ageRangeMax} سنة
-                </span>
+              <Smile size={18} className="text-[var(--earth-olive)] mb-1" />
+              <span className="text-xs text-[var(--earth-brown)]/60">
+                العمر
+              </span>
+              <span className="font-bold text-[var(--earth-brown)] text-sm">
+                {book.ageRangeMin}-{book.ageRangeMax} سنة
+              </span>
             </div>
 
             {/* Language */}
             <div className="flex flex-col items-center justify-center p-3 rounded-2xl bg-[var(--earth-cream)]/50 border border-[var(--earth-sand)]/20 text-center">
-                <Globe size={18} className="text-[var(--earth-olive)] mb-1" />
-                <span className="text-xs text-[var(--earth-brown)]/60">اللغة</span>
-                <span className="font-bold text-[var(--earth-brown)] text-sm uppercase">
-                  {book.language || "AR"}
-                </span>
+              <Globe size={18} className="text-[var(--earth-olive)] mb-1" />
+              <span className="text-xs text-[var(--earth-brown)]/60">
+                اللغة
+              </span>
+              <span className="font-bold text-[var(--earth-brown)] text-sm uppercase">
+                {book.language || "AR"}
+              </span>
             </div>
 
             {/* Pages */}
             <div className="flex flex-col items-center justify-center p-3 rounded-2xl bg-[var(--earth-cream)]/50 border border-[var(--earth-sand)]/20 text-center">
-                <BookOpen size={18} className="text-[var(--earth-olive)] mb-1" />
-                <span className="text-xs text-[var(--earth-brown)]/60">الصفحات</span>
-                <span className="font-bold text-[var(--earth-brown)] text-sm">
-                  {book.pageCount || "--"}
-                </span>
+              <BookOpen size={18} className="text-[var(--earth-olive)] mb-1" />
+              <span className="text-xs text-[var(--earth-brown)]/60">
+                الصفحات
+              </span>
+              <span className="font-bold text-[var(--earth-brown)] text-sm">
+                {book.pageCount || "--"}
+              </span>
             </div>
 
             {/* Audio Available */}
-            <div className={`flex flex-col items-center justify-center p-3 rounded-2xl border text-center ${book.hasAudio ? "bg-[var(--earth-olive)]/10 border-[var(--earth-olive)]/30" : "bg-[var(--earth-cream)]/50 border-[var(--earth-sand)]/20"}`}>
-                <Headphones size={18} className={`mb-1 ${book.hasAudio ? "text-[var(--earth-olive)]" : "text-[var(--earth-brown)]/40"}`} />
-                <span className="text-xs text-[var(--earth-brown)]/60">صوتي</span>
-                <span className={`font-bold text-sm ${book.hasAudio ? "text-[var(--earth-olive)]" : "text-[var(--earth-brown)]/40"}`}>
-                  {book.hasAudio ? "متوفر" : "غير متوفر"}
-                </span>
+            <div
+              className={`flex flex-col items-center justify-center p-3 rounded-2xl border text-center ${
+                book.hasAudio
+                  ? "bg-[var(--earth-olive)]/10 border-[var(--earth-olive)]/30"
+                  : "bg-[var(--earth-cream)]/50 border-[var(--earth-sand)]/20"
+              }`}
+            >
+              <Headphones
+                size={18}
+                className={`mb-1 ${
+                  book.hasAudio
+                    ? "text-[var(--earth-olive)]"
+                    : "text-[var(--earth-brown)]/40"
+                }`}
+              />
+              <span className="text-xs text-[var(--earth-brown)]/60">صوتي</span>
+              <span
+                className={`font-bold text-sm ${
+                  book.hasAudio
+                    ? "text-[var(--earth-olive)]"
+                    : "text-[var(--earth-brown)]/40"
+                }`}
+              >
+                {book.hasAudio ? "متوفر" : "غير متوفر"}
+              </span>
             </div>
           </div>
 
@@ -195,10 +221,7 @@ export default function BookDetailsModal({ book, onClose }) {
                 <span className="hidden sm:inline">مشاركة</span>
               </button>
             </div>
-
-         
           </div>
-
         </div>
       </div>
     </div>

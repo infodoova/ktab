@@ -1,11 +1,10 @@
 import { decodeJwt } from "./authService";
-import { isTokenExpired} from '../store/authToken';
 
 let isRefreshing = false;
 let refreshPromise = null;
 
-const REFRESH_THRESHOLD = 10 * 60 * 1000; // 10 minutes
-const CHECK_INTERVAL = 60 * 1000;        // every 1 minute
+const REFRESH_THRESHOLD = 15 * 60 * 1000; // 15 minutes or less to refresh 
+const CHECK_INTERVAL = 60 * 1000;  // 1 min to check token if it will exp
 
 class TokenManager {
   constructor() {
@@ -59,9 +58,8 @@ class TokenManager {
   async callRefreshAPI() {
     const token = this.getToken();
     if (!token) throw new Error("No token found");
-   if (isTokenExpired()) return  ;
 
-
+    // Attempt refresh even if the access token is expired.
     const res = await fetch(
       `${import.meta.env.VITE_API_URL}/auth/refresh-token`,
       {
@@ -80,7 +78,28 @@ class TokenManager {
     }
 
     const data = await res.json();
-    const newToken = data.data.token;
+
+    // Support multiple response shapes:
+    // 1) plain string token: "ey..."
+    // 2) { data: "ey..." }
+    // 3) { data: { token: "ey..." } }
+    // 4) { token: "ey..." }
+    let newToken = null;
+    if (typeof data === "string") {
+      newToken = data;
+    } else if (data && typeof data === "object") {
+      if (typeof data.data === "string") newToken = data.data;
+      else if (data.data && typeof data.data === "object" && data.data.token) newToken = data.data.token;
+      else if (data.token) newToken = data.token;
+      else if (data.data && data.data.accessToken) newToken = data.data.accessToken;
+    }
+
+    if (!newToken) {
+      // Response didn't include a usable token — clear state and force login.
+      localStorage.removeItem("token");
+      window.location.href = "/Screens/auth/login";
+      throw new Error("Refresh failed: no token in response");
+    }
 
     localStorage.setItem("token", newToken);
     return newToken;

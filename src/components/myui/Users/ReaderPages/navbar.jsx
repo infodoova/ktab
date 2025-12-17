@@ -8,8 +8,7 @@ import {
   Star,
   Settings,
   SquareLibrary,
-  Search, 
-
+  Search,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -24,28 +23,48 @@ import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 import { getUserData } from "../../../../../store/authToken";
 import ktabLogo from "../../../../assets/logo/logo.png";
-const user = getUserData();
 const navLinks = [
+  {
+    label: "  الصفحة الرئيسية   ",
+    icon: SquareLibrary,
+    href: "../../../Screens/dashboard/ReaderPages/MainPage",
+  },
+  {
+    label: "المكتبة ",
+    icon: BookOpen,
+    href: "../../../Screens/dashboard/ReaderPages/library",
+  },
+  {
+    label: "  القصص التفاعلية  ",
+    icon: FolderOpen,
+    href: "../../../Screens/dashboard/ReaderPages/InteractiveStories",
+  },
 
-  { label: "  الصفحة الرئيسية   ", icon: SquareLibrary, href: "../../../Screens/dashboard/ReaderPages/MainPage" },
-    { label: "المكتبة ", icon: BookOpen, href: "../../../Screens/dashboard/ReaderPages/library" },
-  { label: "  القصص التفاعلية  ", icon: FolderOpen, href: "../../../Screens/dashboard/ReaderPages/InteractiveStories" },
- 
-  { label: "   الملف الشخصي   ", icon: Star, href: "../../../Screens/dashboard/ReaderPages/Profile" },
-  { label: "   الاعدادات   ", icon: Settings, href: "../../../Screens/dashboard/ReaderPages/Settings" },
+  {
+    label: "   الملف الشخصي   ",
+    icon: Star,
+    href: "../../../Screens/dashboard/ReaderPages/Profile",
+  },
+  {
+    label: "   الاعدادات   ",
+    icon: Settings,
+    href: "../../../Screens/dashboard/ReaderPages/Settings",
+  },
 ];
-
 
 const SidebarContent = ({ collapsed, onToggle }) => {
   const navigate = useNavigate();
+  const user = getUserData() || {};
 
   return (
     <div className="flex flex-col h-full rtl bg-[#f7f4ef] border-l border-[var(--earth-sand)]/40">
-
       {!collapsed ? (
-             <div className="h-16 flex items-center justify-center px-4 border-b">
-
-          <img src={ktabLogo} className="h-30 w-auto object-contain" alt="Logo" />
+        <div className="h-16 flex items-center justify-center px-4 border-b">
+          <img
+            src={ktabLogo}
+            className="h-30 w-auto object-contain"
+            alt="Logo"
+          />
 
           <button
             onClick={onToggle}
@@ -56,7 +75,6 @@ const SidebarContent = ({ collapsed, onToggle }) => {
         </div>
       ) : (
         <div className="h-16 flex items-center justify-center px-4 border-b">
-
           <button
             onClick={onToggle}
             className="h-9 w-9 rounded-full bg-[var(--earth-paper)] hover:bg-[var(--earth-sand)]/40 shadow flex items-center justify-center"
@@ -97,25 +115,26 @@ const SidebarContent = ({ collapsed, onToggle }) => {
         })}
       </ScrollArea>
 
-
- <div dir="rtl"
+      <div
+        dir="rtl"
         className={cn(
           "h-20 border-t border-[var(--earth-sand)]/40 flex px-4 items-center gap-3",
           collapsed && "flex-col justify-center gap-1"
         )}
       >
         <div className="h-11 w-11 rounded-full bg-[var(--earth-olive)]/30 border border-[var(--earth-brown)]/20 text-[var(--earth-brown)] flex items-center justify-center font-bold text-lg">
-          {user.firstName ? user.firstName[0] : 'أ'}
+          {user.firstName ? user.firstName[0] : "أ"}
         </div>
 
         {!collapsed && (
           <div className="flex flex-col text-[var(--earth-brown)] justify-start ">
-            <span className="font-semibold text-sm">{user.firstName || 'User'} {user.lastName || ''} </span>
+            <span className="font-semibold text-sm">
+              {user.firstName || "User"} {user.lastName || ""}{" "}
+            </span>
             <span className="text-xs opacity-70">قارئ</span>
           </div>
         )}
       </div>
-
     </div>
   );
 };
@@ -135,10 +154,8 @@ const Navbar = ({
       {/* MOBILE HEADER */}
       {/* ADDED fixed top-0 z-50 w-full */}
       <header className="md:hidden fixed top-0 z-50 w-full grid grid-cols-[1fr_auto_1fr] items-center px-4 py-3 bg-[#f7f4ef] border-b rtl h-16">
-        
         {/* LEFT COLUMN (START) - Now includes Search Icon */}
         <div className="flex justify-start items-center gap-2">
-          
           {/* SEARCH BUTTON (Moved to Left) */}
           <button
             onClick={onSearchClick}
@@ -191,7 +208,7 @@ const Navbar = ({
           </Sheet>
         </div>
       </header>
-      
+
       <div className="md:hidden h-16 w-full" />
 
       {/* DESKTOP SIDEBAR */}

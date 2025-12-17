@@ -59,7 +59,9 @@ export default function BookDataComponent({ bookId, navigate }) {
           id: b.id,
           title: b.title ?? "كتاب",
           description: b.description ?? "",
-          genre: b.genre ?? null,
+          genre: b.mainGenreName ?? null,
+          subgenre: b.subGenreName ?? null,
+
           language: b.language ?? null,
           pageCount: b.pageCount ?? null,
           ageRangeMin: b.ageRangeMin ?? null,
@@ -353,6 +355,11 @@ export default function BookDataComponent({ bookId, navigate }) {
             {bookData.genre && (
               <span className="bg-[#ECE7E3] px-3 py-1 rounded-xl">
                 التصنيف: {bookData.genre}
+              </span>
+            )}
+            {bookData.subgenre && (
+              <span className="bg-[#ECE7E3] px-3 py-1 rounded-xl">
+                التصنيف الفرعي:  {bookData.subgenre}
               </span>
             )}
             {bookData.language && (

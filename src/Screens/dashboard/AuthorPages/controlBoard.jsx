@@ -40,7 +40,7 @@ export default function ControlBoard({ pageName = "لوحة التحكم" }) {
       if (!userData?.userId) return { content: [], totalPages: 1 };
 
       const res = await getHelper({
-        url: `${import.meta.env.VITE_API_URL}/books/author/${userData.userId}`,
+        url: `${import.meta.env.VITE_API_URL}/books/author`,
         pagination: true,
         page: pageNum,
         size: 5,

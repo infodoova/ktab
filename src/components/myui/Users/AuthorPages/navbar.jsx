@@ -31,7 +31,7 @@ const navLinks = [
   { label: " كتبي ", icon: SquareLibrary, href: "../../../Screens/dashboard/AuthorPages/myBooks" },
   { label: "رفع كتاب جديد", icon: FolderOpen, href: "../../../Screens/dashboard/AuthorPages/newBookPublish" },
   { label: " قصة تفاعلية جديدة ", icon: MousePointerClick, href: "../../../Screens/dashboard/AuthorPages/NewInteractiveStory" },
-  { label: "   ادوات الزكاء الاصطناعي ", icon: Bot, href: "../../../Screens/dashboard/AuthorPages/aiTools" },
+  { label: "   ادوات الذكاء الاصطناعي ", icon: Bot, href: "../../../Screens/dashboard/AuthorPages/aiTools" },
   { label: "   التقييمات   ", icon: Star, href: "../../../Screens/dashboard/AuthorPages/ratings" },
   { label: "   الاعدادات   ", icon: Settings, href: "../../../Screens/dashboard/AuthorPages/Settings" },
 ];

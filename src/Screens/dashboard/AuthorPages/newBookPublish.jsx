@@ -11,6 +11,7 @@ import UploadModal from "../../../components/myui/Users/AuthorPages/createnewboo
 // API Helpers
 import {
   postFormDataHelper,
+  getHelper,
   patchHelper,
 } from "../../../../apis/apiHelpers";
 
@@ -18,15 +19,7 @@ import {
 import * as pdfjsLib from "pdfjs-dist";
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
 
-// --- CONSTANTS ---
-const CATEGORIES = [
-  "روايات",
-  "قصص قصيرة",
-  "تطوير الذات",
-  "علوم وتكنولوجيا",
-  "تاريخ",
-  "شعر",
-];
+
 const AGE_GROUPS = [
   "أطفال (3-8 سنوات)",
   "ناشئة (9-15 سنة)",
@@ -83,7 +76,8 @@ const validateImageDimensions = (file) => {
 
 export default function NewBooks({ pageName = "رفع كتاب جديد" }) {
   const location = useLocation();
-  const draft = location.state?.draft;
+const draftId = location.state?.draftId;
+const [draft, setDraft] = useState(null);
 
   // Derived State
   const isEditingDraft = Boolean(draft?.id);
@@ -100,10 +94,15 @@ export default function NewBooks({ pageName = "رفع كتاب جديد" }) {
   });
 
   // Form State
+  const [genres, setGenres] = useState([]);
+  const [subGenres, setSubGenres] = useState([]);
+  const [genresLoading, setGenresLoading] = useState(false);
+
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     category: "",
+    subCategory: "", // sub-genre ID (optional)
     ageGroup: "",
     coverFile: null,
     pdfFile: null,
@@ -118,24 +117,70 @@ export default function NewBooks({ pageName = "رفع كتاب جديد" }) {
 
   // --- INITIALIZATION ---
 
-  useEffect(() => {
-    if (isEditingDraft && draft) {
-      setFormData({
-        title: draft.title || "",
-        description: draft.description || "",
-        category: draft.genre || "",
-        ageGroup: mapValuesToAgeLabel(draft.ageRangeMin, draft.ageRangeMax),
-        coverFile: null,
-        pdfFile: null,
+useEffect(() => {
+  if (!isEditingDraft || !draft || !genres.length) return;
+
+  const genreId = draft.mainGenreId ? String(draft.mainGenreId) : "";
+  const subGenreId = draft.subGenreId ? String(draft.subGenreId) : "";
+
+  const selectedGenre = genres.find((g) => String(g.id) === genreId);
+
+  setFormData({
+    title: draft.title || "",
+    description: draft.description || "",
+    ageGroup: mapValuesToAgeLabel(draft.ageRangeMin, draft.ageRangeMax),
+    category: genreId,
+    subCategory: subGenreId,
+    coverFile: null,
+    pdfFile: null,
+  });
+
+  setSubGenres(selectedGenre?.subGenres || []);
+
+  setExistingData({
+    coverUrl: draft.coverImageUrl || null,
+    pdfName: draft.pdfFileName || "ملف PDF محفوظ مسبقاً",
+    pageCount: draft.pageCount || 0,
+  });
+}, [isEditingDraft, draft, genres]);
+
+useEffect(() => {
+  if (!draftId) return;
+  (async () => {
+    try {
+      const res = await getHelper({
+        url: `${import.meta.env.VITE_API_URL}/authors/book/${draftId}`,
       });
 
-      setExistingData({
-        coverUrl: draft.coverImageUrl || null,
-        pdfName: draft.pdfFileName || "ملف PDF محفوظ مسبقاً",
-        pageCount: draft.pageCount || 0,
-      });
+      setDraft(res?.data);
+    } catch (err) {
+      console.error("Fetch draft error:", err);
     }
-  }, [draft, isEditingDraft]);
+  })();
+}, [draftId]);
+
+useEffect(() => {
+  const fetchGenres = async () => {
+    setGenresLoading(true);
+
+    try {
+      const data = await getHelper({
+        url: `${import.meta.env.VITE_API_URL}/genres/getAllGenres`,
+      });
+
+      setGenres(data?.content || []);
+    } catch (err) {
+      console.error("Genres Error:", err);
+      showToast("error", "خطأ في التصنيفات", "تعذر تحميل قائمة التصنيفات.");
+    } finally {
+      setGenresLoading(false);
+    }
+  };
+
+  fetchGenres();
+}, []);
+
+
 
   // --- HANDLERS ---
 
@@ -146,6 +191,15 @@ export default function NewBooks({ pageName = "رفع كتاب جديد" }) {
   const showToast = (variant, title, description) => {
     setToast({ open: true, variant, title, description });
   };
+  const handleGenreChange = (genreId) => {
+    handleInputChange("category", genreId);
+    handleInputChange("subCategory", ""); 
+
+    const selectedGenre = genres.find((g) => g.id === Number(genreId));
+
+    setSubGenres(selectedGenre?.subGenres || []);
+  };
+
 
   // --- VALIDATION LOGIC ---
 
@@ -228,7 +282,6 @@ export default function NewBooks({ pageName = "رفع كتاب جديد" }) {
     return true;
   };
 
-  // --- SUBMIT LOGIC: DRAFT ---
 
   // --- SUBMIT LOGIC: DRAFT ---
   const handleSaveDraft = async () => {
@@ -261,7 +314,8 @@ export default function NewBooks({ pageName = "رفع كتاب جديد" }) {
       const bookDto = {
         title: formData.title.trim(),
         description: formData.description.trim(),
-        genre: formData.category,
+        mainGenreId: Number(formData.category),
+        subGenreId: formData.subCategory ? Number(formData.subCategory) : null,
         language: "arabic",
         ageRangeMin: min,
         ageRangeMax: max,
@@ -330,7 +384,8 @@ export default function NewBooks({ pageName = "رفع كتاب جديد" }) {
       const bookDto = {
         title: formData.title.trim(), // Use trim for consistency
         description: formData.description.trim(),
-        genre: formData.category,
+        mainGenreId: Number(formData.category),
+        subGenreId: formData.subCategory ? Number(formData.subCategory) : null,
         language: "arabic",
         ageRangeMin: min,
         ageRangeMax: max,
@@ -369,6 +424,7 @@ export default function NewBooks({ pageName = "رفع كتاب جديد" }) {
           title: "",
           description: "",
           category: "",
+          
           ageGroup: "",
           coverFile: null,
           pdfFile: null,
@@ -453,26 +509,57 @@ export default function NewBooks({ pageName = "رفع كتاب جديد" }) {
                   {/* Category */}
                   <div>
                     <label className="font-semibold text-[var(--earth-brown-dark)]">
-                      التصنيف *
+                      التصنيف الرئيسي *
                     </label>
+
                     <div className="relative">
                       <select
                         className="w-full h-14 px-5 rounded-xl bg-white border text-lg appearance-none focus:outline-none focus:ring-2 focus:ring-[var(--earth-olive)]"
                         value={formData.category}
-                        onChange={(e) =>
-                          handleInputChange("category", e.target.value)
-                        }
+                        onChange={(e) => handleGenreChange(e.target.value)}
+                        disabled={genresLoading}
                       >
-                        <option value="">اختر التصنيف</option>
-                        {CATEGORIES.map((c) => (
-                          <option key={c} value={c}>
-                            {c}
+                        <option value="">
+                          {genresLoading ? "جاري التحميل..." : "اختر التصنيف"}
+                        </option>
+
+                        {genres.map((genre) => (
+                          <option key={genre.id} value={genre.id}>
+                            {genre.nameAr}
                           </option>
                         ))}
                       </select>
+
                       <ChevronDown className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-400 pointer-events-none" />
                     </div>
                   </div>
+                  {formData.category && subGenres.length > 0 && (
+                    <div>
+                      <label className="font-semibold text-[var(--earth-brown-dark)]">
+                        التصنيف الفرعي (اختياري)
+                      </label>
+
+                      <div className="relative">
+                        <select
+                          className="w-full h-14 px-5 rounded-xl bg-white border text-lg appearance-none focus:outline-none focus:ring-2 focus:ring-[var(--earth-olive)]"
+                          value={formData.subCategory}
+                          onChange={(e) =>
+                            handleInputChange("subCategory", e.target.value)
+                          }
+                        >
+                          <option value="">بدون تصنيف فرعي</option>
+
+                          {subGenres.map((sub) => (
+                            <option key={sub.id} value={sub.id}>
+                              {sub.nameAr}
+                            </option>
+                          ))}
+                        </select>
+
+                        <ChevronDown className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-400 pointer-events-none" />
+                      </div>
+                    </div>
+                  )}
 
                   {/* Age Group */}
                   <div>
