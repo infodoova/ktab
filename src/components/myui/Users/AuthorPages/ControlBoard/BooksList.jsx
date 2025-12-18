@@ -1,8 +1,7 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import {
   Eye,
   Star,
-  ArrowLeft,
   BookOpen,
   BarChart3,
   TrendingUp,
@@ -11,11 +10,16 @@ import {
   ArrowUpDown,
   Check,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import LoaderCircle from "../../../LoaderCircle";
-
-// --- Mock Data ---
-const GENRES = ["الكل", "رواية", "تطوير ذات", "شعر", "سياسة", "تاريخ"];
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/table";
+import { getHelper } from "../../../../../../apis/apiHelpers";
 
 function BooksList({
   books,
@@ -28,16 +32,102 @@ function BooksList({
   selectedGenre,
   setSelectedGenre,
 }) {
-  const navigate = useNavigate();
-
   // Internal state fallback
-  const [internalSort, setInternalSort] = useState("newest");
-  const [internalGenre, setInternalGenre] = useState("الكل");
+const [internalSort, setInternalSort] = useState("newest");
+const [internalGenre, setInternalGenre] = useState("الكل");
 
-  const currentSort = sortBy || internalSort;
-  const setCurrentSort = setSortBy || setInternalSort;
-  const currentGenre = selectedGenre || internalGenre;
-  const setCurrentGenre = setSelectedGenre || setInternalGenre;
+const [genres, setGenres] = useState(["الكل"]);
+const [genresLoading, setGenresLoading] = useState(false);
+
+const currentSort = sortBy ?? internalSort;
+const setCurrentSort = setSortBy ?? setInternalSort;
+
+const currentGenre = selectedGenre ?? internalGenre;
+const setCurrentGenre = setSelectedGenre ?? setInternalGenre;
+
+  // show published / drafts toggles (both true = show both)
+  const [showPublished, setShowPublished] = useState(true);
+  const [showDrafts, setShowDrafts] = useState(true);
+
+  // derive displayed books: apply genre filter, status filter, then sort
+  const displayedBooks = useMemo(() => {
+    if (!books || !Array.isArray(books)) return [];
+
+    let result = [...books];
+
+    // filter by genre if selected
+    if (currentGenre && currentGenre !== "الكل") {
+      result = result.filter((b) => {
+        const candidates = [
+          b.mainGenre,
+          b.genre,
+          b.genreName,
+          b.category,
+          ...(Array.isArray(b.categories) ? b.categories : []),
+        ].filter(Boolean);
+        return candidates.some((g) => typeof g === "string" && g === currentGenre);
+      });
+    }
+
+    // filter by published/drafts (handle uppercase statuses like "PUBLISHED"/"DRAFT")
+    if (!(showPublished && showDrafts)) {
+      result = result.filter((b) => {
+        const statusStr = String(b.status ?? "").toLowerCase();
+        const isPublished = b.isPublished === true || statusStr === "published";
+        if (showPublished && !showDrafts) return isPublished;
+        if (!showPublished && showDrafts) return !isPublished;
+        return false;
+      });
+    }
+
+    // sorting helpers
+    const getViews = (b) =>
+      Number(b.totalReaders ?? b.TotalReaders ?? b.views ?? 0);
+    const getRating = (b) => Number(b.averageRating ?? b.AverageRating ?? 0);
+    const getDate = (b) => {
+      const d = b.publishDate ?? b.createdAt ?? b.created_at ?? null;
+      return d ? new Date(d).getTime() : 0;
+    };
+
+    if (currentSort === "most_viewed") {
+      result.sort((a, b) => getViews(b) - getViews(a));
+    } else if (currentSort === "highest_rated") {
+      result.sort((a, b) => getRating(b) - getRating(a));
+    } else {
+      // newest
+      result.sort((a, b) => getDate(b) - getDate(a));
+    }
+
+    return result;
+  }, [books, currentGenre, currentSort, showPublished, showDrafts]);
+
+
+  useEffect(() => {
+    const fetchGenres = async () => {
+      setGenresLoading(true);
+
+      try {
+        const data = await getHelper({
+          url: `${import.meta.env.VITE_API_URL}/genres/getAllGenres`,
+        });
+
+        // API returns main genres as objects with `nameAr` / `nameEn` and includes `subGenres`.
+        // We only want the main genre names (prefer Arabic) and must exclude subGenres.
+        const apiGenres =
+          (data?.content || [])
+            .map((g) => g.nameAr ?? g.nameEn ?? g.name ?? g.title ?? g.genreName)
+            .filter(Boolean);
+
+        setGenres(["الكل", ...Array.from(new Set(apiGenres))]);
+      } catch (err) {
+        console.error("Genres Error:", err);
+      } finally {
+        setGenresLoading(false);
+      }
+    };
+
+    fetchGenres();
+  }, []);
 
   return (
     <div className="space-y-6 w-full font-sans">
@@ -55,26 +145,38 @@ function BooksList({
           w-full
         "
       >
-        {/* BUTTON — FIRST IN DOM = RIGHTMOST IN RTL */}
-        <button
-          onClick={() => navigate("/Screens/dashboard/AuthorPages/myBooks")}
-          className="w-full md:w-auto flex items-center justify-center gap-2 px-4 py-2 
-               text-sm font-medium text-slate-600 bg-slate-50 
-               hover:bg-[var(--earth-sand)]/20 hover:text-[var(--earth-brown)] 
-               rounded-md transition-colors whitespace-nowrap order-3 md:order-1"
-        >
-          <span>عرض الكل</span>
-          <ArrowLeft className="w-4 h-4" />
-        </button>
-
         {/* FILTERS - Mobile: Grid 2 cols, Desktop: Flex */}
         <div className="grid grid-cols-2 md:flex md:flex-row items-center gap-2 w-full md:w-auto order-2">
           <GenreSelect
             value={currentGenre}
             onChange={setCurrentGenre}
-            options={GENRES}
+            options={genres}
+            loading={genresLoading}
           />
+
           <SortSelect value={currentSort} onChange={setCurrentSort} />
+
+          {/* Published / Drafts checkboxes */}
+          <div className="flex items-center gap-2 pr-2">
+            <label className="inline-flex items-center gap-2 text-sm select-none">
+              <input
+                type="checkbox"
+                checked={showPublished}
+                onChange={(e) => setShowPublished(e.target.checked)}
+                className="w-4 h-4 rounded"
+              />
+              <span className="text-sm">منشور</span>
+            </label>
+            <label className="inline-flex items-center gap-2 text-sm select-none">
+              <input
+                type="checkbox"
+                checked={showDrafts}
+                onChange={(e) => setShowDrafts(e.target.checked)}
+                className="w-4 h-4 rounded"
+              />
+              <span className="text-sm">مسودات</span>
+            </label>
+          </div>
         </div>
 
         {/* TITLE — LAST IN DOM = LEFTMOST IN RTL */}
@@ -91,24 +193,130 @@ function BooksList({
         className="border border-slate-200 bg-white rounded-xl shadow-sm overflow-hidden w-full"
         dir="rtl"
       >
-        {/* Table Header - Hidden on Mobile */}
-        <div className="hidden md:grid grid-cols-12 gap-4 p-4 bg-slate-50/50 border-b border-slate-100 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-          <div className="col-span-6 pr-2">الكتاب</div>
-          <div className="col-span-2 text-center">التقييم</div>
-          <div className="col-span-2 text-center">المشاهدات</div>
-          <div className="col-span-2 text-center">الصفحات</div>
-        </div>
+        {/* Desktop Table (now visible on all screen sizes) */}
+        <div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-center text-sm">المعرف</TableHead>
+                <TableHead className=" text-center text-sm">الكتاب</TableHead>
+                <TableHead className="text-center text-sm">التقييم</TableHead>
+                <TableHead className="text-center text-sm">التفضيلات</TableHead>
+                <TableHead className="text-center text-sm">الحالة</TableHead>
+                <TableHead className="text-center text-sm">التصنيف</TableHead>
+                <TableHead className="text-center text-sm">وقت النشر</TableHead>
+              </TableRow>
+            </TableHeader>
 
-        {/* Table Body */}
-        <div className="divide-y divide-slate-100">
-          {books && books.length > 0 ? (
-            books.map((book) => <BookRow key={book.id} book={book} />)
-          ) : (
-            <div className="flex flex-col items-center justify-center py-16 text-slate-400">
-              <BookOpen className="w-10 h-10 mb-2 opacity-20" />
-              <p>لا توجد بيانات لعرضها</p>
-            </div>
-          )}
+            <TableBody>
+            {displayedBooks && displayedBooks.length > 0 ? (
+                displayedBooks.map((book, idx) => (
+                  <TableRow
+                    key={`${book.bookId ?? book.id}-${idx}`}
+                    className="align-middle"
+                  >
+                    <TableCell className="text-center text-sm font-mono">
+                      {book.bookId ?? book.id ?? "-"}
+                    </TableCell>
+                    <TableCell className="flex items-center gap-3">
+                      <div className="relative w-12 h-12 rounded bg-slate-100 border border-slate-200 overflow-hidden">
+                        {book.coverImageUrl ? (
+                          <img
+                            src={book.coverImageUrl}
+                            alt={book.title}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <BookOpen className="w-5 h-5 text-slate-300 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+                        )}
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-semibold text-slate-900">
+                          {book.title}
+                        </span>
+                      </div>
+                    </TableCell>
+
+                    <TableCell className="text-center">
+                      <div className="inline-flex items-center gap-1 bg-slate-50 border border-slate-100 px-2 py-1 rounded-full">
+                        <Star className="w-3.5 h-3.5 text-yellow-500 fill-yellow-500" />
+                        <span className="text-sm font-bold">
+                          {(
+                            book.averageRating ??
+                            book.AverageRating ??
+                            0
+                          ).toFixed(1)}
+                        </span>
+                      </div>
+                      <div className="text-[10px] text-slate-400 mt-1">
+                        {book.totalReviews ?? book.TotalReviews ?? 0} مراجعة
+                      </div>
+                    </TableCell>
+
+                    <TableCell className="text-center">
+                      <div className="flex items-center justify-center gap-1">
+                        <Eye className="w-4 h-4 text-slate-400" />
+                        <span className="text-sm font-mono">
+                          {book.totalReaders ?? book.TotalReaders ?? book.views
+                            ? (
+                                book.totalReaders ??
+                                book.TotalReaders ??
+                                book.views
+                              ).toLocaleString()
+                            : 0}
+                        </span>
+                      </div>
+                    </TableCell>
+
+                    <TableCell className="text-center">
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          (String(book.status ?? "").toLowerCase() === "published" ||
+                          book.isPublished)
+                            ? "bg-green-50 text-green-700 border border-green-100"
+                            : "bg-slate-100 text-slate-600"
+                        }`}
+                      >
+                        {book.status
+                          ? (String(book.status).toLowerCase() === "published"
+                              ? "منشور"
+                              : book.status)
+                          : book.isPublished
+                          ? "منشور"
+                          : "غير منشور"}
+                      </span>
+                    </TableCell>
+
+                    <TableCell className="text-center text-sm">
+                      {book.mainGenre ? (
+                        <span className="bg-slate-100 px-2 py-1 rounded text-xs">
+                          {book.mainGenre}
+                        </span>
+                      ) : (
+                        <span className="text-slate-300">-</span>
+                      )}
+                    </TableCell>
+
+                    <TableCell className="text-center text-sm">
+                      {book.publishDate
+                        ? new Date(book.publishDate).toLocaleDateString()
+                        : "-"}
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={7}
+                    className="text-center py-12 text-slate-400"
+                  >
+                    <BookOpen className="w-10 h-10 mb-2 opacity-20 inline-block" />
+                    <div>لا توجد بيانات لعرضها</div>
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
         </div>
       </div>
 
@@ -137,16 +345,14 @@ function SortSelect({ value, onChange }) {
   }, [ref]);
 
   const options = [
-    { id: "newest", label: "الأحدث", icon: null },
+    { id: "newest", label: "الأحدث" },
     {
       id: "most_viewed",
-      label: "الأكثر مشاهدة",
-      icon: <Eye className="w-3 h-3 ml-2" />,
+      label: "الأكثر تفضيلا",
     },
     {
       id: "highest_rated",
       label: "الأعلى تقييماً",
-      icon: <Star className="w-3 h-3 ml-2" />,
     },
   ];
 
@@ -190,10 +396,7 @@ function SortSelect({ value, onChange }) {
                   }
                 `}
               >
-                <span className="flex items-center">
-                  {opt.icon}
-                  {opt.label}
-                </span>
+                <span className="flex items-center">{opt.label}</span>
                 {value === opt.id && (
                   <span className="absolute left-2 flex items-center justify-center">
                     <Check className="w-3.5 h-3.5 text-[var(--earth-brown)]" />
@@ -279,10 +482,10 @@ function GenreSelect({ value, onChange, options }) {
 
 function BookRow({ book }) {
   return (
-    <div className="group relative grid grid-cols-1 md:grid-cols-12 gap-4 p-4 items-center hover:bg-slate-50/80 transition-colors">
-      {/* Column 1: Book Details (Mobile: Takes full width & displays stats) */}
-      <div className="col-span-1 md:col-span-6 flex items-start md:items-center gap-4">
-        <div className="relative w-16 md:w-12 h-20 md:h-16 shrink-0 rounded bg-slate-100 border border-slate-200 overflow-hidden shadow-sm">
+    <div className="group relative flex md:hidden gap-4 p-3 md:p-4 items-center hover:bg-slate-50/80 transition-colors">
+      {/* Column 1: Book Details (Mobile: single-row layout) */}
+      <div className="flex-1 md:col-span-6 flex items-center gap-3">
+        <div className="relative w-14 md:w-12 h-16 md:h-16 shrink-0 rounded bg-slate-100 border border-slate-200 overflow-hidden shadow-sm">
           {book.coverImageUrl ? (
             <img
               src={book.coverImageUrl}
@@ -293,38 +496,53 @@ function BookRow({ book }) {
             <BookOpen className="w-5 h-5 text-slate-300 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
           )}
         </div>
-        
-        <div className="flex flex-col gap-1 w-full">
-          <div className="flex justify-between items-start">
-            <h3 className="text-sm font-bold text-slate-900 leading-tight group-hover:text-[var(--earth-brown)] transition-colors line-clamp-2">
-              {book.title}
-            </h3>
-          </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-            {book.genre && (
+        <div className="flex flex-col gap-1 w-full min-w-0">
+          <h3 className="text-sm font-bold text-slate-900 leading-tight group-hover:text-[var(--earth-brown)] transition-colors line-clamp-2">
+            {book.title}
+          </h3>
+
+          <div className="flex items-center gap-2 text-xs text-slate-500 mt-1">
+            {book.mainGenre && (
               <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-blue-50 text-blue-700 border border-blue-100">
-                {book.genre}
+                {book.mainGenre}
               </span>
             )}
+            <span className="hidden md:inline text-slate-400">
+              {book.pageCount ? `${book.pageCount} صفحة` : ""}
+            </span>
           </div>
+        </div>
+      </div>
 
-          {/* --- MOBILE STATS ROW (Hidden on Desktop) --- */}
-          {/* This allows mobile users to see the stats that usually hide in the other columns */}
-          <div className="flex md:hidden items-center gap-3 mt-2 text-xs text-slate-500">
-            <div className="flex items-center gap-1">
-              <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
-              <span>{(book.averageRating || 0).toFixed(1)}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Eye className="w-3 h-3 text-slate-400" />
-              <span>{book.views?.toLocaleString() || 0}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <BookOpen className="w-3 h-3 text-slate-400" />
-              <span>{book.pageCount || '-'}</span>
-            </div>
-          </div>
+      {/* Mobile compact stats (shown on small screens to keep row single-line) */}
+      <div className="flex md:hidden items-center gap-4 ml-2">
+        <div className="flex items-center gap-1">
+          <Star className="w-3.5 h-3.5 text-yellow-500 fill-yellow-500" />
+          <span className="text-sm font-semibold">
+            {(book.averageRating || 0).toFixed(1)}
+          </span>
+        </div>
+        <div className="flex items-center gap-1">
+          <Eye className="w-4 h-4 text-slate-400" />
+          <span className="text-sm font-mono">
+            {(book.TotalReaders || book.views || 0).toLocaleString()}
+          </span>
+        </div>
+        <div>
+          <span
+            className={`px-2 py-1 rounded-full text-xs font-medium ${
+              book.isPublished || book.status === "published"
+                ? "bg-green-50 text-green-700 border border-green-100"
+                : "bg-slate-100 text-slate-600"
+            }`}
+          >
+            {book.status
+              ? book.status
+              : book.isPublished
+              ? "منشور"
+              : "غير منشور"}
+          </span>
         </div>
       </div>
 
@@ -341,12 +559,12 @@ function BookRow({ book }) {
         </span>
       </div>
 
-      {/* Column 3: Views (Desktop Only) */}
-      <div className="hidden md:flex col-span-2 flex-col items-center justify-center text-slate-600">
+      {/* Column 3: Views / المضلة (Desktop Only) */}
+      <div className="hidden md:flex col-span-1 flex-col items-center justify-center text-slate-600">
         <div className="flex items-center gap-1.5">
           <Eye className="w-4 h-4 text-slate-400" />
           <span className="text-sm font-semibold font-mono">
-            {book.views?.toLocaleString() || 0}
+            {book.totalReaders?.toLocaleString() || 0}
           </span>
         </div>
         {book.views > 100 && (
@@ -357,15 +575,39 @@ function BookRow({ book }) {
         )}
       </div>
 
-      {/* Column 4: Pages (Desktop Only) */}
-      <div className="hidden md:flex col-span-2 items-center justify-center text-sm text-slate-500">
-        {book.pageCount ? (
+      {/* Column 4: Status / الحالة (Desktop Only) */}
+      <div className="hidden md:flex col-span-1 flex-col items-center justify-center text-sm">
+        <span
+          className={`px-2 py-1 rounded-full text-xs font-medium ${
+            book.isPublished || book.status === "published"
+              ? "bg-green-50 text-green-700 border border-green-100"
+              : "bg-slate-100 text-slate-600"
+          }`}
+        >
+          {book.status ? book.status : book.isPublished ? "منشور" : "غير منشور"}
+        </span>
+      </div>
+
+      {/* Column 5: Category / التصنيف (Desktop Only) */}
+      <div className="hidden md:flex col-span-1 flex-col items-center justify-center text-sm text-slate-500">
+        {book.mainGenre ? (
           <span className="bg-slate-100 px-2 py-1 rounded text-xs">
-            {book.pageCount} صفحة
+            {book.mainGenre}
           </span>
         ) : (
           <span className="text-slate-300">-</span>
         )}
+      </div>
+
+      {/* Column 6: Published time / وقت النشر (Desktop Only) */}
+      <div className="hidden md:flex col-span-1 flex-col items-center justify-center text-sm text-slate-500">
+        <span className="text-xs">
+          {book.publishDate
+            ? new Date(book.publishDate).toLocaleDateString()
+            : book.publishDate
+            ? new Date(book.publishDate).toLocaleDateString()
+            : "-"}
+        </span>
       </div>
     </div>
   );

@@ -16,12 +16,11 @@ import InteractiveStories from "./Screens/dashboard/ReaderPages/InteractiveStori
 import Profile from "./Screens/dashboard/ReaderPages/Profile";
 import Library from "./Screens/dashboard/ReaderPages/Library";
 import ReaderSettings from "./Screens/dashboard/ReaderPages/Settings";
-import BookDetails from "./Screens/dashboard/ReaderPages/BookDetails/[id]";
 import BookDisplay from "./Screens/dashboard/ReaderPages/BookDisplayPage/[id]";
-
+import BookDetails from "./Screens/dashboard/ReaderPages/BookDetails/BookDetails";
 import RoleError from "./Screens/roleError";
 import Forbidden404 from "./Screens/404forbidden";
-import Share from "./Screens/Share"
+import Share from "./Screens/Share";
 // Import Guards
 import RoleGuard from "../guards/roleGuard";
 import GuestGuard from "../guards/GuestGuard";
@@ -59,6 +58,7 @@ function App() {
           element={<InterActiveStory />}
         />
         <Route path="/author/new-book" element={<NewBooks />} />
+        <Route path="/author/books/edit/:draftId" element={<NewBooks />} />
         <Route path="/author/settings" element={<Settings />} />
         <Route path="/author/ratings" element={<Ratings />} />
         <Route path="/author/ai-tools" element={<AITools />} />
@@ -98,10 +98,10 @@ function App() {
       {/* ===========================
           READER PAGES (role = READER)
          =========================== */}
- 
+
       <Route element={<RoleGuard allowedRoles={["READER"]} />}>
         <Route path="/reader/home" element={<MainPage />} />
-        <Route path="/reader/book/:id" element={<BookDetails />} />
+        <Route path="/reader/BookDetails/:id" element={<BookDetails />} />
         <Route path="/reader/display/:id" element={<BookDisplay />} />
         <Route
           path="/reader/interactive-stories"
@@ -118,7 +118,7 @@ function App() {
         />
         <Route
           path="/Screens/dashboard/ReaderPages/BookDetails/:id"
-          element={<Navigate to="/reader/book/:id" replace />}
+          element={<Navigate to="/reader/BookDetails/:id" replace />}
         />
         <Route
           path="/Screens/dashboard/ReaderPages/BookDisplayPage/:id"

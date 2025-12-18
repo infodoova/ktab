@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
-import { MoreVertical, Share2, Loader2, BookOpen } from "lucide-react";
+import { MoreVertical, Share2, Loader2, BookOpen, Star } from "lucide-react";
 import SkeletonBookLoader from "./SkeletonBookLoader";
 import { Link } from "react-router-dom";
 
@@ -8,99 +8,125 @@ const ITEMS_PER_PAGE = 8;
 /* -----------------------------------------------------------
    🔹 MINIMAL BOOK CARD 
 ----------------------------------------------------------- */
-const MinimalBookCard = React.memo(({ book, openMenuId, setOpenMenuId, index }) => {
-  const isOpen = openMenuId === book.id;
-  const isAboveFold = index < 8;
+const MinimalBookCard = React.memo(
+  ({ book, openMenuId, setOpenMenuId, index }) => {
+    const isOpen = openMenuId === book.id;
+    const isAboveFold = index < 8;
 
-  const toggleMenu = (e) => {
-    e.preventDefault(); 
-    e.stopPropagation();
-    setOpenMenuId(isOpen ? null : book.id);
-  };
+    const toggleMenu = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setOpenMenuId(isOpen ? null : book.id);
+    };
 
-  const handleShare = async (e) => {
-    e.preventDefault(); 
-    e.stopPropagation();
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: book.title,
-          text: "اطّلع على هذا الكتاب",
-          url: book.pdfDownloadUrl,
-        });
-      } catch (err) {
-        console.log("Share dismissed",err);
+    const handleShare = async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: book.title,
+            text: "اطّلع على هذا الكتاب",
+            url: book.pdfDownloadUrl,
+          });
+        } catch (err) {
+          console.log("Share dismissed", err);
+        }
+      } else {
+        navigator.clipboard.writeText(book.pdfDownloadUrl);
+        alert("تم نسخ رابط الكتاب");
       }
-    } else {
-      navigator.clipboard.writeText(book.pdfDownloadUrl);
-      alert("تم نسخ رابط الكتاب");
-    }
-    setOpenMenuId(null);
-  };
+      setOpenMenuId(null);
+    };
 
-  return (
-    <div className="relative flex flex-col gap-3 group" dir="rtl">
-      <div className="absolute top-2 left-2 z-20 book-menu-area">
-        <button
-          onClick={toggleMenu}
-          aria-label="خيارات إضافية"
-          aria-expanded={isOpen}
-          className="p-1.5 rounded-full bg-white/80 backdrop-blur-md shadow-sm text-[var(--earth-brown)] hover:bg-[var(--earth-cream)] transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--earth-brown)]"
-        >
-          <MoreVertical size={16} />
-        </button>
-        {isOpen && (
-          <div
-            className="absolute top-9 left-0 w-36 bg-white shadow-xl rounded-xl border border-[var(--earth-sand)]/50 p-1.5 text-sm z-30 animate-in fade-in zoom-in-95 duration-200"
-            onClick={(e) => e.stopPropagation()}
+    return (
+      <div className="relative flex flex-col gap-3 group" dir="rtl">
+        <div className="absolute top-2 left-2 z-20 book-menu-area">
+          <button
+            onClick={toggleMenu}
+            aria-label="خيارات إضافية"
+            aria-expanded={isOpen}
+            className="p-1.5 rounded-full bg-white/80 backdrop-blur-md shadow-sm text-[var(--earth-brown)] hover:bg-[var(--earth-cream)] transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--earth-brown)]"
           >
-            <button
-              onClick={handleShare}
-              className="w-full flex items-center justify-between px-3 py-2 hover:bg-[var(--earth-cream)] rounded-lg text-[var(--earth-brown)] transition-colors"
+            <MoreVertical size={16} />
+          </button>
+          {isOpen && (
+            <div
+              className="absolute top-9 left-0 w-36 bg-white shadow-xl rounded-xl border border-[var(--earth-sand)]/50 p-1.5 text-sm z-30 animate-in fade-in zoom-in-95 duration-200"
+              onClick={(e) => e.stopPropagation()}
             >
-              <span>مشاركة</span> <Share2 size={14} />
-            </button>
-          </div>
-        )}
-      </div>
+              <button
+                onClick={handleShare}
+                className="w-full flex items-center justify-between px-3 py-2 hover:bg-[var(--earth-cream)] rounded-lg text-[var(--earth-brown)] transition-colors"
+              >
+                <span>مشاركة</span> <Share2 size={14} />
+              </button>
+            </div>
+          )}
+        </div>
 
-      <Link
-        to={`/Screens/dashboard/ReaderPages/BookDetails/${book.id}`}
-        state={{ book }}
-        className="flex flex-col gap-3 w-full"
-        aria-label={`عرض تفاصيل كتاب ${book.title}`}
-      >
-        <div className="w-full relative rounded-xl overflow-hidden shadow-sm bg-gray-100 pb-[160%]">
-          <img
-            src={book.coverImageUrl}
-            alt={`غلاف كتاب ${book.title}`}
-            loading={isAboveFold ? "eager" : "lazy"} 
-            fetchPriority={isAboveFold ? "high" : "auto"}
-            decoding="async"
-            className="
+        <Link
+          to={`/reader/BookDetails/${book.id}`}
+          state={{ book }}
+          className="flex flex-col gap-3 w-full"
+          aria-label={`عرض تفاصيل كتاب ${book.title}`}
+        >
+          <div className="w-full relative rounded-xl overflow-hidden shadow-sm bg-gray-100 pb-[160%]">
+            {/* Rating badge */}
+            {book.averageRating !== undefined &&
+              book.averageRating !== null && (
+                <div
+                  className="
+      absolute top-2 right-2 z-10
+      flex items-center gap-1
+      px-2 py-1
+      rounded-full
+      bg-white/90 backdrop-blur-md
+      shadow-sm
+      text-[10px] font-bold
+      text-[var(--earth-brown-dark)]
+    "
+                  aria-label={`تقييم ${book.averageRating} من 5`}
+                >
+                  <Star size={12} className="text-yellow-500 fill-yellow-500" />
+                  <span>{Number(book.averageRating).toFixed(1)}</span>
+                </div>
+              )}
+
+            <img
+              src={book.coverImageUrl}
+              alt={`غلاف كتاب ${book.title}`}
+              loading={isAboveFold ? "eager" : "lazy"}
+              fetchPriority={isAboveFold ? "high" : "auto"}
+              decoding="async"
+              className="
               absolute inset-0 w-full h-full object-cover 
               transition-transform duration-500 ease-out
               group-hover:scale-105 will-change-transform
             "
-          />
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300 pointer-events-none" />
-        </div>
-        <h3 
-          className="text-[var(--earth-brown-dark)] text-xs font-bold line-clamp-1 group-hover:text-[var(--earth-brown)] transition-colors"
-          title={book.title}
-        >
-          {book.title}
-        </h3>
-      </Link>
-    </div>
-  );
-});
-
+            />
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300 pointer-events-none" />
+          </div>
+          <h3
+            className="text-[var(--earth-brown-dark)] text-xs font-bold line-clamp-1 group-hover:text-[var(--earth-brown)] transition-colors"
+            title={book.title}
+          >
+            {book.title}
+          </h3>
+        </Link>
+      </div>
+    );
+  }
+);
 
 /* -----------------------------------------------------------
    🔹 MAIN BOOK GRID 
 ----------------------------------------------------------- */
-export default function BooksGrid({ fetchFunction, activeFilters, sortOptions }) {
+export default function BooksGrid({
+  fetchFunction,
+  activeFilters,
+  sortOptions,
+}) {
   const [books, setBooks] = useState([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
@@ -112,7 +138,6 @@ export default function BooksGrid({ fetchFunction, activeFilters, sortOptions })
 
   useEffect(() => {
     const load = async () => {
-      
       if (page === 0) setLoading(true);
       else setLoadingMore(true);
 
@@ -139,14 +164,18 @@ export default function BooksGrid({ fetchFunction, activeFilters, sortOptions })
         const bVal = getFieldValue(b, sortOptions?.field ?? "title");
         const asc = sortOptions?.ascending ?? true;
 
-        const bothNumbers = typeof aVal === "number" && typeof bVal === "number";
+        const bothNumbers =
+          typeof aVal === "number" && typeof bVal === "number";
         if (bothNumbers) {
           return asc ? aVal - bVal : bVal - aVal;
         }
 
         const aStr = String(aVal);
         const bStr = String(bVal);
-        const cmp = aStr.localeCompare(bStr, undefined, { numeric: true, sensitivity: "base" });
+        const cmp = aStr.localeCompare(bStr, undefined, {
+          numeric: true,
+          sensitivity: "base",
+        });
         return asc ? cmp : -cmp;
       };
 
@@ -199,13 +228,15 @@ export default function BooksGrid({ fetchFunction, activeFilters, sortOptions })
 
       const aStr = String(aVal);
       const bStr = String(bVal);
-      const cmp = aStr.localeCompare(bStr, undefined, { numeric: true, sensitivity: "base" });
+      const cmp = aStr.localeCompare(bStr, undefined, {
+        numeric: true,
+        sensitivity: "base",
+      });
       return asc ? cmp : -cmp;
     };
 
     return [...books].sort(compareItems);
   }, [books, sortOptions]);
-
 
   /* INFINITE SCROLL */
   useEffect(() => {
@@ -226,7 +257,7 @@ export default function BooksGrid({ fetchFunction, activeFilters, sortOptions })
     return () => {
       if (currentLastRef) observer.unobserve(currentLastRef);
     };
-  }, [page, totalPages, loadingMore]);  
+  }, [page, totalPages, loadingMore]);
 
   /* CLICK OUTSIDE MENU */
   useEffect(() => {
@@ -242,7 +273,6 @@ export default function BooksGrid({ fetchFunction, activeFilters, sortOptions })
   return (
     <div className="w-full min-h-screen bg-[var(--earth-cream)]">
       <div className="max-w-7xl mx-auto px-6 py-8">
-        
         {/* Note: Search Bar removed from here */}
 
         {/* LOADING STATE */}
@@ -256,9 +286,9 @@ export default function BooksGrid({ fetchFunction, activeFilters, sortOptions })
           <div className="flex flex-col items-center justify-center py-20 text-[var(--earth-brown)]/50">
             <BookOpen size={48} strokeWidth={1} />
             <p className="mt-4 text-lg font-medium">
-                {activeFilters?.query 
-                 ? `لا توجد نتائج لـ "${activeFilters.query}"`
-                 : "لا توجد كتب"}
+              {activeFilters?.query
+                ? `لا توجد نتائج لـ "${activeFilters.query}"`
+                : "لا توجد كتب"}
             </p>
           </div>
         ) : (
@@ -276,7 +306,10 @@ export default function BooksGrid({ fetchFunction, activeFilters, sortOptions })
         )}
 
         {/* SCROLL LOAD */}
-        <div ref={lastRef} className="h-20 flex items-center justify-center mt-8">
+        <div
+          ref={lastRef}
+          className="h-20 flex items-center justify-center mt-8"
+        >
           {loadingMore && (
             <Loader2
               size={24}

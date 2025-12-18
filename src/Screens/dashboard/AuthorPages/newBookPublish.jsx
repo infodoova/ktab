@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { Upload, ChevronDown, Info } from "lucide-react";
 
 // Components
@@ -25,6 +25,11 @@ const AGE_GROUPS = [
   "ناشئة (9-15 سنة)",
   "شباب (16-24 سنة)",
   "كبار (25+)",
+];
+
+const LANG_OPTIONS = [
+  { id: "arabic", label: "العربية" },
+  { id: "english", label: "English" },
 ];
 
 // --- HELPER FUNCTIONS ---
@@ -75,12 +80,21 @@ const validateImageDimensions = (file) => {
 // --- COMPONENT ---
 
 export default function NewBooks({ pageName = "رفع كتاب جديد" }) {
-  const location = useLocation();
-const draftId = location.state?.draftId;
+  const { draftId } = useParams();
 const [draft, setDraft] = useState(null);
 
+// Normalize incoming language values to our LANG_OPTIONS ids
+const normalizeLanguage = (val) => {
+  if (!val) return "arabic";
+  const s = String(val).toLowerCase();
+  if (s.includes("arab") || s === "ar" || s.includes("عرب")) return "arabic";
+  if (s.includes("eng") || s === "en" || s.includes("انج")) return "english";
+  return "arabic";
+};
+
   // Derived State
-  const isEditingDraft = Boolean(draft?.id);
+  // Accept either `id` or `bookId` from API responses
+const isEditingDraft = Boolean(draft?.id ?? draft?.bookId);
 
   // UI State
   const [collapsed, setCollapsed] = useState(false);
@@ -97,12 +111,12 @@ const [draft, setDraft] = useState(null);
   const [genres, setGenres] = useState([]);
   const [subGenres, setSubGenres] = useState([]);
   const [genresLoading, setGenresLoading] = useState(false);
-
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     category: "",
     subCategory: "", // sub-genre ID (optional)
+    language: "arabic",
     ageGroup: "",
     coverFile: null,
     pdfFile: null,
@@ -118,31 +132,54 @@ const [draft, setDraft] = useState(null);
   // --- INITIALIZATION ---
 
 useEffect(() => {
-  if (!isEditingDraft || !draft || !genres.length) return;
+  if (!draft) return;
 
-  const genreId = draft.mainGenreId ? String(draft.mainGenreId) : "";
-  const subGenreId = draft.subGenreId ? String(draft.subGenreId) : "";
-
-  const selectedGenre = genres.find((g) => String(g.id) === genreId);
-
-  setFormData({
+  setFormData((prev) => ({
+    ...prev,
     title: draft.title || "",
     description: draft.description || "",
     ageGroup: mapValuesToAgeLabel(draft.ageRangeMin, draft.ageRangeMax),
-    category: genreId,
-    subCategory: subGenreId,
+    // category/subCategory handled in the genres effect below
+    language: draft.language || prev.language || "arabic",
     coverFile: null,
     pdfFile: null,
-  });
-
-  setSubGenres(selectedGenre?.subGenres || []);
+  }));
 
   setExistingData({
     coverUrl: draft.coverImageUrl || null,
     pdfName: draft.pdfFileName || "ملف PDF محفوظ مسبقاً",
     pageCount: draft.pageCount || 0,
   });
-}, [isEditingDraft, draft, genres]);
+}, [draft]);
+
+// When genres are available, map draft mainGenre/mainGenreId to category/subCategory
+useEffect(() => {
+  if (!draft || !genres.length) return;
+
+  let genreId = draft.mainGenreId ? String(draft.mainGenreId) : "";
+  let subGenreId = draft.subGenreId ? String(draft.subGenreId) : "";
+
+  if (!genreId && draft.mainGenre) {
+    const found = genres.find(
+      (g) =>
+        String(g.id) === String(draft.mainGenreId) ||
+        g.nameAr === draft.mainGenre ||
+        g.nameEn === draft.mainGenre ||
+        g.name === draft.mainGenre
+    );
+    if (found) genreId = String(found.id);
+  }
+
+  const selectedGenre = genres.find((g) => String(g.id) === genreId);
+
+  setFormData((prev) => ({
+    ...prev,
+    category: genreId,
+    subCategory: subGenreId,
+  }));
+
+  setSubGenres(selectedGenre?.subGenres || []);
+}, [draft, genres]);
 
 useEffect(() => {
   if (!draftId) return;
@@ -152,7 +189,28 @@ useEffect(() => {
         url: `${import.meta.env.VITE_API_URL}/authors/book/${draftId}`,
       });
 
-      setDraft(res?.data);
+      const responseBody = res?.data || {};
+
+      const internalData = responseBody.data || responseBody;
+
+      // 3. Check if the book is inside a 'content' array (Pagination wrapper)
+      let bookPayload = internalData;
+      if (
+        Array.isArray(internalData.content) &&
+        internalData.content.length > 0
+      ) {
+        bookPayload = internalData.content[0];
+      }
+
+      // 4. Normalize the data
+      const normalized = {
+        ...bookPayload,
+        id: bookPayload.id ?? bookPayload.bookId ?? null,
+        bookId: bookPayload.bookId ?? bookPayload.id ?? null,
+        language: normalizeLanguage(bookPayload.language),
+      };
+
+      setDraft(normalized);
     } catch (err) {
       console.error("Fetch draft error:", err);
     }
@@ -216,11 +274,11 @@ useEffect(() => {
   };
 
   const validatePublish = async () => {
-    const { title, description, category, ageGroup, coverFile, pdfFile } =
+    const { title, description, category, ageGroup, coverFile, pdfFile, language } =
       formData;
 
     // 1. Basic Fields
-    if (!title || !description || !category || !ageGroup) {
+    if (!title || !description || !category || !ageGroup || !language) {
       showToast("error", "حقول ناقصة", "يرجى تعبئة جميع الحقول النصية.");
       return false;
     }
@@ -316,7 +374,7 @@ useEffect(() => {
         description: formData.description.trim(),
         mainGenreId: Number(formData.category),
         subGenreId: formData.subCategory ? Number(formData.subCategory) : null,
-        language: "arabic",
+        language: formData.language || "arabic",
         ageRangeMin: min,
         ageRangeMax: max,
         pageCount: finalPageCount,
@@ -329,9 +387,9 @@ useEffect(() => {
         new Blob([JSON.stringify(bookDto)], { type: "application/json" })
       );
 
-      if (isEditingDraft) {
+    if (isEditingDraft) {
         await patchHelper({
-          url: `${import.meta.env.VITE_API_URL}/authors/updateBook/${draft.id}`,
+          url: `${import.meta.env.VITE_API_URL}/authors/updateBook/${draft.id ?? draft.bookId}`,
           body: apiFormData,
         });
 
@@ -386,7 +444,7 @@ useEffect(() => {
         description: formData.description.trim(),
         mainGenreId: Number(formData.category),
         subGenreId: formData.subCategory ? Number(formData.subCategory) : null,
-        language: "arabic",
+        language: formData.language || "arabic",
         ageRangeMin: min,
         ageRangeMax: max,
         pageCount: pageCount,
@@ -404,8 +462,8 @@ useEffect(() => {
       if (isEditingDraft) {
         // Use patchHelper for UPDATE. We pass 'body: apiFormData'
         await patchHelper({
-          url: `${import.meta.env.VITE_API_URL}/authors/updateBook/${draft.id}`,
-          body: apiFormData, // <--- Corrected parameter name
+          url: `${import.meta.env.VITE_API_URL}/authors/updateBook/${draft.id ?? draft.bookId}`,
+          body: apiFormData,
         });
       } else {
         // Use postFormDataHelper for CREATE. We pass 'formData: apiFormData'
@@ -505,6 +563,30 @@ useEffect(() => {
                       <span className="font-semibold">255 حرف</span>.
                     </WarningBox>
                   </div>
+                  {/* Language */}
+                  <div>
+                    <label className="font-semibold text-[var(--earth-brown-dark)]">
+                      اللغة *
+                    </label>
+
+                    <div className="relative">
+                      <select
+                        className="w-full h-14 px-5 rounded-xl bg-white border text-lg appearance-none focus:outline-none focus:ring-2 focus:ring-[var(--earth-olive)]"
+                        value={formData.language}
+                        onChange={(e) =>
+                          handleInputChange("language", e.target.value)
+                        }
+                      >
+                        {LANG_OPTIONS.map((opt) => (
+                          <option key={opt.id} value={opt.id}>
+                            {opt.label}
+                          </option>
+                        ))}
+                      </select>
+
+                      <ChevronDown className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-400 pointer-events-none" />
+                    </div>
+                  </div>
 
                   {/* Category */}
                   <div>
@@ -533,6 +615,7 @@ useEffect(() => {
                       <ChevronDown className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-400 pointer-events-none" />
                     </div>
                   </div>
+
                   {formData.category && subGenres.length > 0 && (
                     <div>
                       <label className="font-semibold text-[var(--earth-brown-dark)]">

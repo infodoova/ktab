@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Share2,
   BookOpen,
@@ -44,138 +44,104 @@ export default function BookDataComponent({ bookId, navigate }) {
 
   // Assignment toggle
   const [isAssigned, setIsAssigned] = useState(false);
-  useEffect(() => {
-    const fetchBookDetails = async () => {
-      if (!bookId) return;
+  const [isAssignLoading, setIsAssignLoading] = useState(false);
 
-      try {
-        const res = await getHelper({
-          url: `${import.meta.env.VITE_API_URL}/reader/viewBook/${bookId}`,
-        });
+  // ============================
+  // 1. FETCH BOOK DETAILS
+  // ============================
+  const fetchBookDetails = useCallback(async () => {
+    if (!bookId) return;
 
-        const b = res?.data ?? res;
+    setLoadingBook(true);
+    try {
+      const res = await getHelper({
+        url: `${import.meta.env.VITE_API_URL}/reader/viewBook/${bookId}`,
+      });
 
-        setBookData({
-          id: b.id,
-          title: b.title ?? "كتاب",
-          description: b.description ?? "",
-          genre: b.mainGenreName ?? null,
-          subgenre: b.subGenreName ?? null,
+      const b = res?.data ?? res;
 
-          language: b.language ?? null,
-          pageCount: b.pageCount ?? null,
-          ageRangeMin: b.ageRangeMin ?? null,
-          ageRangeMax: b.ageRangeMax ?? null,
-          hasAudio: b.hasAudio ?? false,
-          averageRating: b.averageRating ?? 0,
-          totalReviews: b.totalReviews ?? 0,
-          coverImageUrl: b.coverImageUrl ?? "",
-          pdfDownloadUrl: b.pdfDownloadUrl ?? null,
-        });
-      } catch {
-        showToast("error", "خطأ", "تعذر تحميل بيانات الكتاب.");
-      } finally {
-        setLoadingBook(false);
-      }
-    };
-
-    fetchBookDetails();
+      setBookData({
+        id: b.id,
+        title: b.title ?? "كتاب",
+        description: b.description ?? "",
+        genre: b.mainGenreName ?? null,
+        subgenre: b.subGenreName ?? null,
+        language: b.language ?? null,
+        pageCount: b.pageCount ?? null,
+        ageRangeMin: b.ageRangeMin ?? null,
+        ageRangeMax: b.ageRangeMax ?? null,
+        hasAudio: b.hasAudio ?? false,
+        averageRating: b.averageRating ?? 0,
+        totalReviews: b.totalReviews ?? 0,
+        coverImageUrl: b.coverImageUrl ?? "",
+        pdfDownloadUrl: b.pdfDownloadUrl ?? null,
+      });
+    } catch {
+      showToast("error", "خطأ", "تعذر تحميل بيانات الكتاب.");
+    } finally {
+      setLoadingBook(false);
+    }
   }, [bookId]);
+
+  useEffect(() => {
+    fetchBookDetails();
+  }, [bookId, fetchBookDetails]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [bookId]);
 
-  // Encrypt share link
-  const encryptLink = (text) => {
-    try {
-      return btoa(encodeURIComponent(text));
-    } catch {
-      return text;
-    }
-  };
-
-  const generateEncryptedShareUrl = () => {
-    const original = window.location.href;
-    const encrypted = encryptLink(original);
-    return `${window.location.origin}/share?r=${encrypted}`;
-  };
-
-  const handleShare = async () => {
-    const shareUrl = generateEncryptedShareUrl();
+  // ============================
+  // 2. FETCH REVIEW STATE (Reusable)
+  // ============================
+  const fetchReviewState = useCallback(async () => {
+    const user = getUserData();
+    if (!user.userId || !bookId) return;
 
     try {
-      if (navigator.share) {
-        await navigator.share({ title: bookData.title, url: shareUrl });
-        return;
+      const res = await getHelper({
+        url: `${
+          import.meta.env.VITE_API_URL
+        }/reader/books/${bookId}/isReviewed`,
+      });
+
+      // Handle if res is the axios response or the data directly
+      const data = res?.data ?? res;
+
+      if (data?.reviewed) {
+        setIsReviewed(true);
+
+        // FIX: Deep search for the ID.
+        // Checks: 1. Direct ID, 2. '_id', 3. 'reviewId', 4. Nested 'review.id'
+        const backendId =
+          data.reviewId ||
+          data.id ||
+          data._id ||
+          data.review?.id ||
+          data.review?._id ||
+          data.review?.reviewId;
+
+        console.log("Found Review ID:", backendId); // Debug Log
+        setReviewId(backendId);
+
+        setUserRating(data.rating ?? 0);
+        setUserReview(data.comment ?? "");
+      } else {
+        setIsReviewed(false);
+        setReviewId(null);
       }
-    } catch {
-      //
+    } catch (err) {
+      console.error("Error fetching review state:", err);
     }
-
-    await navigator.clipboard.writeText(shareUrl);
-    showToast("success", "تم النسخ", "✔ تم نسخ الرابط المشفّر!");
-  };
-
-  // ============================
-  // CHECK ASSIGNMENT STATUS
-  // ============================
-  useEffect(() => {
-    const fetchAssignment = async () => {
-      if (!bookId) return;
-
-      try {
-        const res = await getHelper({
-          url: `${import.meta.env.VITE_API_URL}/library/isAssigned/${bookId}`,
-        });
-
-        if (res?.content?.some((b) => b.id === bookId)) {
-          setIsAssigned(true);
-        } else {
-          setIsAssigned(false);
-        }
-      } catch {
-        //
-      }
-    };
-
-    fetchAssignment();
   }, [bookId]);
 
-  // ============================
-  // CHECK REVIEW STATE
-  // ============================
+  // Trigger review fetch on mount
   useEffect(() => {
-    const fetchReviewState = async () => {
-      const user = getUserData();
-      if (!user.userId || !bookId) return;
-
-      try {
-        const res = await getHelper({
-          url: `${
-            import.meta.env.VITE_API_URL
-          }/reader/books/${bookId}/isReviewed`,
-        });
-
-        if (res?.data?.reviewed) {
-          setIsReviewed(true);
-          setReviewId(res.data.reviewId);
-          setUserRating(res.data.rating ?? 0);
-          setUserReview(res.data.comment ?? "");
-        } else {
-          setIsReviewed(false);
-          setReviewId(null);
-        }
-      } catch {
-        //
-      }
-    };
-
     fetchReviewState();
-  }, [bookId]);
+  }, [fetchReviewState]);
 
   // ============================
-  // ADD / EDIT REVIEW
+  // 3. SUBMIT REVIEW
   // ============================
   const handleSubmitReview = async () => {
     const user = getUserData();
@@ -194,7 +160,10 @@ export default function BookDataComponent({ bookId, navigate }) {
     try {
       let response;
 
+      console.log("Submitting...", { isReviewed, reviewId }); // Debug Log
+
       if (isReviewed && reviewId) {
+        // PATCH
         response = await patchHelper({
           url: `${
             import.meta.env.VITE_API_URL
@@ -202,7 +171,7 @@ export default function BookDataComponent({ bookId, navigate }) {
           body: payload,
         });
       } else {
-        // POST — new review
+        // POST
         response = await postHelper({
           url: `${import.meta.env.VITE_API_URL}/reader/books/${bookId}/reviews`,
           body: payload,
@@ -210,13 +179,38 @@ export default function BookDataComponent({ bookId, navigate }) {
       }
 
       if (response?.success !== false) {
-        setIsRatingModalOpen(false);
+        const wasReviewedBefore = isReviewed;
         setIsReviewed(true);
+        setIsRatingModalOpen(false);
+
         showToast(
           "success",
           "تم الحفظ",
-          isReviewed ? "✔ تم تعديل تقييمك." : "✔ تم إرسال تقييمك."
+          wasReviewedBefore ? "✔ تم تعديل تقييمك." : "✔ تم إرسال تقييمك."
         );
+
+        // Notify Listeners
+        const savedReview =
+          response?.data ?? response?.review ?? response ?? null;
+        window.dispatchEvent(
+          new CustomEvent("bookReviewChanged", {
+            detail: {
+              bookId: String(bookId),
+              action: wasReviewedBefore ? "updated" : "created",
+              review: savedReview,
+              reviewId: reviewId, // Pass current ID if available
+            },
+          })
+        );
+
+        // REFRESH DATA
+        // 1. Refresh Book Stats (stars count)
+        fetchBookDetails();
+
+        // 2. CRITICAL FIX: Refresh Review State
+        // This ensures we get the real ID from the server immediately after a POST,
+        // so the next time the user clicks submit, it counts as a PATCH.
+        await fetchReviewState();
       } else {
         showToast(
           "error",
@@ -244,15 +238,25 @@ export default function BookDataComponent({ bookId, navigate }) {
         }/reader/books/${bookId}/reviews/${reviewId}`,
       });
 
-      if (res?.success) {
+      if (res?.success === false) {
+        showToast("error", "فشل الحذف", res?.message ?? "تعذر الحذف.");
+      } else {
+        // Reset Local State
         setIsReviewed(false);
         setReviewId(null);
         setUserRating(0);
         setUserReview("");
         setIsRatingModalOpen(false);
+
         showToast("success", "تم الحذف", "✔ تم حذف تقييمك.");
-      } else {
-        showToast("error", "فشل الحذف", res?.message ?? "تعذر الحذف.");
+
+        fetchBookDetails(); // Refresh stats
+
+        window.dispatchEvent(
+          new CustomEvent("bookReviewChanged", {
+            detail: { bookId: String(bookId), action: "deleted", reviewId },
+          })
+        );
       }
     } catch {
       showToast("error", "خطأ", "تعذر حذف تقييمك.");
@@ -260,44 +264,117 @@ export default function BookDataComponent({ bookId, navigate }) {
   };
 
   // ============================
-  // ASSIGN / REMOVE BOOK
+  // OTHER HELPERS
   // ============================
+  const encryptLink = (text) => {
+    try {
+      return btoa(encodeURIComponent(text));
+    } catch {
+      return text;
+    }
+  };
+
+  const generateEncryptedShareUrl = () => {
+    const original = window.location.href;
+    const encrypted = encryptLink(original);
+    return `${window.location.origin}/share?r=${encrypted}`;
+  };
+
+  const handleShare = async () => {
+    const shareUrl = generateEncryptedShareUrl();
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: bookData?.title, url: shareUrl });
+        return;
+      }
+    } catch {
+      //
+    }
+    await navigator.clipboard.writeText(shareUrl);
+    showToast("success", "تم النسخ", "✔ تم نسخ الرابط المشفّر!");
+  };
+
+  // Check Assignment
+  useEffect(() => {
+    const fetchAssignment = async () => {
+      if (!bookId) return;
+      try {
+        const res = await getHelper({
+          url: `${import.meta.env.VITE_API_URL}/library/isAssigned/${bookId}`,
+        });
+        let assigned = false;
+        if (res === true) assigned = true;
+        else if (res === false) assigned = false;
+        else if (
+          res?.data === true ||
+          res?.assigned === true ||
+          res?.isAssigned === true
+        )
+          assigned = true;
+        else if (
+          Array.isArray(res?.content) &&
+          res.content.some((b) => b.id === bookId)
+        )
+          assigned = true;
+        else if (
+          Array.isArray(res) &&
+          res.some &&
+          res.some((b) => b?.id === bookId)
+        )
+          assigned = true;
+
+        setIsAssigned(assigned);
+      } catch {
+        //
+      }
+    };
+    fetchAssignment();
+  }, [bookId]);
+
   const toggleAssignBook = async () => {
     if (!bookId) return;
+    const previous = isAssigned;
+    setIsAssigned(!previous);
+    setIsAssignLoading(true);
 
-    if (!isAssigned) {
-      try {
+    try {
+      if (!previous) {
         const res = await postHelper({
           url: `${import.meta.env.VITE_API_URL}/library/assignBook`,
           body: { bookId: bookId },
         });
-
-        if (res?.success) {
+        if (res?.success === false) {
+          setIsAssigned(previous);
+          showToast("error", "فشل", res?.message ?? "تعذر الإضافة.");
+        } else {
           setIsAssigned(true);
           showToast("success", "تمت الإضافة", "✔ أُضيف الكتاب إلى مكتبتك.");
-        } else {
-          showToast("error", "فشل", res?.message ?? "تعذر الإضافة.");
         }
-      } catch {
-        showToast("error", "شبكة", "تعذر الإضافة.");
-      }
-    } else {
-      try {
+      } else {
         const res = await deleteHelper({
           url: `${import.meta.env.VITE_API_URL}/library/removeBook/${bookId}`,
         });
-
-        if (res?.success) {
+        if (res?.success === false) {
+          setIsAssigned(previous);
+          showToast("error", "فشل الحذف", res?.message ?? "تعذر الحذف.");
+        } else {
           setIsAssigned(false);
           showToast("success", "تم الحذف", "✔ أُزيل الكتاب من مكتبتك.");
-        } else {
-          showToast("error", "فشل الحذف", res?.message ?? "تعذر الحذف.");
         }
-      } catch {
-        showToast("error", "شبكة", "تعذر الحذف.");
       }
+    } catch (err) {
+      setIsAssigned(previous);
+      console.error("Assign toggle error:", err);
+      showToast(
+        "error",
+        previous ? "تعذر الحذف" : "تعذر الإضافة",
+        "شبكة — حاول مرة أخرى."
+      );
+    } finally {
+      setIsAssignLoading(false);
     }
   };
+
   if (loadingBook || !bookData) {
     return <div className="text-center py-10">جارٍ التحميل...</div>;
   }
@@ -359,7 +436,7 @@ export default function BookDataComponent({ bookId, navigate }) {
             )}
             {bookData.subgenre && (
               <span className="bg-[#ECE7E3] px-3 py-1 rounded-xl">
-                التصنيف الفرعي:  {bookData.subgenre}
+                التصنيف الفرعي: {bookData.subgenre}
               </span>
             )}
             {bookData.language && (
@@ -386,19 +463,14 @@ export default function BookDataComponent({ bookId, navigate }) {
 
           {/* ACTIONS */}
           <div className="flex flex-col sm:flex-row items-center gap-4 pt-6">
-            {/* READ */}
             <Button
-              onClick={() =>
-                navigate("/Screens/dashboard/ReaderPages/BookDisplayPage/g")
-              }
+              onClick={() => navigate(`/reader/display/${bookData.id}`)}
               className="w-full sm:w-auto px-10 h-14 text-lg font-bold bg-[#606C38] text-white rounded-xl hover:bg-[#3E4A20]"
             >
               <BookOpen className="w-6 h-6" /> قراءة الآن
             </Button>
 
-            {/* ICON GROUP */}
             <div className="flex gap-3">
-              {/* REVIEW TOGGLE */}
               <button
                 onClick={() => setIsRatingModalOpen(true)}
                 className={`w-14 h-14 rounded-full border-2 flex items-center justify-center bg-[#FEFCF8] transition
@@ -412,21 +484,19 @@ export default function BookDataComponent({ bookId, navigate }) {
                 <Star className="w-6 h-6" />
               </button>
 
-              {/* ASSIGN */}
               <button
                 onClick={toggleAssignBook}
+                disabled={isAssignLoading}
                 className={`w-14 h-14 rounded-full border-2 flex items-center justify-center bg-[#FEFCF8] transition
       ${
         isAssigned
           ? "border-[#006A6A] text-[#006A6A] shadow-[0_0_10px_rgba(0,106,106,0.6)]"
           : "border-[#D7CCC8] text-[#5D4037] hover:border-green-500 hover:text-green-500"
-      }
-    `}
+      } ${isAssignLoading ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 <BookPlus className="w-6 h-6" />
               </button>
 
-              {/* DOWNLOAD */}
               {bookData.pdfDownloadUrl && (
                 <button
                   onClick={() => window.open(bookData.pdfDownloadUrl, "_blank")}
@@ -436,7 +506,6 @@ export default function BookDataComponent({ bookId, navigate }) {
                 </button>
               )}
 
-              {/* SHARE */}
               <button
                 onClick={handleShare}
                 className="w-14 h-14 rounded-full border-2 flex items-center justify-center bg-[#FEFCF8] border-[#D7CCC8] hover:border-blue-500 text-[#5D4037] hover:text-blue-500 transition"
@@ -463,7 +532,6 @@ export default function BookDataComponent({ bookId, navigate }) {
               ما رأيك في الكتاب؟
             </h2>
 
-            {/* INTERACTIVE STARS */}
             <div className="flex justify-center gap-4 mb-6">
               {[1, 2, 3, 4, 5].map((i) => (
                 <Star
@@ -478,7 +546,6 @@ export default function BookDataComponent({ bookId, navigate }) {
               ))}
             </div>
 
-            {/* REVIEW INPUT */}
             <textarea
               className="w-full h-32 p-4 rounded-xl border-2 border-[#D7CCC8] bg-[#F4EFE9] text-[#3E2723] focus:border-[#606C38] outline-none resize-none text-right"
               placeholder="اكتب مراجعتك هنا..."
@@ -486,7 +553,6 @@ export default function BookDataComponent({ bookId, navigate }) {
               onChange={(e) => setUserReview(e.target.value)}
             />
 
-            {/* SUBMIT BUTTON */}
             <Button
               onClick={handleSubmitReview}
               className="w-full h-12 bg-[#606C38] text-white rounded-xl font-bold hover:bg-[#3E4A20]"
@@ -506,7 +572,6 @@ export default function BookDataComponent({ bookId, navigate }) {
         </div>
       )}
 
-      {/* TOAST */}
       <AlertToast
         open={toast.open}
         variant={toast.variant}

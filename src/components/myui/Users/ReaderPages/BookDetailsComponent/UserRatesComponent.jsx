@@ -31,7 +31,15 @@ const fetchReviews = useCallback(async () => {
       url: `${import.meta.env.VITE_API_URL}/reader/books/${bookId}/reviews`,
     });
 
-    if (!res || !res.content) {
+    // Normalize several possible API shapes into an array of reviews
+    let content = null;
+    if (Array.isArray(res)) content = res;
+    else if (Array.isArray(res?.content)) content = res.content;
+    else if (Array.isArray(res?.data)) content = res.data;
+    else if (Array.isArray(res?.data?.content)) content = res.data.content;
+    else if (Array.isArray(res?.reviews)) content = res.reviews;
+
+    if (!content) {
       showToast(
         "error",
         "فشل تحميل البيانات",
@@ -39,7 +47,7 @@ const fetchReviews = useCallback(async () => {
       );
       setReviews([]);
     } else {
-      setReviews(res.content.slice(0, 3)); // 3 max
+      setReviews(content.slice(0, 3)); // 3 max
     }
   } catch (err) {
     console.error("Fetch reviews error:", err);
@@ -58,6 +66,62 @@ useEffect(() => {
   };
 
   run();
+}, [bookId, fetchReviews]);
+
+// Listen for global review change events to refresh reviews in real-time
+useEffect(() => {
+  const onBookReviewChanged = (e) => {
+    try {
+      if (!e?.detail) return;
+      const {
+        bookId: changedBookId,
+        action,
+        review,
+        reviewId: changedReviewId,
+      } = e.detail;
+
+      if (!changedBookId || String(changedBookId) !== String(bookId)) return;
+
+      // Try optimistic local updates, then always refetch for consistency.
+
+      // Deleted: remove locally if we have an id
+      if (action === "deleted") {
+        if (changedReviewId) {
+          setReviews((prev) =>
+            prev.filter(
+              (r) =>
+                String(r.id ?? r.reviewId ?? r._id) !== String(changedReviewId)
+            )
+          );
+        }
+      }
+
+      // Created or updated: optimistic upsert
+      if (review) {
+        const incomingId = review.id ?? review.reviewId ?? review._id;
+        setReviews((prev) => {
+          const idx = prev.findIndex(
+            (r) =>
+              String(r.id ?? r.reviewId ?? r._id) === String(incomingId)
+          );
+          if (idx !== -1) {
+            const copy = [...prev];
+            copy[idx] = review;
+            return copy;
+          }
+          return [review, ...prev].slice(0, 3);
+        });
+      }
+
+      // Always refetch to ensure the UI matches the server (handles races and different response shapes)
+      fetchReviews();
+    } catch {
+      // ignore
+    }
+  };
+
+  window.addEventListener("bookReviewChanged", onBookReviewChanged);
+  return () => window.removeEventListener("bookReviewChanged", onBookReviewChanged);
 }, [bookId, fetchReviews]);
 
 

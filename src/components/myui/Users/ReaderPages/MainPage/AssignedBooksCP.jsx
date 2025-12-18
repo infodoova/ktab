@@ -1,14 +1,11 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { BookPlus, X } from "lucide-react";
 import { getHelper, deleteHelper } from "../../../../../../apis/apiHelpers";
-import { getUserData } from "../../../../../../store/authToken";
 import { AlertToast } from "../../../AlertToast";
-
+import { useNavigate } from "react-router-dom";
 export default function AssignedBooksCP() {
-  const user = getUserData();
   const [books, setBooks] = useState([]);
-  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
-
+ const navigate = useNavigate();
   const [toast, setToast] = useState({
     open: false,
     variant: "info",
@@ -29,7 +26,6 @@ export default function AssignedBooksCP() {
 
   // Fetch assigned books
   const fetchAssignedBooks = useCallback(async () => {
-    if (!user.userId || hasLoadedOnce) return;
 
     setLoading(true);
 
@@ -47,17 +43,15 @@ export default function AssignedBooksCP() {
         setBooks(res.content);
       }
 
-      setHasLoadedOnce(true); // avoid recursive rerender
     } catch (error) {
       console.error("Library fetch error:", error);
       showToast("error", "مشكلة شبكة", "حدث خطأ أثناء تحميل المكتبة.");
 
-      setHasLoadedOnce(true); // avoid retry loop
       setBooks([]);
     }
 
     setLoading(false);
-  }, [user.userId, hasLoadedOnce]);
+  }, []);
 
   useEffect(() => {
     const load = async () => {
@@ -115,6 +109,10 @@ export default function AssignedBooksCP() {
               {books.map((b) => (
                 <div
                   key={b.id}
+                  onClick={() => {
+                      navigate(`/reader/BookDetails/${b.id}`);
+                 
+                  }}
                   className="
                     group
                     w-40

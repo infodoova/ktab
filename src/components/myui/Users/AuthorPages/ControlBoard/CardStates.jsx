@@ -5,34 +5,30 @@ export default function CardStates({ stats }) {
   return (
     <section className="w-full">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 ">
-       
-     
-  
         <StatCard
           title="التقييم"
-          value={stats?.rating}
+          value={stats?.averageRating}
           icon={<Star className="w-6 h-6 text-amber-500" />}
           gradient="from-[#FFEEC6] to-[#F9E0A6]"
         />
-              <StatCard
-          title="المشاهدات"
-          value={stats?.views}
+        <StatCard
+          title="عدد القراء "
+          value={stats?.totalReads}
           icon={<Eye className="w-6 h-6 text-blue-700" />}
           gradient="from-[#DCEBFF] to-[#C5DBFF]"
         />
-           <StatCard
-          title="القراء"
-          value={stats?.readers}
+        <StatCard
+          title="مجموع التقييمات"
+          value={stats?.totalReviews}
           icon={<Users className="w-6 h-6 text-emerald-700" />}
           gradient="from-[#D9F4E4] to-[#C0EFD4]"
         />
-         <StatCard
+        <StatCard
           title="الكتب"
-          value={stats?.booksCount}
+          value={stats?.totalBooks}
           icon={<BookOpen className="w-6 h-6 text-[var(--earth-brown)]" />}
           gradient="from-[#F5E5C9] to-[#E8D6B2]"
         />
-
       </div>
     </section>
   );

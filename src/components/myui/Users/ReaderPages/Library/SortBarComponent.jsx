@@ -5,7 +5,7 @@ export default function SortBar({ sortField = "title", ascending = true, onSortC
   const SORT_FIELDS = [
     { id: "title", label: "العنوان" },
     { id: "rating", label: "التقييم" },
-    { id: "date", label: "سنة النشر" },
+    { id: "publishDate", label: "سنة النشر" },
   ];
 
   const handleSortChange = (field) => {

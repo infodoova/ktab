@@ -8,10 +8,10 @@ import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { AlertToast } from "../myui/AlertToast";
 import { useNavigate } from "react-router-dom";
-
+import { postHelper } from "../../../apis/apiHelpers";
 export default function CodeVerify({ email, onClose }) {
   const [code, setCode] = useState("");
-  const [timer, setTimer] = useState(30);
+  const [timer, setTimer] = useState(60);
   const canResend = timer === 0;
   const [loading, setLoading] = useState(false);
 
@@ -38,55 +38,80 @@ export default function CodeVerify({ email, onClose }) {
   }, [timer]);
 
   // Resend handler
-  const handleResend = () => {
-    setTimer(30);
-    
-    showToast("info", "تم إرسال رمز جديد", "تحقق من بريدك الإلكتروني.");
+  const handleResend = async () => {
+    if (!canResend) return;
+
+    try {
+      const data = await postHelper({
+        url: `${import.meta.env.VITE_API_URL}/auth/send-re-verify`,
+        body: { email },
+      });
+
+      if (!data?.success) {
+        showToast(
+          "error",
+          "فشل إعادة الإرسال",
+          "تعذر إعادة إرسال الرمز، يرجى المحاولة لاحقاً"
+        );
+        return;
+      }
+
+      setTimer(60); // 1 minutes
+      showToast(
+        "success",
+        "تم الإرسال",
+        "تمت إعادة إرسال رمز التحقق إلى بريدك الإلكتروني"
+      );
+    } catch {
+      showToast(
+        "error",
+        "خطأ في الاتصال",
+        "تعذر الاتصال بالخادم، يرجى المحاولة لاحقاً"
+      );
+    }
   };
 
   // Submit handler
-const handleVerify = async () => {
-  if (code.length < 6) return;
+  const handleVerify = async () => {
+    if (code.length < 6) return;
 
-  setLoading(true);
+    setLoading(true);
 
-  try {
-    const response = await fetch(
-      `${import.meta.env.VITE_API_URL}/auth/verify`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "ngrok-skip-browser-warning": "true",
-        },
-        body: JSON.stringify({ email, code }),
-      }
-    );
-
-    const data = await response.json();
-    console.log("VERIFY RESPONSE =", data);
-
-    if (!data.success) {
-      showToast(
-        "error",
-        "رمز غير صحيح",
-        data.message || "يرجى المحاولة مجدداً."
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/auth/verify`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "true",
+          },
+          body: JSON.stringify({ email, code }),
+        }
       );
-      return;
+
+      const data = await response.json();
+      console.log("VERIFY RESPONSE =", data);
+
+      if (!data.success) {
+        showToast(
+          "error",
+          "رمز غير صحيح",
+          data.message || "يرجى المحاولة مجدداً."
+        );
+        return;
+      }
+
+      showToast("success", "تم التحقق", "يمكنك الآن تسجيل الدخول.");
+
+      setTimeout(() => navigate("/Screens/auth/login"), 1000);
+    } catch (error) {
+      console.error(error);
+      showToast("error", "خطأ", "تعذر الاتصال بالخادم.");
+    } finally {
+      setLoading(false);
     }
-
-    showToast("success", "تم التحقق", "يمكنك الآن تسجيل الدخول.");
-
-    setTimeout(() => navigate("/Screens/auth/login"), 1000);
-
-  } catch (error) {
-    console.error(error);
-    showToast("error", "خطأ", "تعذر الاتصال بالخادم.");
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   return (
     <div

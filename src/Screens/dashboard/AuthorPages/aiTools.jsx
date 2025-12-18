@@ -11,7 +11,7 @@ export default function AITools({ pageName = "مولّد الخلاصات الذ
   const [loading, setLoading] = useState(false);
   const [summary, setSummary] = useState("");
 
-  // ⭐ NEW — detect first SSE chunk
+  // detect first SSE chunk
   const [hasStarted, setHasStarted] = useState(false);
 
   const [alert, setAlert] = useState({

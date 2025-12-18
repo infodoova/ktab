@@ -12,17 +12,27 @@ import { getUserData } from "../../../../store/authToken";
 export default function ControlBoard({ pageName = "لوحة التحكم" }) {
   const navigate = useNavigate();
   const userData = getUserData();
+
   const [collapsed, setCollapsed] = useState(false);
 
-  // DATA
+  /* =======================
+      AUTHOR ANALYTICS (TOP)
+  ======================== */
   const [stats, setStats] = useState(null);
+  const [statsLoading, setStatsLoading] = useState(true);
+
+  /* =======================
+      BOOKS LIST
+  ======================== */
   const [books, setBooks] = useState([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
-
-  // UI STATE
-  const [loading, setLoading] = useState(true);
+  const [booksLoading, setBooksLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+
+  /* =======================
+      TOAST
+  ======================== */
   const [toast, setToast] = useState({
     open: false,
     variant: "info",
@@ -32,91 +42,106 @@ export default function ControlBoard({ pageName = "لوحة التحكم" }) {
 
   const closeToast = () => setToast((prev) => ({ ...prev, open: false }));
 
-  /* -----------------------------------------
-       FETCH BOOKS
-  -------------------------------------------- */
-  const fetchBooks = useCallback(
-    async (pageNum = 0) => {
-      if (!userData?.userId) return { content: [], totalPages: 1 };
+  /* =======================
+      FETCH AUTHOR STATS
+  ======================== */
+  useEffect(() => {
+    if (!userData?.userId) return;
 
-      const res = await getHelper({
-        url: `${import.meta.env.VITE_API_URL}/books/author`,
-        pagination: true,
-        page: pageNum,
-        size: 5,
-      });
+    const getStats = async () => {
+      setStatsLoading(true);
+      try {
+        // Fixed double slash in URL
+        const res = await getHelper({
+          url: `${import.meta.env.VITE_API_URL}/authors/me/analytics`,
+        });
+        setStats(res?.data || null);
+      } catch (error) {
+        console.error("Error fetching stats:", error);
+      } finally {
+        setStatsLoading(false);
+      }
+    };
 
-      const data = res?.data || {};
-      return {
-        content: data.content || [],
-        totalPages: data.totalPages || 1,
-      };
-    },
-    [userData?.userId]
-  );
+    getStats();
+  }, [userData?.userId]);
 
-  /* -----------------------------------------
-       CALCULATE STATS
-  -------------------------------------------- */
-  const calculateStats = useCallback((list) => {
-    const totalBooks = list.length;
-    const totalReviews = list.reduce(
-      (sum, b) => sum + (b.totalReviews || 0),
-      0
-    );
-    const avgRating =
-      list.length > 0
-        ? (
-            list.reduce((sum, b) => sum + (b.averageRating || 0), 0) /
-            list.length
-          ).toFixed(1)
-        : 0;
+  /* =======================
+      FETCH BOOKS FUNCTION
+  ======================== */
+const fetchBooksAPI = useCallback(async () => {
+  try {
+    const res = await getHelper({
+      url: `${import.meta.env.VITE_API_URL}/authors/me/book-analytics`,
+    });
+  
+    console.log("fetchBooksAPI raw response:", res);
+
+    const payload = res?.data ?? res ?? {};
+    const content = payload.content ?? payload?.content ?? payload;
+    const totalPages = payload.totalPages ?? payload?.totalPages ?? 1;
+
+    // Ensure content is an array
+    const normalizedContent = Array.isArray(content) ? content : [];
+    console.log("fetchBooksAPI normalized content length:", normalizedContent.length);
 
     return {
-      totalBooks,
-      totalViews: totalReviews,
-      averageRating: avgRating,
+      content: normalizedContent,
+      totalPages,
     };
-  }, []);
+  } catch (error) {
+    console.error("Error fetching books:", error);
+    return { content: [], totalPages: 0 };
+  }
+}, []);
 
-  /* -----------------------------------------
-       LOAD BOOKS
-  -------------------------------------------- */
+
+
+  /* =======================
+      TRIGGER BOOKS FETCH
+  ======================== */
   useEffect(() => {
-    const load = async () => {
-      page === 0 ? setLoading(true) : setLoadingMore(true);
-      const res = await fetchBooks(page);
+    const loadBooks = async () => {
+      if (page === 0) {
+        setBooksLoading(true);
+      } else {
+        setLoadingMore(true);
+      }
 
-      setTotalPages(res.totalPages);
-      setBooks((prev) =>
-        page === 0 ? res.content : [...prev, ...res.content]
-      );
+      const { content, totalPages: total } = await fetchBooksAPI(page);
+   
+      console.log("loadBooks received content:", content);
+      setTotalPages(total);
+      setBooks((prev) => {
+        const combined = page === 0 ? content : [...prev, ...content];
+        // Deduplicate by bookId || id || title+publishDate to avoid repeated entries
+        const uniqueByKey = new Map();
+        combined.forEach((b) => {
+          const key = b.bookId ?? b.id ?? `${b.title}-${b.publishDate ?? ""}`;
+          if (!uniqueByKey.has(key)) uniqueByKey.set(key, b);
+        });
+        return Array.from(uniqueByKey.values());
+      });
 
-      if (page === 0) setStats(calculateStats(res.content));
-      page === 0 ? setLoading(false) : setLoadingMore(false);
+      if (page === 0) {
+        setBooksLoading(false);
+      } else {
+        setLoadingMore(false);
+      }
     };
 
-    load();
-  }, [page, fetchBooks, calculateStats]);
+    loadBooks();
+  }, [page, fetchBooksAPI]);
 
-  /* -----------------------------------------
-      NEW BOOK BTN
-  -------------------------------------------- */
+  /* =======================
+      ACTIONS
+  ======================== */
   const handleNewBook = () =>
     navigate("/Screens/dashboard/AuthorPages/newBookPublish");
 
-  /* -----------------------------------------
-      KEEP ALL BOOK FIELDS
-  -------------------------------------------- */
-  const formattedBooks = books.map((book) => ({
-    ...book,
-    views: book.totalReviews || 0,
-    rating: book.averageRating || 0,
-  }));
-
-  /* -----------------------------------------
-      UI RENDER
-  -------------------------------------------- */
+  /* =======================
+      RENDER
+  ======================== */
   return (
     <div className="min-h-screen bg-[var(--earth-cream)] rtl">
       <Navbar
@@ -127,64 +152,42 @@ export default function ControlBoard({ pageName = "لوحة التحكم" }) {
         setCollapsed={setCollapsed}
       />
 
-      {/* MAIN LAYOUT */}
       <div
         className={`flex flex-col md:flex-row-reverse min-h-screen transition-all duration-300 ${
           collapsed ? "md:mr-20" : "md:mr-64"
         }`}
       >
-        <main className="flex-1 flex flex-col w-full">
-          {/* HEADER */}
+        <main className="flex-1 w-full">
           <PageHeader
             mainTitle={pageName}
-            buttonTitle={"رفع كتاب جديد"}
+            buttonTitle="رفع كتاب جديد"
             onPress={handleNewBook}
           />
 
-          <div className="px-4 md:px-10 py-10 max-w-6xl mx-auto w-full space-y-14">
-            {/* LOADING */}
-            {loading ? (
+          <div className="px-4 md:px-10 py-10 max-w-6xl mx-auto space-y-14">
+            {/* AUTHOR STATS */}
+            {statsLoading ? <SkeletonLoader /> : <CardStates stats={stats} />}
+
+            {/* BOOKS */}
+            {booksLoading ? (
               <SkeletonLoader />
             ) : (
-              <div className="space-y-14 fade-up">
-                {/* GREETING */}
-                <section className="text-right space-y-2">
-                  <h1 className="text-3xl md:text-4xl font-extrabold text-[var(--earth-brown-dark)]">
-                    <span className="text-[var(--earth-brown-dark)]">
-                      !أهلاً{" "}
-                    </span>
-                    <span className="text-[var(--earth-olive)]"> بعودتك</span>{" "}
-                  </h1>
-                  <p className="text-[var(--earth-brown)]/70 text-lg">
-                    إليك لمحة سريعة عن أداء كتبك.
-                  </p>
-                </section>
-
-                {/* STATS */}
-                <CardStates stats={stats} />
-
-                {/* BOOKS */}
-                <BooksList
-                  books={formattedBooks}
-                  page={page}
-                  setPage={setPage}
-                  totalPages={totalPages}
-                  loadingMore={loadingMore}
-                />
-              </div>
+              <BooksList
+                books={books}
+                page={page}
+                setPage={setPage}
+                totalPages={totalPages}
+                loadingMore={loadingMore}
+              />
             )}
           </div>
         </main>
       </div>
 
-      {/* TOAST */}
       <AlertToast
-        open={toast.open}
-        variant={toast.variant}
-        title={toast.title}
-        description={toast.description}
+        {...toast}
         onClose={closeToast}
-        autoClose={true}
+        autoClose
         autoCloseDelay={4000}
       />
     </div>

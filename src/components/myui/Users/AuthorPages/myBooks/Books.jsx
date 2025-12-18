@@ -25,7 +25,7 @@ const MinimalBookCard = ({
 }) => {
   const navigate = useNavigate();
   const isOpen = openMenuId === book.id;
-const isDraft = book.status === "DRAFT";
+  const isDraft = book.status === "DRAFT";
 
   const toggleMenu = (e) => {
     e.stopPropagation();
@@ -88,11 +88,9 @@ const isDraft = book.status === "DRAFT";
 
       {/* MAIN CARD CLICK */}
       <div
-        onClick={() => {
+      onClick={() => {
           if (book.status === "DRAFT") {
-            navigate("/Screens/dashboard/AuthorPages/newBookPublish", {
-              state: { draftId: book.id },
-            });
+            navigate(`/author/books/edit/${book.id}`);
           } else {
             onClick(book);
           }
@@ -148,8 +146,6 @@ const isDraft = book.status === "DRAFT";
           >
             {book.title}
           </h3>
-        
-        
         </div>
       </div>
     </div>
@@ -164,8 +160,6 @@ export default function Books({ fetchFunction }) {
 
   const [bookToDelete, setBookToDelete] = useState(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-
-
 
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
@@ -185,25 +179,24 @@ export default function Books({ fetchFunction }) {
   );
 
   /* FETCHING */
-useEffect(() => {
-  const load = async () => {
-    page === 0 ? setLoading(true) : setLoadingMore(true);
+  useEffect(() => {
+    const load = async () => {
+      page === 0 ? setLoading(true) : setLoadingMore(true);
 
-    const res = await fetchFunction(page, activeTab);
+      const res = await fetchFunction(page, activeTab);
 
-    const content = Array.isArray(res?.content) ? res.content : [];
-    const total = typeof res?.totalPages === "number" ? res.totalPages : 1;
+      const content = Array.isArray(res?.content) ? res.content : [];
+      const total = typeof res?.totalPages === "number" ? res.totalPages : 1;
 
-    setBooks((prev) => (page === 0 ? content : [...prev, ...content]));
+      setBooks((prev) => (page === 0 ? content : [...prev, ...content]));
 
-    setTotalPages(total);
+      setTotalPages(total);
 
-    page === 0 ? setLoading(false) : setLoadingMore(false);
-  };
+      page === 0 ? setLoading(false) : setLoadingMore(false);
+    };
 
-  load();
-}, [page, activeTab, fetchFunction]);
-
+    load();
+  }, [page, activeTab, fetchFunction]);
 
   /* SCROLL LOAD */
   useEffect(() => {
@@ -344,7 +337,6 @@ useEffect(() => {
                   setBookToDelete(b);
                   setShowDeleteDialog(true);
                 }}
-            
                 openMenuId={openMenuId}
                 setOpenMenuId={setOpenMenuId}
               />
@@ -382,7 +374,6 @@ useEffect(() => {
           }}
         />
       )}
-
     </div>
   );
 }
