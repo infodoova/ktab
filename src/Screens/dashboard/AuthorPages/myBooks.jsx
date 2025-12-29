@@ -13,33 +13,29 @@ export default function MyBooks({ pageName = "كتبي" }) {
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
 
-  const [alert, setAlert] = useState({
-    open: false,
-    variant: "info",
-    title: "",
-    description: "",
-  });
+  const fetchBooks = useCallback(async (page = 0, status = "PUBLISHED") => {
+    const user = getUserData();
 
-const fetchBooks = useCallback(async (page = 0, status = "PUBLISHED") => {
-  const user = getUserData();
+    const res = await getHelper({
+      url: `${import.meta.env.VITE_API_URL}/authors/getBooksByAuthor/${
+        user.userId
+      }?status=${status}`,
+      pagination: true,
+      page,
+      size: 8,
+    });
 
-  const res = await getHelper({
-    url: `${import.meta.env.VITE_API_URL}/authors/getBooksByAuthor/${
-      user.userId
-    }?status=${status}`,
-    pagination: true,
-    page,
-    size: 8,
-  });
+    const data = res?.data ?? {};
+    if (res.messageStatus !== "SUCCESS") {
+      AlertToast(res?.message, res?.messageStatus);
+      return;
+    }
 
-  const data = res?.data ?? {};
-
-  return {
-    content: Array.isArray(data.content) ? data.content : [],
-    totalPages: typeof data.totalPages === "number" ? data.totalPages : 1,
-  };
-}, []);
-
+    return {
+      content: Array.isArray(data.content) ? data.content : [],
+      totalPages: typeof data.totalPages === "number" ? data.totalPages : 1,
+    };
+  }, []);
 
   return (
     <div dir="rtl" className="bg-[var(--earth-cream)] min-h-screen">
@@ -74,14 +70,6 @@ const fetchBooks = useCallback(async (page = 0, status = "PUBLISHED") => {
           />
         </main>
       </div>
-
-      <AlertToast
-        open={alert.open}
-        variant={alert.variant}
-        title={alert.title}
-        description={alert.description}
-        onClose={() => setAlert({ ...alert, open: false })}
-      />
     </div>
   );
 }

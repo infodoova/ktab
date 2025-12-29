@@ -14,70 +14,65 @@ export default function AITools({ pageName = "مولّد الخلاصات الذ
   // detect first SSE chunk
   const [hasStarted, setHasStarted] = useState(false);
 
-  const [alert, setAlert] = useState({
-    open: false,
-    variant: "info",
-    title: "",
-    description: "",
-  });
+  const onGenerate = async (values, errTitle, errMsg) => {
+    if (errTitle) return AlertToast(errMsg, "error");
 
-  const notify = (variant, title, description) => {
-    setAlert({ open: true, variant, title, description });
-  };
+    const { type, wordCount, audience, file } = values;
 
- const onGenerate = async (values, errTitle, errMsg) => {
-  if (errTitle) return notify("error", errTitle, errMsg);
+    setLoading(true);
+    setSummary("");
+    setHasStarted(false);
 
-  const { type, wordCount, audience, file } = values;
+    try {
+      const formData = new FormData();
+      formData.append("approxWordCountForEnding", wordCount);
+      formData.append("file", file);
+      formData.append("audienceProfile", audience);
 
-  setLoading(true);
-  setSummary("");
-  setHasStarted(false);
+      const token = localStorage.getItem("token");
 
-  try {
-    const formData = new FormData();
-    formData.append("approxWordCountForEnding", wordCount);
-    formData.append("audienceProfile ","18-25");
-    formData.append("file", file);
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/book-ending/upload`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: token ? `Bearer ${token}` : undefined,
+          },
+          body: formData,
+        }
+      );
 
-    const token = localStorage.getItem("token");
+      //------------------------------
+      // ⭐ NON-STREAM RESPONSE PARSING
+      //------------------------------
+      const data = await response.json();
 
-    const response = await fetch(
-      `${import.meta.env.VITE_API_URL}/book-ending/upload`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: token ? `Bearer ${token}` : undefined
-        },
-        body: formData,
+      if (data?.messageStatus !== "SUCCESS") {
+        AlertToast(data?.message, data?.messageStatus);
+        setLoading(false);
+
+        return;
       }
-    );
 
-    if (!response.ok) {
+    const endingText = data?.data?.endingText;
+
+    if (!endingText) {
       setLoading(false);
-      return notify("error", "فشل التوليد", "حدث خطأ أثناء الاتصال بالخادم");
+      return AlertToast("الخادم لم يرجع نص نهاية صالح", "error");
     }
 
-    //------------------------------
-    // ⭐ NON-STREAM RESPONSE PARSING
-    //------------------------------
-    const data = await response.json();
+    setSummary(endingText);
 
-   if (!data || !data.data || !data.data.content) {
-  setLoading(false);
-  return notify("error", "استجابة غير صالحة", "الخادم لم يرجع نص الخلاصة");
-}
 
-setSummary(data.data.content);
-
-    notify("success", "تم التوليد", "الخلاصة جاهزة الآن.");
-  } catch (error) {
-    notify("error", "خطأ غير متوقع", error.message);
-  }
-
-  setLoading(false);
-};
-
+      AlertToast(
+        data.message || "الخلاصة جاهزة الآن.",
+        data.messageStatus || "success"
+      );
+    } catch (err) {
+      AlertToast(err.message || "خطأ غير متوقع", "error");
+    }
+    setLoading(false);
+  };
 
   return (
     <div className="min-h-screen bg-[var(--earth-cream)] rtl">
@@ -94,11 +89,9 @@ setSummary(data.data.content);
         `}
       >
         <main className="flex-1 flex flex-col">
-
           <PageHeader mainTitle={pageName} buttonTitle="" onPress={() => {}} />
 
           <div className="flex flex-col-reverse lg:flex-row flex-1 p-4 lg:p-8 gap-6 lg:gap-8">
-
             {/* LEFT — AI RESULT */}
             <SummaryPanel
               loading={loading}
@@ -109,18 +102,8 @@ setSummary(data.data.content);
             {/* RIGHT — FORM */}
             <PdfInputCard onGenerate={onGenerate} loading={loading} />
           </div>
-
         </main>
       </div>
-
-      {/* TOAST */}
-      <AlertToast
-        open={alert.open}
-        variant={alert.variant}
-        title={alert.title}
-        description={alert.description}
-        onClose={() => setAlert({ ...alert, open: false })}
-      />
     </div>
   );
 }

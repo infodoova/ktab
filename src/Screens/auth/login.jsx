@@ -7,32 +7,20 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
-import { AlertToast } from "../../components/myui/AlertToast"; 
+import { AlertToast } from "../../components/myui/AlertToast";
 import owlLogin from "../../assets/character/owl4.png";
-import { saveToken,getUserData } from "../../../store/authToken";
+import { saveToken, getUserData } from "../../../store/authToken";
+import { success } from "zod";
 export default function LoginPage() {
   const navigate = useNavigate();
-const [resetOpen, setResetOpen] = useState(false);
+  const [resetOpen, setResetOpen] = useState(false);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({ email, password });
 
-  // Toast state
-  const [toast, setToast] = useState({
-    open: false,
-    variant: "error",
-    title: "",
-    description: "",
-  });
-
   // Loading state
   const [loading, setLoading] = useState(false);
-
-  const showToast = (variant, title, description) => {
-    setToast({ open: true, variant, title, description });
-  };
 
   const validate = () => {
     const newErrors = {};
@@ -46,86 +34,65 @@ const [resetOpen, setResetOpen] = useState(false);
     return Object.keys(newErrors).length === 0;
   };
 
-const handleSubmit = async () => {
-  if (!validate()) return;
+  const handleSubmit = async () => {
+    if (!validate()) return;
 
-  setLoading(true);
+    setLoading(true);
 
-  try {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "ngrok-skip-browser-warning": "true",
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
 
-      },
-      body: JSON.stringify({
-        email,
-        password,
-      }),
-    });
+      const data = await res.json();
+      console.log("LOGIN RESPONSE =", data);
 
-    const data = await res.json();
-    console.log("LOGIN RESPONSE =", data);
+      if (data.messageStatus != "SUCCESS") {
+        AlertToast(data?.message, data?.messageStatus);
+        return;
+      }
+      AlertToast(data?.message, data?.messageStatus);
 
-    if (!data.success) {
-      showToast(
-        "error",
-        "خطأ في تسجيل الدخول",
-        data.message || "البريد الإلكتروني أو كلمة المرور غير صحيحة."
-      );
-      return;
+      saveToken(data.data);
+
+      const user = getUserData();
+
+      if (user.role === "AUTHOR") {
+        setTimeout(() => {
+          navigate("/Screens/dashboard/AuthorPages/controlBoard");
+        }, 900);
+      } else if (user.role === "READER") {
+        setTimeout(() => {
+          navigate("/Screens/dashboard/ReaderPages/MainPage");
+        }, 900);
+      } else {
+        AlertToast(" تحويل للصفحة الرئيسية", "SUCCESS");
+        setTimeout(() => {
+          navigate("/");
+        }, 900);
+      }
+    } catch (error) {
+      console.error(error);
+      AlertToast("تعذر الاتصال بالخادم.", "ERROR");
+    } finally {
+      setLoading(false);
     }
-
-    if (!data.data) {
-      showToast("error", "خطأ", "لم يتم استلام رمز الدخول من الخادم.");
-      return;
-    }
-
-    saveToken(data.data);
-
-    showToast("success", "تم تسجيل الدخول", "مرحباً بعودتك!");
-    const user = getUserData()
-
-   
-    if(user.role === "AUTHOR")
-    {
-    setTimeout(() => {
-      navigate("/Screens/dashboard/AuthorPages/controlBoard");
-    }, 900);
-  } else if(user.role === "READER"){
-       setTimeout(() => {
-      navigate("/Screens/dashboard/ReaderPages/MainPage");
-    }, 900);
-  } else{
-        showToast(" تحويل للصفحة الرئيسية");
-          setTimeout(() => {
-      navigate("/");
-    }, 900);
-
-  }
-  
-
-  } catch (error) {
-    console.error(error);
-    showToast("error", "خطأ", "تعذر الاتصال بالخادم.");
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   return (
     <>
-      <AlertToast
-        open={toast.open}
-        variant={toast.variant}
-        title={toast.title}
-        description={toast.description}
-        onClose={() => setToast({ ...toast, open: false })}
-      />
-
-      <div dir="rtl" className="h-screen w-full flex bg-[var(--earth-cream)] overflow-hidden">
+      <div
+        dir="rtl"
+        className="h-screen w-full flex bg-[var(--earth-cream)] overflow-hidden"
+      >
         {/* LEFT SIDE — OWL */}
         <div className="hidden md:flex flex-1 md:basis-1/2 items-center justify-center bg-gradient-to-b from-[var(--earth-brown)] via-[#3c271a] to-[#2b1b12] relative overflow-hidden py-16">
           <div className="absolute inset-0 opacity-30 pointer-events-none">
@@ -147,8 +114,8 @@ const handleSubmit = async () => {
               مرحباً بك في كتّاب
             </h2>
             <p className="text-[#f5e9db]/80 text-lg mt-4 leading-relaxed mx-auto max-w-sm">
-              منصتك للقراءة العربية الحديثة — اقرأ، استمع، وتفاعل مع محتوى مصمم ليناسبك
-              في كل مرحلة من رحلتك.
+              منصتك للقراءة العربية الحديثة — اقرأ، استمع، وتفاعل مع محتوى مصمم
+              ليناسبك في كل مرحلة من رحلتك.
             </p>
           </motion.div>
         </div>
@@ -161,7 +128,8 @@ const handleSubmit = async () => {
                 أهلاً بعودتك
               </h1>
               <p className="text-[var(--earth-brown)]/70 text-base sm:text-lg md:text-xl mt-3 leading-relaxed">
-                سجّل دخولك لتتابع الكتب، القصص التفاعلية، والتقدم الذي أحرزته في كتّاب.
+                سجّل دخولك لتتابع الكتب، القصص التفاعلية، والتقدم الذي أحرزته في
+                كتّاب.
               </p>
             </div>
 
@@ -174,7 +142,9 @@ const handleSubmit = async () => {
 
               <CardContent className="space-y-6">
                 <div className="space-y-1">
-                  <Label className="text-[var(--earth-brown)] font-medium">البريد الإلكتروني</Label>
+                  <Label className="text-[var(--earth-brown)] font-medium">
+                    البريد الإلكتروني
+                  </Label>
                   <Input
                     type="email"
                     placeholder="example@mail.com"
@@ -182,11 +152,15 @@ const handleSubmit = async () => {
                     onChange={(e) => setEmail(e.target.value)}
                     className="bg-white border-[var(--earth-sand)]/40 focus-visible:ring-[var(--earth-brown)]/40"
                   />
-                  {errors.email && <p className="text-red-600 text-sm mt-1">{errors.email}</p>}
+                  {errors.email && (
+                    <p className="text-red-600 text-sm mt-1">{errors.email}</p>
+                  )}
                 </div>
 
                 <div className="space-y-1">
-                  <Label className="text-[var(--earth-brown)] font-medium">كلمة المرور</Label>
+                  <Label className="text-[var(--earth-brown)] font-medium">
+                    كلمة المرور
+                  </Label>
                   <Input
                     type="password"
                     placeholder="••••••••"
@@ -194,7 +168,11 @@ const handleSubmit = async () => {
                     onChange={(e) => setPassword(e.target.value)}
                     className="bg-white border-[var(--earth-sand)]/40 focus-visible:ring-[var(--earth-brown)]/40"
                   />
-                  {errors.password && <p className="text-red-600 text-sm mt-1">{errors.password}</p>}
+                  {errors.password && (
+                    <p className="text-red-600 text-sm mt-1">
+                      {errors.password}
+                    </p>
+                  )}
                 </div>
 
                 <Button
@@ -213,7 +191,10 @@ const handleSubmit = async () => {
                 <div className="text-center mt-3">
                   <p className="text-sm text-[var(--earth-brown)]/70">
                     ليس لديك حساب؟{" "}
-                    <Link to="/Screens/auth/signup" className="text-[var(--earth-brown)] font-semibold hover:underline">
+                    <Link
+                      to="/Screens/auth/signup"
+                      className="text-[var(--earth-brown)] font-semibold hover:underline"
+                    >
                       إنشاء حساب جديد
                     </Link>
                   </p>
@@ -221,22 +202,19 @@ const handleSubmit = async () => {
                 <div className="text-center mt-3">
                   <p className="text-sm text-[var(--earth-brown)]/70">
                     هل نسيت كلمة المرور؟{" "}
-                 <span
-  onClick={() => setResetOpen(true)}
-  className="text-[var(--earth-brown)] font-semibold hover:underline cursor-pointer"
->
-  إعادة تعيين كلمة المرور
-</span>
-
+                    <span
+                      onClick={() => setResetOpen(true)}
+                      className="text-[var(--earth-brown)] font-semibold hover:underline cursor-pointer"
+                    >
+                      إعادة تعيين كلمة المرور
+                    </span>
                   </p>
                 </div>
               </CardContent>
             </Card>
           </div>
         </div>
-        {resetOpen && (
-  <ResetPassword onClose={() => setResetOpen(false)} />
-)}
+        {resetOpen && <ResetPassword onClose={() => setResetOpen(false)} />}
       </div>
     </>
   );

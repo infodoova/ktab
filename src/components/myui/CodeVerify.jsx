@@ -17,18 +17,6 @@ export default function CodeVerify({ email, onClose }) {
 
   const navigate = useNavigate();
 
-  // Toast state
-  const [toast, setToast] = useState({
-    open: false,
-    variant: "info",
-    title: "",
-    description: "",
-  });
-
-  const showToast = (variant, title, description) => {
-    setToast({ open: true, variant, title, description });
-  };
-
   // Countdown
   useEffect(() => {
     if (timer > 0) {
@@ -47,27 +35,15 @@ export default function CodeVerify({ email, onClose }) {
         body: { email },
       });
 
-      if (!data?.success) {
-        showToast(
-          "error",
-          "فشل إعادة الإرسال",
-          "تعذر إعادة إرسال الرمز، يرجى المحاولة لاحقاً"
-        );
+      if (data.messageStatus != "SUCCESS") {
+        AlertToast(data?.message, data?.messageStatus);
         return;
       }
 
       setTimer(60); // 1 minutes
-      showToast(
-        "success",
-        "تم الإرسال",
-        "تمت إعادة إرسال رمز التحقق إلى بريدك الإلكتروني"
-      );
+      AlertToast(data?.message, data?.messageStatus);
     } catch {
-      showToast(
-        "error",
-        "خطأ في الاتصال",
-        "تعذر الاتصال بالخادم، يرجى المحاولة لاحقاً"
-      );
+      AlertToast("تعذر الاتصال بالخادم، يرجى المحاولة لاحقاً", "error");
     }
   };
 
@@ -93,21 +69,16 @@ export default function CodeVerify({ email, onClose }) {
       const data = await response.json();
       console.log("VERIFY RESPONSE =", data);
 
-      if (!data.success) {
-        showToast(
-          "error",
-          "رمز غير صحيح",
-          data.message || "يرجى المحاولة مجدداً."
-        );
+      if (data.messageStatus != "SUCCESS") {
+        AlertToast(data?.message, data?.messageStatus);
         return;
       }
-
-      showToast("success", "تم التحقق", "يمكنك الآن تسجيل الدخول.");
+      AlertToast(data?.message, data?.messageStatus);
 
       setTimeout(() => navigate("/Screens/auth/login"), 1000);
     } catch (error) {
       console.error(error);
-      showToast("error", "خطأ", "تعذر الاتصال بالخادم.");
+      AlertToast("تعذر الاتصال بالخادم.", "ERROR");
     } finally {
       setLoading(false);
     }
@@ -198,15 +169,6 @@ export default function CodeVerify({ email, onClose }) {
           </span>
         )}
       </div>
-
-      {/* Toast */}
-      <AlertToast
-        open={toast.open}
-        variant={toast.variant}
-        title={toast.title}
-        description={toast.description}
-        onClose={() => setToast({ ...toast, open: false })}
-      />
     </div>
   );
 }

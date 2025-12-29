@@ -1,13 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
   Star,
-  Eye,
+  UserStar,
   MoreVertical,
   Share2,
   Trash,
   Loader2,
   BookOpen,
   Search,
+  
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import SkeletonBookLoader from "./SkeletonBookLoader";
@@ -88,7 +89,7 @@ const MinimalBookCard = ({
 
       {/* MAIN CARD CLICK */}
       <div
-      onClick={() => {
+        onClick={() => {
           if (book.status === "DRAFT") {
             navigate(`/author/books/edit/${book.id}`);
           } else {
@@ -133,7 +134,7 @@ const MinimalBookCard = ({
             bg-[var(--earth-brown)]/70 text-white px-2 py-1 text-[10px]
           "
           >
-            <Eye size={10} /> {book.viewCount ?? 0}
+            <UserStar size={10} /> {book.totalReviews ?? 0}
           </div>
         </div>
 

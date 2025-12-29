@@ -8,6 +8,8 @@ import BooksList from "../../../components/myui/Users/AuthorPages/ControlBoard/B
 import { useNavigate } from "react-router-dom";
 import { getHelper } from "../../../../apis/apiHelpers";
 import { getUserData } from "../../../../store/authToken";
+import AgeBarGraphContainer from "@/components/myui/Users/AuthorPages/ControlBoard/ageBarGraphComponent";
+import MostReadPieChartContainer from "@/components/myui/Users/AuthorPages/ControlBoard/mostriddenpiechart";
 
 export default function ControlBoard({ pageName = "لوحة التحكم" }) {
   const navigate = useNavigate();
@@ -31,21 +33,10 @@ export default function ControlBoard({ pageName = "لوحة التحكم" }) {
   const [loadingMore, setLoadingMore] = useState(false);
 
   /* =======================
-      TOAST
-  ======================== */
-  const [toast, setToast] = useState({
-    open: false,
-    variant: "info",
-    title: "",
-    description: "",
-  });
-
-  const closeToast = () => setToast((prev) => ({ ...prev, open: false }));
-
-  /* =======================
       FETCH AUTHOR STATS
   ======================== */
   useEffect(() => {
+    
     if (!userData?.userId) return;
 
     const getStats = async () => {
@@ -56,6 +47,10 @@ export default function ControlBoard({ pageName = "لوحة التحكم" }) {
           url: `${import.meta.env.VITE_API_URL}/authors/me/analytics`,
         });
         setStats(res?.data || null);
+        if (res.messageStatus != "SUCCESS") {
+          AlertToast(res?.message, res?.messageStatus);
+          return;
+        }
       } catch (error) {
         console.error("Error fetching stats:", error);
       } finally {
@@ -69,33 +64,38 @@ export default function ControlBoard({ pageName = "لوحة التحكم" }) {
   /* =======================
       FETCH BOOKS FUNCTION
   ======================== */
-const fetchBooksAPI = useCallback(async () => {
-  try {
-    const res = await getHelper({
-      url: `${import.meta.env.VITE_API_URL}/authors/me/book-analytics`,
-    });
-  
-    console.log("fetchBooksAPI raw response:", res);
+  const fetchBooksAPI = useCallback(async () => {
+    try {
+      const res = await getHelper({
+        url: `${import.meta.env.VITE_API_URL}/authors/me/book-analytics`,
+      });
 
-    const payload = res?.data ?? res ?? {};
-    const content = payload.content ?? payload?.content ?? payload;
-    const totalPages = payload.totalPages ?? payload?.totalPages ?? 1;
+      console.log("fetchBooksAPI raw response:", res);
 
-    // Ensure content is an array
-    const normalizedContent = Array.isArray(content) ? content : [];
-    console.log("fetchBooksAPI normalized content length:", normalizedContent.length);
+      const payload = res?.data ?? res ?? {};
+      const content = payload.content ?? payload?.content ?? payload;
+      const totalPages = payload.totalPages ?? payload?.totalPages ?? 1;
 
-    return {
-      content: normalizedContent,
-      totalPages,
-    };
-  } catch (error) {
-    console.error("Error fetching books:", error);
-    return { content: [], totalPages: 0 };
-  }
-}, []);
+      // Ensure content is an array
+      const normalizedContent = Array.isArray(content) ? content : [];
+      console.log(
+        "fetchBooksAPI normalized content length:",
+        normalizedContent.length
+      );
+       if (res.messageStatus != "SUCCESS") {
+         AlertToast(res?.message, res?.messageStatus);
+         return;
+       }
 
-
+      return {
+        content: normalizedContent,
+        totalPages,
+      };
+    } catch (error) {
+      console.error("Error fetching books:", error);
+      return { content: [], totalPages: 0 };
+    }
+  }, []);
 
   /* =======================
       TRIGGER BOOKS FETCH
@@ -109,12 +109,11 @@ const fetchBooksAPI = useCallback(async () => {
       }
 
       const { content, totalPages: total } = await fetchBooksAPI(page);
-   
+
       console.log("loadBooks received content:", content);
       setTotalPages(total);
       setBooks((prev) => {
         const combined = page === 0 ? content : [...prev, ...content];
-        // Deduplicate by bookId || id || title+publishDate to avoid repeated entries
         const uniqueByKey = new Map();
         combined.forEach((b) => {
           const key = b.bookId ?? b.id ?? `${b.title}-${b.publishDate ?? ""}`;
@@ -180,16 +179,16 @@ const fetchBooksAPI = useCallback(async () => {
                 loadingMore={loadingMore}
               />
             )}
+            <div
+              className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6"
+              dir="rtl"
+            >
+              <MostReadPieChartContainer bookId={123} />
+              <AgeBarGraphContainer bookId={123} />
+            </div>
           </div>
         </main>
       </div>
-
-      <AlertToast
-        {...toast}
-        onClose={closeToast}
-        autoClose
-        autoCloseDelay={4000}
-      />
     </div>
   );
 }

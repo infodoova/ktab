@@ -1,7 +1,7 @@
 import { useNavigate, useOutlet } from "react-router-dom";
 import { useEffect, useState } from "react";
 import tokenManager from "../services/tokenManager";
-import { getUserData } from "../store/authToken";
+import { getUserData, isTokenExpired} from "../store/authToken";
 
 export default function RoleGuard({ allowedRoles }) {
   const navigate = useNavigate();
@@ -11,12 +11,13 @@ export default function RoleGuard({ allowedRoles }) {
   useEffect(() => {
     const validate = async () => {
       const token = tokenManager.getToken();
+      
 
-      // No token -> login
-      if (!token) {
+      if (!token || isTokenExpired(token)) {
         navigate("/Screens/auth/login", { replace: true });
         return;
       }
+      
 
       try {
         // Refresh BEFORE deciding authorization

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import {
-  Eye,
+  BookMarked,
   Star,
   BookOpen,
   BarChart3,
@@ -20,7 +20,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { getHelper } from "../../../../../../apis/apiHelpers";
-
+import { AlertToast } from "../../../AlertToast";
 function BooksList({
   books,
   page,
@@ -33,17 +33,17 @@ function BooksList({
   setSelectedGenre,
 }) {
   // Internal state fallback
-const [internalSort, setInternalSort] = useState("newest");
-const [internalGenre, setInternalGenre] = useState("الكل");
+  const [internalSort, setInternalSort] = useState("newest");
+  const [internalGenre, setInternalGenre] = useState("الكل");
 
-const [genres, setGenres] = useState(["الكل"]);
-const [genresLoading, setGenresLoading] = useState(false);
+  const [genres, setGenres] = useState(["الكل"]);
+  const [genresLoading, setGenresLoading] = useState(false);
 
-const currentSort = sortBy ?? internalSort;
-const setCurrentSort = setSortBy ?? setInternalSort;
+  const currentSort = sortBy ?? internalSort;
+  const setCurrentSort = setSortBy ?? setInternalSort;
 
-const currentGenre = selectedGenre ?? internalGenre;
-const setCurrentGenre = setSelectedGenre ?? setInternalGenre;
+  const currentGenre = selectedGenre ?? internalGenre;
+  const setCurrentGenre = setSelectedGenre ?? setInternalGenre;
 
   // show published / drafts toggles (both true = show both)
   const [showPublished, setShowPublished] = useState(true);
@@ -65,7 +65,9 @@ const setCurrentGenre = setSelectedGenre ?? setInternalGenre;
           b.category,
           ...(Array.isArray(b.categories) ? b.categories : []),
         ].filter(Boolean);
-        return candidates.some((g) => typeof g === "string" && g === currentGenre);
+        return candidates.some(
+          (g) => typeof g === "string" && g === currentGenre
+        );
       });
     }
 
@@ -101,7 +103,6 @@ const setCurrentGenre = setSelectedGenre ?? setInternalGenre;
     return result;
   }, [books, currentGenre, currentSort, showPublished, showDrafts]);
 
-
   useEffect(() => {
     const fetchGenres = async () => {
       setGenresLoading(true);
@@ -113,12 +114,15 @@ const setCurrentGenre = setSelectedGenre ?? setInternalGenre;
 
         // API returns main genres as objects with `nameAr` / `nameEn` and includes `subGenres`.
         // We only want the main genre names (prefer Arabic) and must exclude subGenres.
-        const apiGenres =
-          (data?.content || [])
-            .map((g) => g.nameAr ?? g.nameEn ?? g.name ?? g.title ?? g.genreName)
-            .filter(Boolean);
+        const apiGenres = (data?.content || [])
+          .map((g) => g.nameAr ?? g.nameEn ?? g.name ?? g.title ?? g.genreName)
+          .filter(Boolean);
 
         setGenres(["الكل", ...Array.from(new Set(apiGenres))]);
+        if (data?.messageStatus !== "SUCCESS") {
+          AlertToast(data?.message, data?.messageStatus);
+          return;
+        }
       } catch (err) {
         console.error("Genres Error:", err);
       } finally {
@@ -133,6 +137,7 @@ const setCurrentGenre = setSelectedGenre ?? setInternalGenre;
     <div className="space-y-6 w-full font-sans">
       {/* --- HEADER SECTION --- */}
       <div
+        dir="rtl"
         className="
           flex 
           flex-col 
@@ -180,7 +185,15 @@ const setCurrentGenre = setSelectedGenre ?? setInternalGenre;
         </div>
 
         {/* TITLE — LAST IN DOM = LEFTMOST IN RTL */}
-        <div className="flex items-center gap-3 text-slate-800 w-full md:w-auto order-1 md:order-3">
+        <div
+          className="
+    flex items-center gap-3
+    text-slate-800
+    w-full md:w-auto
+    justify-start
+    text-right
+  "
+        >
           <div className="p-2 bg-[var(--earth-sand)]/20 rounded-lg shrink-0">
             <BarChart3 className="w-5 h-5 text-[var(--earth-brown)]" />
           </div>
@@ -209,7 +222,7 @@ const setCurrentGenre = setSelectedGenre ?? setInternalGenre;
             </TableHeader>
 
             <TableBody>
-            {displayedBooks && displayedBooks.length > 0 ? (
+              {displayedBooks && displayedBooks.length > 0 ? (
                 displayedBooks.map((book, idx) => (
                   <TableRow
                     key={`${book.bookId ?? book.id}-${idx}`}
@@ -255,7 +268,7 @@ const setCurrentGenre = setSelectedGenre ?? setInternalGenre;
 
                     <TableCell className="text-center">
                       <div className="flex items-center justify-center gap-1">
-                        <Eye className="w-4 h-4 text-slate-400" />
+                        <BookMarked className="w-4 h-4 text-slate-400" />
                         <span className="text-sm font-mono">
                           {book.totalReaders ?? book.TotalReaders ?? book.views
                             ? (
@@ -271,16 +284,16 @@ const setCurrentGenre = setSelectedGenre ?? setInternalGenre;
                     <TableCell className="text-center">
                       <span
                         className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          (String(book.status ?? "").toLowerCase() === "published" ||
-                          book.isPublished)
+                          String(book.status ?? "").toLowerCase() ===
+                            "published" || book.isPublished
                             ? "bg-green-50 text-green-700 border border-green-100"
                             : "bg-slate-100 text-slate-600"
                         }`}
                       >
                         {book.status
-                          ? (String(book.status).toLowerCase() === "published"
-                              ? "منشور"
-                              : book.status)
+                          ? String(book.status).toLowerCase() === "published"
+                            ? "منشور"
+                            : book.status
                           : book.isPublished
                           ? "منشور"
                           : "غير منشور"}

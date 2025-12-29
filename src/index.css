@@ -38,6 +38,7 @@ body {
   color: var(--earth-brown-dark);
 }
 
+
 /* Glass utility */
 .glass {
   background: rgba(254, 252, 248, 0.75); /* Uses earth-paper opacity */

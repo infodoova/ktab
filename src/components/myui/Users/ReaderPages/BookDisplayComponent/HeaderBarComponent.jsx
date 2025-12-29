@@ -9,7 +9,7 @@ import {
   Waves,
   CloudRain,
   Wind,
-  MoreVertical
+  MoreVertical,
 } from "lucide-react";
 
 import {
@@ -21,10 +21,16 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 
-export default function ReaderHeader({ onBack, onGoToPage }) {
+export default function ReaderHeader({
+  onBack,
+  onGoToPage,
+  effect,
+  setEffect,
+  volume = 0.8,
+  isMuted = false,
+  onToggleMute,
+}) {
   const [voice, setVoice] = React.useState("default");
-  const [volume, setVolume] = React.useState(0);
-  const [effect, setEffect] = React.useState("none");
   const [pageInput, setPageInput] = React.useState("");
 
   const [isHamOpen, setIsHamOpen] = React.useState(false);
@@ -65,13 +71,21 @@ export default function ReaderHeader({ onBack, onGoToPage }) {
       "
       >
         <div className="flex items-center gap-4 sm:gap-12">
-
           {/* 1️⃣ VOICE MENU */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <div>
                 <HeaderIcon
-                  icon={<UserRound size={22} className="text-[var(--earth-olive)]" />}
+                  icon={
+                    <UserRound
+                      size={22}
+                      className={
+                        voice === "none"
+                          ? "text-red-500"
+                          : "text-[var(--earth-olive)]"
+                      }
+                    />
+                  }
                   label="الأصوات"
                 />
               </div>
@@ -84,6 +98,7 @@ export default function ReaderHeader({ onBack, onGoToPage }) {
               <DropdownMenuSeparator />
 
               {[
+                { id: "none", label: "بدون صوت" },
                 { id: "default", label: "صوت افتراضي" },
                 { id: "soft", label: "صوت هادئ" },
                 { id: "deep", label: "صوت عميق" },
@@ -104,7 +119,16 @@ export default function ReaderHeader({ onBack, onGoToPage }) {
             <DropdownMenuTrigger asChild>
               <div>
                 <HeaderIcon
-                  icon={<Music4 size={22} className="text-[var(--earth-olive)]" />}
+                  icon={
+                    <Music4
+                      size={22}
+                      className={
+                        effect === "none"
+                          ? "text-red-500"
+                          : "text-[var(--earth-olive)]"
+                      }
+                    />
+                  }
                   label="المؤثرات"
                 />
               </div>
@@ -116,10 +140,17 @@ export default function ReaderHeader({ onBack, onGoToPage }) {
               </DropdownMenuLabel>
 
               <DropdownMenuSeparator />
-
+              <DropdownMenuItem
+                onClick={() => setEffect("none")}
+                className={effect === "none" ? "bg-[var(--earth-cream)]" : ""}
+              >
+                بدون مؤثرات
+              </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => setEffect("running")}
-                className={effect === "running" ? "bg-[var(--earth-cream)]" : ""}
+                className={
+                  effect === "running" ? "bg-[var(--earth-cream)]" : ""
+                }
               >
                 <Waves size={18} className="mr-2" /> صوت الركض
               </DropdownMenuItem>
@@ -137,20 +168,13 @@ export default function ReaderHeader({ onBack, onGoToPage }) {
               >
                 <Wind size={18} className="mr-2" /> صوت الرياح
               </DropdownMenuItem>
-
-              <DropdownMenuItem
-                onClick={() => setEffect("none")}
-                className={effect === "none" ? "bg-[var(--earth-cream)]" : ""}
-              >
-                بدون مؤثرات
-              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
           {/* 3️⃣ VOLUME BUTTON */}
           <HeaderIcon
             icon={
-              volume === 0 ? (
+              isMuted || volume === 0 ? (
                 <VolumeX size={22} className="text-red-500" />
               ) : volume < 0.4 ? (
                 <Volume1 size={22} className="text-[var(--earth-olive)]" />
@@ -159,7 +183,7 @@ export default function ReaderHeader({ onBack, onGoToPage }) {
               )
             }
             label="الصوت"
-            onClick={() => setVolume(volume === 0 ? 0.8 : 0)}
+            onClick={() => onToggleMute && onToggleMute()}
           />
 
           {/* 4️⃣ GO TO PAGE (desktop only) */}
@@ -202,7 +226,6 @@ export default function ReaderHeader({ onBack, onGoToPage }) {
             {isHamOpen && (
               <div className="ham-menu-panel absolute top-12 right-0 w-56 rounded-xl border border-black/10 bg-white p-2 shadow-xl z-50">
                 <ul className="flex flex-col">
-
                   {/* GO TO PAGE */}
                   <li>
                     <button
@@ -216,8 +239,6 @@ export default function ReaderHeader({ onBack, onGoToPage }) {
                     </button>
                   </li>
 
-          
-
                   {/* ALWAYS LAST — BACK BUTTON */}
                   <li>
                     <button
@@ -230,7 +251,6 @@ export default function ReaderHeader({ onBack, onGoToPage }) {
                       رجوع
                     </button>
                   </li>
-
                 </ul>
               </div>
             )}
@@ -243,7 +263,10 @@ export default function ReaderHeader({ onBack, onGoToPage }) {
         <Modal title="تأكيد الرجوع" onClose={() => setModalType(null)}>
           <p className="mb-4">هل تريد الرجوع فعلاً؟</p>
           <div className="flex gap-2 justify-end">
-            <button className="px-3 py-1 rounded-lg bg-gray-200" onClick={() => setModalType(null)}>
+            <button
+              className="px-3 py-1 rounded-lg bg-gray-200"
+              onClick={() => setModalType(null)}
+            >
               إلغاء
             </button>
             <button
@@ -287,7 +310,6 @@ export default function ReaderHeader({ onBack, onGoToPage }) {
       {modalType === "effects" && (
         <Modal title="المؤثرات" onClose={() => setModalType(null)}>
           <div className="flex flex-col gap-2">
-
             {[
               { id: "running", label: "صوت الركض" },
               { id: "rain", label: "صوت المطر" },
@@ -309,7 +331,6 @@ export default function ReaderHeader({ onBack, onGoToPage }) {
                 {e.label}
               </button>
             ))}
-
           </div>
         </Modal>
       )}
@@ -349,7 +370,9 @@ function Modal({ title, children, onClose }) {
       <div className="relative bg-white rounded-lg shadow-xl w-[90%] max-w-md p-4 z-10">
         <div className="flex justify-between items-center mb-3">
           <h3 className="font-semibold">{title}</h3>
-          <button onClick={onClose} className="text-gray-500">اغلاق</button>
+          <button onClick={onClose} className="text-gray-500">
+            اغلاق
+          </button>
         </div>
 
         {children}

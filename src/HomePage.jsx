@@ -8,14 +8,15 @@ import Footer from "./components/myui/HomePage/footer";
 import FAQ from "./components/myui/HomePage/FAQ";
 import CinematicIntro from "./components/myui/HomePage/CinematicIntro";
 import Navbar from "./components/myui/HomePage/navbar";
-import BooksMasonry from './components/myui/HomePage/BooksMasonry'
+import BooksMasonry from "./components/myui/HomePage/BooksMasonry";
 const HomePage = () => {
   const [playIntro, setPlayIntro] = useState(true);
-
   useEffect(() => {
     const timer = setTimeout(() => setPlayIntro(false), 2500);
     return () => clearTimeout(timer);
   }, []);
+
+
 
   if (playIntro) {
     return <CinematicIntro />;
@@ -23,12 +24,14 @@ const HomePage = () => {
 
   return (
     <>
+
+
       <Navbar />
       <HeroSection />
       <ForAllAges />
       <RolesSection />
       <OwlFeatureDirections />
-      <BooksMasonry/>
+      <BooksMasonry />
       <PricingSection />
       <FAQ />
       <Footer />

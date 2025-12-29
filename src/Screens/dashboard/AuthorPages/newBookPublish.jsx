@@ -19,7 +19,6 @@ import {
 import * as pdfjsLib from "pdfjs-dist";
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
 
-
 const AGE_GROUPS = [
   "أطفال (3-8 سنوات)",
   "ناشئة (9-15 سنة)",
@@ -81,31 +80,25 @@ const validateImageDimensions = (file) => {
 
 export default function NewBooks({ pageName = "رفع كتاب جديد" }) {
   const { draftId } = useParams();
-const [draft, setDraft] = useState(null);
+  const [draft, setDraft] = useState(null);
 
-// Normalize incoming language values to our LANG_OPTIONS ids
-const normalizeLanguage = (val) => {
-  if (!val) return "arabic";
-  const s = String(val).toLowerCase();
-  if (s.includes("arab") || s === "ar" || s.includes("عرب")) return "arabic";
-  if (s.includes("eng") || s === "en" || s.includes("انج")) return "english";
-  return "arabic";
-};
+  // Normalize incoming language values to our LANG_OPTIONS ids
+  const normalizeLanguage = (val) => {
+    if (!val) return "arabic";
+    const s = String(val).toLowerCase();
+    if (s.includes("arab") || s === "ar" || s.includes("عرب")) return "arabic";
+    if (s.includes("eng") || s === "en" || s.includes("انج")) return "english";
+    return "arabic";
+  };
 
   // Derived State
   // Accept either `id` or `bookId` from API responses
-const isEditingDraft = Boolean(draft?.id ?? draft?.bookId);
+  const isEditingDraft = Boolean(draft?.id ?? draft?.bookId);
 
   // UI State
   const [collapsed, setCollapsed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [toast, setToast] = useState({
-    open: false,
-    variant: "info",
-    title: "",
-    description: "",
-  });
 
   // Form State
   const [genres, setGenres] = useState([]);
@@ -131,114 +124,119 @@ const isEditingDraft = Boolean(draft?.id ?? draft?.bookId);
 
   // --- INITIALIZATION ---
 
-useEffect(() => {
-  if (!draft) return;
+  useEffect(() => {
+    if (!draft) return;
 
-  setFormData((prev) => ({
-    ...prev,
-    title: draft.title || "",
-    description: draft.description || "",
-    ageGroup: mapValuesToAgeLabel(draft.ageRangeMin, draft.ageRangeMax),
-    // category/subCategory handled in the genres effect below
-    language: draft.language || prev.language || "arabic",
-    coverFile: null,
-    pdfFile: null,
-  }));
+    setFormData((prev) => ({
+      ...prev,
+      title: draft.title || "",
+      description: draft.description || "",
+      ageGroup: mapValuesToAgeLabel(draft.ageRangeMin, draft.ageRangeMax),
+      // category/subCategory handled in the genres effect below
+      language: draft.language || prev.language || "arabic",
+      coverFile: null,
+      pdfFile: null,
+    }));
 
-  setExistingData({
-    coverUrl: draft.coverImageUrl || null,
-    pdfName: draft.pdfFileName || "ملف PDF محفوظ مسبقاً",
-    pageCount: draft.pageCount || 0,
-  });
-}, [draft]);
+    setExistingData({
+      coverUrl: draft.coverImageUrl || null,
+      pdfName: draft.pdfFileName || "ملف PDF محفوظ مسبقاً",
+      pageCount: draft.pageCount || 0,
+    });
+  }, [draft]);
 
-// When genres are available, map draft mainGenre/mainGenreId to category/subCategory
-useEffect(() => {
-  if (!draft || !genres.length) return;
+  // When genres are available, map draft mainGenre/mainGenreId to category/subCategory
+  useEffect(() => {
+    if (!draft || !genres.length) return;
 
-  let genreId = draft.mainGenreId ? String(draft.mainGenreId) : "";
-  let subGenreId = draft.subGenreId ? String(draft.subGenreId) : "";
+    let genreId = draft.mainGenreId ? String(draft.mainGenreId) : "";
+    let subGenreId = draft.subGenreId ? String(draft.subGenreId) : "";
 
-  if (!genreId && draft.mainGenre) {
-    const found = genres.find(
-      (g) =>
-        String(g.id) === String(draft.mainGenreId) ||
-        g.nameAr === draft.mainGenre ||
-        g.nameEn === draft.mainGenre ||
-        g.name === draft.mainGenre
-    );
-    if (found) genreId = String(found.id);
-  }
+    if (!genreId && draft.mainGenre) {
+      const found = genres.find(
+        (g) =>
+          String(g.id) === String(draft.mainGenreId) ||
+          g.nameAr === draft.mainGenre ||
+          g.nameEn === draft.mainGenre ||
+          g.name === draft.mainGenre
+      );
+      if (found) genreId = String(found.id);
+    }
 
-  const selectedGenre = genres.find((g) => String(g.id) === genreId);
+    const selectedGenre = genres.find((g) => String(g.id) === genreId);
 
-  setFormData((prev) => ({
-    ...prev,
-    category: genreId,
-    subCategory: subGenreId,
-  }));
+    setFormData((prev) => ({
+      ...prev,
+      category: genreId,
+      subCategory: subGenreId,
+    }));
 
-  setSubGenres(selectedGenre?.subGenres || []);
-}, [draft, genres]);
+    setSubGenres(selectedGenre?.subGenres || []);
+  }, [draft, genres]);
 
-useEffect(() => {
-  if (!draftId) return;
-  (async () => {
-    try {
-      const res = await getHelper({
-        url: `${import.meta.env.VITE_API_URL}/authors/book/${draftId}`,
-      });
+  useEffect(() => {
+    if (!draftId) return;
+    (async () => {
+      try {
+        const res = await getHelper({
+          url: `${import.meta.env.VITE_API_URL}/authors/book/${draftId}`,
+        });
 
-      const responseBody = res?.data || {};
+        const responseBody = res?.data || {};
+        if (responseBody.messageStatus != "SUCCESS") {
+          AlertToast(responseBody?.message, responseBody?.messageStatus);
+          return;
+        }
 
-      const internalData = responseBody.data || responseBody;
+        const internalData = responseBody.data || responseBody;
 
-      // 3. Check if the book is inside a 'content' array (Pagination wrapper)
-      let bookPayload = internalData;
-      if (
-        Array.isArray(internalData.content) &&
-        internalData.content.length > 0
-      ) {
-        bookPayload = internalData.content[0];
+        // 3. Check if the book is inside a 'content' array (Pagination wrapper)
+        let bookPayload = internalData;
+        if (
+          Array.isArray(internalData.content) &&
+          internalData.content.length > 0
+        ) {
+          bookPayload = internalData.content[0];
+        }
+
+        // 4. Normalize the data
+        const normalized = {
+          ...bookPayload,
+          id: bookPayload.id ?? bookPayload.bookId ?? null,
+          bookId: bookPayload.bookId ?? bookPayload.id ?? null,
+          language: normalizeLanguage(bookPayload.language),
+        };
+
+        setDraft(normalized);
+      } catch (err) {
+        console.error("Fetch draft error:", err);
       }
+    })();
+  }, [draftId]);
 
-      // 4. Normalize the data
-      const normalized = {
-        ...bookPayload,
-        id: bookPayload.id ?? bookPayload.bookId ?? null,
-        bookId: bookPayload.bookId ?? bookPayload.id ?? null,
-        language: normalizeLanguage(bookPayload.language),
-      };
+  useEffect(() => {
+    const fetchGenres = async () => {
+      setGenresLoading(true);
 
-      setDraft(normalized);
-    } catch (err) {
-      console.error("Fetch draft error:", err);
-    }
-  })();
-}, [draftId]);
+      try {
+        const data = await getHelper({
+          url: `${import.meta.env.VITE_API_URL}/genres/getAllGenres`,
+        });
 
-useEffect(() => {
-  const fetchGenres = async () => {
-    setGenresLoading(true);
+        setGenres(data?.content || []);
+        if (data.messageStatus != "SUCCESS") {
+          AlertToast(data?.message, data?.messageStatus);
+          return;
+        }
+      } catch {
+        //
+      } finally {
+        setGenresLoading(false);
+      }
+    };
 
-    try {
-      const data = await getHelper({
-        url: `${import.meta.env.VITE_API_URL}/genres/getAllGenres`,
-      });
-
-      setGenres(data?.content || []);
-    } catch (err) {
-      console.error("Genres Error:", err);
-      showToast("error", "خطأ في التصنيفات", "تعذر تحميل قائمة التصنيفات.");
-    } finally {
-      setGenresLoading(false);
-    }
-  };
-
-  fetchGenres();
-}, []);
-
-
+    fetchGenres();
+  }, []);
 
   // --- HANDLERS ---
 
@@ -246,44 +244,43 @@ useEffect(() => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const showToast = (variant, title, description) => {
-    setToast({ open: true, variant, title, description });
-  };
   const handleGenreChange = (genreId) => {
     handleInputChange("category", genreId);
-    handleInputChange("subCategory", ""); 
+    handleInputChange("subCategory", "");
 
     const selectedGenre = genres.find((g) => g.id === Number(genreId));
 
     setSubGenres(selectedGenre?.subGenres || []);
   };
 
-
   // --- VALIDATION LOGIC ---
 
   const validateDraft = () => {
     if (!formData.title.trim()) {
-      showToast(
-        "error",
-        "عنوان مفقود",
-        "يرجى إدخال عنوان للكتاب لحفظ المسودة."
-      );
+      AlertToast("يرجى إدخال عنوان للكتاب لحفظ المسودة.", "ERROR");
       return false;
     }
     return true;
   };
 
   const validatePublish = async () => {
-    const { title, description, category, ageGroup, coverFile, pdfFile, language } =
-      formData;
+    const {
+      title,
+      description,
+      category,
+      ageGroup,
+      coverFile,
+      pdfFile,
+      language,
+    } = formData;
 
     // 1. Basic Fields
     if (!title || !description || !category || !ageGroup || !language) {
-      showToast("error", "حقول ناقصة", "يرجى تعبئة جميع الحقول النصية.");
+      AlertToast("يرجى تعبئة جميع الحقول النصية.", "ERROR");
       return false;
     }
     if (title.length > 255) {
-      showToast("error", "العنوان طويل", "الحد الأقصى للعنوان 255 حرف.");
+      AlertToast("الحد الأقصى للعنوان 255 حرف.", "ERROR");
       return false;
     }
 
@@ -292,54 +289,45 @@ useEffect(() => {
     const hasPdf = pdfFile || existingData.pdfName;
 
     if (!hasCover) {
-      showToast("error", "صورة الغلاف مفقودة", "يرجى رفع صورة غلاف للكتاب.");
+      AlertToast("يرجى رفع صورة غلاف للكتاب.", "ERROR");
       return false;
     }
     if (!hasPdf) {
-      showToast("error", "ملف الكتاب مفقود", "يرجى رفع ملف PDF للكتاب.");
+      AlertToast("يرجى رفع ملف PDF للكتاب.", "ERROR");
       return false;
     }
 
     // 3. New File Specific Validation
     if (pdfFile) {
       if (pdfFile.type !== "application/pdf") {
-        showToast(
-          "error",
-          "صيغة ملف خاطئة",
-          "يجب أن يكون ملف الكتاب بصيغة PDF."
-        );
+        AlertToast("يجب أن يكون ملف الكتاب بصيغة PDF.", "ERROR");
         return false;
       }
       if (pdfFile.size > 50 * 1024 * 1024) {
-        showToast("error", "حجم الملف كبير", "الحد الأقصى لملف PDF هو 50MB.");
+        AlertToast("الحد الأقصى لملف PDF هو 50MB.", "ERROR");
         return false;
       }
     }
 
     if (coverFile) {
       if (!["image/jpeg", "image/png", "image/jpg"].includes(coverFile.type)) {
-        showToast("error", "صيغة الصورة خاطئة", "يرجى استخدام JPG أو PNG.");
+        AlertToast("يرجى استخدام للصورة JPG أو PNG.", "ERROR");
         return false;
       }
       if (coverFile.size > 5 * 1024 * 1024) {
-        showToast("error", "حجم الصورة كبير", "الحد الأقصى للصورة هو 5MB.");
+        AlertToast("الحد الأقصى للصورة هو 5MB.", "ERROR");
         return false;
       }
 
       const { isValid } = await validateImageDimensions(coverFile);
       if (!isValid) {
-        showToast(
-          "error",
-          "أبعاد الصورة غير مناسبة",
-          "يجب أن تكون نسبة الصورة 1.6:1 تقريباً."
-        );
+        AlertToast("يجب أن تكون نسبة الصورة 1.6:1 تقريباً.", "ERROR");
         return false;
       }
     }
 
     return true;
   };
-
 
   // --- SUBMIT LOGIC: DRAFT ---
   const handleSaveDraft = async () => {
@@ -387,29 +375,40 @@ useEffect(() => {
         new Blob([JSON.stringify(bookDto)], { type: "application/json" })
       );
 
-    if (isEditingDraft) {
-        await patchHelper({
-          url: `${import.meta.env.VITE_API_URL}/authors/updateBook/${draft.id ?? draft.bookId}`,
+      let res;
+
+      if (isEditingDraft) {
+        res = await patchHelper({
+          url: `${import.meta.env.VITE_API_URL}/authors/updateBook/${
+            draft.id ?? draft.bookId
+          }`,
           body: apiFormData,
         });
 
-        showToast("success", "تم التحديث", "تم تحديث المسودة بنجاح.");
+        if (res?.messageStatus !== "SUCCESS") {
+          AlertToast(res?.message, res?.messageStatus);
+          return;
+        }
       } else {
-        await postFormDataHelper({
+        res = await postFormDataHelper({
           url: `${import.meta.env.VITE_API_URL}/authors/createBook`,
           formData: apiFormData,
         });
 
-        showToast("success", "تم الحفظ", "تم حفظ المسودة بنجاح.");
+        if (res?.messageStatus !== "SUCCESS") {
+          AlertToast(res?.message, res?.messageStatus);
+          return;
+        }
       }
+
+      AlertToast(res?.message, res?.messageStatus);
     } catch (err) {
       console.error(err);
-      showToast("error", "خطأ في الحفظ", err?.message || "فشل حفظ المسودة.");
+      AlertToast(err?.message || "فشل حفظ المسودة.", "ERROR");
     } finally {
       setLoading(false);
     }
   };
-
 
   // --- SUBMIT LOGIC: PUBLISH ---
   const handlePublishBook = async () => {
@@ -458,23 +457,36 @@ useEffect(() => {
       );
 
       // 4. Send Request (Differentiating between Create and Update)
-
+      let res;
       if (isEditingDraft) {
         // Use patchHelper for UPDATE. We pass 'body: apiFormData'
-        await patchHelper({
-          url: `${import.meta.env.VITE_API_URL}/authors/updateBook/${draft.id ?? draft.bookId}`,
-          body: apiFormData,
+       res =   await patchHelper({
+          url: `${import.meta.env.VITE_API_URL}/authors/updateBook/${
+            draft.id ?? draft.bookId
+          }`,
+          body: apiFormData
+          
         });
+        
+        if (res?.messageStatus !== "SUCCESS") {
+          AlertToast(res?.message, res?.messageStatus);
+          return;
+        }
       } else {
         // Use postFormDataHelper for CREATE. We pass 'formData: apiFormData'
-        await postFormDataHelper({
+     res =    await postFormDataHelper({
           url: `${import.meta.env.VITE_API_URL}/authors/createBook`,
           formData: apiFormData,
           // Assuming your postFormDataHelper doesn't support onProgress based on the function provided
         });
       }
+      
+        if (res?.messageStatus !== "SUCCESS") {
+          AlertToast(res?.message, res?.messageStatus);
+          return;
+        }
 
-      showToast("success", "تم النشر", "تم نشر الكتاب بنجاح!");
+          AlertToast(res?.message, res?.messageStatus);
 
       // 5. Reset Form (Only if creating new)
       if (!isEditingDraft) {
@@ -482,7 +494,7 @@ useEffect(() => {
           title: "",
           description: "",
           category: "",
-          
+
           ageGroup: "",
           coverFile: null,
           pdfFile: null,
@@ -491,7 +503,7 @@ useEffect(() => {
       }
     } catch (err) {
       console.error("Publish Error:", err);
-      showToast("error", "فشل النشر", err?.message || "حدث خطأ غير متوقع.");
+      AlertToast(err?.message || "حدث خطأ غير متوقع.", "ERROR");
     } finally {
       setLoading(false);
       setProgress(0);
@@ -816,14 +828,6 @@ useEffect(() => {
       </div>
 
       <UploadModal open={loading} progress={progress} />
-
-      <AlertToast
-        open={toast.open}
-        variant={toast.variant}
-        title={toast.title}
-        description={toast.description}
-        onClose={() => setToast({ ...toast, open: false })}
-      />
     </div>
   );
 }

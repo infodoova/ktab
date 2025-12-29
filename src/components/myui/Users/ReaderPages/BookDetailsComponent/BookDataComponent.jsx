@@ -23,18 +23,6 @@ export default function BookDataComponent({ bookId, navigate }) {
   const [bookData, setBookData] = useState(null);
   const [loadingBook, setLoadingBook] = useState(true);
 
-  const [toast, setToast] = useState({
-    open: false,
-    variant: "info",
-    title: "",
-    description: "",
-  });
-
-  const showToast = (variant, title, description) =>
-    setToast({ open: true, variant, title, description });
-
-  const closeToast = () => setToast((prev) => ({ ...prev, open: false }));
-
   // Review state
   const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
   const [userRating, setUserRating] = useState(0);
@@ -76,8 +64,12 @@ export default function BookDataComponent({ bookId, navigate }) {
         coverImageUrl: b.coverImageUrl ?? "",
         pdfDownloadUrl: b.pdfDownloadUrl ?? null,
       });
+      if (res?.messageStatus !== "SUCCESS") {
+        AlertToast(res?.message, res?.messageStatus);
+        return;
+      }
     } catch {
-      showToast("error", "خطأ", "تعذر تحميل بيانات الكتاب.");
+      AlertToast("تعذر تحميل بيانات الكتاب.", "ERROR");
     } finally {
       setLoadingBook(false);
     }
@@ -107,7 +99,10 @@ export default function BookDataComponent({ bookId, navigate }) {
 
       // Handle if res is the axios response or the data directly
       const data = res?.data ?? res;
-
+      if (res?.messageStatus !== "SUCCESS") {
+        AlertToast(res?.message, res?.messageStatus);
+        return;
+      }
       if (data?.reviewed) {
         setIsReviewed(true);
 
@@ -148,7 +143,7 @@ export default function BookDataComponent({ bookId, navigate }) {
     if (!user?.userId || !bookId) return;
 
     if (userRating < 0 || userRating > 5) {
-      showToast("error", "خطأ", "التقييم يجب أن يكون بين 0 و 5.");
+      AlertToast("التقييم يجب أن يكون بين 0 و 5.", "ERROR");
       return;
     }
 
@@ -170,23 +165,34 @@ export default function BookDataComponent({ bookId, navigate }) {
           }/reader/books/${bookId}/reviews/${reviewId}`,
           body: payload,
         });
+        if (response?.messageStatus !== "SUCCESS") {
+          AlertToast(response?.message, response?.messageStatus);
+          return;
+        }
+        AlertToast(response?.message, response?.messageStatus);
       } else {
         // POST
         response = await postHelper({
           url: `${import.meta.env.VITE_API_URL}/reader/books/${bookId}/reviews`,
           body: payload,
         });
+        if (response?.messageStatus !== "SUCCESS") {
+          AlertToast(response?.message, response?.messageStatus);
+          return;
+        }
+        AlertToast(response?.message, response?.messageStatus);
       }
 
-      if (response?.success !== false) {
+      if (response?.messageStatus == "SUCCESS") {
         const wasReviewedBefore = isReviewed;
         setIsReviewed(true);
         setIsRatingModalOpen(false);
 
-        showToast(
-          "success",
-          "تم الحفظ",
-          wasReviewedBefore ? "✔ تم تعديل تقييمك." : "✔ تم إرسال تقييمك."
+        AlertToast(
+          response.message || wasReviewedBefore
+            ? "✔ تم تعديل تقييمك."
+            : "✔ تم إرسال تقييمك.",
+          response.messageStatus || "success"
         );
 
         // Notify Listeners
@@ -212,15 +218,11 @@ export default function BookDataComponent({ bookId, navigate }) {
         // so the next time the user clicks submit, it counts as a PATCH.
         await fetchReviewState();
       } else {
-        showToast(
-          "error",
-          "تعذر الحفظ",
-          response?.message ?? "حدث خطأ أثناء حفظ التقييم."
-        );
+        AlertToast("حدث خطأ أثناء حفظ التقييم.", "ERROR");
       }
     } catch (err) {
       console.error("Review Error:", err);
-      showToast("error", "مشكلة", "تعذر حفظ تقييمك.");
+      AlertToast(err || "تعذر حفظ تقييمك.", err.messageStatus || "ERROR");
     }
   };
 
@@ -238,8 +240,9 @@ export default function BookDataComponent({ bookId, navigate }) {
         }/reader/books/${bookId}/reviews/${reviewId}`,
       });
 
-      if (res?.success === false) {
-        showToast("error", "فشل الحذف", res?.message ?? "تعذر الحذف.");
+      if (res?.messageStatus !== "SUCCESS") {
+        AlertToast(res?.message, res?.messageStatus);
+        return;
       } else {
         // Reset Local State
         setIsReviewed(false);
@@ -248,7 +251,7 @@ export default function BookDataComponent({ bookId, navigate }) {
         setUserReview("");
         setIsRatingModalOpen(false);
 
-        showToast("success", "تم الحذف", "✔ تم حذف تقييمك.");
+        AlertToast(res?.message, res?.messageStatus);
 
         fetchBookDetails(); // Refresh stats
 
@@ -259,7 +262,7 @@ export default function BookDataComponent({ bookId, navigate }) {
         );
       }
     } catch {
-      showToast("error", "خطأ", "تعذر حذف تقييمك.");
+      AlertToast("تعذر حذف تقييمك.", "ERROR");
     }
   };
 
@@ -291,7 +294,7 @@ export default function BookDataComponent({ bookId, navigate }) {
       //
     }
     await navigator.clipboard.writeText(shareUrl);
-    showToast("success", "تم النسخ", "✔ تم نسخ الرابط المشفّر!");
+    AlertToast("✔ تم نسخ الرابط المشفّر!", "success");
   };
 
   // Check Assignment
@@ -302,6 +305,10 @@ export default function BookDataComponent({ bookId, navigate }) {
         const res = await getHelper({
           url: `${import.meta.env.VITE_API_URL}/library/isAssigned/${bookId}`,
         });
+        if (res?.messageStatus !== "SUCCESS") {
+          AlertToast(res?.message, res?.messageStatus);
+          return;
+        }
         let assigned = false;
         if (res === true) assigned = true;
         else if (res === false) assigned = false;
@@ -343,32 +350,32 @@ export default function BookDataComponent({ bookId, navigate }) {
           url: `${import.meta.env.VITE_API_URL}/library/assignBook`,
           body: { bookId: bookId },
         });
-        if (res?.success === false) {
+        if (res?.messageStatus !== "SUCCESS") {
           setIsAssigned(previous);
-          showToast("error", "فشل", res?.message ?? "تعذر الإضافة.");
+          AlertToast(res?.message, res?.messageStatus);
         } else {
           setIsAssigned(true);
-          showToast("success", "تمت الإضافة", "✔ أُضيف الكتاب إلى مكتبتك.");
+          AlertToast(res?.message, res?.messageStatus);
         }
       } else {
         const res = await deleteHelper({
           url: `${import.meta.env.VITE_API_URL}/library/removeBook/${bookId}`,
         });
-        if (res?.success === false) {
+        if (res?.messageStatus !== "SUCCESS") {
           setIsAssigned(previous);
-          showToast("error", "فشل الحذف", res?.message ?? "تعذر الحذف.");
+          AlertToast(res?.message, res?.messageStatus);
         } else {
           setIsAssigned(false);
-          showToast("success", "تم الحذف", "✔ أُزيل الكتاب من مكتبتك.");
+          AlertToast(res?.message, res?.messageStatus);
         }
       }
     } catch (err) {
       setIsAssigned(previous);
       console.error("Assign toggle error:", err);
-      showToast(
-        "error",
+      AlertToast(
         previous ? "تعذر الحذف" : "تعذر الإضافة",
-        "شبكة — حاول مرة أخرى."
+        "شبكة — حاول مرة أخرى.",
+        "ERROR"
       );
     } finally {
       setIsAssignLoading(false);
@@ -571,14 +578,6 @@ export default function BookDataComponent({ bookId, navigate }) {
           </div>
         </div>
       )}
-
-      <AlertToast
-        open={toast.open}
-        variant={toast.variant}
-        title={toast.title}
-        description={toast.description}
-        onClose={closeToast}
-      />
     </div>
   );
 }

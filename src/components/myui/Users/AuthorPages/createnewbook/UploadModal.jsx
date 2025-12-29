@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import loader from "./loader";
+import  loader  from "./loader";
 
 export default function UploadModal({ open }) {
   return (

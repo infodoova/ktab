@@ -12,26 +12,10 @@ import {
 import { Loader2 } from "lucide-react";
 import { AlertToast } from "../../../AlertToast";
 
-import { deleteHelper } from "../../../../../../apis/apiHelpers"; 
+import { deleteHelper } from "../../../../../../apis/apiHelpers";
 
 export default function DeleteBook({ book, open, onClose, onDeleted }) {
   const [loading, setLoading] = useState(false);
-
-  const [toast, setToast] = useState({
-    open: false,
-    variant: "success",
-    title: "",
-    description: "",
-  });
-
-  const showToast = (variant, title, description) => {
-    setToast({
-      open: true,
-      variant,
-      title,
-      description,
-    });
-  };
 
   const handleDelete = async () => {
     setLoading(true);
@@ -41,25 +25,18 @@ export default function DeleteBook({ book, open, onClose, onDeleted }) {
         url: `${import.meta.env.VITE_API_URL}/authors/deleteBook/${book.id}`,
       });
 
-
-
-   if (res.success) {
-  showToast("success", "تم حذف الكتاب", "تم حذف الكتاب بنجاح.");
-  onDeleted(book.id);
-  onClose(); 
-  return;
-}
-
-      
-
-      showToast("error", "فشل حذف الكتاب", "حدث خطأ أثناء الحذف. الرجاء المحاولة لاحقاً.");
-
+      if (res?.messageStatus !== "SUCCESS") {
+        AlertToast(res?.message, res?.messageStatus);
+        onDeleted(book.id);
+        onClose();
+        return;
+      }
+      AlertToast(res?.message, res?.messageStatus);
     } catch (err) {
       console.error(err);
-      showToast(
-        "error",
-        "خطأ في الاتصال",
-        "تعذر الاتصال بالخادم. الرجاء التحقق من الاتصال أو المحاولة لاحقاً."
+      AlertToast(
+        "تعذر الاتصال بالخادم. الرجاء التحقق من الاتصال أو المحاولة لاحقاً.",
+        "ERROR"
       );
     } finally {
       setLoading(false);
@@ -99,15 +76,6 @@ export default function DeleteBook({ book, open, onClose, onDeleted }) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      {/* TOAST */}
-      <AlertToast
-        open={toast.open}
-        variant={toast.variant}
-        title={toast.title}
-        description={toast.description}
-        onClose={() => setToast({ ...toast, open: false })}
-      />
     </>
   );
 }

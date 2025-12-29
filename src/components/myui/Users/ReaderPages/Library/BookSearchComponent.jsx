@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { Search, X, Filter, ChevronDown, ChevronUp } from "lucide-react";
 import { getHelper } from "../../../../../../apis/apiHelpers";
+import { AlertToast } from "../../../AlertToast";
 export default function BookSearchModal({ isOpen, onClose, onApply }) {
   // Local state for the form
   const [query, setQuery] = useState("");
@@ -13,39 +14,35 @@ export default function BookSearchModal({ isOpen, onClose, onApply }) {
   const [selectedSubGenres, setSelectedSubGenres] = useState([]);
   const [expandedGenre, setExpandedGenre] = useState(null);
 
-
   const inputRef = useRef(null);
 
+  useEffect(() => {
+    if (!isOpen) return;
 
+    const fetchGenres = async () => {
+      setLoadingGenres(true);
+      try {
+        const res = await getHelper({
+          url: `${import.meta.env.VITE_API_URL}/genres/getAllGenres`,
+        });
 
-useEffect(() => {
-  if (!isOpen) return;
-
-  const fetchGenres = async () => {
-    setLoadingGenres(true);
-    try {
-      const res = await getHelper({
-        url: `${import.meta.env.VITE_API_URL}/genres/getAllGenres`,
-      });
-
-      if (Array.isArray(res?.content) && res.content.length > 0) {
-        setGenres(res.content);
-      } else {
-        //
+        if (Array.isArray(res?.content) && res.content.length > 0) {
+          setGenres(res.content);
+        } else {
+          if (res.messageStatus !== "SUCCESS") {
+            AlertToast(res.message, res.messageStatus);
+            return;
+          }
+        }
+      } catch (error) {
+        console.error("Failed to load genres, using fallback", error);
+      } finally {
+        setLoadingGenres(false);
       }
-    } catch (error) {
-      console.error("Failed to load genres, using fallback", error);
-    } finally {
-      setLoadingGenres(false);
-    }
-  };
+    };
 
-  fetchGenres();
-}, [isOpen]);
-
-
-
-
+    fetchGenres();
+  }, [isOpen]);
 
   useEffect(() => {
     if (isOpen) {
@@ -55,72 +52,67 @@ useEffect(() => {
 
   if (!isOpen) return null;
 
+  const toggleMainGenre = (genreId) => {
+    setSelectedMainGenres((prevSelected) => {
+      const isCurrentlySelected = prevSelected.includes(genreId);
+      const newSelected = isCurrentlySelected
+        ? prevSelected.filter((id) => id !== genreId)
+        : [...prevSelected, genreId];
 
+      setExpandedGenre((prevExpanded) => {
+        if (isCurrentlySelected) {
+          return prevExpanded === genreId ? null : prevExpanded;
+        }
+        return genreId;
+      });
 
+      // Keep only subgenres that belong to still-selected main genres
+      setSelectedSubGenres((prevSub) =>
+        prevSub.filter((subId) => {
+          const parent = genres.find((g) =>
+            g.subGenres?.some((s) => s.id === subId)
+          );
+          return parent && newSelected.includes(parent.id);
+        })
+      );
 
+      return newSelected;
+    });
+  };
 
-const toggleMainGenre = (genreId) => {
-  setSelectedMainGenres((prevSelected) => {
-    const isCurrentlySelected = prevSelected.includes(genreId);
-    const newSelected = isCurrentlySelected
-      ? prevSelected.filter((id) => id !== genreId)
-      : [...prevSelected, genreId];
+  const toggleExpandGenre = (genreId) => {
+    setExpandedGenre((prev) => (prev === genreId ? null : genreId));
+  };
 
-   
-    setExpandedGenre((prevExpanded) => {
-      if (isCurrentlySelected) {
-        return prevExpanded === genreId ? null : prevExpanded;
-      }
-      return genreId;
+  const toggleSubGenre = (subId) => {
+    setSelectedSubGenres((prev) =>
+      prev.includes(subId)
+        ? prev.filter((id) => id !== subId)
+        : [...prev, subId]
+    );
+  };
+
+  const handleApply = () => {
+    onApply({
+      title: query || null,
+      mainGenreIds: selectedMainGenres,
+      subGenreIds: selectedSubGenres,
+      age: selectedAge ? Number(selectedAge) : null,
+      minAverageRating: selectedRating,
+      page: 0,
+      size: 10,
     });
 
-    // Keep only subgenres that belong to still-selected main genres
-    setSelectedSubGenres((prevSub) =>
-      prevSub.filter((subId) => {
-        const parent = genres.find((g) =>
-          g.subGenres?.some((s) => s.id === subId)
-        );
-        return parent && newSelected.includes(parent.id);
-      })
-    );
+    onClose();
+  };
 
-    return newSelected;
-  });
-};
-
-const toggleExpandGenre = (genreId) => {
-  setExpandedGenre((prev) => (prev === genreId ? null : genreId));
-};
-
-const toggleSubGenre = (subId) => {
-  setSelectedSubGenres((prev) =>
-    prev.includes(subId) ? prev.filter((id) => id !== subId) : [...prev, subId]
-  );
-};
-
-const handleApply = () => {
-  onApply({
-    title: query || null,
-    mainGenreIds: selectedMainGenres,
-    subGenreIds: selectedSubGenres,
-    age: selectedAge ? Number(selectedAge) : null,
-    minAverageRating: selectedRating,
-    page: 0,
-    size: 10,
-  });
-
-  onClose();
-};
-
-
-const handleClear = () => {
-  setQuery("");
-  setSelectedMainGenres([]);
-  setSelectedSubGenres([]);
-  setSelectedRating(1);
-  setSelectedAge("");
-};
-
+  const handleClear = () => {
+    setQuery("");
+    setSelectedMainGenres([]);
+    setSelectedSubGenres([]);
+    setSelectedRating(1);
+    setSelectedAge("");
+  };
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 md:p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
@@ -228,36 +220,37 @@ const handleClear = () => {
             </div>
           </div>
           {/* Shared subgenre panel: shown for a single expanded main genre */}
-          {expandedGenre != null && (() => {
-            const parent = genres.find((g) => g.id === expandedGenre);
-            if (!parent) return null;
-            return (
-              <div className="bg-gray-50 border border-gray-200 rounded-xl p-3">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold text-[var(--earth-brown)]">
-                      التصنيفات الفرعية
-                    </span>
-                    <span className="text-xs px-2 py-1 rounded-full bg-[var(--earth-olive)] text-white text-[11px]">
-                      {parent.nameAr}
-                    </span>
+          {expandedGenre != null &&
+            (() => {
+              const parent = genres.find((g) => g.id === expandedGenre);
+              if (!parent) return null;
+              return (
+                <div className="bg-gray-50 border border-gray-200 rounded-xl p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-semibold text-[var(--earth-brown)]">
+                        التصنيفات الفرعية
+                      </span>
+                      <span className="text-xs px-2 py-1 rounded-full bg-[var(--earth-olive)] text-white text-[11px]">
+                        {parent.nameAr}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => setExpandedGenre(null)}
+                      className="text-sm text-gray-500 hover:text-gray-700"
+                    >
+                      إغلاق
+                    </button>
                   </div>
-                  <button
-                    onClick={() => setExpandedGenre(null)}
-                    className="text-sm text-gray-500 hover:text-gray-700"
-                  >
-                    إغلاق
-                  </button>
-                </div>
 
-                <div className="flex flex-wrap gap-2">
-                  {parent.subGenres?.map((sub) => {
-                    const active = selectedSubGenres.includes(sub.id);
-                    return (
-                      <button
-                        key={sub.id}
-                        onClick={() => toggleSubGenre(sub.id)}
-                        className={`
+                  <div className="flex flex-wrap gap-2">
+                    {parent.subGenres?.map((sub) => {
+                      const active = selectedSubGenres.includes(sub.id);
+                      return (
+                        <button
+                          key={sub.id}
+                          onClick={() => toggleSubGenre(sub.id)}
+                          className={`
                   text-xs px-3 py-1.5 rounded-full border transition-all
                   ${
                     active
@@ -265,15 +258,15 @@ const handleClear = () => {
                       : "bg-white text-gray-600 border-gray-200 hover:border-[var(--earth-brown)]"
                   }
                 `}
-                      >
-                        {sub.nameAr}
-                      </button>
-                    );
-                  })}
+                        >
+                          {sub.nameAr}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            );
-          })()}
+              );
+            })()}
 
           <div className="h-px bg-gray-100 w-full" />
 

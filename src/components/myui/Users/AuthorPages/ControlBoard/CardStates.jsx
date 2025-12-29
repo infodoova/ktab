@@ -7,7 +7,7 @@ export default function CardStates({ stats }) {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 ">
         <StatCard
           title="التقييم"
-          value={stats?.averageRating}
+          value={stats?.averageRating?.toFixed(2)}
           icon={<Star className="w-6 h-6 text-amber-500" />}
           gradient="from-[#FFEEC6] to-[#F9E0A6]"
         />

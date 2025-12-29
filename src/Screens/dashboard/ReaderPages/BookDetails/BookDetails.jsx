@@ -8,7 +8,6 @@ import UserRatesComponent from "../../../../components/myui/Users/ReaderPages/Bo
 import SimilarBooksComponent from "../../../../components/myui/Users/ReaderPages/BookDetailsComponent/SimilarBooksComponent";
 
 
-
 export default function BookDetails() {
   
   const navigate = useNavigate();

@@ -16,6 +16,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Eye, EyeOff } from "lucide-react";
 import CodeVerify from "@/components/myui/CodeVerify";
+import { AlertToast } from "../../components/myui/AlertToast";
 import owlSignup from "../../assets/character/owl5.png";
 
 export default function SignupPage() {
@@ -35,16 +36,6 @@ export default function SignupPage() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [errors, setErrors] = useState({});
 
-const [toast, setToast] = useState({
-  open: false,
-  variant: "info",
-  title: "",
-  description: "",
-});
-
-function showToast(variant, title, description) {
-  setToast({ open: true, variant, title, description });
-}
 
   // 🔥 Loading state
   const [loading, setLoading] = useState(false);
@@ -104,17 +95,17 @@ const handleSubmit = async (e) => {
     const data = await response.json();
     console.log("REGISTER RESPONSE =", data);
 
-    if (!data.success) {
-      showToast("error", "خطأ", data.message || "حدث خطأ غير متوقع");
-      return;
-    }
-
+ if (data.messageStatus != "SUCCESS") {
+   AlertToast(data?.message, data?.messageStatus);
+   return;
+ }
     setVerifyOpen(true);
-    showToast("success", "تم إنشاء الحساب", "تم إرسال رمز التحقق.");
+
+ AlertToast(data?.message, data?.messageStatus);
 
   } catch (err) {
     console.error(err);
-    showToast("error", "خطأ", "تعذر الاتصال بالخادم");
+    AlertToast("تعذر الاتصال بالخادم", "ERROR");
   } finally {
     setLoading(false);
   }

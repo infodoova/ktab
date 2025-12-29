@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/input-otp";
 import { Eye, EyeOff, X, ArrowRight, ArrowLeft } from "lucide-react";
 import { AlertToast } from "./AlertToast";
-import {postHelper} from "../../../apis/apiHelpers"
+import { postHelper } from "../../../apis/apiHelpers";
 export default function ResetPassword({ onClose }) {
   const [step, setStep] = useState(1);
 
@@ -24,29 +24,6 @@ export default function ResetPassword({ onClose }) {
   const [showConfirm, setShowConfirm] = useState(false);
   const [errors, setErrors] = useState({});
   const [cooldown, setCooldown] = useState(0);
-
-  // Toast State
-  const [toastState, setToastState] = useState({
-    open: false,
-    variant: "info", // 'success', 'error', 'info'
-    title: "",
-    description: "",
-  });
-
-  // Helper to show toast
-  const showToast = (variant, title, description) => {
-    setToastState({
-      open: true,
-      variant,
-      title,
-      description,
-    });
-  };
-
-  // Close toast handler
-  const handleCloseToast = () => {
-    setToastState((prev) => ({ ...prev, open: false }));
-  };
 
   useEffect(() => {
     if (cooldown > 0) {
@@ -89,30 +66,16 @@ export default function ResetPassword({ onClose }) {
 
       const data = await response.json();
 
-      if (!data.success) {
-        // ERROR TOAST
-        showToast(
-          "error",
-          "فشل الإرسال",
-          "تعذر إرسال رمز إعادة تعيين كلمة المرور"
-        );
+      if (data.messageStatus != "SUCCESS") {
+        AlertToast(data?.message, data?.messageStatus);
         return;
       }
 
       setStep(2);
       setCooldown(15); // Start cooldown
-      // OPTIONAL INFO TOAST
-      showToast(
-        "success",
-        "تم الإرسال",
-        "تحقق من بريدك الإلكتروني للحصول على الرمز"
-      );
+      AlertToast(data?.message, data?.messageStatus);
     } catch {
-      showToast(
-        "error",
-        "خطأ في الاتصال",
-        "تعذر الاتصال بالخادم، يرجى المحاولة لاحقاً"
-      );
+      AlertToast("تعذر الاتصال بالخادم، يرجى المحاولة لاحقاً", "ERROR");
     }
   };
 
@@ -122,11 +85,7 @@ export default function ResetPassword({ onClose }) {
   const verifyCode = async () => {
     if (code.length < 6) {
       setErrors({ code: "الرمز غير مكتمل" });
-      showToast(
-        "error",
-        "الرمز غير صالح",
-        "يرجى إدخال الرمز المكون من 6 أرقام بالكامل"
-      );
+      AlertToast("يرجى إدخال الرمز المكون من 6 أرقام بالكامل", "ERROR");
       return;
     }
 
@@ -150,11 +109,7 @@ export default function ResetPassword({ onClose }) {
 
     if (Object.keys(e).length) {
       setErrors(e);
-      showToast(
-        "error",
-        "خطأ في البيانات",
-        "يرجى التأكد من صحة البيانات المدخلة"
-      );
+      AlertToast("يرجى التأكد من صحة البيانات المدخلة", "ERROR");
       return;
     }
 
@@ -178,67 +133,44 @@ export default function ResetPassword({ onClose }) {
 
       const data = await response.json();
 
-      if (!data.success) {
-        showToast(
-          "error",
-          "فشل التغيير",
-          "حدث خطأ أثناء تغيير كلمة المرور، حاول مرة أخرى"
-        );
+      if (data.messageStatus != "SUCCESS") {
+        AlertToast(data?.message, data?.messageStatus);
         return;
       }
-
-      // SUCCESS TOAST
-      showToast("success", "تم بنجاح", "تم تغيير كلمة المرور بنجاح");
+      AlertToast(data?.message, data?.messageStatus);
 
       // Delay close slightly so user sees the toast
       setTimeout(() => {
         onClose?.();
       }, 2000);
     } catch {
-      showToast(
-        "error",
-        "خطأ في النظام",
-        "لم يتم حفظ كلمة المرور بسبب مشكلة في الاتصال"
-      );
+      AlertToast("لم يتم حفظ كلمة المرور بسبب مشكلة في الاتصال", "error");
     }
   };
 
   // -------------------------------
   // FAKE RESEND WITH COOLDOWN
   // -------------------------------
- const resendCode = async () => {
-   if (cooldown > 0) return;
+  const resendCode = async () => {
+    if (cooldown > 0) return;
 
-   try {
-     const data = await postHelper({
-       url: `${import.meta.env.VITE_API_URL}/auth/send-reset`,
-       body: { email },
-      
-     });
+    try {
+      const data = await postHelper({
+        url: `${import.meta.env.VITE_API_URL}/auth/send-reset`,
+        body: { email },
+      });
 
-     if (!data?.success) {
-       showToast(
-         "error",
-         "فشل إعادة الإرسال",
-         "تعذر إعادة إرسال الرمز، يرجى المحاولة لاحقاً"
-       );
-       return;
-     }
+      if (data.messageStatus != "SUCCESS") {
+        AlertToast(data?.message, data?.messageStatus);
+        return;
+      }
 
-     setCooldown(150); // 2.5 minutes
-     showToast(
-       "success",
-       "تم الإرسال",
-       "تمت إعادة إرسال رمز التحقق إلى بريدك الإلكتروني"
-     );
-   } catch  {
-     showToast(
-       "error",
-       "خطأ في الاتصال",
-       "تعذر الاتصال بالخادم، يرجى المحاولة لاحقاً"
-     );
-   }
- };
+      setCooldown(150); // 2.5 minutes
+      AlertToast(data?.message, data?.messageStatus);
+    } catch {
+      AlertToast("تعذر الاتصال بالخادم، يرجى المحاولة لاحقاً", "error");
+    }
+  };
 
   // -------------------------------
   // UI
@@ -248,14 +180,6 @@ export default function ResetPassword({ onClose }) {
       dir="rtl"
       className="fixed inset-0 z-[9999] flex items-center justify-center bg-[var(--earth-cream)] px-4 py-8"
     >
-      <AlertToast
-        open={toastState.open}
-        variant={toastState.variant}
-        title={toastState.title}
-        description={toastState.description}
-        onClose={handleCloseToast}
-      />
-
       {/* CLOSE BUTTON */}
       {onClose && (
         <button

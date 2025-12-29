@@ -1,7 +1,7 @@
 import React from "react";
 import { PlayCircle } from "lucide-react";
 import { getHelper } from "../../../../../../apis/apiHelpers";
-
+import { AlertToast } from "../../../AlertToast";
 export default function SimilarBooksComponent({ bookId, navigate }) {
   const [books, setBooks] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
@@ -18,10 +18,16 @@ export default function SimilarBooksComponent({ bookId, navigate }) {
           page: 0,
           size: 4,
         });
-
+        if (res?.messageStatus !== "SUCCESS") {
+          AlertToast(res?.message, res?.messageStatus);
+          return;
+        }
         setBooks(res?.data?.content || []);
-      } catch (error) {
-        console.error("Failed to fetch similar books", error);
+      } catch (res) {
+        AlertToast(
+          res.message || " فشل تحميل الكتب المتشابهة",
+          res.messageStatus || "error"
+        );
         setBooks([]);
       } finally {
         setLoading(false);

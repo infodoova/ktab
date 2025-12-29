@@ -6,11 +6,9 @@ import {
   PauseCircle,
 } from "lucide-react";
 
-export default function ReaderFooter({ onNext, onPrev }) {
-  const [isPlaying, setIsPlaying] = React.useState(false);
-
+export default function ReaderFooter({ onNext, onPrev, isPlaying, onTogglePlay }) {
   const togglePlay = () => {
-    setIsPlaying((prev) => !prev);
+    if (onTogglePlay) onTogglePlay();
   };
 
   return (

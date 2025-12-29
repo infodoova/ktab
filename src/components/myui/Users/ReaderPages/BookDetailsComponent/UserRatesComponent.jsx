@@ -1,28 +1,14 @@
-import React, { useEffect,useState,useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Star, Quote } from "lucide-react";
 import { getHelper } from "../../../../../../apis/apiHelpers";
 import { AlertToast } from "../../../AlertToast";
+import FullUserRatesModal from "./fulluserpageComponent";
 
 export default function UserRatesComponent({ bookId }) {
   const [reviews, setReviews] = useState([]);
-  const [toast, setToast] = useState({
-    open: false,
-    variant: "info",
-    title: "",
-    description: "",
-  });
+  const [showAll, setShowAll] = useState(false);
+
   const [loading, setLoading] = useState(true);
-
-  const showToast = (variant, title, description) => {
-    setToast({ open: true, variant, title, description });
-  };
-
-  const closeToast = () =>
-    setToast((prev) => ({
-      ...prev,
-      open: false,
-    }));
-
 const fetchReviews = useCallback(async () => {
   setLoading(true);
 
@@ -31,107 +17,118 @@ const fetchReviews = useCallback(async () => {
       url: `${import.meta.env.VITE_API_URL}/reader/books/${bookId}/reviews`,
     });
 
-    // Normalize several possible API shapes into an array of reviews
-    let content = null;
-    if (Array.isArray(res)) content = res;
-    else if (Array.isArray(res?.content)) content = res.content;
-    else if (Array.isArray(res?.data)) content = res.data;
-    else if (Array.isArray(res?.data?.content)) content = res.data.content;
-    else if (Array.isArray(res?.reviews)) content = res.reviews;
-
-    if (!content) {
-      showToast(
-        "error",
-        "فشل تحميل البيانات",
-        "تعذر تحميل تقييمات القراء حالياً."
-      );
+    // 1️⃣ Validate status ONLY if backend provides it
+    if (res?.messageStatus && res.messageStatus !== "SUCCESS") {
+      AlertToast(res?.message, res?.messageStatus);
       setReviews([]);
-    } else {
-      setReviews(content.slice(0, 3)); // 3 max
+      return;
     }
+
+    // 2️⃣ Normalize content (REAL API SHAPE)
+    let content = [];
+
+    if (Array.isArray(res?.content?.content)) {
+      content = res.content.content;
+    } else if (Array.isArray(res?.data?.content)) {
+      content = res.data.content;
+    } else if (Array.isArray(res?.content)) {
+      content = res.content;
+    }
+
+    setReviews(content.slice(0, 3)); // max 4
   } catch (err) {
     console.error("Fetch reviews error:", err);
-    showToast("error", "خطأ", "حدث خطأ في الشبكة أثناء تحميل المراجعات.");
+    AlertToast("حدث خطأ في الشبكة أثناء تحميل المراجعات.", "ERROR");
     setReviews([]);
+  } finally {
+    setLoading(false);
   }
+}, [bookId]);
+ // memoization dependency
 
-  setLoading(false);
-}, [bookId]);  // memoization dependency
+  useEffect(() => {
+    if (!bookId) return;
 
-useEffect(() => {
-  if (!bookId) return;
+    const run = async () => {
+      await fetchReviews();
+    };
 
-  const run = async () => {
-    await fetchReviews();
-  };
+    run();
+  }, [bookId, fetchReviews]);
 
-  run();
-}, [bookId, fetchReviews]);
+  // Listen for global review change events to refresh reviews in real-time
+  useEffect(() => {
+    const onBookReviewChanged = (e) => {
+      try {
+        if (!e?.detail) return;
+        const {
+          bookId: changedBookId,
+          action,
+          review,
+          reviewId: changedReviewId,
+        } = e.detail;
 
-// Listen for global review change events to refresh reviews in real-time
-useEffect(() => {
-  const onBookReviewChanged = (e) => {
-    try {
-      if (!e?.detail) return;
-      const {
-        bookId: changedBookId,
-        action,
-        review,
-        reviewId: changedReviewId,
-      } = e.detail;
+        if (!changedBookId || String(changedBookId) !== String(bookId)) return;
 
-      if (!changedBookId || String(changedBookId) !== String(bookId)) return;
+        // Try optimistic local updates, then always refetch for consistency.
 
-      // Try optimistic local updates, then always refetch for consistency.
-
-      // Deleted: remove locally if we have an id
-      if (action === "deleted") {
-        if (changedReviewId) {
-          setReviews((prev) =>
-            prev.filter(
-              (r) =>
-                String(r.id ?? r.reviewId ?? r._id) !== String(changedReviewId)
-            )
-          );
-        }
-      }
-
-      // Created or updated: optimistic upsert
-      if (review) {
-        const incomingId = review.id ?? review.reviewId ?? review._id;
-        setReviews((prev) => {
-          const idx = prev.findIndex(
-            (r) =>
-              String(r.id ?? r.reviewId ?? r._id) === String(incomingId)
-          );
-          if (idx !== -1) {
-            const copy = [...prev];
-            copy[idx] = review;
-            return copy;
+        // Deleted: remove locally if we have an id
+        if (action === "deleted") {
+          if (changedReviewId) {
+            setReviews((prev) =>
+              prev.filter(
+                (r) =>
+                  String(r.id ?? r.reviewId ?? r._id) !==
+                  String(changedReviewId)
+              )
+            );
           }
-          return [review, ...prev].slice(0, 3);
-        });
+        }
+
+        // Created or updated: optimistic upsert
+        if (review) {
+          const incomingId = review.id ?? review.reviewId ?? review._id;
+          setReviews((prev) => {
+            const idx = prev.findIndex(
+              (r) => String(r.id ?? r.reviewId ?? r._id) === String(incomingId)
+            );
+            if (idx !== -1) {
+              const copy = [...prev];
+              copy[idx] = review;
+              return copy;
+            }
+            return [review, ...prev].slice(0, 3);
+          });
+        }
+
+        // Always refetch to ensure the UI matches the server (handles races and different response shapes)
+        fetchReviews();
+      } catch {
+        // ignore
       }
+    };
 
-      // Always refetch to ensure the UI matches the server (handles races and different response shapes)
-      fetchReviews();
-    } catch {
-      // ignore
-    }
-  };
-
-  window.addEventListener("bookReviewChanged", onBookReviewChanged);
-  return () => window.removeEventListener("bookReviewChanged", onBookReviewChanged);
-}, [bookId, fetchReviews]);
-
-
-
+    window.addEventListener("bookReviewChanged", onBookReviewChanged);
+    return () =>
+      window.removeEventListener("bookReviewChanged", onBookReviewChanged);
+  }, [bookId, fetchReviews]);
 
   return (
     <div className="border-t border-[#D7CCC8] pt-12">
-      <div className="flex items-center gap-3 mb-8">
-        <div className="w-1.5 h-8 bg-[#3E2723] rounded-full"></div>
-        <h2 className="text-2xl font-bold text-[#3E2723]">آراء القراء</h2>
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-3">
+          <div className="w-1.5 h-8 bg-[#3E2723] rounded-full"></div>
+          <h2 className="text-2xl font-bold text-[#3E2723]">آراء القراء</h2>
+        </div>
+
+        {reviews.length > 0 && (
+          <button
+            onClick={() => setShowAll(true)}
+            className="text-sm font-bold text-[#606C38] hover:underline"
+          >
+            عرض الكل
+          </button>
+        )}
       </div>
 
       {loading ? (
@@ -181,14 +178,10 @@ useEffect(() => {
           ))}
         </div>
       )}
-
-      {/* Alert Toast */}
-      <AlertToast
-        open={toast.open}
-        variant={toast.variant}
-        title={toast.title}
-        description={toast.description}
-        onClose={closeToast}
+      <FullUserRatesModal
+        bookId={bookId}
+        isOpen={showAll}
+        onClose={() => setShowAll(false)}
       />
     </div>
   );

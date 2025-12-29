@@ -5,28 +5,12 @@ import { AlertToast } from "../../../AlertToast";
 import { useNavigate } from "react-router-dom";
 export default function AssignedBooksCP() {
   const [books, setBooks] = useState([]);
- const navigate = useNavigate();
-  const [toast, setToast] = useState({
-    open: false,
-    variant: "info",
-    title: "",
-    description: "",
-  });
+  const navigate = useNavigate();
+
   const [loading, setLoading] = useState(true);
-
-  const showToast = (variant, title, description) => {
-    setToast({ open: true, variant, title, description });
-  };
-
-  const closeToast = () =>
-    setToast((prev) => ({
-      ...prev,
-      open: false,
-    }));
 
   // Fetch assigned books
   const fetchAssignedBooks = useCallback(async () => {
-
     setLoading(true);
 
     try {
@@ -36,16 +20,16 @@ export default function AssignedBooksCP() {
         size: 8,
       });
 
-      if (!res || !res.content) {
-        showToast("error", "فشل التحميل", "تعذر تحميل مكتبتك الآن.");
+      if (res?.messageStatus !== "SUCCESS") {
+        AlertToast(res?.message, res?.messageStatus);
         setBooks([]);
+        return;
       } else {
         setBooks(res.content);
       }
-
     } catch (error) {
       console.error("Library fetch error:", error);
-      showToast("error", "مشكلة شبكة", "حدث خطأ أثناء تحميل المكتبة.");
+      AlertToast("حدث خطأ أثناء تحميل المكتبة.", "ERROR");
 
       setBooks([]);
     }
@@ -68,19 +52,19 @@ export default function AssignedBooksCP() {
         url: `${import.meta.env.VITE_API_URL}/library/removeBook/${bookId}`,
       });
 
-      if (res?.success) {
-        showToast("success", "تم الحذف", "✔ تمت إزالة الكتاب من مكتبتك.");
+      if (res?.messageStatus !== "SUCCESS") {
+        AlertToast(res.message , res.messageStatus);
+
         setBooks((prev) => prev.filter((b) => b.id !== bookId));
       } else {
-        showToast(
-          "error",
-          "تعذر الحذف",
-          res?.message || "حاول مرة أخرى لاحقاً."
+        AlertToast(
+          res?.message || "حاول مرة أخرى لاحقاً.",
+          res?.messageStatus || "ERROR"
         );
       }
     } catch (err) {
       console.error("Remove book error:", err);
-      showToast("error", "مشكلة شبكة", "فشل حذف الكتاب.");
+      AlertToast("فشل حذف الكتاب.", "ERROR");
     }
   };
 
@@ -110,8 +94,7 @@ export default function AssignedBooksCP() {
                 <div
                   key={b.id}
                   onClick={() => {
-                      navigate(`/reader/BookDetails/${b.id}`);
-                 
+                    navigate(`/reader/BookDetails/${b.id}`);
                   }}
                   className="
                     group
@@ -181,15 +164,6 @@ export default function AssignedBooksCP() {
           </div>
         </div>
       )}
-
-      {/* Toast */}
-      <AlertToast
-        open={toast.open}
-        variant={toast.variant}
-        title={toast.title}
-        description={toast.description}
-        onClose={closeToast}
-      />
 
       {/* Scrollbar hide styling */}
       <style>{`

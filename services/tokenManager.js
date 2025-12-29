@@ -1,10 +1,10 @@
 import { decodeJwt } from "./authService";
-
+import { isTokenExpired } from "../store/authToken";
 let isRefreshing = false;
 let refreshPromise = null;
 
-const REFRESH_THRESHOLD = 15 * 60 * 1000; // 15 minutes or less to refresh 
-const CHECK_INTERVAL = 60 * 1000;  // 1 min to check token if it will exp
+const REFRESH_THRESHOLD = 15 * 60 * 1000; // 15 minutes or less to refresh
+const CHECK_INTERVAL = 60 * 1000; // 1 min to check token if it will exp
 
 class TokenManager {
   constructor() {
@@ -30,30 +30,31 @@ class TokenManager {
   async refreshIfNeeded() {
     const token = this.getToken();
     if (!token) return null;
-
-    // If not expiring soon → skip
+    if (isTokenExpired(token)) {
+      return console.log("token is expired");
+    }
     if (!this.isTokenExpiringSoon(token)) return token;
 
-    return await this.safeRefresh(); 
+    return await this.safeRefresh();
   }
 
   async safeRefresh() {
-  if (isRefreshing) return refreshPromise;
+    if (isRefreshing) return refreshPromise;
 
-  isRefreshing = true;
+    isRefreshing = true;
 
-  refreshPromise = this.callRefreshAPI()
-    .then((newToken) => {
-      isRefreshing = false;
-      return newToken;
-    })
-    .catch((err) => {
-      isRefreshing = false;
-      throw err;
-    });
+    refreshPromise = this.callRefreshAPI()
+      .then((newToken) => {
+        isRefreshing = false;
+        return newToken;
+      })
+      .catch((err) => {
+        isRefreshing = false;
+        throw err;
+      });
 
-  return refreshPromise;
-}
+    return refreshPromise;
+  }
 
   async callRefreshAPI() {
     const token = this.getToken();
@@ -89,9 +90,11 @@ class TokenManager {
       newToken = data;
     } else if (data && typeof data === "object") {
       if (typeof data.data === "string") newToken = data.data;
-      else if (data.data && typeof data.data === "object" && data.data.token) newToken = data.data.token;
+      else if (data.data && typeof data.data === "object" && data.data.token)
+        newToken = data.data.token;
       else if (data.token) newToken = data.token;
-      else if (data.data && data.data.accessToken) newToken = data.data.accessToken;
+      else if (data.data && data.data.accessToken)
+        newToken = data.data.accessToken;
     }
 
     if (!newToken) {

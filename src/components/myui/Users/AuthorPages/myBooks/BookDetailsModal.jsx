@@ -5,10 +5,8 @@ import {
   Download,
   Share2,
   BookOpen,
-
   Headphones,
   Globe,
-
   Smile,
 } from "lucide-react";
 
@@ -40,9 +38,15 @@ export default function BookDetailsModal({ book, onClose }) {
     }
   };
 
+  const displayLanguage =
+    book.language?.toUpperCase() === "AR" ||
+    book.language?.toLowerCase() === "arabic"
+      ? "العربية"
+      : book.language?.toUpperCase() || "AR";
+
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center"
       dir="rtl"
     >
       {/* Backdrop */}
@@ -54,13 +58,19 @@ export default function BookDetailsModal({ book, onClose }) {
       {/* Modal Container */}
       <div
         className="
-          relative w-full max-w-5xl bg-white rounded-[32px] shadow-2xl 
-          overflow-hidden flex flex-col md:flex-row 
-          max-h-[90vh] md:max-h-[650px] animate-in fade-in zoom-in-95 duration-300
+          relative 
+          bg-white rounded-[32px] shadow-2xl overflow-hidden flex flex-col md:flex-row 
+          animate-in fade-in zoom-in-95 duration-300
+mt-8 sm:mt-0
+          
+          w-[90%] h-[80%]
+          
+          /* --- DESKTOP SPECIFIC (Reverting to original design) --- */
+          md:w-full md:max-w-5xl md:h-auto md:max-h-[650px]
         "
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Close Button */}
+        {/* Close Button - Always fixed relative to card */}
         <button
           onClick={onClose}
           className="
@@ -72,9 +82,16 @@ export default function BookDetailsModal({ book, onClose }) {
           <X size={20} />
         </button>
 
-        {/* --- LEFT SIDE: Image --- */}
-        <div className="w-full md:w-[40%] bg-[var(--earth-sand)]/20 relative flex items-center justify-center p-8">
-          <div className="relative shadow-[0_20px_40px_-15px_rgba(0,0,0,0.2)] rounded-2xl overflow-hidden w-40 md:w-56 aspect-[2/3] transform transition md:hover:scale-105 duration-500 z-10">
+        {/* --- LEFT SIDE: Image (FIXED - Does not scroll) --- */}
+        <div
+          className="
+            w-full md:w-[40%] bg-[var(--earth-sand)]/20 relative 
+            flex items-center justify-center 
+            shrink-0 /* Prevents image area from shrinking when text is long */
+            p-4 md:p-8 /* Less padding on mobile to save vertical space */
+          "
+        >
+          <div className="relative shadow-[0_20px_40px_-15px_rgba(0,0,0,0.2)] rounded-2xl overflow-hidden w-28 md:w-56 aspect-[2/3] transform transition md:hover:scale-105 duration-500 z-10">
             {book.coverImageUrl ? (
               <img
                 src={book.coverImageUrl}
@@ -99,7 +116,7 @@ export default function BookDetailsModal({ book, onClose }) {
           <div className="absolute inset-0 bg-gradient-to-t from-[var(--earth-cream)]/50 to-transparent pointer-events-none" />
         </div>
 
-        {/* --- RIGHT SIDE: Content --- */}
+        {/* --- RIGHT SIDE: Content (SCROLLABLE AREA) --- */}
         <div className="flex-1 flex flex-col p-6 md:p-10 overflow-y-auto custom-scrollbar bg-white">
           {/* 1. Header & Rating */}
           <div className="mb-6">
@@ -125,7 +142,7 @@ export default function BookDetailsModal({ book, onClose }) {
             </h2>
           </div>
 
-          {/* 2. Feature Grid (New Data) */}
+          {/* 2. Feature Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
             {/* Age Range */}
             <div className="flex flex-col items-center justify-center p-3 rounded-2xl bg-[var(--earth-cream)]/50 border border-[var(--earth-sand)]/20 text-center">
@@ -145,7 +162,7 @@ export default function BookDetailsModal({ book, onClose }) {
                 اللغة
               </span>
               <span className="font-bold text-[var(--earth-brown)] text-sm uppercase">
-                {book.language || "AR"}
+                {displayLanguage}
               </span>
             </div>
 
