@@ -80,7 +80,7 @@ const gridItem = {
 
 
 // Image grid component
-const ImageGrid = ({ images }) => {
+const ImageGrid = React.memo(function ImageGrid({ images }) {
   return (
     <motion.div
       className="grid grid-cols-2 gap-4"
@@ -108,7 +108,7 @@ const ImageGrid = ({ images }) => {
       ))}
     </motion.div>
   );
-};
+});
 
 const RoleSection = ({ role, index }) => {
   const isEven = index % 2 === 0;

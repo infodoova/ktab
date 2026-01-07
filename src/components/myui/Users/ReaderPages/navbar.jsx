@@ -9,6 +9,7 @@ import {
   Settings,
   SquareLibrary,
   Search,
+  ArchiveIcon,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -39,7 +40,11 @@ const navLinks = [
     icon: FolderOpen,
     href: "../../../Screens/dashboard/ReaderPages/InteractiveStories",
   },
-
+  {
+    label: " الانجازات و الشارات   ",
+    icon: ArchiveIcon,
+    href: "../../../Screens/dashboard/ReaderPages/Achievements",
+  },
   {
     label: "   الملف الشخصي   ",
     icon: Star,

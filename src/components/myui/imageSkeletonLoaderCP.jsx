@@ -1,6 +1,6 @@
-import { useState } from "react";
+import React,{ useState } from "react";
 
-export default function ResponsiveImageSkeleton({
+const ResponsiveImageSkeleton = React.memo(function ResponsiveImageSkeleton({
   src,
   alt = "",
   className = "",
@@ -76,4 +76,5 @@ export default function ResponsiveImageSkeleton({
       )}
     </div>
   );
-}
+})
+export default ResponsiveImageSkeleton;

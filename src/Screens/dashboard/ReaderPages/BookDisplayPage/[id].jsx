@@ -1,16 +1,30 @@
 import React, { useRef, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import rainFile from "../../../../assets/audio/rain.mp3";
 import windFile from "../../../../assets/audio/wind.mp3";
 import ReaderHeader from "../../../../components/myui/Users/ReaderPages/BookDisplayComponent/HeaderBarComponent";
 import ReaderFooter from "../../../../components/myui/Users/ReaderPages/BookDisplayComponent/FooterBarComponent";
 import FlipBookViewer from "../../../../components/myui/Users/ReaderPages/BookDisplayComponent/FlipBookViewerComponent";
+import { useReaderTTS } from "../../../../components/myui/Users/ReaderPages/BookDisplayComponent/useReaderTTS";
+import {
+  createAudioContextSafe,
+  fetchAndDecode,
+  createGainNode,
+} from "../../../../components/myui/Users/ReaderPages/BookDisplayComponent/utils";
+import { getHelper } from "../../../../../apis/apiHelpers";
+import { AlertToast } from "../../../../components/myui/AlertToast";
+import { token } from "../../../../../store/authToken";
 
 export default function BookDisplay() {
+  const gettoken = token();
+
   const bookRef = useRef(null);
+  const ttsStartedRef = useRef(false);
+
   const [effect, setEffect] = useState("none"); // 'running' | 'rain' | 'wind' | 'none'
   const [volume] = useState(0.8); // 0..1
   const [isMuted, setIsMuted] = useState(false);
+  // isPlaying used to control ambient effect playback (kept in sync with TTS play)
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRefs = useRef({
     audioContext: null,
@@ -23,36 +37,31 @@ export default function BookDisplay() {
       wind: windFile,
     },
   });
+  const [voice, setVoice] = useState("CwhRBWXzGAHq8TQ4Fs17");
 
-  // Decode audio files into AudioBuffers and create GainNodes
+  // Decode audio files into AudioBuffers and create GainNodes (uses shared helpers)
   useEffect(() => {
     let mounted = true;
     const refsHolder = audioRefs.current;
 
     const init = async () => {
       try {
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        if (!AudioContext) {
+        const ctx = createAudioContextSafe();
+        if (!ctx) {
           console.warn("Web Audio API is not supported in this browser");
           return;
         }
-
-        const ctx = new AudioContext();
         refsHolder.audioContext = ctx;
 
         const entries = Object.entries(refsHolder.urls);
         await Promise.all(
           entries.map(async ([key, url]) => {
             try {
-              const resp = await fetch(url);
-              const arrayBuffer = await resp.arrayBuffer();
-              const decoded = await ctx.decodeAudioData(arrayBuffer);
-              if (!mounted) return;
+              const decoded = await fetchAndDecode(ctx, url);
+              if (!mounted || !decoded) return;
               refsHolder.buffers[key] = decoded;
 
-              const gain = ctx.createGain();
-              gain.gain.value = isMuted ? 0 : volume;
-              gain.connect(ctx.destination);
+              const gain = createGainNode(ctx, isMuted ? 0 : volume);
               refsHolder.gainNodes[key] = gain;
             } catch (err) {
               console.warn("Failed to load/decode audio", key, url, err);
@@ -193,12 +202,137 @@ export default function BookDisplay() {
   const navigate = useNavigate();
   const handleBack = () => {
     try {
-     navigate(-1);
-
+      navigate(-1);
     } catch {
       if (window.history.length > 1) window.history.back();
     }
   };
+  const { id } = useParams();
+  // book text (fetched by id)
+  const [bookText, setBookText] = useState("");
+  const [loadingText, setLoadingText] = useState(true);
+  const [textStartChar, setTextStartChar] = useState(0);
+  const [textEndChar, setTextEndChar] = useState(0);
+
+  // gettign book text
+  useEffect(() => {
+    let mounted = true;
+    const load = async () => {
+      setLoadingText(true);
+      try {
+        // try fetching book text by character range using centralized helper
+        const url = `${import.meta.env.VITE_API_URL}/reader/books/${id}/text`;
+        const resp = await getHelper({ url });
+        if (!mounted) return;
+
+        const payload = resp?.data ?? resp;
+        if (!payload) {
+          setBookText("محتوى الكتاب غير متوفر حالياً.");
+          return;
+        }
+
+        if (resp?.messageStatus && resp?.messageStatus !== "SUCCESS") {
+          AlertToast(
+            resp?.message || "تعذر تحميل نص الكتاب.",
+            resp?.messageStatus || "ERROR"
+          );
+          // try best-effort text extraction
+          const fallbackText =
+            typeof payload === "string"
+              ? payload
+              : payload?.text ?? payload?.data ?? "";
+          setBookText(fallbackText || "محتوى الكتاب غير متوفر حالياً.");
+          setTextStartChar(Number(payload?.startChar ?? 0));
+          setTextEndChar(
+            Number(
+              payload?.endChar ?? (fallbackText ? fallbackText.length - 1 : 0)
+            )
+          );
+          return;
+        }
+
+        // success: payload may be a raw string or an object with `.text`
+        if (typeof payload === "string") {
+          setBookText(payload);
+          setTextStartChar(0);
+          setTextEndChar(payload ? payload.length - 1 : 0);
+        } else {
+          const textStr = payload?.text ?? payload?.data ?? "";
+          setBookText(textStr);
+          setTextStartChar(Number(payload?.startChar ?? 0));
+          setTextEndChar(
+            Number(payload?.endChar ?? (textStr ? textStr.length - 1 : 0))
+          );
+        }
+      } catch (err) {
+        console.warn("Failed to load book content:", err);
+        AlertToast("تعذر تحميل نص الكتاب.", "ERROR");
+        setBookText("محتوى الكتاب غير متوفر حالياً.");
+      } finally {
+        setLoadingText(false);
+        // no loading state to update here
+      }
+    };
+    load();
+    return () => {
+      mounted = false;
+    };
+  }, [id]);
+
+  // ---- WebSocket TTS integration (enabled only when effect !== 'none') ----
+  const ttsEnabled = voice !== "none";
+
+  const {
+    isPlaying: ttsPlaying,
+    togglePlay: toggleTTSPlay,
+    sendStartPayload,
+  } = useReaderTTS({
+    enabled: ttsEnabled,
+    bookRef,
+  });
+
+  // keep ambient player in sync with TTS play state
+  useEffect(() => {
+    setIsPlaying(Boolean(ttsPlaying));
+  }, [ttsPlaying]);
+
+  // when TTS starts, send a start payload (book id + effect) if ws is available
+  useEffect(() => {
+    if (!ttsPlaying || voice === "none")
+      return console.log("cant run voice is none");
+
+    if (ttsPlaying && !ttsStartedRef.current) {
+      ttsStartedRef.current = true;
+
+      try {
+        sendStartPayload({
+          action: "stream",
+          bookId: Number(id),
+          voiceId: voice,
+          start: textStartChar,
+          end: 1500,
+          token: gettoken,
+        });
+      } catch (err) {
+        console.warn("sendStartPayload error:", err);
+      }
+    }
+
+    if (!ttsPlaying) {
+      // pause only — do NOT reset ttsStartedRef here
+    }
+  }, [
+    ttsPlaying,
+    id,
+    sendStartPayload,
+    textStartChar,
+    textEndChar,
+    gettoken,
+    voice,
+  ]);
+  useEffect(() => {
+    ttsStartedRef.current = false;
+  }, [effect, id]);
 
   return (
     <div
@@ -216,6 +350,8 @@ export default function BookDisplay() {
         onGoToPage={handleGoToPage}
         effect={effect}
         setEffect={setEffect}
+        voice={voice}
+        setVoice={setVoice}
         volume={volume}
         isMuted={isMuted}
         onToggleMute={() => setIsMuted((s) => !s)}
@@ -223,15 +359,19 @@ export default function BookDisplay() {
 
       <main className="flex-1 flex items-center justify-center p-4 overflow-hidden">
         <div className="w-full h-full flex items-center justify-center">
-          <FlipBookViewer bookRef={bookRef} />
+          <FlipBookViewer
+            bookRef={bookRef}
+            text={bookText}
+            loading={loadingText}
+          />
         </div>
       </main>
 
       <ReaderFooter
         onNext={handleNext}
         onPrev={handlePrev}
-        isPlaying={isPlaying}
-        onTogglePlay={() => setIsPlaying((s) => !s)}
+        isPlaying={ttsPlaying}
+        onTogglePlay={toggleTTSPlay}
       />
     </div>
   );

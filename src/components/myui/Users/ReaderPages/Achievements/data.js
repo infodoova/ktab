@@ -1,0 +1,63 @@
+export const achievementsStats = [
+  { label: "النقاط", value: 1250 },
+  { label: "قيد التقدم", value: 6 },
+  { label: "مكتسبة", value: 3 },
+  { label: "إجمالي الإنجازات", value: 9 },
+];
+
+export const achievementsList = [
+  {
+    id: 1,
+    title: "ماراثون القراءة",
+    description: "اقرأ لمدة 100 ساعة",
+    progress: 48,
+    total: 100,
+    type: "time",
+    status: "progress",
+  },
+  {
+    id: 2,
+    title: "قارئ نهم",
+    description: "اقرأ 50 كتاب",
+    progress: 12,
+    total: 50,
+    type: "reading",
+    status: "progress",
+  },
+  {
+    id: 3,
+    title: "قارئ مبتدئ",
+    description: "اقرأ كتابك الأول",
+    progress: 1,
+    total: 1,
+    type: "reading",
+    status: "completed",
+  },
+  {
+    id: 4,
+    title: "سريع القراءة",
+    description: "اقرأ كتاباً في يوم واحد",
+    progress: 0,
+    total: 1,
+    type: "challenge",
+    status: "locked",
+  },
+  {
+    id: 5,
+    title: "المتصدر",
+    description: "كن الأول في التحدي الشهري",
+    progress: 1,
+    total: 1,
+    type: "social",
+    status: "completed",
+  },
+  {
+    id: 6,
+    title: "ناقد متميز",
+    description: "اكتب 50 مراجعة",
+    progress: 50,
+    total: 50,
+    type: "social",
+    status: "completed",
+  },
+];

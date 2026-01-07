@@ -5,7 +5,6 @@ import "./index.css";
 import App from "./App.jsx";
 import TokenRefreshWrapper from "../services/TokenRefreshWrapper";
 
-
 import { registerSW } from "virtual:pwa-register";
 
 // Register PWA service worker
@@ -28,11 +27,11 @@ registerSW({
 });
 
 createRoot(document.getElementById("root")).render(
-  <StrictMode>
-    <BrowserRouter>
-      <TokenRefreshWrapper>
-        <App />
-      </TokenRefreshWrapper>
-    </BrowserRouter>
-  </StrictMode>
+  // <StrictMode>
+  <BrowserRouter>
+    <TokenRefreshWrapper>
+      <App />
+    </TokenRefreshWrapper>
+  </BrowserRouter>
+  //  </StrictMode>
 );

@@ -27,10 +27,11 @@ export default function ReaderHeader({
   effect,
   setEffect,
   volume = 0.8,
+  voice,
+  setVoice,
   isMuted = false,
   onToggleMute,
 }) {
-  const [voice, setVoice] = React.useState("default");
   const [pageInput, setPageInput] = React.useState("");
 
   const [isHamOpen, setIsHamOpen] = React.useState(false);
@@ -99,9 +100,9 @@ export default function ReaderHeader({
 
               {[
                 { id: "none", label: "بدون صوت" },
-                { id: "default", label: "صوت افتراضي" },
-                { id: "soft", label: "صوت هادئ" },
-                { id: "deep", label: "صوت عميق" },
+                { id: "CwhRBWXzGAHq8TQ4Fs17", label: "صوت افتراضي" },
+                { id: "CwhRBWXzGAHq8TQ4Fs18", label: "صوت هادئ" },
+                { id: "CwhRBWXzGAHq8TQ4Fs19", label: "صوت عميق" },
               ].map((v) => (
                 <DropdownMenuItem
                   key={v.id}

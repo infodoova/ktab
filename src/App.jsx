@@ -15,6 +15,7 @@ import MainPage from "./Screens/dashboard/ReaderPages/MainPage";
 import InteractiveStories from "./Screens/dashboard/ReaderPages/InteractiveStories";
 import Profile from "./Screens/dashboard/ReaderPages/Profile";
 import Library from "./Screens/dashboard/ReaderPages/Library";
+import Achievements from './Screens/dashboard/ReaderPages/Achievements'
 import ReaderSettings from "./Screens/dashboard/ReaderPages/Settings";
 import BookDisplay from "./Screens/dashboard/ReaderPages/BookDisplayPage/[id]";
 import BookDetails from "./Screens/dashboard/ReaderPages/BookDetails/BookDetails";
@@ -103,6 +104,7 @@ function App() {
         <Route path="/reader/home" element={<MainPage />} />
         <Route path="/reader/BookDetails/:id" element={<BookDetails />} />
         <Route path="/reader/display/:id" element={<BookDisplay />} />
+        <Route path="/reader/Achievements" element={<Achievements />}/>
         <Route
           path="/reader/interactive-stories"
           element={<InteractiveStories />}
@@ -115,6 +117,10 @@ function App() {
         <Route
           path="/Screens/dashboard/ReaderPages/MainPage"
           element={<Navigate to="/reader/home" replace />}
+        />
+        <Route
+          path="/Screens/dashboard/ReaderPages/Achievements"
+          element={<Navigate to="/reader/Achievements" replace />}
         />
         <Route
           path="/Screens/dashboard/ReaderPages/BookDetails/:id"
