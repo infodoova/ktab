@@ -100,7 +100,7 @@ export default function ReaderHeader({
 
               {[
                 { id: "none", label: "بدون صوت" },
-                { id: "CwhRBWXzGAHq8TQ4Fs17", label: "صوت افتراضي" },
+                { id: "aCChyB4P5WEomwRsOKRh", label: "صوت افتراضي" },
                 { id: "CwhRBWXzGAHq8TQ4Fs18", label: "صوت هادئ" },
                 { id: "CwhRBWXzGAHq8TQ4Fs19", label: "صوت عميق" },
               ].map((v) => (

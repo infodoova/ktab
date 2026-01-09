@@ -1,258 +1,402 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { getWsUrl, createAudioContextSafe, safeJsonParse } from "./utils";
 
-export function useReaderTTS({ enabled, bookRef }) {
+export function useReaderTTS({ enabled, onPageEnded }) {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
+
   const audioCtxRef = useRef(null);
   const wsRef = useRef(null);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const connectPromiseRef = useRef(null);
 
-  const audioBufferQueueRef = useRef(new Map());
-  const nextSeqRef = useRef(1);
-  const scheduledTimeRef = useRef(0);
-  const alignmentBySeqRef = useRef(new Map());
+  const streamIdRef = useRef(0);
+
+  // Buffer ALL audio chunks and alignments
+  const allAudioChunksRef = useRef([]);
+  const allAlignmentsRef = useRef([]);
+  const totalChunksExpectedRef = useRef(0);
+  const chunksReceivedRef = useRef(0);
+
+  const playbackStartTimeRef = useRef(null);
+  const scheduledSourceRef = useRef(null);
+  const expectedDurationRef = useRef(0);
+
+  const gotCompleteRef = useRef(false);
+  const pageEndedFiredRef = useRef(false);
+  const streamCancelledRef = useRef(false);
+
   const rafRef = useRef(null);
+  const allWordsRef = useRef([]);
+  const lastHighlightedRef = useRef(null);
+  const totalDurationRef = useRef(0);
 
-  // Track the actual connection promise to prevent double-init
-  const connectionPromiseRef = useRef(null);
+  const ensureCtx = useCallback(() => {
+    if (!audioCtxRef.current) audioCtxRef.current = createAudioContextSafe();
+    if (!audioCtxRef.current) throw new Error("Web Audio API not available");
+    return audioCtxRef.current;
+  }, []);
 
-  /* =========================
-      CLEANUP & HIGHLIGHT UTILS
-  ========================= */
-  const stopHighlighting = useCallback(() => {
-    if (rafRef.current) {
-      cancelAnimationFrame(rafRef.current);
-      rafRef.current = null;
+  const clearHighlight = useCallback(() => {
+    document.querySelectorAll(".tts-active-word").forEach((el) => {
+      el.classList.remove("tts-active-word");
+    });
+    lastHighlightedRef.current = null;
+  }, []);
+
+  const highlightWord = useCallback((startChar, endChar) => {
+    const key = `${startChar}-${endChar}`;
+    if (lastHighlightedRef.current === key) return;
+
+    document.querySelectorAll(".tts-active-word").forEach((el) => {
+      el.classList.remove("tts-active-word");
+    });
+
+    const el = document.querySelector(
+      `[data-word-start="${startChar}"][data-word-end="${endChar}"]`
+    );
+
+    if (el) {
+      el.classList.add("tts-active-word");
+      lastHighlightedRef.current = key;
     }
   }, []);
 
-  const cleanupHighlights = useCallback(() => {
-    document
-      .querySelectorAll(".active")
-      .forEach((el) => el.classList.remove("active"));
+  const stopLoop = useCallback(() => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = null;
   }, []);
 
-  const highlightRange = useCallback(
-    (start, end) => {
-      try {
-        cleanupHighlights();
-        for (let i = start; i <= end; i++) {
-          const el = document.querySelector(`[data-char="${i}"]`);
-          if (el) el.classList.add("active");
-        }
-        if (bookRef?.current?.getPageForChar) {
-          const page = bookRef.current.getPageForChar(end);
-          bookRef.current.goToPage?.(page);
-        }
-      } catch (e) {
-        console.error("Highlight error", e);
+  const startLoop = useCallback(() => {
+    if (rafRef.current) return;
+
+    const tick = () => {
+      const ctx = audioCtxRef.current;
+      const startTime = playbackStartTimeRef.current;
+
+      if (!ctx || startTime == null) {
+        rafRef.current = requestAnimationFrame(tick);
+        return;
       }
-    },
-    [bookRef, cleanupHighlights]
-  );
 
-  const scheduleHighlight = useCallback(
-    (words, startTime, duration) => {
-      if (!words.length) return;
-      const startMs = startTime * 1000;
+      // t is actual elapsed time since playback started
+      const elapsed = ctx.currentTime - startTime;
 
-      const loop = () => {
-        if (!audioCtxRef.current) return;
-        const now = audioCtxRef.current.currentTime * 1000;
-        if (now > startMs + duration * 1000) return;
-
-        for (const w of words) {
-          if (now >= startMs + w.startMs && now <= startMs + w.endMs) {
-            highlightRange(w.startChar, w.endChar);
-          }
+      // Find current word (word timings are in original expected scale)
+      let currentWord = null;
+      for (const w of allWordsRef.current) {
+        if (elapsed >= w.startSec && elapsed <= w.endSec + 0.15) {
+          currentWord = w;
+          break;
         }
-        rafRef.current = requestAnimationFrame(loop);
-      };
+      }
 
-      stopHighlighting();
-      rafRef.current = requestAnimationFrame(loop);
-    },
-    [highlightRange, stopHighlighting]
-  );
+      if (currentWord) {
+        highlightWord(currentWord.startChar, currentWord.endChar);
+      } else if (
+        lastHighlightedRef.current &&
+        elapsed > totalDurationRef.current + 0.5
+      ) {
+        clearHighlight();
+      }
 
-  /* =========================
-      AUDIO LOGIC
-  ========================= */
-  const tryPlayNext = useCallback(() => {
+      // Check if page ended
+      if (
+        gotCompleteRef.current &&
+        !pageEndedFiredRef.current &&
+        !streamCancelledRef.current &&
+        elapsed >= totalDurationRef.current - 0.2
+      ) {
+        pageEndedFiredRef.current = true;
+        setIsStreaming(false);
+        clearHighlight();
+        console.log("Page ended after", elapsed.toFixed(2), "seconds");
+        onPageEnded?.();
+      }
+
+      rafRef.current = requestAnimationFrame(tick);
+    };
+
+    rafRef.current = requestAnimationFrame(tick);
+  }, [clearHighlight, highlightWord, onPageEnded]);
+
+  const tryPlayAll = useCallback(async () => {
     const ctx = audioCtxRef.current;
-    if (!ctx || ctx.state === "closed") return;
+    if (!ctx) return;
 
-    while (audioBufferQueueRef.current.has(nextSeqRef.current)) {
-      const seq = nextSeqRef.current;
-      const buffer = audioBufferQueueRef.current.get(seq);
-      audioBufferQueueRef.current.delete(seq);
+    if (!gotCompleteRef.current) return;
+    if (allAudioChunksRef.current.length === 0) return;
+
+    console.log(
+      `Complete! Got ${allAudioChunksRef.current.length} audio chunks, ${allAlignmentsRef.current.length} alignments`
+    );
+
+    // Concatenate all audio chunks
+    const totalLength = allAudioChunksRef.current.reduce(
+      (sum, c) => sum + c.byteLength,
+      0
+    );
+    const combined = new Uint8Array(totalLength);
+    let offset = 0;
+    for (const chunk of allAudioChunksRef.current) {
+      combined.set(new Uint8Array(chunk), offset);
+      offset += chunk.byteLength;
+    }
+
+    try {
+      const decoded = await ctx.decodeAudioData(combined.buffer);
+      const actualDuration = decoded.duration;
+
+      if (streamCancelledRef.current) return;
+
+      // Sort alignments and calculate expected total duration
+      allAlignmentsRef.current.sort((a, b) => a.seq - b.seq);
+
+      let cumulativeOffset = 0;
+      const allWords = [];
+
+      for (const alignment of allAlignmentsRef.current) {
+        const lastWord = alignment.words[alignment.words.length - 1];
+        const chunkDuration = lastWord ? lastWord.endSec : 0;
+
+        for (const w of alignment.words) {
+          allWords.push({
+            word: w.word,
+            startSec: cumulativeOffset + w.startSec,
+            endSec: cumulativeOffset + w.endSec,
+            startChar: w.startChar,
+            endChar: w.endChar,
+          });
+        }
+
+        cumulativeOffset += chunkDuration;
+      }
+
+      const expectedDuration = cumulativeOffset;
+      expectedDurationRef.current = expectedDuration;
+
+      console.log(
+        `Decoded: ${actualDuration.toFixed(
+          2
+        )}s, Expected: ${expectedDuration.toFixed(2)}s`
+      );
+
+      // Calculate playback rate to stretch audio to match expected duration
+      // playbackRate < 1 = slower, > 1 = faster
+      let playbackRate = actualDuration / expectedDuration;
+
+      console.log(
+        `Raw Playback rate: ${playbackRate.toFixed(4)} (slowing down ${(
+          1 / playbackRate
+        ).toFixed(1)}x)`
+      );
+
+      // SAFETY CLAMP: Prevent extreme playback rates (demon voice / chipmunk)
+      // If the backend sends mismatched audio/text duration, we prefer normal speed + silence
+      // over completely broken audio.
+      const MIN_RATE = 0.5;
+      const MAX_RATE = 2.0;
+      
+      if (playbackRate < MIN_RATE || playbackRate > MAX_RATE) {
+        console.warn(`Playback rate ${playbackRate.toFixed(3)} is extreme. Clamping to [${MIN_RATE}, ${MAX_RATE}].`);
+        playbackRate = Math.max(MIN_RATE, Math.min(MAX_RATE, playbackRate));
+      }
+
+      // Word timings are already in correct scale (expected duration)
+      // No need to scale them since we're adjusting playback rate
+      allWordsRef.current = allWords;
+      totalDurationRef.current = expectedDuration;
+
+      // Schedule playback with adjusted rate
+      const startAt = ctx.currentTime + 0.05;
+      playbackStartTimeRef.current = startAt;
 
       const src = ctx.createBufferSource();
-      src.buffer = buffer;
+      src.buffer = decoded;
+      src.playbackRate.value = playbackRate; // Slow down the audio
       src.connect(ctx.destination);
-
-      const startAt = Math.max(ctx.currentTime, scheduledTimeRef.current);
       src.start(startAt);
 
-      const words = alignmentBySeqRef.current.get(seq) || [];
-      scheduleHighlight(words, startAt, buffer.duration);
+      scheduledSourceRef.current = src;
 
-      scheduledTimeRef.current = startAt + buffer.duration;
-      nextSeqRef.current++;
+      console.log(
+        `Playing ${allWords.length} words over ${expectedDuration.toFixed(
+          2
+        )}s (rate: ${playbackRate.toFixed(3)})`
+      );
+    } catch (err) {
+      console.error("Audio decode failed:", err);
     }
-  }, [scheduleHighlight]);
+  }, []);
 
-  const cleanup = useCallback(() => {
-    stopHighlighting();
-    cleanupHighlights();
+  const cancelStream = useCallback(() => {
+    console.log("Cancelling stream");
 
-    if (wsRef.current) {
-      // Prevent zombie listeners from firing after cleanup
-      wsRef.current.onopen = null;
-      wsRef.current.onmessage = null;
-      wsRef.current.onclose = null;
-      wsRef.current.onerror = null;
+    streamIdRef.current += 1;
+    streamCancelledRef.current = true;
 
-      wsRef.current.close();
-      wsRef.current = null;
-    }
-
-    // Reset connection promise so we can reconnect later
-    connectionPromiseRef.current = null;
-
-    if (audioCtxRef.current) {
-      audioCtxRef.current.close();
-      audioCtxRef.current = null;
+    if (scheduledSourceRef.current) {
+      try {
+        scheduledSourceRef.current.stop();
+      } catch {
+        //
+      }
+      scheduledSourceRef.current = null;
     }
 
-    audioBufferQueueRef.current.clear();
-    alignmentBySeqRef.current.clear();
-    nextSeqRef.current = 1;
-    scheduledTimeRef.current = 0;
-    setIsPlaying(false);
-  }, [stopHighlighting, cleanupHighlights]);
+    allAudioChunksRef.current = [];
+    allAlignmentsRef.current = [];
+    allWordsRef.current = [];
+    totalChunksExpectedRef.current = 0;
+    chunksReceivedRef.current = 0;
 
-  // Init now returns a Promise that resolves when WebSocket is OPEN
-  const init = useCallback(async () => {
-    // If we already have a promise (connecting) or an open socket, return that
-    if (connectionPromiseRef.current) return connectionPromiseRef.current;
+    playbackStartTimeRef.current = null;
+    totalDurationRef.current = 0;
+    expectedDurationRef.current = 0;
 
-    if (!audioCtxRef.current) {
-      audioCtxRef.current = createAudioContextSafe();
-    }
-    scheduledTimeRef.current = audioCtxRef.current.currentTime;
+    gotCompleteRef.current = false;
+    pageEndedFiredRef.current = false;
 
-    connectionPromiseRef.current = new Promise((resolve, reject) => {
+    setIsStreaming(false);
+    clearHighlight();
+  }, [clearHighlight]);
+
+  const connect = useCallback(async () => {
+    if (connectPromiseRef.current) return connectPromiseRef.current;
+
+    ensureCtx();
+
+    connectPromiseRef.current = new Promise((resolve, reject) => {
       const ws = new WebSocket(getWsUrl());
       ws.binaryType = "arraybuffer";
       wsRef.current = ws;
 
       ws.onopen = () => {
+        console.log("WebSocket connected");
         resolve(ws);
       };
-
-      ws.onerror = (err) => {
-        console.error("WS Error", err);
-        // If it fails during init, clear the promise so we can try again
-        connectionPromiseRef.current = null;
-        reject(err);
+      ws.onerror = () => reject(new Error("WebSocket connection error"));
+      ws.onclose = () => {
+        wsRef.current = null;
+        connectPromiseRef.current = null;
       };
 
       ws.onmessage = async (e) => {
+        const streamId = streamIdRef.current;
+
         if (typeof e.data === "string") {
           const msg = safeJsonParse(e.data);
+
           if (msg?.type === "alignment") {
-            alignmentBySeqRef.current.set(msg.seq, msg.words || []);
+            if (streamId !== streamIdRef.current) return;
+
+            const seq = Number(msg.seq);
+            allAlignmentsRef.current.push({
+              seq,
+              words:
+                msg.words?.map((w) => ({
+                  word: w.word,
+                  startSec: w.startSeconds,
+                  endSec: w.endSeconds,
+                  startChar: w.startChar,
+                  endChar: w.endChar,
+                })) || [],
+            });
+            return;
+          }
+
+          if (msg?.type === "complete") {
+            if (streamId !== streamIdRef.current) return;
+            console.log("Stream complete");
+            gotCompleteRef.current = true;
+            tryPlayAll();
+            return;
+          }
+
+          if (msg?.type === "ack") {
+            totalChunksExpectedRef.current = msg.totalChunks;
+            console.log(`Expecting ${msg.totalChunks} chunks`);
           }
           return;
         }
 
-        const buf = e.data;
-        const view = new DataView(buf);
-        const seq = Number(view.getBigInt64(0, false));
-        const audioBytes = buf.slice(8);
+        // Binary audio
+        if (streamId !== streamIdRef.current) return;
 
-        try {
-          const audioBuffer = await audioCtxRef.current.decodeAudioData(
-            audioBytes
-          );
-          audioBufferQueueRef.current.set(seq, audioBuffer);
-          tryPlayNext();
-        } catch (err) {
-          console.warn("[TTS] decode failed", err);
-        }
-      };
-
-      ws.onclose = () => {
-        connectionPromiseRef.current = null;
+        const audioData = e.data.slice(8);
+        allAudioChunksRef.current.push(audioData);
+        chunksReceivedRef.current += 1;
       };
     });
 
-    return connectionPromiseRef.current;
-  }, [tryPlayNext]);
+    return connectPromiseRef.current;
+  }, [ensureCtx, tryPlayAll]);
 
-  /* =========================
-      EFFECTS
-  ========================= */
   useEffect(() => {
     if (!enabled) return;
-
-    // We catch errors here to prevent unhandled promise rejections in the effect
-    init().catch((e) => console.error("Auto-init failed", e));
-
+    connect().catch(console.error);
     return () => {
-      cleanup();
+      stopLoop();
+      clearHighlight();
     };
-  }, [enabled, init, cleanup]);
+  }, [enabled, connect, stopLoop, clearHighlight]);
+
+  const togglePlay = useCallback(async () => {
+    await connect();
+    const ctx = ensureCtx();
+
+    if (!isPlaying) {
+      await ctx.resume();
+      startLoop();
+      setIsPlaying(true);
+    } else {
+      await ctx.suspend();
+      stopLoop();
+      setIsPlaying(false);
+    }
+  }, [connect, ensureCtx, isPlaying, startLoop, stopLoop]);
+
+  const startPageStream = useCallback(
+    async (payload) => {
+      await connect();
+      ensureCtx();
+
+      cancelStream();
+
+      streamIdRef.current += 1;
+      streamCancelledRef.current = false;
+
+      allAudioChunksRef.current = [];
+      allAlignmentsRef.current = [];
+      allWordsRef.current = [];
+      totalChunksExpectedRef.current = 0;
+      chunksReceivedRef.current = 0;
+      playbackStartTimeRef.current = null;
+      totalDurationRef.current = 0;
+      expectedDurationRef.current = 0;
+
+      gotCompleteRef.current = false;
+      pageEndedFiredRef.current = false;
+
+      setIsStreaming(true);
+      clearHighlight();
+
+      const ws = wsRef.current;
+      if (!ws || ws.readyState !== WebSocket.OPEN) {
+        setIsStreaming(false);
+        throw new Error("WebSocket not ready");
+      }
+
+      console.log("Sending:", payload);
+      ws.send(JSON.stringify(payload));
+    },
+    [connect, ensureCtx, clearHighlight, cancelStream]
+  );
 
   return {
-    togglePlay: async () => {
-      if (!audioCtxRef.current) await init();
-      const ctx = audioCtxRef.current;
-      if (ctx.state === "suspended") {
-        await ctx.resume();
-        setIsPlaying(true);
-      } else {
-        await ctx.suspend();
-        setIsPlaying(false);
-      }
-    },
-
-    sendStartPayload: async (payload) => {
-      // 1. Ensure Audio Context is ready
-      if (!audioCtxRef.current) {
-        audioCtxRef.current = createAudioContextSafe();
-        scheduledTimeRef.current = audioCtxRef.current.currentTime;
-      }
-
-      // 2. Ensure WebSocket is ready (Wait for OPEN)
-      try {
-        await init();
-      } catch (e) {
-        console.error("Cannot send payload, connection failed", e);
-        return;
-      }
-
-      // 3. Reset state for new playback
-      nextSeqRef.current = 1;
-      audioBufferQueueRef.current.clear();
-      alignmentBySeqRef.current.clear();
-      scheduledTimeRef.current = audioCtxRef.current?.currentTime || 0;
-
-      // 4. Send safely
-      if (wsRef.current?.readyState === WebSocket.OPEN) {
-        wsRef.current.send(JSON.stringify(payload));
-      } else {
-        console.warn("WebSocket not open, cannot send start payload");
-      }
-    },
-
-    stop() {
-      if (wsRef.current?.readyState === WebSocket.OPEN) {
-        wsRef.current.send(JSON.stringify({ action: "stop" }));
-      }
-      cleanupHighlights();
-      stopHighlighting();
-    },
     isPlaying,
+    isStreaming,
+    togglePlay,
+    startPageStream,
+    cancelStream,
   };
 }

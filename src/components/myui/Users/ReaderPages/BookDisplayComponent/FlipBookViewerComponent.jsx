@@ -1,282 +1,343 @@
-import React, { forwardRef, useEffect, useRef, useState } from "react";
+import React, { forwardRef, useEffect, useMemo, useRef, useState } from "react";
 import HTMLFlipBook from "react-pageflip";
 
-/* -------------------------------------------------------
-   HELPERS
-------------------------------------------------------- */
-function splitTextByWords(text, wordsPerPage = 300) {
-  const words = text.trim().split(/\s+/);
-  const pages = [];
+/* ===============================
+   TEXT NORMALIZATION
+================================ */
+function normalizeText(raw = "") {
+  return String(raw)
+    .normalize("NFC")
+    .replace(/\u00A0/g, " ")
+    .replace(/\r\n|\r/g, "\n");
+}
 
-  for (let i = 0; i < words.length; i += wordsPerPage) {
-    pages.push(words.slice(i, i + wordsPerPage).join(" "));
+/* ===============================
+   TOKENIZATION (WORD-BASED)
+================================ */
+function tokenize(text) {
+  const tokens = [];
+  const re = /\S+/g;
+  let m;
+  while ((m = re.exec(text)) !== null) {
+    tokens.push({
+      value: m[0],
+      startChar: m.index,
+      endChar: m.index + m[0].length - 1,
+    });
   }
+  return tokens;
+}
 
+/* ===============================
+   PAGINATION (WORD COUNT)
+================================ */
+function paginate(tokens, wordsPerPage) {
+  const pages = [];
+  for (let i = 0; i < tokens.length; i += wordsPerPage) {
+    pages.push({
+      startWord: i,
+      endWord: Math.min(i + wordsPerPage, tokens.length),
+    });
+  }
   return pages;
 }
 
-/* -------------------------------------------------------
-   PAGE COMPONENT
-------------------------------------------------------- */
-const Page = forwardRef(({ number, children }, ref) => (
-  <div ref={ref} className="bg-white border-r border-gray-200 overflow-hidden">
-    <div className="h-full p-6 flex flex-col bg-white/70 backdrop-blur-sm">
-      <div className="flex-grow flex flex-col justify-center text-center">
-        <div className="font-serif leading-8 text-[13px]">{children}</div>
-      </div>
-
-      {number && (
-        <div className="mt-3 flex justify-center">
-          <span className="text-xs text-gray-400 font-serif">{number}</span>
-        </div>
-      )}
-    </div>
-  </div>
-));
-
-/* -------------------------------------------------------
-   PROFESSIONAL LOADER
-------------------------------------------------------- */
-const BookLoader = ({ width, height }) => (
-  <div
-    className="absolute inset-0 z-50 flex items-center justify-center bg-black/30"
-    style={{ direction: "rtl" }}
-  >
-    <div
-      className="bg-white rounded-2xl shadow-2xl overflow-hidden flex gap-6 p-6 items-center max-w-[90%]"
-      style={{
-        width: width || 600,
-        height: height || 420,
-      }}
-    >
-      {/* Cover placeholder */}
-      <div className="w-40 h-full rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 flex-shrink-0 shadow-inner animate-pulse" />
-
-      {/* Content placeholder */}
-      <div className="flex-1 flex flex-col justify-center">
-        <div className="h-6 bg-gray-200 rounded w-3/4 mb-3 animate-pulse" />
-        <div className="h-4 bg-gray-100 rounded w-1/2 mb-6 animate-pulse" />
-
-        <div className="flex items-center gap-4">
-          <svg
-            className="h-8 w-8 text-gray-600 animate-spin"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-            />
-          </svg>
-
-          <div>
-            <div className="text-sm text-gray-700">جاري تحميل الكتاب...</div>
-            <div className="text-xs text-gray-500">يرجى الانتظار — يتم تجهيز النص والعرض</div>
-          </div>
-        </div>
-      </div>
+/* ===============================
+   LOADER
+================================ */
+const BookLoader = () => (
+  <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/30">
+    <div className="bg-white rounded-xl shadow-xl p-6 text-gray-700">
+      جاري تحميل الكتاب…
     </div>
   </div>
 );
 
-/* -------------------------------------------------------
-  MAIN VIEWER
-------------------------------------------------------- */
-export default function FlipBookViewer({ bookRef, isRTL = true, text = "", loading = false }) {
+/* ===============================
+   MAIN COMPONENT
+================================ */
+export default function FlipBookViewer({
+  bookRef,
+  text = "",
+  loading = false,
+  wordsPerPage = 100,
+  isRTL = true,
+  onPageChange,
+}) {
   const containerRef = useRef(null);
-  const internalRef = useRef(null);
-  const [showFlipbook, setShowFlipbook] = useState(false);
-  const [showSkeleton, setShowSkeleton] = useState(true);
+  const flipRef = useRef(null);
+
+  /* ---------- UI READY (ESLint-safe) ---------- */
+  const [delayedReady, setDelayedReady] = useState(false);
+  const delayRef = useRef(null);
+  const [windowDimensions, setWindowDimensions] = useState({
+    width: typeof window !== "undefined" ? window.innerWidth : 1024,
+    height: typeof window !== "undefined" ? window.innerHeight : 768,
+  });
 
   useEffect(() => {
-    if (loading) {
-      setShowFlipbook(false);
-      setShowSkeleton(true);
-      return;
+    function handleResize() {
+      setWindowDimensions({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
     }
+    
+    // Check if we are in a browser environment before adding listener
+    if (typeof window !== "undefined") {
+      window.addEventListener("resize", handleResize);
+      handleResize(); // Init
+    }
+    
+    return () => {
+      if (typeof window !== "undefined") {
+        window.removeEventListener("resize", handleResize);
+      }
+    };
+  }, []);
 
-    const t = setTimeout(() => {
-      setShowFlipbook(true);
-      setShowSkeleton(false);
-    }, 800);
-    return () => clearTimeout(t);
+  useEffect(() => {
+    clearTimeout(delayRef.current);
+
+    delayRef.current = setTimeout(() => {
+      setDelayedReady(!loading);
+    }, 0);
+
+    return () => clearTimeout(delayRef.current);
   }, [loading]);
 
-  const wordsPerPage = 100;
-  const paginatedText = splitTextByWords((text || "").trim(), wordsPerPage);
+  const ready = !loading && delayedReady;
 
-  const totalPages = paginatedText.length + 1;
+  /* ---------- DATA PIPELINE ---------- */
+  const normalizedText = useMemo(() => normalizeText(text), [text]);
+  const tokens = useMemo(() => tokenize(normalizedText), [normalizedText]);
+  const pages = useMemo(
+    () => paginate(tokens, wordsPerPage),
+    [tokens, wordsPerPage]
+  );
+  const totalPages = pages.length;
 
-  /* -------------------------------------------------------
-     Expose goToPage + totalPages safely
-  ------------------------------------------------------- */
+  /* ---------- RESPONSIVE DIMENSIONS ---------- */
+  const { width: vw, height: vh } = windowDimensions;
+  const isMobile = vw < 768; // Tablet/Mobile breakpoint
+
+  // Dimensions for a SINGLE page
+  let pageWidth, pageHeight;
+
+  if (isMobile) {
+    // Single page view: Page takes most of the screen width
+    pageWidth = Math.min(vw * 0.9, 600); 
+    pageHeight = vh * 0.7; 
+  } else {
+    // Double page view: Page takes ~45% of screen width (so 2 pages fit)
+    pageWidth = Math.min(vw * 0.45, 600);
+    // Adjusted height logic for desktop
+    pageHeight = vw < 1024 ? vh * 0.55 : vh * 0.7;
+  }
+  
+  // Font size calculation to fit text
+  const dynamicFontSize = isMobile ? "11px" : "15px";
+  const dynamicLineHeight = isMobile ? "1.8" : "2.1";
+
+  /* ---------- EXPOSE BOOK API ---------- */
   useEffect(() => {
     if (!bookRef) return;
-
     bookRef.current = bookRef.current || {};
 
-    // expose a helper that returns the underlying PageFlip instance
-    bookRef.current.pageFlip = () => internalRef.current?.pageFlip?.();
+    bookRef.current.pageFlip = () => flipRef.current?.pageFlip?.();
     bookRef.current.totalPages = totalPages;
+    bookRef.current.totalWords = tokens.length;
+    bookRef.current.totalChars = normalizedText.length;
 
-    bookRef.current.goToPage = (pageNumber) => {
-      try {
-        const flip = internalRef.current?.pageFlip?.();
-        if (!flip) return;
-
-        let page = Number(pageNumber);
-        if (!page || page < 1) page = 1;
-        if (page > totalPages) page = totalPages;
-
-        flip.flip(page - 1);
-      } catch (err) {
-        console.warn("goToPage error:", err);
-      }
+    bookRef.current.getCurrentPageNumber = () => {
+      const flip = flipRef.current?.pageFlip?.();
+      if (!flip) return 1;
+      return (flip.getCurrentPageIndex?.() ?? 0) + 1;
     };
-    // compute character ranges per content page so external code can map charIndex -> page
-    try {
-      const pageRanges = [];
-      let idx = 0;
-      paginatedText.forEach((txt, i) => {
-        const len = txt ? txt.length : 0;
-        const start = idx;
-        const end = Math.max(idx + len - 1, start);
-        const pageNumber = i + 2; // cover is page 1
-        pageRanges.push({ page: pageNumber, start, end });
-        idx += len;
-      });
 
-      bookRef.current.getPageForChar = (charIndex) => {
-        if (charIndex == null || Number.isNaN(Number(charIndex))) return null;
-        const n = Number(charIndex);
-        for (const r of pageRanges) {
-          if (n >= r.start && n <= r.end) return r.page;
-        }
-        return null;
+    bookRef.current.goToPage = (page) => {
+      const flip = flipRef.current?.pageFlip?.();
+      if (!flip) return;
+      const p = Math.min(Math.max(1, page), totalPages);
+      flip.flip(p - 1);
+    };
+
+    bookRef.current.getWordRangeForPage = (page) => {
+      const p = Math.min(Math.max(1, page), totalPages);
+      const def = pages[p - 1];
+      if (!def) return null;
+      return {
+        page: p,
+        startWord: def.startWord,
+        endWord: def.endWord,
       };
-      bookRef.current.totalChars = pageRanges.length ? pageRanges[pageRanges.length - 1].end + 1 : 0;
-    } catch (err) {
-      // non-fatal
-      console.warn("pageRanges compute error:", err);
-    }
-  }, [totalPages, bookRef]);
+    };
 
-  /* -------------------------------------------------------
-     Scroll to flip
-  ------------------------------------------------------- */
-  useEffect(() => {
-    const handleWheel = (e) => {
-      e.preventDefault();
+    const pageCharRanges = pages.map((p, i) => {
+      const first = tokens[p.startWord];
+      const last = tokens[p.endWord - 1];
+      return {
+        page: i + 1,
+        start: first?.startChar ?? 0,
+        end: last?.endChar ?? 0,
+      };
+    });
 
-      try {
-        const flip = internalRef.current?.pageFlip?.();
-        if (!flip) return;
+    bookRef.current.getPageForChar = (charIndex) => {
+      for (const r of pageCharRanges) {
+        if (charIndex >= r.start && charIndex <= r.end) return r.page;
+      }
+      return null;
+    };
 
-        if (e.deltaY > 0) {
-          isRTL ? flip.flipPrev() : flip.flipNext();
-        } else {
-          isRTL ? flip.flipNext() : flip.flipPrev();
-        }
-      } catch {
-        // ignore
+    // Highlight a specific word by its index
+    bookRef.current.highlightWordByIndex = (wordIndex) => {
+      bookRef.current.clearAllHighlights?.();
+      const el = document.querySelector(`[data-word-index="${wordIndex}"]`);
+      if (el) {
+        el.classList.add("tts-active-word");
       }
     };
 
+    // Clear all word highlights
+    bookRef.current.clearAllHighlights = () => {
+      document.querySelectorAll(".tts-active-word").forEach((el) => {
+        el.classList.remove("tts-active-word");
+      });
+    };
+
+    // Get token info by word index
+    bookRef.current.getTokenByIndex = (wordIndex) => {
+      return tokens[wordIndex] || null;
+    };
+  }, [bookRef, pages, tokens, normalizedText, totalPages]);
+
+  /* ---------- WHEEL NAV ---------- */
+  useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
 
-    el.addEventListener("wheel", handleWheel, { passive: false });
-    return () => el.removeEventListener("wheel", handleWheel);
-  }, [bookRef, isRTL]);
+    const onWheel = (e) => {
+      e.preventDefault();
+      const flip = flipRef.current?.pageFlip?.();
+      if (!flip) return;
+
+      e.deltaY > 0
+        ? isRTL
+          ? flip.flipPrev()
+          : flip.flipNext()
+        : isRTL
+        ? flip.flipNext()
+        : flip.flipPrev();
+    };
+
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, [isRTL]);
 
 
-const vh = window.innerHeight;
-const vw = window.innerWidth;
-
-// Responsive height logic
-const bookHeight =
-  vw < 600
-    ? vh * 0.40       //  mobile 
-    : vw < 1024
-    ? vh * 0.55       // tablets
-    : vh * 0.70;      // desktops 
-
-
-  /* -------------------------------------------------------
-     Render Flipbook
-  ------------------------------------------------------- */
+  /* ===============================
+     RENDER
+  ================================ */
   return (
     <div
       ref={containerRef}
       className="w-full h-full flex items-center justify-center"
       style={{ direction: "rtl" }}
     >
-      {/* Highlight styling for active characters (added here to keep component-scoped) */}
       <style>{`
-        .active {
-          background: rgba(255, 230, 128, 0.6);
-          border-radius: 2px;
-          transition: background-color 120ms ease-in-out;
+        .tts-active-word {
+          background: linear-gradient(135deg, rgba(255,215,0,0.8) 0%, rgba(255,180,0,0.8) 100%);
+          border-radius: 4px;
+          padding: 2px 4px;
+          margin: -2px -4px;
+          box-shadow: 0 0 8px rgba(255,200,0,0.5);
+          animation: highlight-pulse 0.3s ease-out;
+        }
+        @keyframes highlight-pulse {
+          0% { transform: scale(1.1); }
+          100% { transform: scale(1); }
         }
       `}</style>
-      {showSkeleton && !showFlipbook && (
-        <BookLoader width={350} height={420} />
-      )}
 
-      {showFlipbook && (
+      {loading && <BookLoader />}
+
+      {ready && (
         <HTMLFlipBook
-          width={Math.min(window.innerWidth * 0.45, 800)}
-          height={bookHeight}
-          size="stretch"
-          minWidth={250}
-          minHeight={300}
-          maxWidth={900}
-          maxHeight={700}
-          usePortrait
-          flippingTime={500}
-          flipDirection="rtl"
-          maxShadowOpacity={0.1}
+          ref={flipRef}
+          width={pageWidth}
+          height={pageHeight}
+          size="fixed"
+          usePortrait={isMobile}
+          flipDirection={isRTL ? "rtl" : "ltr"}
           showPageCorner={false}
-          ref={internalRef}
-          className="overflow-hidden rounded-xl"
+          maxShadowOpacity={0.1}
+          className="rounded-xl shadow-2xl"
+          onFlip={(e) => onPageChange?.((e?.data ?? 0) + 1)}
         >
-          {/* COVER PAGE */}
-          <Page number={1}>
-            <h2 className="text-3xl font-serif mb-2">أسرار الواحة</h2>
-            <p className="text-lg">د. إبراهيم الكوني</p>
-          </Page>
-
-          {/* CONTENT PAGES */}
-          {(() => {
-            // render pages but assign global continuous data-char indices
-            let globalIndex = 0;
-            return paginatedText.map((txt, i) => (
-              <Page key={i + 2} number={i + 2}>
-                <p>
-                  {Array.from(txt).map((c) => {
-                    const idx = globalIndex++;
-                    return (
-                      <span key={idx} data-char={idx}>
-                        {c}
-                      </span>
-                    );
-                  })}
-                </p>
-              </Page>
-            ));
-          })()}
+          {pages.map((p, i) => (
+            <Page 
+              key={i} 
+              number={i + 1}
+              isMobile={isMobile}
+              dynamicFontSize={dynamicFontSize}
+              dynamicLineHeight={dynamicLineHeight}
+            >
+              {(() => {
+                const out = [];
+                for (let w = p.startWord; w < p.endWord; w++) {
+                  const t = tokens[w];
+                  if (!t) continue;
+                  if (w !== p.startWord) out.push(" ");
+                  out.push(
+                    <span
+                      key={w}
+                      data-word-index={w}
+                      data-word-start={t.startChar}
+                      data-word-end={t.endChar}
+                    >
+                      {t.value}
+                    </span>
+                  );
+                }
+                return out;
+              })()}
+            </Page>
+          ))}
         </HTMLFlipBook>
       )}
     </div>
   );
 }
+
+/* ===============================
+   PAGE COMPONENT
+================================ */
+const Page = forwardRef(({ number, children, isMobile, dynamicFontSize, dynamicLineHeight }, ref) => (
+  <div ref={ref} className="bg-[#faf8f3] flex items-center justify-center overflow-hidden">
+    <div
+      className="w-full h-full flex flex-col items-center justify-center p-4"
+    >
+      <div
+        style={{
+          width: "100%",
+          maxWidth: "700px",
+          textAlign: "justify",
+          lineHeight: dynamicLineHeight,
+          fontSize: dynamicFontSize,
+          fontFamily: "'Noto Naskh Arabic', serif",
+          color: "#1f2937",
+          userSelect: "none",
+        }}
+      >
+        {children}
+      </div>
+
+      {number && (
+        <div className="absolute bottom-4 text-xs text-gray-400 font-serif">
+          {number}
+        </div>
+      )}
+    </div>
+  </div>
+));

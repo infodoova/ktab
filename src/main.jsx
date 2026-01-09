@@ -27,11 +27,11 @@ registerSW({
 });
 
 createRoot(document.getElementById("root")).render(
-  // <StrictMode>
-  <BrowserRouter>
-    <TokenRefreshWrapper>
-      <App />
-    </TokenRefreshWrapper>
-  </BrowserRouter>
-  //  </StrictMode>
+  <StrictMode>
+    <BrowserRouter>
+      <TokenRefreshWrapper>
+        <App />
+      </TokenRefreshWrapper>
+    </BrowserRouter>
+  </StrictMode>
 );
