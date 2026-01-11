@@ -146,9 +146,10 @@ export default function BookDisplay() {
   }, [effect, isMuted, volume]);
 
   /* ===============================
-     TTS (improved algo)
+     TTS (improved algo with prefetching)
   ================================ */
   const sendPageRef = useRef(null);
+  const prefetchPageRef = useRef(null);
 
   const {
     isPlaying: ttsPlaying,
@@ -156,6 +157,8 @@ export default function BookDisplay() {
     togglePlay,
     startPageStream,
     cancelStream,
+    promotePrefetch,
+    hasPrefetch,
   } = useReaderTTS({
     enabled: voice !== "none",
     bookRef,
@@ -172,7 +175,27 @@ export default function BookDisplay() {
 
       console.log("Auto-advancing to page:", next);
       bookRef.current?.goToPage?.(next);
-      sendPageRef.current?.(next).catch(console.error);
+      currentPageRef.current = next;
+
+      // Try to use prefetched audio for instant playback
+      if (hasPrefetch()) {
+        console.log("Using prefetched audio for instant playback");
+        promotePrefetch();
+      } else {
+        // Fallback: request new stream (shouldn't happen if prefetch worked)
+        console.log("No prefetch available, requesting fresh stream");
+        sendPageRef.current?.(next).catch(console.error);
+      }
+    },
+    onPrefetchNextPage: () => {
+      // Called at ~80% through current page - prefetch next page's audio
+      const next = (currentPageRef.current || 1) + 1;
+      const ok = bookRef.current?.getWordRangeForPage?.(next);
+      if (!ok) {
+        console.log("No next page to prefetch");
+        return;
+      }
+      prefetchPageRef.current?.(next);
     },
   });
 
@@ -184,13 +207,18 @@ export default function BookDisplay() {
         return;
       }
 
+      const totalPages = bookRef.current?.totalPages ?? 0;
+      const isLastPage = pageNumber >= totalPages;
+
       console.log(
         "Sending page:",
         pageNumber,
         "word range:",
         range.startWord,
         "-",
-        range.endWord
+        range.endWord,
+        "isLastPage:",
+        isLastPage
       );
       currentPageRef.current = pageNumber;
 
@@ -202,6 +230,7 @@ export default function BookDisplay() {
           start: range.startWord,
           end: range.endWord,
           token: gettoken,
+          isLastPage,
         },
         range.startChar
       );
@@ -209,7 +238,48 @@ export default function BookDisplay() {
     [id, voice, gettoken, startPageStream]
   );
 
+  // Prefetch next page's audio while current page is still playing
+  const prefetchPage = useCallback(
+    async (pageNumber) => {
+      const range = bookRef.current?.getWordRangeForPage?.(pageNumber);
+      if (!range) {
+        console.warn("No word range for prefetch page:", pageNumber);
+        return;
+      }
+
+      const totalPages = bookRef.current?.totalPages ?? 0;
+      const isLastPage = pageNumber >= totalPages;
+
+      console.log(
+        "Prefetching page:",
+        pageNumber,
+        "word range:",
+        range.startWord,
+        "-",
+        range.endWord,
+        "isLastPage:",
+        isLastPage
+      );
+
+      await startPageStream(
+        {
+          action: "stream",
+          bookId: Number(id),
+          voiceId: voice,
+          start: range.startWord,
+          end: range.endWord,
+          token: gettoken,
+          isLastPage,
+        },
+        range.startChar,
+        { prefetch: true } // Prefetch mode - don't cancel current stream
+      );
+    },
+    [id, voice, gettoken, startPageStream]
+  );
+
   sendPageRef.current = sendPage;
+  prefetchPageRef.current = prefetchPage;
 
   // When user presses Play:
   // - If starting from paused → just resume
