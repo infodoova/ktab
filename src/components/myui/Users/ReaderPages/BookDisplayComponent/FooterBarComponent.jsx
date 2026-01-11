@@ -29,6 +29,7 @@ export default function ReaderFooter({ onNext, onPrev, isPlaying, onTogglePlay }
           icon={<ChevronLeft size={28} />}
           label="الصفحة السابقة"
           onClick={onNext}
+          disabled={isPlaying}
         />
 
         {/* PLAY / PAUSE */}
@@ -58,6 +59,7 @@ export default function ReaderFooter({ onNext, onPrev, isPlaying, onTogglePlay }
           icon={<ChevronRight size={28} />}
           label="الصفحة التالية"
           onClick={onPrev}
+          disabled={isPlaying}
         />
 
       </div>
@@ -65,22 +67,28 @@ export default function ReaderFooter({ onNext, onPrev, isPlaying, onTogglePlay }
   );
 }
 
-function FooterIcon({ icon, label, onClick }) {
+function FooterIcon({ icon, label, onClick, disabled }) {
   return (
     <button
-      onClick={onClick}
-      className="relative group p-2 text-[#5c4d43] hover:text-black transition-transform active:scale-95 duration-200"
+      onClick={disabled ? undefined : onClick}
+      className={`relative group p-2 transition-transform active:scale-95 duration-200 ${
+        disabled
+          ? "text-gray-300 cursor-not-allowed opacity-50"
+          : "text-[#5c4d43] hover:text-black"
+      }`}
     >
       {icon}
-      <span
-        className="
-          absolute -top-10 left-1/2 -translate-x-1/2
-          bg-black/80 text-white text-[10px] px-2 py-1 rounded
-          opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap
-        "
-      >
-        {label}
-      </span>
+      {!disabled && (
+        <span
+          className="
+            absolute -top-10 left-1/2 -translate-x-1/2
+            bg-black/80 text-white text-[10px] px-2 py-1 rounded
+            opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap
+          "
+        >
+          {label}
+        </span>
+      )}
     </button>
   );
 }

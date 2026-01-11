@@ -29,6 +29,7 @@ export function useReaderTTS({ enabled, onPageEnded }) {
   const allWordsRef = useRef([]);
   const lastHighlightedRef = useRef(null);
   const totalDurationRef = useRef(0);
+  const charOffsetRef = useRef(0);
 
   const ensureCtx = useCallback(() => {
     if (!audioCtxRef.current) audioCtxRef.current = createAudioContextSafe();
@@ -51,13 +52,41 @@ export function useReaderTTS({ enabled, onPageEnded }) {
       el.classList.remove("tts-active-word");
     });
 
-    const el = document.querySelector(
-      `[data-word-start="${startChar}"][data-word-end="${endChar}"]`
-    );
+    const selector = `[data-word-start="${startChar}"][data-word-end="${endChar}"]`;
+    let el = document.querySelector(selector);
+
+    if (!el) {
+      // FUZZY MATCH: If exact match fails, find the word that contains this range
+      // or overlaps significantly.
+      const allWords = document.querySelectorAll("[data-word-start]");
+      let bestMatch = null;
+      let minDiff = 10; // Max allowed character drift
+
+      for (const wordEl of allWords) {
+        const wordStart = parseInt(wordEl.getAttribute("data-word-start"));
+        const wordEnd = parseInt(wordEl.getAttribute("data-word-end"));
+        
+        // Check if this element covers our word
+        if (wordStart <= startChar && wordEnd >= endChar) {
+          el = wordEl;
+          break;
+        }
+
+        // Check for slight drift (off by 1 or 2 characters)
+        const startDiff = Math.abs(wordStart - startChar);
+        const endDiff = Math.abs(wordEnd - endChar);
+        if (startDiff + endDiff < minDiff) {
+          minDiff = startDiff + endDiff;
+          bestMatch = wordEl;
+        }
+      }
+      if (!el && bestMatch) el = bestMatch;
+    }
 
     if (el) {
       el.classList.add("tts-active-word");
       lastHighlightedRef.current = key;
+      el.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
     }
   }, []);
 
@@ -83,9 +112,12 @@ export function useReaderTTS({ enabled, onPageEnded }) {
 
       // Find current word (word timings are in original expected scale)
       let currentWord = null;
+      // Find the word that's currently being spoken
       for (const w of allWordsRef.current) {
+        // Check if elapsed time is within this word's time range (with buffer for timing variations)
         if (elapsed >= w.startSec && elapsed <= w.endSec + 0.15) {
           currentWord = w;
+          // Break on first match - words should be sequential, so first match is correct
           break;
         }
       }
@@ -163,8 +195,8 @@ export function useReaderTTS({ enabled, onPageEnded }) {
             word: w.word,
             startSec: cumulativeOffset + w.startSec,
             endSec: cumulativeOffset + w.endSec,
-            startChar: w.startChar,
-            endChar: w.endChar,
+            startChar: charOffsetRef.current + w.startChar,
+            endChar: charOffsetRef.current + w.endChar,
           });
         }
 
@@ -252,6 +284,7 @@ export function useReaderTTS({ enabled, onPageEnded }) {
     playbackStartTimeRef.current = null;
     totalDurationRef.current = 0;
     expectedDurationRef.current = 0;
+    charOffsetRef.current = 0;
 
     gotCompleteRef.current = false;
     pageEndedFiredRef.current = false;
@@ -356,7 +389,7 @@ export function useReaderTTS({ enabled, onPageEnded }) {
   }, [connect, ensureCtx, isPlaying, startLoop, stopLoop]);
 
   const startPageStream = useCallback(
-    async (payload) => {
+    async (payload, charOffset = 0) => {
       await connect();
       ensureCtx();
 
@@ -373,6 +406,7 @@ export function useReaderTTS({ enabled, onPageEnded }) {
       playbackStartTimeRef.current = null;
       totalDurationRef.current = 0;
       expectedDurationRef.current = 0;
+      charOffsetRef.current = charOffset;
 
       gotCompleteRef.current = false;
       pageEndedFiredRef.current = false;

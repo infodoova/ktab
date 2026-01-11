@@ -19,8 +19,6 @@ import { getHelper } from "../../../../../apis/apiHelpers";
 import { AlertToast } from "../../../../components/myui/AlertToast";
 import { token } from "../../../../../store/authToken";
 
-const WORDS_PER_PAGE = 100;
-
 export default function BookDisplay() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -30,6 +28,7 @@ export default function BookDisplay() {
 
   const [bookText, setBookText] = useState("");
   const [loadingText, setLoadingText] = useState(true);
+  const [wordsPerPage] = useState(50);
 
   const [voice, setVoice] = useState("CwhRBWXzGAHq8TQ4Fs17");
   const [effect, setEffect] = useState("none");
@@ -149,6 +148,34 @@ export default function BookDisplay() {
   /* ===============================
      TTS (improved algo)
   ================================ */
+  const sendPageRef = useRef(null);
+
+  const {
+    isPlaying: ttsPlaying,
+    isStreaming,
+    togglePlay,
+    startPageStream,
+    cancelStream,
+  } = useReaderTTS({
+    enabled: voice !== "none",
+    bookRef,
+    onPageEnded: () => {
+      if (!ttsStartedRef.current) return;
+
+      const next = (currentPageRef.current || 1) + 1;
+      const ok = bookRef.current?.getWordRangeForPage?.(next);
+      if (!ok) {
+        console.log("Last page reached, stopping TTS");
+        ttsStartedRef.current = false;
+        return;
+      }
+
+      console.log("Auto-advancing to page:", next);
+      bookRef.current?.goToPage?.(next);
+      sendPageRef.current?.(next).catch(console.error);
+    },
+  });
+
   const sendPage = useCallback(
     async (pageNumber) => {
       const range = bookRef.current?.getWordRangeForPage?.(pageNumber);
@@ -167,46 +194,22 @@ export default function BookDisplay() {
       );
       currentPageRef.current = pageNumber;
 
-      await startPageStream({
-        action: "stream",
-        bookId: Number(id),
-        voiceId: voice,
-        start: range.startWord,
-        end: range.endWord, // EXCLUSIVE
-        token: gettoken,
-      });
+      await startPageStream(
+        {
+          action: "stream",
+          bookId: Number(id),
+          voiceId: voice,
+          start: range.startWord,
+          end: range.endWord,
+          token: gettoken,
+        },
+        range.startChar
+      );
     },
-    [id, voice, gettoken]
+    [id, voice, gettoken, startPageStream]
   );
 
-  const {
-    isPlaying: ttsPlaying,
-    isStreaming,
-    togglePlay,
-    startPageStream,
-    cancelStream,
-  } = useReaderTTS({
-    enabled: voice !== "none",
-    bookRef,
-    onPageEnded: () => {
-      // Auto next page - only if TTS was actively playing
-      if (!ttsStartedRef.current) return;
-
-      const next = (currentPageRef.current || 1) + 1;
-      const ok = bookRef.current?.getWordRangeForPage?.(next);
-      if (!ok) {
-        // Last page reached - stop TTS
-        console.log("Last page reached, stopping TTS");
-        ttsStartedRef.current = false;
-        return;
-      }
-
-      console.log("Auto-advancing to page:", next);
-      // Flip to next page then send
-      bookRef.current?.goToPage?.(next);
-      sendPage(next).catch(console.error);
-    },
-  });
+  sendPageRef.current = sendPage;
 
   // When user presses Play:
   // - If starting from paused → just resume
@@ -223,16 +226,16 @@ export default function BookDisplay() {
         // If we are already streaming (audio buffered/buffering) and on the same page,
         // we just RESUME. Else, we start fresh.
         const isSamePage = startPage === currentPageRef.current;
-        
+
         if (isStreaming && isSamePage) {
-           console.log("Resuming existing stream for page", startPage);
-           // No need to sendPage.
+          console.log("Resuming existing stream for page", startPage);
+          // No need to sendPage.
         } else {
-           console.log("Starting TTS from page:", startPage);
-           // Mark TTS as started
-           ttsStartedRef.current = true;
-           // Send page data to backend
-           await sendPage(startPage);
+          console.log("Starting TTS from page:", startPage);
+          // Mark TTS as started
+          ttsStartedRef.current = true;
+          // Send page data to backend
+          await sendPage(startPage);
         }
       }
     } else {
@@ -243,34 +246,31 @@ export default function BookDisplay() {
     await togglePlay();
   }, [ttsPlaying, loadingText, sendPage, togglePlay, isStreaming]);
 
-  // Timer ref for debouncing page flip TTS restart
-  const pageFlipTimerRef = useRef(null);
-
   // If user flips page while playing → cancel current stream and start from new page
   const onPageChange = useCallback(
     (p) => {
       const previousPage = currentPageRef.current;
-      currentPageRef.current = p;
-
       console.log("Page changed to:", p, "(was:", previousPage, ")");
 
-      if (ttsPlaying && ttsStartedRef.current && previousPage !== p) {
-        // User flipped page during playback - cancel current and restart
-        console.log("Cancelling stream and restarting from page:", p);
-        cancelStream();
-
-        // Clear any pending restart from previous rapid flips
-        if (pageFlipTimerRef.current) {
-          clearTimeout(pageFlipTimerRef.current);
+      if (previousPage !== p) {
+        if (ttsPlaying) {
+          // This should only happen via auto-advance since manual flipping is disabled
+          // while ttsPlaying is true. We don't want to double-trigger if sendPage 
+          // was already called by onPageEnded.
+          console.log("Auto-page change detected during playback.");
+          // We don't necessarily need to restart here if it's auto-advance, 
+          // as onPageEnded handles it.
+        } else {
+          // Case 2: Flipped while paused - dispose the previous stream
+          // so that onTogglePlay knows to start fresh
+          if (isStreaming) {
+            console.log("Flipped while paused, disposing previous stream.");
+            cancelStream();
+          }
         }
-
-        // Debounce the restart to wait for user to stop flipping (600ms)
-        pageFlipTimerRef.current = setTimeout(() => {
-          sendPage(p).catch(console.error);
-        }, 600);
       }
     },
-    [ttsPlaying, sendPage, cancelStream]
+    [ttsPlaying, cancelStream, isStreaming]
   );
 
   // Reset when book or voice changes
@@ -291,6 +291,7 @@ export default function BookDisplay() {
         volume={volume}
         isMuted={isMuted}
         onToggleMute={() => setIsMuted((s) => !s)}
+        readOnly={ttsPlaying}
       />
 
       <main className="flex-1 flex items-center justify-center overflow-hidden">
@@ -298,8 +299,9 @@ export default function BookDisplay() {
           bookRef={bookRef}
           text={bookText}
           loading={loadingText}
-          wordsPerPage={WORDS_PER_PAGE}
+          wordsPerPage={wordsPerPage}
           onPageChange={onPageChange}
+          readOnly={ttsPlaying}
         />
       </main>
 

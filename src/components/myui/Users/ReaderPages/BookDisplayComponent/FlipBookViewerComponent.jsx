@@ -29,16 +29,58 @@ function tokenize(text) {
 }
 
 /* ===============================
-   PAGINATION (WORD COUNT)
+   PAGINATION (DYNAMIC WORD COUNT)
 ================================ */
-function paginate(tokens, wordsPerPage) {
+function paginate(tokens, wordsPerPageArray) {
   const pages = [];
-  for (let i = 0; i < tokens.length; i += wordsPerPage) {
-    pages.push({
-      startWord: i,
-      endWord: Math.min(i + wordsPerPage, tokens.length),
-    });
+  let currentIndex = 0;
+
+  // If wordsPerPageArray is a number, convert to array format
+  if (typeof wordsPerPageArray === "number") {
+    while (currentIndex < tokens.length) {
+      const endWord = Math.min(currentIndex + wordsPerPageArray, tokens.length);
+      pages.push({
+        startWord: currentIndex,
+        endWord: endWord,
+        wordCount: endWord - currentIndex,
+      });
+      currentIndex = endWord;
+    }
+  } else if (Array.isArray(wordsPerPageArray)) {
+    // Dynamic words per page
+    for (
+      let i = 0;
+      i < wordsPerPageArray.length && currentIndex < tokens.length;
+      i++
+    ) {
+      const wordsInThisPage = wordsPerPageArray[i];
+      const endWord = Math.min(currentIndex + wordsInThisPage, tokens.length);
+      pages.push({
+        startWord: currentIndex,
+        endWord: endWord,
+        wordCount: endWord - currentIndex,
+      });
+      currentIndex = endWord;
+    }
+
+    // If there are remaining tokens and no more page definitions, use the last value
+    if (currentIndex < tokens.length && wordsPerPageArray.length > 0) {
+      const lastWordsPerPage = wordsPerPageArray[wordsPerPageArray.length - 1];
+      while (currentIndex < tokens.length) {
+        const endWord = Math.min(
+          currentIndex + lastWordsPerPage,
+          tokens.length
+        );
+        pages.push({
+          startWord: currentIndex,
+          endWord: endWord,
+          wordCount: endWord - currentIndex,
+        });
+        currentIndex = endWord;
+      }
+    }
   }
+
   return pages;
 }
 
@@ -60,9 +102,11 @@ export default function FlipBookViewer({
   bookRef,
   text = "",
   loading = false,
-  wordsPerPage = 100,
+  wordsPerPage = 10, // Can be a number or array of numbers [10, 15, 20, ...]
   isRTL = true,
   onPageChange,
+  onPagesGenerated, // Callback to send page info with start/end words
+  readOnly = false,
 }) {
   const containerRef = useRef(null);
   const flipRef = useRef(null);
@@ -82,13 +126,13 @@ export default function FlipBookViewer({
         height: window.innerHeight,
       });
     }
-    
+
     // Check if we are in a browser environment before adding listener
     if (typeof window !== "undefined") {
       window.addEventListener("resize", handleResize);
       handleResize(); // Init
     }
-    
+
     return () => {
       if (typeof window !== "undefined") {
         window.removeEventListener("resize", handleResize);
@@ -117,6 +161,21 @@ export default function FlipBookViewer({
   );
   const totalPages = pages.length;
 
+  /* ---------- NOTIFY PARENT OF PAGE INFO ---------- */
+  useEffect(() => {
+    if (onPagesGenerated && pages.length > 0) {
+      const pageInfo = pages.map((page, index) => ({
+        pageNumber: index + 1,
+        startWord: page.startWord,
+        endWord: page.endWord,
+        wordCount: page.wordCount,
+        startChar: tokens[page.startWord]?.startChar ?? 0,
+        endChar: tokens[page.endWord - 1]?.endChar ?? 0,
+      }));
+      onPagesGenerated(pageInfo);
+    }
+  }, [pages, tokens, onPagesGenerated]);
+
   /* ---------- RESPONSIVE DIMENSIONS ---------- */
   const { width: vw, height: vh } = windowDimensions;
   const isMobile = vw < 768; // Tablet/Mobile breakpoint
@@ -126,15 +185,15 @@ export default function FlipBookViewer({
 
   if (isMobile) {
     // Single page view: Page takes most of the screen width
-    pageWidth = Math.min(vw * 0.9, 600); 
-    pageHeight = vh * 0.7; 
+    pageWidth = Math.min(vw * 0.9, 600);
+    pageHeight = vh * 0.7;
   } else {
     // Double page view: Page takes ~45% of screen width (so 2 pages fit)
     pageWidth = Math.min(vw * 0.45, 600);
     // Adjusted height logic for desktop
     pageHeight = vw < 1024 ? vh * 0.55 : vh * 0.7;
   }
-  
+
   // Font size calculation to fit text
   const dynamicFontSize = isMobile ? "11px" : "15px";
   const dynamicLineHeight = isMobile ? "1.8" : "2.1";
@@ -166,10 +225,13 @@ export default function FlipBookViewer({
       const p = Math.min(Math.max(1, page), totalPages);
       const def = pages[p - 1];
       if (!def) return null;
+      const firstToken = tokens[def.startWord];
       return {
         page: p,
         startWord: def.startWord,
         endWord: def.endWord,
+        wordCount: def.wordCount,
+        startChar: firstToken ? firstToken.startChar : 0,
       };
     };
 
@@ -235,27 +297,32 @@ export default function FlipBookViewer({
     return () => el.removeEventListener("wheel", onWheel);
   }, [isRTL]);
 
-
   /* ===============================
      RENDER
   ================================ */
   return (
     <div
       ref={containerRef}
-      className="w-full h-full flex items-center justify-center"
+      className={`w-full h-full flex items-center justify-center ${
+        readOnly ? "pointer-events-none" : ""
+      }`}
       style={{ direction: "rtl" }}
     >
       <style>{`
         .tts-active-word {
-          background: linear-gradient(135deg, rgba(255,215,0,0.8) 0%, rgba(255,180,0,0.8) 100%);
+          background: #ffd700 !important;
+          color: #000 !important;
           border-radius: 4px;
           padding: 2px 4px;
           margin: -2px -4px;
-          box-shadow: 0 0 8px rgba(255,200,0,0.5);
+          box-shadow: 0 0 10px rgba(255,215,0,0.8);
+          display: inline-block;
+          position: relative;
+          z-index: 10;
           animation: highlight-pulse 0.3s ease-out;
         }
         @keyframes highlight-pulse {
-          0% { transform: scale(1.1); }
+          0% { transform: scale(1.05); }
           100% { transform: scale(1); }
         }
       `}</style>
@@ -276,8 +343,8 @@ export default function FlipBookViewer({
           onFlip={(e) => onPageChange?.((e?.data ?? 0) + 1)}
         >
           {pages.map((p, i) => (
-            <Page 
-              key={i} 
+            <Page
+              key={i}
               number={i + 1}
               isMobile={isMobile}
               dynamicFontSize={dynamicFontSize}
@@ -313,31 +380,34 @@ export default function FlipBookViewer({
 /* ===============================
    PAGE COMPONENT
 ================================ */
-const Page = forwardRef(({ number, children, isMobile, dynamicFontSize, dynamicLineHeight }, ref) => (
-  <div ref={ref} className="bg-[#faf8f3] flex items-center justify-center overflow-hidden">
+const Page = forwardRef(
+  ({ number, children, dynamicFontSize, dynamicLineHeight }, ref) => (
     <div
-      className="w-full h-full flex flex-col items-center justify-center p-4"
+      ref={ref}
+      className="bg-[#faf8f3] flex items-center justify-center overflow-hidden"
     >
-      <div
-        style={{
-          width: "100%",
-          maxWidth: "700px",
-          textAlign: "justify",
-          lineHeight: dynamicLineHeight,
-          fontSize: dynamicFontSize,
-          fontFamily: "'Noto Naskh Arabic', serif",
-          color: "#1f2937",
-          userSelect: "none",
-        }}
-      >
-        {children}
-      </div>
-
-      {number && (
-        <div className="absolute bottom-4 text-xs text-gray-400 font-serif">
-          {number}
+      <div className="w-full h-full flex flex-col items-center justify-center p-4">
+        <div
+          style={{
+            width: "100%",
+            maxWidth: "700px",
+            textAlign: "justify",
+            lineHeight: dynamicLineHeight,
+            fontSize: dynamicFontSize,
+            fontFamily: "'Noto Naskh Arabic', serif",
+            color: "#1f2937",
+            userSelect: "none",
+          }}
+        >
+          {children}
         </div>
-      )}
+
+        {number && (
+          <div className="absolute bottom-4 text-xs text-gray-400 font-serif">
+            {number}
+          </div>
+        )}
+      </div>
     </div>
-  </div>
-));
+  )
+);

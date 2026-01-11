@@ -31,6 +31,7 @@ export default function ReaderHeader({
   setVoice,
   isMuted = false,
   onToggleMute,
+  readOnly = false,
 }) {
   const [pageInput, setPageInput] = React.useState("");
 
@@ -188,18 +189,24 @@ export default function ReaderHeader({
           />
 
           {/* 4️⃣ GO TO PAGE (desktop only) */}
-          <div className="hidden sm:flex items-center gap-2">
+          <div
+            className={`hidden sm:flex items-center gap-2 ${
+              readOnly ? "opacity-50 pointer-events-none" : ""
+            }`}
+          >
             <input
               type="number"
               min="1"
               value={pageInput}
               onChange={(e) => setPageInput(e.target.value)}
+              disabled={readOnly}
               className="w-20 h-8 text-center border rounded-lg text-sm bg-white"
               placeholder="الصفحة"
               dir="rtl"
             />
             <button
               onClick={handleGoToPage}
+              disabled={readOnly}
               className="px-3 py-1 rounded-lg text-sm bg-[var(--earth-olive)] text-white"
             >
               اذهب
@@ -230,8 +237,11 @@ export default function ReaderHeader({
                   {/* GO TO PAGE */}
                   <li>
                     <button
-                      className="w-full text-right px-3 py-2 hover:bg-gray-50"
+                      className={`w-full text-right px-3 py-2 hover:bg-gray-50 ${
+                        readOnly ? "opacity-50 pointer-events-none" : ""
+                      }`}
                       onClick={() => {
+                        if (readOnly) return;
                         setIsHamOpen(false);
                         setModalType("goto");
                       }}
