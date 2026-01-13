@@ -16,6 +16,7 @@ export default function AssignedBooksCP() {
     try {
       const res = await getHelper({
         url: `${import.meta.env.VITE_API_URL}/library/myLibrary`,
+        pagination: true,
         page: 0,
         size: 8,
       });
@@ -25,7 +26,7 @@ export default function AssignedBooksCP() {
         setBooks([]);
         return;
       } else {
-        setBooks(res.content);
+        setBooks(res.data?.content ?? []);
       }
     } catch (error) {
       console.error("Library fetch error:", error);
@@ -53,7 +54,7 @@ export default function AssignedBooksCP() {
       });
 
       if (res?.messageStatus !== "SUCCESS") {
-        AlertToast(res.message , res.messageStatus);
+        AlertToast(res.message, res.messageStatus);
 
         setBooks((prev) => prev.filter((b) => b.id !== bookId));
       } else {

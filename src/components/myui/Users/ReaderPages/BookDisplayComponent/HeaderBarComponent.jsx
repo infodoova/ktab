@@ -28,9 +28,9 @@ export default function ReaderHeader({
   setEffect,
   volume = 0.8,
   voice,
-  setVoice,
+  onSelectVoice,
   isMuted = false,
-  onToggleMute,
+  onCycleVolume,
   readOnly = false,
 }) {
   const [pageInput, setPageInput] = React.useState("");
@@ -100,14 +100,14 @@ export default function ReaderHeader({
               <DropdownMenuSeparator />
 
               {[
-                { id: "none", label: "بدون صوت" },
                 { id: "aCChyB4P5WEomwRsOKRh", label: "صوت افتراضي" },
-                { id: "CwhRBWXzGAHq8TQ4Fs18", label: "صوت هادئ" },
-                { id: "CwhRBWXzGAHq8TQ4Fs19", label: "صوت عميق" },
+                { id: "IES4nrmZdUBHByLBde0P", label: " مصري" },
+                { id: "rFDdsCQRZCUL8cPOWtnP", label: " سوري" },
+                { id: "s83SAGdFTflAwJcAV81K", label: " سعودي " },
               ].map((v) => (
                 <DropdownMenuItem
                   key={v.id}
-                  onClick={() => setVoice(v.id)}
+                  onClick={() => onSelectVoice?.(v.id)}
                   className={voice === v.id ? "bg-[var(--earth-cream)]" : ""}
                 >
                   <UserRound size={18} className="mr-2" /> {v.label}
@@ -185,7 +185,7 @@ export default function ReaderHeader({
               )
             }
             label="الصوت"
-            onClick={() => onToggleMute && onToggleMute()}
+            onClick={() => onCycleVolume && onCycleVolume()}
           />
 
           {/* 4️⃣ GO TO PAGE (desktop only) */}

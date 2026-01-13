@@ -15,7 +15,7 @@ import MainPage from "./Screens/dashboard/ReaderPages/MainPage";
 import InteractiveStories from "./Screens/dashboard/ReaderPages/InteractiveStories";
 import Profile from "./Screens/dashboard/ReaderPages/Profile";
 import Library from "./Screens/dashboard/ReaderPages/Library";
-import Achievements from './Screens/dashboard/ReaderPages/Achievements'
+import Achievements from "./Screens/dashboard/ReaderPages/Achievements";
 import ReaderSettings from "./Screens/dashboard/ReaderPages/Settings";
 import BookDisplay from "./Screens/dashboard/ReaderPages/BookDisplayPage/[id]";
 import BookDetails from "./Screens/dashboard/ReaderPages/BookDetails/BookDetails";
@@ -58,6 +58,7 @@ function App() {
           path="/author/interactive-story"
           element={<InterActiveStory />}
         />
+
         <Route path="/author/new-book" element={<NewBooks />} />
         <Route path="/author/books/edit/:draftId" element={<NewBooks />} />
         <Route path="/author/settings" element={<Settings />} />
@@ -70,10 +71,7 @@ function App() {
           path="/Screens/dashboard/AuthorPages/controlBoard"
           element={<Navigate to="/author/control" replace />}
         />
-        <Route
-          path="/Screens/dashboard/AuthorPages/NewInteractiveStory"
-          element={<Navigate to="/author/interactive-story" replace />}
-        />
+
         <Route
           path="/Screens/dashboard/AuthorPages/newBookPublish"
           element={<Navigate to="/author/new-book" replace />}
@@ -85,6 +83,10 @@ function App() {
         <Route
           path="/Screens/dashboard/AuthorPages/ratings"
           element={<Navigate to="/author/ratings" replace />}
+        />
+        <Route
+          path="/Screens/dashboard/AuthorPages/NewInteractiveStory"
+          element={<Navigate to="/author/interactive-story" replace />}
         />
         <Route
           path="/Screens/dashboard/AuthorPages/aiTools"
@@ -104,7 +106,7 @@ function App() {
         <Route path="/reader/home" element={<MainPage />} />
         <Route path="/reader/BookDetails/:id" element={<BookDetails />} />
         <Route path="/reader/display/:id" element={<BookDisplay />} />
-        <Route path="/reader/Achievements" element={<Achievements />}/>
+        <Route path="/reader/Achievements" element={<Achievements />} />
         <Route
           path="/reader/interactive-stories"
           element={<InteractiveStories />}

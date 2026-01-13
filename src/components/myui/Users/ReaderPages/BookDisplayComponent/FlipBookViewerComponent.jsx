@@ -102,7 +102,7 @@ export default function FlipBookViewer({
   bookRef,
   text = "",
   loading = false,
-  wordsPerPage = 10, // Can be a number or array of numbers [10, 15, 20, ...]
+  wordsPerPage = 100, // Can be a number or array of numbers [10, 15, 20, ...]
   isRTL = true,
   onPageChange,
   onPagesGenerated, // Callback to send page info with start/end words
@@ -211,6 +211,7 @@ export default function FlipBookViewer({
     bookRef.current.getCurrentPageNumber = () => {
       const flip = flipRef.current?.pageFlip?.();
       if (!flip) return 1;
+      // Library getCurrentPageIndex() returns the left page in spread mode.
       return (flip.getCurrentPageIndex?.() ?? 0) + 1;
     };
 
@@ -303,7 +304,8 @@ export default function FlipBookViewer({
   return (
     <div
       ref={containerRef}
-      className={`w-full h-full flex items-center justify-center ${
+      className={`w-full h-full flex items-center justify-center relative ${
+        // Added 'relative' here
         readOnly ? "pointer-events-none" : ""
       }`}
       style={{ direction: "rtl" }}
@@ -324,6 +326,67 @@ export default function FlipBookViewer({
         @keyframes highlight-pulse {
           0% { transform: scale(1.05); }
           100% { transform: scale(1); }
+        }
+        
+        /* Page Splitter Styling */
+        .stf__wrapper::before {
+          content: '';
+          position: absolute;
+          top: 5%;
+          bottom: 5%;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 2px;
+          background: linear-gradient(
+            to bottom,
+            transparent 0%,
+            rgba(139, 92, 53, 0.1) 5%,
+            rgba(139, 92, 53, 0.3) 50%,
+            rgba(139, 92, 53, 0.1) 95%,
+            transparent 100%
+          );
+          box-shadow: 
+            0 0 10px rgba(139, 92, 53, 0.1),
+            inset 1px 0 2px rgba(255, 255, 255, 0.2);
+          pointer-events: none;
+          z-index: 0;
+        }
+        
+        /* Hide splitter on mobile/single page view */
+        @media (max-width: 767px) {
+          .stf__wrapper::before {
+            display: none;
+          }
+        }
+        
+        /* Enhanced book spine effect */
+        .stf__wrapper::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          left: calc(50% - 1px);
+          width: 2px;
+          background: rgba(0, 0, 0, 0.05);
+          pointer-events: none;
+          z-index: -1;
+        }
+        
+        @media (max-width: 767px) {
+          .stf__wrapper::after {
+            display: none;
+          }
+        }
+        
+        /* Add subtle shadow to pages for depth */
+        .stf__item {
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        
+        /* Enhance the book container */
+        .stf__wrapper {
+          position: relative;
+          filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.15));
         }
       `}</style>
 
@@ -401,10 +464,12 @@ const Page = forwardRef(
         >
           {children}
         </div>
-
         {number && (
-          <div className="absolute bottom-4 text-xs text-gray-400 font-serif">
-            {number}
+          <div className="absolute bottom-6 left-0 right-0 flex flex-col items-center">
+            {/* Subtle divider line (optional) */}
+            <span className="text-[10px] uppercase tracking-widest text-gray-400 font-medium tabular-nums">
+              — {number} —
+            </span>
           </div>
         )}
       </div>

@@ -28,12 +28,28 @@ export default function BookDisplay() {
 
   const [bookText, setBookText] = useState("");
   const [loadingText, setLoadingText] = useState(true);
-  const [wordsPerPage] = useState(50);
+  const [wordsPerPage] = useState(100);
 
   const [voice, setVoice] = useState("CwhRBWXzGAHq8TQ4Fs17");
   const [effect, setEffect] = useState("none");
   const [isMuted, setIsMuted] = useState(false);
-  const [volume] = useState(0.8);
+  const [volume, setVolume] = useState(0.2); // volume of effects
+
+  // cycle volume: 0.2  -> 0.8 -> muted -> 0.2 ...
+  const cycleVolume = useCallback(() => {
+    if (isMuted) {
+      setIsMuted(false);
+      setVolume(0.2);
+      return;
+    }
+
+    setVolume((prev) => {
+      if (prev < 0.3) return 0.8;
+      // last step: mute without changing stored volume
+      setIsMuted(true);
+      return prev;
+    });
+  }, [isMuted]);
 
   // track current page for restart logic (1-indexed)
   const currentPageRef = useRef(1);
@@ -68,7 +84,8 @@ export default function BookDisplay() {
           typeof resp?.data === "string" ? resp.data : resp?.data?.text ?? "";
 
         setBookText(text || "محتوى الكتاب غير متوفر حالياً.");
-      } catch {
+      } catch (err) {
+        console.error("Error loading book text:", err);
         AlertToast("تعذر تحميل نص الكتاب.", "ERROR");
         setBookText("محتوى الكتاب غير متوفر حالياً.");
       } finally {
@@ -80,69 +97,166 @@ export default function BookDisplay() {
     return () => (mounted = false);
   }, [id]);
 
-  // Ambient init
+  // Ambient init & cleanup - once on mount
   useEffect(() => {
     let mounted = true;
     const refs = audioRefs.current;
 
     const init = async () => {
-      const ctx = createAudioContextSafe();
-      if (!ctx) return;
-      refs.audioContext = ctx;
+      try {
+        if (!refs.audioContext) {
+          const ctx = createAudioContextSafe();
+          if (!ctx) {
+            console.warn(
+              "AudioContext creation failed. Ambient sounds disabled."
+            );
+            return;
+          }
+          refs.audioContext = ctx;
 
-      await Promise.all(
-        Object.entries(refs.urls).map(async ([k, url]) => {
-          const buf = await fetchAndDecode(ctx, url);
-          if (!mounted || !buf) return;
-          refs.buffers[k] = buf;
-          refs.gainNodes[k] = createGainNode(ctx, isMuted ? 0 : volume);
-        })
-      );
+          // Create gain nodes immediately for all possible effects
+          // Note: we use values from when init() runs, the second useEffect will correct them
+          Object.keys(refs.urls).forEach((k) => {
+            refs.gainNodes[k] = createGainNode(ctx, isMuted ? 0 : volume);
+          });
+        }
+
+        const ctx = refs.audioContext;
+        // Load buffers in parallel
+        await Promise.all(
+          Object.entries(refs.urls).map(async ([k, url]) => {
+            if (refs.buffers[k]) return;
+            try {
+              const buf = await fetchAndDecode(ctx, url);
+              if (mounted && buf) {
+                refs.buffers[k] = buf;
+              }
+            } catch (err) {
+              console.error(`Failed to load/decode ambient sound: ${k}`, err);
+            }
+          })
+        );
+      } catch (err) {
+        console.error("Critical error in ambient audio init:", err);
+      }
     };
 
     init();
 
     return () => {
       mounted = false;
-      Object.values(refs.sources).forEach((s) => s.stop?.());
+      Object.values(refs.sources).forEach((s) => {
+        try {
+          s.stop?.();
+        } catch (err) {
+          // Source might already be stopped
+          console.debug("Ambient source stop failed:", err.message);
+        }
+      });
       refs.sources = {};
-      refs.audioContext?.close?.();
+      try {
+        refs.audioContext?.close?.();
+      } catch (err) {
+        console.error("Failed to close AudioContext:", err);
+      }
       refs.audioContext = null;
+      refs.buffers = {};
+      refs.gainNodes = {};
     };
-  }, [isMuted, volume]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run only once on mount
 
+  // Update effect/volume/mute - reacts to state changes
   useEffect(() => {
     const ctx = audioRefs.current.audioContext;
     if (!ctx) return;
 
-    Object.values(audioRefs.current.gainNodes).forEach(
-      (g) => (g.gain.value = isMuted ? 0 : volume)
-    );
+    // 1. Update gain values for ALL gain nodes
+    Object.values(audioRefs.current.gainNodes).forEach((g) => {
+      if (g) {
+        try {
+          // Use ramp for smoother volume changes if possible
+          if (g.gain.setTargetAtTime) {
+            g.gain.setTargetAtTime(isMuted ? 0 : volume, ctx.currentTime, 0.1);
+          } else {
+            g.gain.value = isMuted ? 0 : volume;
+          }
+        } catch {
+          g.gain.value = isMuted ? 0 : volume;
+        }
+      }
+    });
 
-    if (isMuted || effect === "none") {
-      Object.values(audioRefs.current.sources).forEach((s) => s.stop?.());
+    // 2. If muted, stop all sources and exit
+    if (isMuted) {
+      Object.values(audioRefs.current.sources).forEach((s) => {
+        try {
+          s.stop?.();
+        } catch {
+          // ignore - likely already stopped
+        }
+      });
       audioRefs.current.sources = {};
       return;
     }
 
-    if (ctx.state === "suspended") ctx.resume();
+    // 3. Resume context if suspended (browser requirement)
+    if (ctx.state === "suspended") {
+      ctx.resume().catch((err) => {
+        console.warn(
+          "Failed to resume audio context (likely requires user interaction):",
+          err
+        );
+      });
+    }
 
+    // 4. Handle effect change
+    if (effect === "none") {
+      Object.values(audioRefs.current.sources).forEach((s) => {
+        try {
+          s.stop?.();
+        } catch {
+          // ignore
+        }
+      });
+      audioRefs.current.sources = {};
+      return;
+    }
+
+    // If the requested effect is already playing, do nothing
     if (audioRefs.current.sources[effect]) return;
 
-    Object.values(audioRefs.current.sources).forEach((s) => s.stop?.());
-    audioRefs.current.sources = {};
+    // Stop other sources
+    Object.entries(audioRefs.current.sources).forEach(([k, s]) => {
+      if (k !== effect) {
+        try {
+          s.stop?.();
+        } catch {
+          // ignore
+        }
+        delete audioRefs.current.sources[k];
+      }
+    });
 
+    // Start new source for the effect
     const buffer = audioRefs.current.buffers[effect];
     const gain = audioRefs.current.gainNodes[effect];
-    if (!buffer || !gain) return;
+    if (!buffer || !gain) {
+      // If we unmuted and had an effect, it might not be loaded yet
+      console.warn(`Ambient sound "${effect}" not ready or missing.`);
+      return;
+    }
 
-    const src = ctx.createBufferSource();
-    src.buffer = buffer;
-    src.loop = true;
-    src.connect(gain);
-    src.start();
-
-    audioRefs.current.sources[effect] = src;
+    try {
+      const src = ctx.createBufferSource();
+      src.buffer = buffer;
+      src.loop = true;
+      src.connect(gain);
+      src.start();
+      audioRefs.current.sources[effect] = src;
+    } catch (err) {
+      console.error("Error starting ambient source:", err);
+    }
   }, [effect, isMuted, volume]);
 
   /* ===============================
@@ -199,41 +313,70 @@ export default function BookDisplay() {
     },
   });
 
-  const sendPage = useCallback(
-    async (pageNumber) => {
-      const range = bookRef.current?.getWordRangeForPage?.(pageNumber);
-      if (!range) {
-        console.warn("No word range for page:", pageNumber);
+  // Prevent voice change while playing; if paused, clear current stream so next play restarts this page with the new voice.
+  const handleVoiceSelect = useCallback(
+    (newVoice) => {
+      if (ttsPlaying) {
+        AlertToast("أوقف القراءة لتغيير الصوت.", "INFO");
         return;
       }
 
-      const totalPages = bookRef.current?.totalPages ?? 0;
-      const isLastPage = pageNumber >= totalPages;
+      if (isStreaming) {
+        cancelStream();
+      }
 
-      console.log(
-        "Sending page:",
-        pageNumber,
-        "word range:",
-        range.startWord,
-        "-",
-        range.endWord,
-        "isLastPage:",
-        isLastPage
-      );
-      currentPageRef.current = pageNumber;
+      ttsStartedRef.current = false;
 
-      await startPageStream(
-        {
-          action: "stream",
-          bookId: Number(id),
-          voiceId: voice,
-          start: range.startWord,
-          end: range.endWord,
-          token: gettoken,
-          isLastPage,
-        },
-        range.startChar
-      );
+      const current = bookRef.current?.getCurrentPageNumber?.();
+      if (current && current > 0) {
+        currentPageRef.current = current;
+      }
+
+      setVoice(newVoice);
+    },
+    [ttsPlaying, isStreaming, cancelStream, setVoice]
+  );
+
+  const sendPage = useCallback(
+    async (pageNumber) => {
+      try {
+        const range = bookRef.current?.getWordRangeForPage?.(pageNumber);
+        if (!range) {
+          console.warn("No word range for page:", pageNumber);
+          return;
+        }
+
+        const totalPages = bookRef.current?.totalPages ?? 0;
+        const isLastPage = pageNumber >= totalPages;
+
+        console.log(
+          "Sending page:",
+          pageNumber,
+          "word range:",
+          range.startWord,
+          "-",
+          range.endWord,
+          "isLastPage:",
+          isLastPage
+        );
+        currentPageRef.current = pageNumber;
+
+        await startPageStream(
+          {
+            action: "stream",
+            bookId: Number(id),
+            voiceId: voice,
+            start: range.startWord,
+            end: range.endWord,
+            token: gettoken,
+            isLastPage,
+          },
+          range.startChar
+        );
+      } catch (err) {
+        console.error("Error in sendPage:", err);
+        AlertToast("فشل إرسال طلب تحويل النص إلى صوت.", "ERROR");
+      }
     },
     [id, voice, gettoken, startPageStream]
   );
@@ -241,39 +384,44 @@ export default function BookDisplay() {
   // Prefetch next page's audio while current page is still playing
   const prefetchPage = useCallback(
     async (pageNumber) => {
-      const range = bookRef.current?.getWordRangeForPage?.(pageNumber);
-      if (!range) {
-        console.warn("No word range for prefetch page:", pageNumber);
-        return;
+      try {
+        const range = bookRef.current?.getWordRangeForPage?.(pageNumber);
+        if (!range) {
+          console.warn("No word range for prefetch page:", pageNumber);
+          return;
+        }
+
+        const totalPages = bookRef.current?.totalPages ?? 0;
+        const isLastPage = pageNumber >= totalPages;
+
+        console.log(
+          "Prefetching page:",
+          pageNumber,
+          "word range:",
+          range.startWord,
+          "-",
+          range.endWord,
+          "isLastPage:",
+          isLastPage
+        );
+
+        await startPageStream(
+          {
+            action: "stream",
+            bookId: Number(id),
+            voiceId: voice,
+            start: range.startWord,
+            end: range.endWord,
+            token: gettoken,
+            isLastPage,
+          },
+          range.startChar,
+          { prefetch: true } // Prefetch mode - don't cancel current stream
+        );
+      } catch (err) {
+        console.error("Error in prefetchPage:", err);
+        // We don't necessarily need to toast for prefetch failures
       }
-
-      const totalPages = bookRef.current?.totalPages ?? 0;
-      const isLastPage = pageNumber >= totalPages;
-
-      console.log(
-        "Prefetching page:",
-        pageNumber,
-        "word range:",
-        range.startWord,
-        "-",
-        range.endWord,
-        "isLastPage:",
-        isLastPage
-      );
-
-      await startPageStream(
-        {
-          action: "stream",
-          bookId: Number(id),
-          voiceId: voice,
-          start: range.startWord,
-          end: range.endWord,
-          token: gettoken,
-          isLastPage,
-        },
-        range.startChar,
-        { prefetch: true } // Prefetch mode - don't cancel current stream
-      );
     },
     [id, voice, gettoken, startPageStream]
   );
@@ -285,35 +433,45 @@ export default function BookDisplay() {
   // - If starting from paused → just resume
   // - If starting fresh → send current page then play
   const onTogglePlay = useCallback(async () => {
-    if (!ttsPlaying) {
-      // Starting playback
-      if (!loadingText && bookRef.current) {
-        // Get current visible page (1-indexed)
-        const current = bookRef.current.getCurrentPageNumber?.() ?? 1;
-        // Use page 1 if getCurrentPageNumber returns 0 or invalid
-        const startPage = current < 1 ? 1 : current;
+    try {
+      if (!ttsPlaying) {
+        // Starting playback
+        if (!loadingText && bookRef.current) {
+          // Get current visible page (1-indexed)
+          const visiblePage = bookRef.current.getCurrentPageNumber?.() ?? 1;
+          // If we've already started before, resume from tracked page; otherwise use visible page
+          const startPage =
+            ttsStartedRef.current && currentPageRef.current > 0
+              ? currentPageRef.current
+              : visiblePage < 1
+              ? 1
+              : visiblePage;
 
-        // If we are already streaming (audio buffered/buffering) and on the same page,
-        // we just RESUME. Else, we start fresh.
-        const isSamePage = startPage === currentPageRef.current;
+          // If we are already streaming (audio buffered/buffering) and on the same page,
+          // we just RESUME. Else, we start fresh.
+          const isSamePage = startPage === currentPageRef.current;
 
-        if (isStreaming && isSamePage) {
-          console.log("Resuming existing stream for page", startPage);
-          // No need to sendPage.
-        } else {
-          console.log("Starting TTS from page:", startPage);
-          // Mark TTS as started
-          ttsStartedRef.current = true;
-          // Send page data to backend
-          await sendPage(startPage);
+          if (isStreaming && isSamePage) {
+            console.log("Resuming existing stream for page", startPage);
+            // No need to sendPage.
+          } else {
+            console.log("Starting TTS from page:", startPage);
+            // Mark TTS as started
+            ttsStartedRef.current = true;
+            // Send page data to backend
+            await sendPage(startPage);
+          }
         }
+      } else {
+        // Pausing - keep highlights so user knows where they stopped
+        // bookRef.current?.clearAllHighlights?.();
       }
-    } else {
-      // Pausing - keep highlights so user knows where they stopped
-      // bookRef.current?.clearAllHighlights?.();
-    }
 
-    await togglePlay();
+      await togglePlay();
+    } catch (err) {
+      console.error("Error in onTogglePlay:", err);
+      AlertToast("حدث خطأ أثناء محاولة تشغيل الصوت.", "ERROR");
+    }
   }, [ttsPlaying, loadingText, sendPage, togglePlay, isStreaming]);
 
   // If user flips page while playing → cancel current stream and start from new page
@@ -325,10 +483,10 @@ export default function BookDisplay() {
       if (previousPage !== p) {
         if (ttsPlaying) {
           // This should only happen via auto-advance since manual flipping is disabled
-          // while ttsPlaying is true. We don't want to double-trigger if sendPage 
+          // while ttsPlaying is true. We don't want to double-trigger if sendPage
           // was already called by onPageEnded.
           console.log("Auto-page change detected during playback.");
-          // We don't necessarily need to restart here if it's auto-advance, 
+          // We don't necessarily need to restart here if it's auto-advance,
           // as onPageEnded handles it.
         } else {
           // Case 2: Flipped while paused - dispose the previous stream
@@ -337,17 +495,20 @@ export default function BookDisplay() {
             console.log("Flipped while paused, disposing previous stream.");
             cancelStream();
           }
+          // Track the newly selected page and force next play to restart from it
+          currentPageRef.current = p;
+          ttsStartedRef.current = false;
         }
       }
     },
     [ttsPlaying, cancelStream, isStreaming]
   );
 
-  // Reset when book or voice changes
+  // Reset when book changes
   useEffect(() => {
     currentPageRef.current = 1;
     ttsStartedRef.current = false;
-  }, [id, voice]);
+  }, [id]);
 
   return (
     <div className="w-full bg-[#f2e8d5] flex flex-col h-screen">
@@ -357,10 +518,10 @@ export default function BookDisplay() {
         effect={effect}
         setEffect={setEffect}
         voice={voice}
-        setVoice={setVoice}
+        onSelectVoice={handleVoiceSelect}
         volume={volume}
         isMuted={isMuted}
-        onToggleMute={() => setIsMuted((s) => !s)}
+        onCycleVolume={cycleVolume}
         readOnly={ttsPlaying}
       />
 
