@@ -25,6 +25,7 @@ import {
 function NewInteractiveStoryForm({ pageName = "قصة تفاعلية جديدة", onSubmit }) {
   const [collapsed, setCollapsed] = useState(false);
   const [hoveredGenre, setHoveredGenre] = useState(null);
+  const [hoveredLens, setHoveredLens] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [coverPreview, setCoverPreview] = useState(null);
 
@@ -32,13 +33,20 @@ function NewInteractiveStoryForm({ pageName = "قصة تفاعلية جديدة"
     title: "",
     description: "",
     genre: "",
-    ageRange: "",
     cover: null,
-    sceneNum: "",
-    optionNum: "",
+    lens: "",
+    sceneCount: "",
+    constitution: {
+      settingTime: "",
+      settingPlace: "",
+      coreTheme: "",
+      tone: "",
+      philosophy: "",
+      mainConflict: "",
+      forbiddenElements: "",
+      pacing: "",
+    },
     artStyle: "",
-    positivePrompt: "",
-    negativePrompt: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -48,13 +56,20 @@ function NewInteractiveStoryForm({ pageName = "قصة تفاعلية جديدة"
       title: "",
       description: "",
       genre: "",
-      ageRange: "",
       cover: null,
-      sceneNum: "",
-      optionNum: "",
+      lens: "",
+      sceneCount: "",
+      constitution: {
+        settingTime: "",
+        settingPlace: "",
+        coreTheme: "",
+        tone: "",
+        philosophy: "",
+        mainConflict: "",
+        forbiddenElements: "",
+        pacing: "",
+      },
       artStyle: "",
-      positivePrompt: "",
-      negativePrompt: "",
     });
     setErrors({});
     setCoverPreview(null);
@@ -62,6 +77,17 @@ function NewInteractiveStoryForm({ pageName = "قصة تفاعلية جديدة"
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
+    if (name?.startsWith("constitution.")) {
+      const key = name.split(".")[1];
+      setForm((prev) => ({
+        ...prev,
+        constitution: {
+          ...prev.constitution,
+          [key]: value,
+        },
+      }));
+      return;
+    }
     if (name === "cover" && files?.[0]) {
       const file = files[0];
       const previewUrl = URL.createObjectURL(file);
@@ -90,10 +116,18 @@ function NewInteractiveStoryForm({ pageName = "قصة تفاعلية جديدة"
       title: "عنوان القصة",
       description: "وصف القصة",
       genre: "نوع القصة",
-      ageRange: "الفئة العمرية",
       cover: "غلاف القصة",
-      sceneNum: "عدد المشاهد",
-      optionNum: "عدد الخيارات",
+      lens: "منظور القصة (الأهم)",
+      sceneCount: "عدد المشاهد",
+      "constitution.settingTime": "الزمن",
+      "constitution.settingPlace": "المكان",
+      "constitution.coreTheme": "الفكرة المحورية",
+      "constitution.tone": "النبرة العامة",
+      "constitution.philosophy": "الفلسفة",
+      "constitution.mainConflict": "الصراع الأساسي",
+      "constitution.forbiddenElements": "العناصر الممنوعة",
+      "constitution.pacing": "إيقاع السرد",
+      artStyle: "نمط الرسم",
     };
 
     if (!form.title.trim()) {
@@ -108,22 +142,41 @@ function NewInteractiveStoryForm({ pageName = "قصة تفاعلية جديدة"
       newErrors.genre = "يرجى اختيار نوع القصة";
       missingFields.push(fieldLabels.genre);
     }
-    if (!form.ageRange) {
-      newErrors.ageRange = "يرجى تحديد الفئة العمرية";
-      missingFields.push(fieldLabels.ageRange);
-    }
     if (!form.cover) {
       newErrors.cover = "غلاف القصة مطلوب";
       missingFields.push(fieldLabels.cover);
     }
-    if (!form.sceneNum) {
-      newErrors.sceneNum = "يرجى اختيار عدد المشاهد";
-      missingFields.push(fieldLabels.sceneNum);
+    if (!form.lens) {
+      newErrors.lens = "يرجى اختيار منظور القصة";
+      missingFields.push(fieldLabels.lens);
     }
-    if (!form.optionNum) {
-      newErrors.optionNum = "يرجى اختيار عدد الخيارات";
-      missingFields.push(fieldLabels.optionNum);
+    if (!form.sceneCount) {
+      newErrors.sceneCount = "يرجى اختيار عدد المشاهد";
+      missingFields.push(fieldLabels.sceneCount);
     }
+    if (!form.artStyle) {
+      newErrors.artStyle = "يرجى اختيار نمط الرسم";
+      missingFields.push(fieldLabels.artStyle);
+    }
+
+    const c = form.constitution || {};
+    const constitutionRules = [
+      ["settingTime", "يرجى إدخال الزمن"],
+      ["settingPlace", "يرجى إدخال المكان"],
+      ["coreTheme", "يرجى إدخال الفكرة المحورية"],
+      ["tone", "يرجى إدخال النبرة العامة"],
+      ["philosophy", "يرجى إدخال الفلسفة"],
+      ["mainConflict", "يرجى إدخال الصراع الأساسي"],
+      ["forbiddenElements", "يرجى إدخال العناصر الممنوعة"],
+      ["pacing", "يرجى إدخال إيقاع السرد"],
+    ];
+    constitutionRules.forEach(([key, msg]) => {
+      if (!String(c[key] ?? "").trim()) {
+        const errorKey = `constitution.${key}`;
+        newErrors[errorKey] = msg;
+        missingFields.push(fieldLabels[errorKey]);
+      }
+    });
 
     setErrors(newErrors);
     return {
@@ -217,12 +270,31 @@ function NewInteractiveStoryForm({ pageName = "قصة تفاعلية جديدة"
     },
   ];
 
-  const ageRanges = [
-    { value: "3-5", label: "3-5 سنوات" },
-    { value: "6-8", label: "6-8 سنوات" },
-    { value: "9-12", label: "9-12 سنة" },
-    { value: "13-16", label: "13-16 سنة" },
-    { value: "17+", label: "17+ سنة" },
+  const lenses = [
+    {
+      value: "POLITICAL",
+      label: "سياسي",
+      icon: Compass,
+      color: "from-sky-600 to-blue-700",
+    },
+    {
+      value: "PSYCHOLOGICAL",
+      label: "نفسي",
+      icon: Heart,
+      color: "from-rose-600 to-pink-700",
+    },
+    {
+      value: "SURVIVAL",
+      label: "بقاء",
+      icon: Rocket,
+      color: "from-orange-600 to-amber-700",
+    },
+    {
+      value: "MORAL",
+      label: "أخلاقي",
+      icon: GraduationCap,
+      color: "from-emerald-600 to-green-700",
+    },
   ];
 
   const artStyles = [
@@ -237,11 +309,13 @@ function NewInteractiveStoryForm({ pageName = "قصة تفاعلية جديدة"
   return (
     <div className="min-h-screen bg-[var(--earth-cream)] rtl" dir="rtl">
       {/* NAVBAR WITH COLLAPSE CONTROL */}
-      <Navbar
-        pageName={pageName}
-        collapsed={collapsed}
-        setCollapsed={setCollapsed}
-      />
+      <div dir="ltr">
+        <Navbar
+          pageName={pageName}
+          collapsed={collapsed}
+          setCollapsed={setCollapsed}
+        />
+      </div>
 
       {/* DYNAMIC LAYOUT SPACING BASED ON COLLAPSED STATE */}
       <div
@@ -251,9 +325,7 @@ function NewInteractiveStoryForm({ pageName = "قصة تفاعلية جديدة"
       >
         <main className="flex-1 flex flex-col">
           {/* PAGE HEADER */}
-          <PageHeader
-            mainTitle={pageName}
-          />
+          <PageHeader mainTitle={pageName} />
 
           {/* CONTENT */}
           <div className="flex-1 p-6">
@@ -359,34 +431,66 @@ function NewInteractiveStoryForm({ pageName = "قصة تفاعلية جديدة"
                 )}
               </div>
 
-              {/* Age Range */}
+              {/* Lens Selection */}
               <div className="bg-white rounded-xl border border-[var(--earth-brown)]/10 p-8 hover:border-[var(--earth-brown)]/20 transition-colors duration-200 shadow-sm">
                 <label className="flex items-center gap-2 text-sm font-semibold text-[var(--earth-brown)] mb-6 uppercase tracking-wide">
-                  <Users className="w-4 h-4" />
-                  الفئة العمرية
+                  <Eye className="w-4 h-4" />
+                  منظور القصة (الأهم)
                 </label>
-                <div className="flex flex-wrap gap-3">
-                  {ageRanges.map((age) => (
-                    <button
-                      key={age.value}
-                      type="button"
-                      onClick={() =>
-                        handleChange({
-                          target: { name: "ageRange", value: age.value },
-                        })
-                      }
-                      className={`px-6 py-3 rounded-lg font-medium text-sm transition-all duration-200 ${
-                        form.ageRange === age.value
-                          ? "bg-[var(--earth-brown)] text-white shadow-md"
-                          : "bg-[var(--earth-cream)] text-[var(--earth-brown)] border border-[var(--earth-brown)]/20 hover:bg-white hover:border-[var(--earth-brown)]/40"
-                      }`}
-                    >
-                      {age.label}
-                    </button>
-                  ))}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {lenses.map((lens) => {
+                    const Icon = lens.icon;
+                    return (
+                      <button
+                        key={lens.value}
+                        type="button"
+                        onClick={() =>
+                          handleChange({
+                            target: { name: "lens", value: lens.value },
+                          })
+                        }
+                        onMouseEnter={() => setHoveredLens(lens.value)}
+                        onMouseLeave={() => setHoveredLens(null)}
+                        className={`relative overflow-hidden rounded-lg p-5 transition-all duration-300 group ${
+                          form.lens === lens.value
+                            ? "ring-2 ring-[var(--earth-brown)] shadow-lg"
+                            : "border border-[var(--earth-brown)]/10 hover:border-[var(--earth-brown)]/30 hover:shadow-md"
+                        }`}
+                      >
+                        <div
+                          className={`absolute inset-0 bg-gradient-to-br ${
+                            lens.color
+                          } transition-opacity duration-300 ${
+                            form.lens === lens.value ||
+                            hoveredLens === lens.value
+                              ? "opacity-10"
+                              : "opacity-0"
+                          }`}
+                        ></div>
+                        <div className="relative flex flex-col items-center gap-3">
+                          <Icon
+                            className={`w-6 h-6 transition-all duration-300 ${
+                              form.lens === lens.value
+                                ? "text-[var(--earth-brown)] scale-110"
+                                : "text-[var(--earth-brown)]/60 group-hover:text-[var(--earth-brown)] group-hover:scale-110"
+                            }`}
+                          />
+                          <span
+                            className={`font-medium text-sm transition-colors ${
+                              form.lens === lens.value
+                                ? "text-[var(--earth-brown)]"
+                                : "text-[var(--earth-brown)]/60 group-hover:text-[var(--earth-brown)]"
+                            }`}
+                          >
+                            {lens.label}
+                          </span>
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
-                {errors.ageRange && (
-                  <p className="text-red-600 text-sm mt-4">{errors.ageRange}</p>
+                {errors.lens && (
+                  <p className="text-red-600 text-sm mt-4">{errors.lens}</p>
                 )}
               </div>
 
@@ -431,70 +535,192 @@ function NewInteractiveStoryForm({ pageName = "قصة تفاعلية جديدة"
                 )}
               </div>
 
-              {/* Scene & Options Configuration */}
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="bg-white rounded-xl border border-[var(--earth-brown)]/10 p-8 hover:border-[var(--earth-brown)]/20 transition-colors duration-200 shadow-sm">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-[var(--earth-brown)] mb-6 uppercase tracking-wide">
-                    <Calendar className="w-4 h-4" />
-                    عدد المشاهد
-                  </label>
-                  <div className="grid grid-cols-4 gap-2">
-                    {[3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
-                      <button
-                        key={n}
-                        type="button"
-                        onClick={() =>
-                          handleChange({
-                            target: { name: "sceneNum", value: n },
-                          })
-                        }
-                        className={`aspect-square rounded-lg font-semibold text-lg transition-all duration-200 ${
-                          form.sceneNum == n
-                            ? "bg-[var(--earth-brown)] text-white shadow-md"
-                            : "bg-[var(--earth-cream)] text-[var(--earth-brown)] border border-[var(--earth-brown)]/20 hover:bg-white hover:border-[var(--earth-brown)]/40"
-                        }`}
-                      >
-                        {n}
-                      </button>
-                    ))}
-                  </div>
-                  {errors.sceneNum && (
-                    <p className="text-red-600 text-sm mt-3">
-                      {errors.sceneNum}
-                    </p>
-                  )}
+              {/* Scene Count */}
+              <div className="bg-white rounded-xl border border-[var(--earth-brown)]/10 p-8 hover:border-[var(--earth-brown)]/20 transition-colors duration-200 shadow-sm">
+                <label className="flex items-center gap-2 text-sm font-semibold text-[var(--earth-brown)] mb-6 uppercase tracking-wide">
+                  <Calendar className="w-4 h-4" />
+                  عدد المشاهد
+                </label>
+                <div className="grid grid-cols-4 md:grid-cols-8 gap-2">
+                  {[3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+                    <button
+                      key={n}
+                      type="button"
+                      onClick={() =>
+                        handleChange({
+                          target: { name: "sceneCount", value: n },
+                        })
+                      }
+                      className={`aspect-square rounded-lg font-semibold text-lg transition-all duration-200 ${
+                        form.sceneCount == n
+                          ? "bg-[var(--earth-brown)] text-white shadow-md"
+                          : "bg-[var(--earth-cream)] text-[var(--earth-brown)] border border-[var(--earth-brown)]/20 hover:bg-white hover:border-[var(--earth-brown)]/40"
+                      }`}
+                    >
+                      {n}
+                    </button>
+                  ))}
+                </div>
+                {errors.sceneCount && (
+                  <p className="text-red-600 text-sm mt-3">
+                    {errors.sceneCount}
+                  </p>
+                )}
+              </div>
+
+              {/* Constitution */}
+              <div className="bg-white rounded-xl border border-[var(--earth-brown)]/10 p-8 hover:border-[var(--earth-brown)]/20 transition-colors duration-200 shadow-sm">
+                <div className="flex items-center gap-2 mb-6">
+                  <Layers className="w-4 h-4 text-[var(--earth-brown)]" />
+                  <h3 className="text-sm font-semibold text-[var(--earth-brown)] uppercase tracking-wide">
+                    دستور القصة
+                  </h3>
                 </div>
 
-                <div className="bg-white rounded-xl border border-[var(--earth-brown)]/10 p-8 hover:border-[var(--earth-brown)]/20 transition-colors duration-200 shadow-sm">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-[var(--earth-brown)] mb-6 uppercase tracking-wide">
-                    <Grid3x3 className="w-4 h-4" />
-                    عدد الخيارات
-                  </label>
-                  <div className="grid grid-cols-3 gap-3">
-                    {[2, 3, 4].map((n) => (
-                      <button
-                        key={n}
-                        type="button"
-                        onClick={() =>
-                          handleChange({
-                            target: { name: "optionNum", value: n },
-                          })
-                        }
-                        className={`aspect-square rounded-lg font-semibold text-2xl transition-all duration-200 ${
-                          form.optionNum == n
-                            ? "bg-[var(--earth-brown)] text-white shadow-md"
-                            : "bg-[var(--earth-cream)] text-[var(--earth-brown)] border border-[var(--earth-brown)]/20 hover:bg-white hover:border-[var(--earth-brown)]/40"
-                        }`}
-                      >
-                        {n}
-                      </button>
-                    ))}
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="text-sm font-medium text-[var(--earth-brown)]/70 mb-2 block">
+                      الزمن
+                    </label>
+                    <input
+                      name="constitution.settingTime"
+                      value={form.constitution.settingTime}
+                      onChange={handleChange}
+                      placeholder="مثال: زمن معاصر قريب"
+                      className="w-full bg-[var(--earth-cream)] rounded-lg px-4 py-3 border border-[var(--earth-brown)]/10 focus:border-[var(--earth-brown)]/30 focus:bg-white focus:outline-none text-[var(--earth-brown)] transition-colors"
+                    />
+                    {errors["constitution.settingTime"] && (
+                      <p className="text-red-600 text-sm mt-2">
+                        {errors["constitution.settingTime"]}
+                      </p>
+                    )}
                   </div>
-                  {errors.optionNum && (
-                    <p className="text-red-600 text-sm mt-3">
-                      {errors.optionNum}
-                    </p>
-                  )}
+
+                  <div>
+                    <label className="text-sm font-medium text-[var(--earth-brown)]/70 mb-2 block">
+                      المكان
+                    </label>
+                    <input
+                      name="constitution.settingPlace"
+                      value={form.constitution.settingPlace}
+                      onChange={handleChange}
+                      placeholder="مثال: مدينة عربية تخضع للمراقبة"
+                      className="w-full bg-[var(--earth-cream)] rounded-lg px-4 py-3 border border-[var(--earth-brown)]/10 focus:border-[var(--earth-brown)]/30 focus:bg-white focus:outline-none text-[var(--earth-brown)] transition-colors"
+                    />
+                    {errors["constitution.settingPlace"] && (
+                      <p className="text-red-600 text-sm mt-2">
+                        {errors["constitution.settingPlace"]}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-[var(--earth-brown)]/70 mb-2 block">
+                      الفكرة المحورية
+                    </label>
+                    <textarea
+                      name="constitution.coreTheme"
+                      value={form.constitution.coreTheme}
+                      onChange={handleChange}
+                      placeholder="مثال: السلطة في مواجهة الحقيقة"
+                      className="w-full min-h-[90px] bg-[var(--earth-cream)] rounded-lg px-4 py-3 border border-[var(--earth-brown)]/10 focus:border-[var(--earth-brown)]/30 focus:bg-white focus:outline-none resize-none text-[var(--earth-brown)] transition-colors"
+                    />
+                    {errors["constitution.coreTheme"] && (
+                      <p className="text-red-600 text-sm mt-2">
+                        {errors["constitution.coreTheme"]}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-[var(--earth-brown)]/70 mb-2 block">
+                      النبرة العامة
+                    </label>
+                    <textarea
+                      name="constitution.tone"
+                      value={form.constitution.tone}
+                      onChange={handleChange}
+                      placeholder="مثال: متوتر، واقعي، بطيء التصاعد"
+                      className="w-full min-h-[90px] bg-[var(--earth-cream)] rounded-lg px-4 py-3 border border-[var(--earth-brown)]/10 focus:border-[var(--earth-brown)]/30 focus:bg-white focus:outline-none resize-none text-[var(--earth-brown)] transition-colors"
+                    />
+                    {errors["constitution.tone"] && (
+                      <p className="text-red-600 text-sm mt-2">
+                        {errors["constitution.tone"]}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-[var(--earth-brown)]/70 mb-2 block">
+                      الفلسفة
+                    </label>
+                    <textarea
+                      name="constitution.philosophy"
+                      value={form.constitution.philosophy}
+                      onChange={handleChange}
+                      placeholder="مثال: كل قرار له ثمن"
+                      className="w-full min-h-[90px] bg-[var(--earth-cream)] rounded-lg px-4 py-3 border border-[var(--earth-brown)]/10 focus:border-[var(--earth-brown)]/30 focus:bg-white focus:outline-none resize-none text-[var(--earth-brown)] transition-colors"
+                    />
+                    {errors["constitution.philosophy"] && (
+                      <p className="text-red-600 text-sm mt-2">
+                        {errors["constitution.philosophy"]}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-[var(--earth-brown)]/70 mb-2 block">
+                      الصراع الأساسي
+                    </label>
+                    <textarea
+                      name="constitution.mainConflict"
+                      value={form.constitution.mainConflict}
+                      onChange={handleChange}
+                      placeholder="مثال: الكشف العلني للحقيقة مقابل السلامة الشخصية"
+                      className="w-full min-h-[90px] bg-[var(--earth-cream)] rounded-lg px-4 py-3 border border-[var(--earth-brown)]/10 focus:border-[var(--earth-brown)]/30 focus:bg-white focus:outline-none resize-none text-[var(--earth-brown)] transition-colors"
+                    />
+                    {errors["constitution.mainConflict"] && (
+                      <p className="text-red-600 text-sm mt-2">
+                        {errors["constitution.mainConflict"]}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-[var(--earth-brown)]/70 mb-2 block">
+                      العناصر الممنوعة
+                    </label>
+                    <textarea
+                      name="constitution.forbiddenElements"
+                      value={form.constitution.forbiddenElements}
+                      onChange={handleChange}
+                      placeholder="مثال: الخيال، السحر، الكوميديا"
+                      className="w-full min-h-[90px] bg-[var(--earth-cream)] rounded-lg px-4 py-3 border border-[var(--earth-brown)]/10 focus:border-[var(--earth-brown)]/30 focus:bg-white focus:outline-none resize-none text-[var(--earth-brown)] transition-colors"
+                    />
+                    {errors["constitution.forbiddenElements"] && (
+                      <p className="text-red-600 text-sm mt-2">
+                        {errors["constitution.forbiddenElements"]}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="text-sm font-medium text-[var(--earth-brown)]/70 mb-2 block">
+                      إيقاع السرد
+                    </label>
+                    <textarea
+                      name="constitution.pacing"
+                      value={form.constitution.pacing}
+                      onChange={handleChange}
+                      placeholder="مثال: تصاعد تدريجي حتى المواجهة الأخيرة"
+                      className="w-full min-h-[90px] bg-[var(--earth-cream)] rounded-lg px-4 py-3 border border-[var(--earth-brown)]/10 focus:border-[var(--earth-brown)]/30 focus:bg-white focus:outline-none resize-none text-[var(--earth-brown)] transition-colors"
+                    />
+                    {errors["constitution.pacing"] && (
+                      <p className="text-red-600 text-sm mt-2">
+                        {errors["constitution.pacing"]}
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -502,10 +728,7 @@ function NewInteractiveStoryForm({ pageName = "قصة تفاعلية جديدة"
               <div className="bg-white rounded-xl border border-[var(--earth-brown)]/10 p-8 hover:border-[var(--earth-brown)]/20 transition-colors duration-200 shadow-sm">
                 <label className="flex items-center gap-2 text-sm font-semibold text-[var(--earth-brown)] mb-6 uppercase tracking-wide">
                   <Palette className="w-4 h-4" />
-                  نمط الرسم{" "}
-                  <span className="text-[var(--earth-brown)]/40 font-normal mr-2">
-                    (اختياري)
-                  </span>
+                  نمط الرسم
                 </label>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {artStyles.map((style) => {
@@ -539,47 +762,11 @@ function NewInteractiveStoryForm({ pageName = "قصة تفاعلية جديدة"
                     );
                   })}
                 </div>
-              </div>
-
-              {/* AI Prompts */}
-              <div className="bg-white rounded-xl border border-[var(--earth-brown)]/10 p-8 hover:border-[var(--earth-brown)]/20 transition-colors duration-200 shadow-sm">
-                <div className="flex items-center gap-2 mb-6">
-                  <Wand2 className="w-4 h-4 text-[var(--earth-brown)]" />
-                  <h3 className="text-sm font-semibold text-[var(--earth-brown)] uppercase tracking-wide">
-                    توجيهات الذكاء الاصطناعي
-                    <span className="text-[var(--earth-brown)]/40 font-normal mr-2">
-                      (اختياري)
-                    </span>
-                  </h3>
-                </div>
-
-                <div className="space-y-6">
-                  <div>
-                    <label className="text-sm font-medium text-[var(--earth-brown)]/70 mb-2 block">
-                      التوجيه الإيجابي
-                    </label>
-                    <textarea
-                      name="positivePrompt"
-                      value={form.positivePrompt}
-                      onChange={handleChange}
-                      placeholder="حدد الخصائص المرغوبة في الصور (مثل: إضاءة طبيعية، تفاصيل دقيقة، ألوان دافئة)"
-                      className="w-full min-h-[100px] bg-[var(--earth-cream)] rounded-lg px-4 py-3 border border-[var(--earth-brown)]/10 focus:border-[var(--earth-brown)]/30 focus:bg-white focus:outline-none resize-none text-[var(--earth-brown)] transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium text-[var(--earth-brown)]/70 mb-2 block">
-                      التوجيه السلبي
-                    </label>
-                    <textarea
-                      name="negativePrompt"
-                      value={form.negativePrompt}
-                      onChange={handleChange}
-                      placeholder="حدد ما تريد تجنبه في الصور (مثل: مشاهد عنيفة، ألوان قاتمة، تشوهات)"
-                      className="w-full min-h-[100px] bg-[var(--earth-cream)] rounded-lg px-4 py-3 border border-[var(--earth-brown)]/10 focus:border-[var(--earth-brown)]/30 focus:bg-white focus:outline-none resize-none text-[var(--earth-brown)] transition-colors"
-                    />
-                  </div>
-                </div>
+                {errors.artStyle && (
+                  <p className="text-red-600 text-sm mt-4">
+                    {errors.artStyle}
+                  </p>
+                )}
               </div>
 
               {/* Submit Button */}

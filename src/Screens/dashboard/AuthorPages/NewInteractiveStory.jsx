@@ -13,18 +13,14 @@ function NewInteractiveStory() {
       payload.append("title", formData.title);
       payload.append("description", formData.description);
       payload.append("genre", formData.genre);
-      payload.append("ageRange", formData.ageRange);
-      payload.append("sceneNum", Number(formData.sceneNum));
-      payload.append("optionNum", Number(formData.optionNum));
-      if (formData.artStyle) payload.append("artStyle", formData.artStyle);
-      if (formData.positivePrompt)
-        payload.append("positivePrompt", formData.positivePrompt);
-      if (formData.negativePrompt)
-        payload.append("negativePrompt", formData.negativePrompt);
-      if (formData.cover) payload.append("cover", formData.cover);
+      payload.append("lens", formData.lens);
+      payload.append("sceneCount", Number(formData.sceneCount));
+      payload.append("constitution", JSON.stringify(formData.constitution));
+      payload.append("artStyle", formData.artStyle);
+      payload.append("cover", formData.cover);
 
       const res = await postFormDataHelper({
-        url: `${import.meta.env.VITE_API_URL}/interactive-stories`,
+        url: `${import.meta.env.VITE_API_URL}/stories`,
         formData: payload,
       });
 

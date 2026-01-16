@@ -28,6 +28,8 @@
   --earth-shadow: rgba(62, 39, 35, 0.08);
 }
 
+.font-arabic { font-family: var(--font-arabic); }
+.font-english { font-family: var(--font-english); }
 
 * {
   font-family: var(--font-arabic), var(--font-english) !important;
