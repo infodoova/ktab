@@ -10,6 +10,7 @@ import {
   CloudRain,
   Wind,
   MoreVertical,
+  Check,
 } from "lucide-react";
 
 import {
@@ -93,24 +94,68 @@ export default function ReaderHeader({
               </div>
             </DropdownMenuTrigger>
 
-            <DropdownMenuContent className="w-48 rounded-xl border border-black/10 bg-white p-2 shadow-xl">
-              <DropdownMenuLabel className="text-[var(--earth-brown-dark)]">
+            <DropdownMenuContent
+              dir="rtl"
+              className="w-80 rounded-xl border border-black/10 bg-white p-2 shadow-xl"
+            >
+              <DropdownMenuLabel className="text-[var(--earth-brown-dark)] text-right">
                 اختر الصوت
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
 
               {[
-                { id: "aCChyB4P5WEomwRsOKRh", label: "صوت افتراضي" },
-                { id: "IES4nrmZdUBHByLBde0P", label: " مصري" },
-                { id: "rFDdsCQRZCUL8cPOWtnP", label: " سوري" },
-                { id: "s83SAGdFTflAwJcAV81K", label: " سعودي " },
+                {
+                  id: "IES4nrmZdUBHByLBde0P",
+                  label: "هيثم - صوت عربي دافئ ونشيط للمحادثات والسرد",
+                },
+                {
+                  id: "aCChyB4P5WEomwRsOKRh",
+                  label: "سلمى - صوت تعبيري للمحادثات",
+                },
+                {
+                  id: "rFDdsCQRZCUL8cPOWtnP",
+                  label: "غيداء - صوت سوري دافئ وسردي",
+                },
+                {
+                  id: "u0TsaWvt0v8migutHM3M",
+                  label: "غزلان - صوت هادئ ومتوازن",
+                },
+                {
+                  id: "mRdG9GYEjJmIzqbYTidv",
+                  label: "سنا - امرأة في منتصف العمر بصوت ناعم وبلمسة حيوية",
+                },
+                {
+                  id: "R6nda3uM038xEEKi7GFl",
+                  label: "أنس - رجل عربي في منتصف العمر بصوت هادئ وودود",
+                },
+                {
+                  id: "ocqVw6LVSdCxCra4XhMH",
+                  label: "عبدالله - صوت مصري دافئ",
+                },
+                {
+                  id: "s83SAGdFTflAwJcAV81K",
+                  label: "أديب - صوت عربي معبر ومتناغم للسرد والبودكاست",
+                },
+
+                {
+                  id: "QRq5hPRAKf5ZhSlTBH6r",
+                  label: "ff",
+                },
               ].map((v) => (
                 <DropdownMenuItem
                   key={v.id}
                   onClick={() => onSelectVoice?.(v.id)}
-                  className={voice === v.id ? "bg-[var(--earth-cream)]" : ""}
+                  className={`flex items-center justify-between cursor-pointer ${
+                    voice === v.id
+                      ? "bg-[var(--earth-cream)] font-semibold text-[var(--earth-olive)]"
+                      : ""
+                  }`}
                 >
-                  <UserRound size={18} className="mr-2" /> {v.label}
+                  <div className="flex items-center gap-2">
+                    <UserRound size={18} />
+                    <span className="text-xs sm:text-sm">{v.label}</span>
+                  </div>
+                  {voice === v.id && <Check size={16} />}
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
@@ -136,40 +181,56 @@ export default function ReaderHeader({
               </div>
             </DropdownMenuTrigger>
 
-            <DropdownMenuContent className="w-48 rounded-xl border border-black/10 bg-white p-2 shadow-xl">
-              <DropdownMenuLabel className="text-[var(--earth-brown-dark)]">
+            <DropdownMenuContent
+              dir="rtl"
+              className="w-56 rounded-xl border border-black/10 bg-white p-2 shadow-xl"
+            >
+              <DropdownMenuLabel className="text-[var(--earth-brown-dark)] text-right">
                 المؤثرات الصوتية
               </DropdownMenuLabel>
 
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => setEffect("none")}
-                className={effect === "none" ? "bg-[var(--earth-cream)]" : ""}
+                className={`flex items-center justify-between cursor-pointer ${
+                  effect === "none"
+                    ? "bg-[var(--earth-cream)] font-semibold text-[var(--earth-olive)]"
+                    : ""
+                }`}
               >
-                بدون مؤثرات
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => setEffect("running")}
-                className={
-                  effect === "running" ? "bg-[var(--earth-cream)]" : ""
-                }
-              >
-                <Waves size={18} className="mr-2" /> صوت الركض
+                <span>بدون مؤثرات</span>
+                {effect === "none" && <Check size={16} />}
               </DropdownMenuItem>
 
-              <DropdownMenuItem
-                onClick={() => setEffect("rain")}
-                className={effect === "rain" ? "bg-[var(--earth-cream)]" : ""}
-              >
-                <CloudRain size={18} className="mr-2" /> صوت المطر
-              </DropdownMenuItem>
-
-              <DropdownMenuItem
-                onClick={() => setEffect("wind")}
-                className={effect === "wind" ? "bg-[var(--earth-cream)]" : ""}
-              >
-                <Wind size={18} className="mr-2" /> صوت الرياح
-              </DropdownMenuItem>
+              {[
+                {
+                  id: "running",
+                  label: "صوت الركض",
+                  icon: <Waves size={18} />,
+                },
+                {
+                  id: "rain",
+                  label: "صوت المطر",
+                  icon: <CloudRain size={18} />,
+                },
+                { id: "wind", label: "صوت الرياح", icon: <Wind size={18} /> },
+              ].map((eff) => (
+                <DropdownMenuItem
+                  key={eff.id}
+                  onClick={() => setEffect(eff.id)}
+                  className={`flex items-center justify-between cursor-pointer ${
+                    effect === eff.id
+                      ? "bg-[var(--earth-cream)] font-semibold text-[var(--earth-olive)]"
+                      : ""
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    {eff.icon}
+                    <span>{eff.label}</span>
+                  </div>
+                  {effect === eff.id && <Check size={16} />}
+                </DropdownMenuItem>
+              ))}
             </DropdownMenuContent>
           </DropdownMenu>
 

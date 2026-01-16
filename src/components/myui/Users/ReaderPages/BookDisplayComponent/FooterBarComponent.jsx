@@ -6,7 +6,12 @@ import {
   PauseCircle,
 } from "lucide-react";
 
-export default function ReaderFooter({ onNext, onPrev, isPlaying, onTogglePlay }) {
+export default function ReaderFooter({
+  onNext,
+  onPrev,
+  isPlaying,
+  onTogglePlay,
+}) {
   const togglePlay = () => {
     if (onTogglePlay) onTogglePlay();
   };
@@ -23,12 +28,11 @@ export default function ReaderFooter({ onNext, onPrev, isPlaying, onTogglePlay }
       "
     >
       <div className="flex items-center gap-12">
-
         {/* NEXT PAGE */}
         <FooterIcon
           icon={<ChevronLeft size={28} />}
           label="الصفحة السابقة"
-          onClick={onNext}
+          onClick={onPrev}
           disabled={isPlaying}
         />
 
@@ -58,10 +62,9 @@ export default function ReaderFooter({ onNext, onPrev, isPlaying, onTogglePlay }
         <FooterIcon
           icon={<ChevronRight size={28} />}
           label="الصفحة التالية"
-          onClick={onPrev}
+          onClick={onNext}
           disabled={isPlaying}
         />
-
       </div>
     </footer>
   );

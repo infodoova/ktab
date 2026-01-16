@@ -330,26 +330,7 @@ export default function FlipBookViewer({
         
         /* Page Splitter Styling */
         .stf__wrapper::before {
-          content: '';
-          position: absolute;
-          top: 5%;
-          bottom: 5%;
-          left: 50%;
-          transform: translateX(-50%);
-          width: 2px;
-          background: linear-gradient(
-            to bottom,
-            transparent 0%,
-            rgba(139, 92, 53, 0.1) 5%,
-            rgba(139, 92, 53, 0.3) 50%,
-            rgba(139, 92, 53, 0.1) 95%,
-            transparent 100%
-          );
-          box-shadow: 
-            0 0 10px rgba(139, 92, 53, 0.1),
-            inset 1px 0 2px rgba(255, 255, 255, 0.2);
-          pointer-events: none;
-          z-index: 0;
+          display: none;
         }
         
         /* Hide splitter on mobile/single page view */
@@ -361,15 +342,7 @@ export default function FlipBookViewer({
         
         /* Enhanced book spine effect */
         .stf__wrapper::after {
-          content: '';
-          position: absolute;
-          top: 0;
-          bottom: 0;
-          left: calc(50% - 1px);
-          width: 2px;
-          background: rgba(0, 0, 0, 0.05);
-          pointer-events: none;
-          z-index: -1;
+          display: none;
         }
         
         @media (max-width: 767px) {
@@ -386,7 +359,6 @@ export default function FlipBookViewer({
         /* Enhance the book container */
         .stf__wrapper {
           position: relative;
-          filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.15));
         }
       `}</style>
 
@@ -402,7 +374,7 @@ export default function FlipBookViewer({
           flipDirection={isRTL ? "rtl" : "ltr"}
           showPageCorner={false}
           maxShadowOpacity={0.1}
-          className="rounded-xl shadow-2xl"
+          className="rounded-xl"
           onFlip={(e) => onPageChange?.((e?.data ?? 0) + 1)}
         >
           {pages.map((p, i) => (

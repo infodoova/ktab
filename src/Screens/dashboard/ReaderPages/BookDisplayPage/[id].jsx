@@ -28,9 +28,9 @@ export default function BookDisplay() {
 
   const [bookText, setBookText] = useState("");
   const [loadingText, setLoadingText] = useState(true);
-  const [wordsPerPage] = useState(100);
+  const [wordsPerPage] = useState(70);
 
-  const [voice, setVoice] = useState("CwhRBWXzGAHq8TQ4Fs17");
+  const [voice, setVoice] = useState("IES4nrmZdUBHByLBde0P");
   const [effect, setEffect] = useState("none");
   const [isMuted, setIsMuted] = useState(false);
   const [volume, setVolume] = useState(0.2); // volume of effects

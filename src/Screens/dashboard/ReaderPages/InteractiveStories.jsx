@@ -1,17 +1,15 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../../../components/myui/Users/ReaderPages/navbar";
 import PageHeader from "../../../components/myui/Users/ReaderPages/sideHeader";
 
 import Cards from "../../../components/myui/Users/ReaderPages/InteractiveComponent/cards";
-import FiltersComponent from "../../../components/myui/Users/ReaderPages/InteractiveComponent/filtersComponent";
-import SearchComponent from "../../../components/myui/Users/ReaderPages/InteractiveComponent/searchComponent";
+import FeaturedCarousel from "../../../components/myui/Users/ReaderPages/InteractiveComponent/FeaturedCarousel";
 import SkeletonLoader from "../../../components/myui/Users/ReaderPages/InteractiveComponent/skeletonloader";
 import DetailsModal from "../../../components/myui/Users/ReaderPages/InteractiveComponent/detailsmodal";
+import StorySearchModal from "../../../components/myui/Users/ReaderPages/InteractiveComponent/StorySearchModal";
 
 import { getHelper } from "../../../../apis/apiHelpers";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import { SlidersHorizontal } from "lucide-react";
 
 const PAGE_SIZE = 8;
 
@@ -60,7 +58,9 @@ function extractPage(res) {
 }
 
 function InteractiveStories({ pageName = "قصص تفاعلية" }) {
+  const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [stories, setStories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -192,6 +192,14 @@ function InteractiveStories({ pageName = "قصص تفاعلية" }) {
     });
   }, [stories, search, genre]);
 
+  const featuredStories = useMemo(() => {
+    return filteredStories.slice(0, 5);
+  }, [filteredStories]);
+
+  const remainingStories = useMemo(() => {
+    return filteredStories.slice(5);
+  }, [filteredStories]);
+
   // When filters/search change, reset and refetch first page (keeps API pagination correct)
   useEffect(() => {
     setStories([]);
@@ -219,6 +227,8 @@ function InteractiveStories({ pageName = "قصص تفاعلية" }) {
     return () => observer.disconnect();
   }, [hasMore, loading, loadingMore, page]);
 
+  const handleSearchClick = () => setIsSearchOpen(true);
+
   return (
     <div
       dir="rtl"
@@ -226,11 +236,10 @@ function InteractiveStories({ pageName = "قصص تفاعلية" }) {
     >
       <div dir="ltr">
         <Navbar
-          mobileButtonTitle="زر"
-          onMobileButtonPress={() => {}}
           pageName={pageName}
           collapsed={collapsed}
           setCollapsed={setCollapsed}
+          onSearchClick={handleSearchClick}
         />
       </div>
 
@@ -240,76 +249,44 @@ function InteractiveStories({ pageName = "قصص تفاعلية" }) {
         }`}
       >
         <main className="flex-1 flex flex-col w-full min-w-0">
-          <PageHeader mainTitle={pageName} />
+          <PageHeader mainTitle={pageName} onSearchClick={handleSearchClick} />
 
-          <div className="w-full max-w-full overflow-hidden px-4 sm:px-6 py-6 sm:py-8">
-            {/* Search + Filters */}
-            <div className="rounded-2xl border border-white/60 bg-white/60 backdrop-blur shadow-sm p-4 sm:p-5 mb-6 sm:mb-8">
-              <div className="flex flex-row gap-2 sm:gap-4 items-stretch">
-                <div className="flex-1 min-w-0">
-                  <SearchComponent
-                    value={search}
-                    onChange={setSearch}
-                    disabled={loading}
-                  />
-                </div>
-                {/* Filter Popover for all screen sizes */}
-                <div>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="icon"
-                        disabled={loading}
-                        className="h-[46px] w-[46px] rounded-xl border-gray-200 bg-white/90"
-                        title="التصنيفات"
-                      >
-                        <SlidersHorizontal className="h-5 w-5 text-[var(--earth-brown)]" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent
-                      align="end"
-                      sideOffset={8}
-                      className="w-64 rounded-2xl border border-white/60 bg-white/95 backdrop-blur p-4 shadow-xl"
-                    >
-                      <div className="text-sm font-bold text-[var(--earth-brown)] mb-3 text-right">
-                        التصنيفات
-                      </div>
-                      <FiltersComponent
-                        value={genre}
-                        onChange={setGenre}
-                        genres={genres}
-                        disabled={loading}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-              </div>
-            </div>
-
-            {/* Cards */}
+          <div className="w-full max-w-full overflow-hidden px-6 py-8">
             {loading ? (
               <SkeletonLoader count={PAGE_SIZE} />
             ) : (
               <>
                 {filteredStories.length === 0 ? (
-                  <p className="text-center text-gray-500 mt-10">
-                    لا توجد نتائج مطابقة
-                  </p>
+                  <div className="flex flex-col items-center justify-center py-32">
+                    <div className="text-6xl mb-4">📚</div>
+                    <p className="text-[17px] text-gray-600 font-medium">
+                      لا توجد نتائج
+                    </p>
+                    <p className="text-[15px] text-gray-400 mt-1">
+                      جرب البحث بكلمات مختلفة
+                    </p>
+                  </div>
                 ) : (
-                  <Cards stories={filteredStories} onStoryClick={openStoryDetails} />
+                  <>
+                    {/* Featured Carousel - First 5 Stories */}
+                    {featuredStories.length > 0 && (
+                      <FeaturedCarousel 
+                        stories={featuredStories} 
+                        onStoryClick={openStoryDetails} 
+                      />
+                    )}
+
+                    {/* Remaining Stories Grid */}
+                    {remainingStories.length > 0 && (
+                      <Cards stories={remainingStories} onStoryClick={openStoryDetails} />
+                    )}
+                  </>
                 )}
 
                 {/* Infinite scroll sentinel */}
                 {hasMore && (
-                  <div ref={loadMoreRef} className="py-10">
-                    <div className="mx-auto h-10 w-10 rounded-full border-2 border-gray-300 border-t-gray-600 animate-spin" />
-                    {loadingMore ? (
-                      <p className="text-center text-gray-500 mt-3">
-                        جاري تحميل المزيد...
-                      </p>
-                    ) : null}
+                  <div ref={loadMoreRef} className="py-16">
+                    <div className="mx-auto h-8 w-8 rounded-full border-2 border-gray-200 border-t-gray-900 animate-spin" />
                   </div>
                 )}
               </>
@@ -330,8 +307,23 @@ function InteractiveStories({ pageName = "قصص تفاعلية" }) {
         }}
         story={storyDetails ?? selectedStory}
         loading={detailsLoading}
-        onStart={() => {
-          // TODO: hook to actual "start story" flow once available
+        onStart={(story) => {
+          if (story?.id) {
+            navigate("/reader/interactive-stories/play", { 
+              state: { storyId: story.id } 
+            });
+          }
+        }}
+      />
+
+      <StorySearchModal
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+        genres={genres}
+        onApply={(filters) => {
+          setSearch(filters.query || "");
+          setGenre(filters.genre || "ALL");
+          setIsSearchOpen(false);
         }}
       />
     </div>

@@ -188,3 +188,131 @@ body {
 .bento-item-img {
   transition: transform 0.3s ease;
 }
+
+/* --------------------------------------
+ * Interactive Dashboard Animations
+ * -------------------------------------- */
+
+/* Typewriter cursor blink */
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* Book flip animation */
+@keyframes flip {
+  0% { transform: rotateY(0deg); }
+  50% { transform: rotateY(90deg); }
+  100% { transform: rotateY(0deg); }
+}
+
+.animate-flip {
+  animation: flip 2s ease-in-out infinite;
+}
+
+/* Slow spin for loaders */
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 3s linear infinite;
+}
+
+/* Progress bar animation */
+@keyframes progress {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.animate-progress {
+  animation: progress 2s ease-in-out infinite;
+}
+
+/* Floating particles */
+@keyframes float {
+  0%, 100% { 
+    transform: translateY(0) translateX(0);
+    opacity: 0.3;
+  }
+  50% { 
+    transform: translateY(-20px) translateX(10px);
+    opacity: 0.6;
+  }
+}
+
+@keyframes float-delay-1 {
+  0%, 100% { 
+    transform: translateY(0) translateX(0);
+    opacity: 0.2;
+  }
+  50% { 
+    transform: translateY(-25px) translateX(-10px);
+    opacity: 0.5;
+  }
+}
+
+@keyframes float-delay-2 {
+  0%, 100% { 
+    transform: translateY(0) translateX(0);
+    opacity: 0.4;
+  }
+  50% { 
+    transform: translateY(-18px) translateX(8px);
+    opacity: 0.7;
+  }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.animate-float-delay-1 {
+  animation: float-delay-1 5s ease-in-out infinite 0.5s;
+}
+
+.animate-float-delay-2 {
+  animation: float-delay-2 6s ease-in-out infinite 1s;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* Delay utilities for animations */
+.delay-100 {
+  animation-delay: 0.1s;
+}
+
+.delay-150 {
+  animation-delay: 0.15s;
+}
+
+.delay-200 {
+  animation-delay: 0.2s;
+}
+
+.delay-300 {
+  animation-delay: 0.3s;
+}
+
+.delay-600 {
+  animation-delay: 0.6s;
+}
+
+.delay-1000 {
+  animation-delay: 1s;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%) rotate(45deg); }
+  100% { transform: translateX(200%) rotate(45deg); }
+}

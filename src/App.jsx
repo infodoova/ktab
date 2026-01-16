@@ -13,6 +13,7 @@ import Settings from "./Screens/dashboard/AuthorPages/Settings";
 // Reader Pages
 import MainPage from "./Screens/dashboard/ReaderPages/MainPage";
 import InteractiveStories from "./Screens/dashboard/ReaderPages/InteractiveStories";
+import InteractiveDashboard from "./Screens/dashboard/ReaderPages/interactiveDashboard/mainComp";
 import Profile from "./Screens/dashboard/ReaderPages/Profile";
 import Library from "./Screens/dashboard/ReaderPages/Library";
 import Achievements from "./Screens/dashboard/ReaderPages/Achievements";
@@ -110,6 +111,10 @@ function App() {
         <Route
           path="/reader/interactive-stories"
           element={<InteractiveStories />}
+        />
+        <Route
+          path="/reader/interactive-stories/play"
+          element={<InteractiveDashboard />}
         />
         <Route path="/reader/profile" element={<Profile />} />
         <Route path="/reader/library" element={<Library />} />
