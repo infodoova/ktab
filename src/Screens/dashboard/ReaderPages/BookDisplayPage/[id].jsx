@@ -28,7 +28,7 @@ export default function BookDisplay() {
 
   const [bookText, setBookText] = useState("");
   const [loadingText, setLoadingText] = useState(true);
-  const [wordsPerPage] = useState(70);
+  const [wordsPerPage] = useState(100);
 
   const [voice, setVoice] = useState("IES4nrmZdUBHByLBde0P");
   const [effect, setEffect] = useState("none");

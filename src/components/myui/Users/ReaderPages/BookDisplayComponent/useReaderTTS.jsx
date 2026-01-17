@@ -243,33 +243,65 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
 
       if (streamCancelledRef.current) return;
 
-      // Sort alignments and calculate expected total duration
-      allAlignmentsRef.current.sort((a, b) => a.seq - b.seq);
+    // Sort alignments and calculate expected total duration
+    allAlignmentsRef.current.sort((a, b) => a.seq - b.seq);
 
-      let cumulativeOffset = 0;
-      const allWords = [];
-
-      for (const alignment of allAlignmentsRef.current) {
-        if (!alignment.words || alignment.words.length === 0) continue;
-
-        const lastWord = alignment.words[alignment.words.length - 1];
-        const chunkDuration = lastWord ? lastWord.endSec : 0;
-
-        for (const w of alignment.words) {
-          allWords.push({
-            word: w.word,
-            startSec: cumulativeOffset + w.startSec,
-            endSec: cumulativeOffset + w.endSec,
-            startChar: charOffsetRef.current + w.startChar,
-            endChar: charOffsetRef.current + w.endChar,
-          });
+    let timeOffset = 0;
+    let charOffsetFix = 0;
+    if (allAlignmentsRef.current.length > 0) {
+      const firstAlign = allAlignmentsRef.current[0];
+      if (firstAlign.words && firstAlign.words.length > 0) {
+        // If the first word starts after 1.5s, assume absolute timings from backend
+        if (firstAlign.words[0].startSec > 1.5) {
+          timeOffset = firstAlign.words[0].startSec;
+          console.log(`TTS: Detected absolute timings, offset = ${timeOffset}s`);
         }
+        // If the first word's char offset is >= our page start, assume absolute char offsets
+        if (
+          charOffsetRef.current > 0 &&
+          firstAlign.words[0].startChar >= charOffsetRef.current
+        ) {
+          charOffsetFix = charOffsetRef.current;
+          console.log(
+            `TTS: Detected absolute character offsets, fix = ${charOffsetFix}`
+          );
+        }
+      }
+    }
 
-        cumulativeOffset += chunkDuration;
+    let cumulativeOffset = 0;
+    const allWords = [];
+
+    for (const alignment of allAlignmentsRef.current) {
+      if (!alignment.words || alignment.words.length === 0) continue;
+
+      // If backend is sending absolute timings (timeOffset > 0), 
+      // each chunk's timings are already in sync.
+      // Otherwise, we accumulate chunk durations.
+      const baseTime = timeOffset > 0 ? 0 : cumulativeOffset;
+
+      for (const w of alignment.words) {
+        allWords.push({
+          word: w.word,
+          startSec: baseTime + (w.startSec - timeOffset),
+          endSec: baseTime + (w.endSec - timeOffset),
+          startChar: charOffsetRef.current + w.startChar - charOffsetFix,
+          endChar: charOffsetRef.current + w.endChar - charOffsetFix,
+        });
       }
 
-      const expectedDuration = cumulativeOffset || decoded.duration;
-      expectedDurationRef.current = expectedDuration;
+      if (timeOffset > 0) {
+        const lastWord = alignment.words[alignment.words.length - 1];
+        cumulativeOffset = lastWord.endSec - timeOffset;
+      } else {
+        const lastWord = alignment.words[alignment.words.length - 1];
+        const chunkDuration = lastWord ? lastWord.endSec : 0;
+        cumulativeOffset += chunkDuration;
+      }
+    }
+
+    const expectedDuration = cumulativeOffset || decoded.duration;
+    expectedDurationRef.current = expectedDuration;
 
       console.log(
         `Decoded: ${actualDuration.toFixed(
@@ -398,32 +430,61 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
       const decoded = await ctx.decodeAudioData(combined.buffer.slice(0));
       const actualDuration = decoded.duration;
 
-      // Sort alignments and calculate expected total duration
-      prefetchAlignmentsRef.current.sort((a, b) => a.seq - b.seq);
+    // Sort alignments and calculate expected total duration
+    prefetchAlignmentsRef.current.sort((a, b) => a.seq - b.seq);
 
-      let cumulativeOffset = 0;
-      const allWords = [];
-
-      for (const alignment of prefetchAlignmentsRef.current) {
-        if (!alignment.words || alignment.words.length === 0) continue;
-
-        const lastWord = alignment.words[alignment.words.length - 1];
-        const chunkDuration = lastWord ? lastWord.endSec : 0;
-
-        for (const w of alignment.words) {
-          allWords.push({
-            word: w.word,
-            startSec: cumulativeOffset + w.startSec,
-            endSec: cumulativeOffset + w.endSec,
-            startChar: prefetchCharOffsetRef.current + w.startChar,
-            endChar: prefetchCharOffsetRef.current + w.endChar,
-          });
+    let timeOffset = 0;
+    let charOffsetFix = 0;
+    if (prefetchAlignmentsRef.current.length > 0) {
+      const firstAlign = prefetchAlignmentsRef.current[0];
+      if (firstAlign.words && firstAlign.words.length > 0) {
+        if (firstAlign.words[0].startSec > 1.5) {
+          timeOffset = firstAlign.words[0].startSec;
+          console.log(
+            `TTS Prefetch: Detected absolute timings, offset = ${timeOffset}s`
+          );
         }
+        if (
+          prefetchCharOffsetRef.current > 0 &&
+          firstAlign.words[0].startChar >= prefetchCharOffsetRef.current
+        ) {
+          charOffsetFix = prefetchCharOffsetRef.current;
+          console.log(
+            `TTS Prefetch: Detected absolute character offsets, fix = ${charOffsetFix}`
+          );
+        }
+      }
+    }
 
-        cumulativeOffset += chunkDuration;
+    let cumulativeOffset = 0;
+    const allWords = [];
+
+    for (const alignment of prefetchAlignmentsRef.current) {
+      if (!alignment.words || alignment.words.length === 0) continue;
+
+      const baseTime = timeOffset > 0 ? 0 : cumulativeOffset;
+
+      for (const w of alignment.words) {
+        allWords.push({
+          word: w.word,
+          startSec: baseTime + (w.startSec - timeOffset),
+          endSec: baseTime + (w.endSec - timeOffset),
+          startChar: prefetchCharOffsetRef.current + w.startChar - charOffsetFix,
+          endChar: prefetchCharOffsetRef.current + w.endChar - charOffsetFix,
+        });
       }
 
-      const expectedDuration = cumulativeOffset || decoded.duration;
+      if (timeOffset > 0) {
+        const lastWord = alignment.words[alignment.words.length - 1];
+        cumulativeOffset = lastWord.endSec - timeOffset;
+      } else {
+        const lastWord = alignment.words[alignment.words.length - 1];
+        const chunkDuration = lastWord ? lastWord.endSec : 0;
+        cumulativeOffset += chunkDuration;
+      }
+    }
+
+    const expectedDuration = cumulativeOffset || decoded.duration;
       let playbackRate =
         expectedDuration > 0 ? actualDuration / expectedDuration : 1;
 
