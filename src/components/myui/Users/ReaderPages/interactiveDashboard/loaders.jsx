@@ -9,45 +9,105 @@ function Loaders({ type = "initial" }) {
   // Initial loading (full page skeleton)
   if (type === "initial") {
     return (
-      <div className="h-full flex flex-col p-4 max-w-4xl mx-auto w-full gap-2 md:gap-3">
-        {/* Image skeleton - matched to image size */}
-        <div className="mb-1 w-full max-w-lg mx-auto aspect-video bg-gradient-to-r from-[var(--earth-sand)]/20 via-[var(--earth-cream)]/50 to-[var(--earth-sand)]/20 rounded-lg animate-pulse" />
-        
-        {/* Text skeleton */}
-        <div className="mb-1 glass rounded-lg p-3 border border-[var(--earth-sand)]/10">
-          <div className="space-y-1.5">
-            <div className="h-2 bg-[var(--earth-sand)]/30 rounded animate-pulse w-full" />
-            <div className="h-2 bg-[var(--earth-sand)]/30 rounded animate-pulse w-5/6" />
-          </div>
-        </div>
+      <div className="flex-1 w-full p-4 md:p-8 animate-in fade-in duration-700">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16">
+          {/* Sidebar Skeletons */}
+          <div className="lg:col-span-5 space-y-8">
+            {/* Image Box Skeleton */}
+            <div className="relative w-full aspect-video bg-white/20 rounded-2xl overflow-hidden border border-white/20">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-[shimmer_1.5s_infinite]" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-12 h-12 border-2 border-[var(--earth-sand)]/20 border-t-[var(--earth-olive)] rounded-full animate-spin" />
+              </div>
+            </div>
+            
+            {/* Journey History Skeleton */}
+            <div className="bg-white/20 backdrop-blur-md rounded-2xl p-6 border border-white/20 space-y-4">
+              <div className="flex justify-between">
+                <div className="h-3 bg-[var(--earth-sand)]/20 rounded-full w-24 animate-pulse" />
+                <div className="h-3 bg-[var(--earth-sand)]/20 rounded-full w-16 animate-pulse" />
+              </div>
+              <div className="flex gap-2">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="w-10 h-10 bg-[var(--earth-sand)]/10 rounded-xl animate-pulse" />
+                ))}
+              </div>
+            </div>
 
-        {/* Nodes skeleton */}
-        <div className="grid grid-cols-2 gap-2">
-          <div className="glass h-12 rounded-lg border border-[var(--earth-sand)]/10 animate-pulse" />
-          <div className="glass h-12 rounded-lg border border-[var(--earth-sand)]/10 animate-pulse" />
-          <div className="glass h-12 rounded-lg border border-[var(--earth-sand)]/10 animate-pulse" />
-          <div className="glass h-12 rounded-lg border border-[var(--earth-sand)]/10 animate-pulse" />
+            {/* Progress Skeleton */}
+            <div className="hidden lg:block bg-white/20 backdrop-blur-md rounded-2xl p-6 border border-white/20 space-y-4">
+              <div className="h-3 bg-[var(--earth-sand)]/20 rounded-full w-20 animate-pulse" />
+              <div className="w-full h-1.5 bg-[var(--earth-sand)]/10 rounded-full overflow-hidden" />
+            </div>
+          </div>
+          
+          {/* Main Content Skeletons */}
+          <div className="lg:col-span-7 space-y-8">
+            {/* Narrative Skeleton */}
+            <div className="bg-white/30 backdrop-blur-xl rounded-[2.5rem] p-8 md:p-12 space-y-6 border border-white/30">
+              <div className="h-6 bg-[var(--earth-olive)]/10 rounded-full w-24 animate-pulse" />
+              <div className="space-y-4">
+                <div className="h-3.5 bg-[var(--earth-sand)]/20 rounded-full w-full animate-pulse" />
+                <div className="h-3.5 bg-[var(--earth-sand)]/20 rounded-full w-[95%] animate-pulse" />
+                <div className="h-3.5 bg-[var(--earth-sand)]/20 rounded-full w-[98%] animate-pulse" />
+                <div className="h-3.5 bg-[var(--earth-sand)]/20 rounded-full w-4/5 animate-pulse" />
+              </div>
+            </div>
+
+            {/* Choice Nodes Skeleton */}
+            <div className="space-y-4">
+              <div className="h-3 bg-[var(--earth-sand)]/20 rounded-full w-24 mb-6 animate-pulse" />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="h-20 bg-white/20 rounded-2xl border-2 border-white/20 animate-pulse relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
   }
 
-  // Generating next scene (skeleton overlay on nodes area)
+  // Generating next scene
   if (type === "generating") {
     return (
-      <div className="flex flex-col h-full">
-        <div className="text-center mb-1 flex-shrink-0">
-          <p className="text-[var(--earth-brown-dark)] text-[10px] font-medium opacity-60">
-            🤖 جاري التحميل...
+      <div className="w-full space-y-8 animate-in fade-in duration-500">
+        <div className="flex items-center justify-center gap-4 mb-2">
+          <div className="flex gap-1">
+            <div className="w-1.5 h-1.5 bg-[var(--earth-olive)] rounded-full animate-bounce [animation-delay:-0.3s]" />
+            <div className="w-1.5 h-1.5 bg-[var(--earth-olive)] rounded-full animate-bounce [animation-delay:-0.15s]" />
+            <div className="w-1.5 h-1.5 bg-[var(--earth-olive)] rounded-full animate-bounce" />
+          </div>
+          <p className="text-[var(--earth-brown-dark)] text-sm font-bold opacity-70 tracking-wide">
+            يرسم الذكاء الاصطناعي ملامح طريقك...
           </p>
         </div>
         
-        {/* Skeleton nodes while generating */}
-        <div className="grid grid-cols-2 gap-2 flex-1">
-          <div className="glass rounded-lg border border-[var(--earth-sand)]/10 animate-pulse" />
-          <div className="glass rounded-lg border border-[var(--earth-sand)]/10 animate-pulse" />
-          <div className="glass rounded-lg border border-[var(--earth-sand)]/10 animate-pulse" />
-          <div className="glass rounded-lg border border-[var(--earth-sand)]/10 animate-pulse" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="h-24 bg-white/30 rounded-2xl border-2 border-white/20 animate-pulse flex flex-col justify-center px-6 space-y-3">
+              <div className="h-3 bg-[var(--earth-brown)]/10 rounded-full w-3/4" />
+              <div className="h-2 bg-[var(--earth-brown)]/5 rounded-full w-1/2" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Text generation skeleton
+  if (type === "text") {
+    return (
+      <div className="space-y-6 animate-in fade-in duration-500">
+        <div className="h-6 bg-[var(--earth-olive)]/10 rounded-full w-24 animate-pulse" />
+        <div className="space-y-4">
+          <div className="h-3.5 bg-[var(--earth-sand)]/20 rounded-full w-full animate-pulse" />
+          <div className="h-3.5 bg-[var(--earth-sand)]/20 rounded-full w-[95%] animate-pulse" />
+          <div className="h-3.5 bg-[var(--earth-sand)]/20 rounded-full w-[98%] animate-pulse" />
+          <div className="h-3.5 bg-[var(--earth-sand)]/20 rounded-full w-4/5 animate-pulse" />
         </div>
       </div>
     );

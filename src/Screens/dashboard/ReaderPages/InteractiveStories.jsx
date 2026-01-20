@@ -8,52 +8,21 @@ import FeaturedCarousel from "../../../components/myui/Users/ReaderPages/Interac
 import SkeletonLoader from "../../../components/myui/Users/ReaderPages/InteractiveComponent/skeletonloader";
 import DetailsModal from "../../../components/myui/Users/ReaderPages/InteractiveComponent/detailsmodal";
 import StorySearchModal from "../../../components/myui/Users/ReaderPages/InteractiveComponent/StorySearchModal";
+import { AlertToast } from "../../../components/myui/AlertToast";
 
-import { getHelper } from "../../../../apis/apiHelpers";
+import { getStories, getStoryDetails } from "../../../../apis/interactiveStoriesApi";
 
 const PAGE_SIZE = 8;
 
-// ✅ Fake fallback data (DESIGN PURPOSE ONLY) — larger set to test pagination
-const GENRES = [
-  "Fantasy",
-  "Adventure",
-  "Drama",
-  "Mystery",
-  "Sci-Fi",
-  "History",
-];
-const makeFakeStories = (count = 40) =>
-  Array.from({ length: count }).map((_, idx) => {
-    const id = idx + 1;
-    const genre = GENRES[idx % GENRES.length];
-    return {
-      id,
-      title: `قصة رقم ${id}`,
-      genre,
-      cover: `https://picsum.photos/400/300?random=${id}`,
-    };
-  });
-const fakeStories = makeFakeStories(40);
-
 function extractPage(res) {
-  // Expected patterns in this repo: { data: { content, totalPages } } OR { data: [] } OR []
-  const payload = res?.data ?? res;
-
-  const contentCandidate =
-    payload?.content ??
-    payload?.results ??
-    payload?.items ??
-    payload?.data ??
-    payload;
-
-  const content = Array.isArray(contentCandidate) ? contentCandidate : [];
-
-  const totalPages =
-    payload?.totalPages ?? payload?.page?.totalPages ?? payload?.pages ?? null;
+  // Schema: { success: true, data: { content: [], totalPages: number } }
+  const data = res?.data;
+  const content = Array.isArray(data?.content) ? data.content : [];
+  const totalPages = typeof data?.totalPages === "number" ? data.totalPages : null;
 
   return {
     content,
-    totalPages: typeof totalPages === "number" ? totalPages : null,
+    totalPages,
   };
 }
 
@@ -76,35 +45,12 @@ function InteractiveStories({ pageName = "قصص تفاعلية" }) {
   const [detailsLoading, setDetailsLoading] = useState(false);
   const detailsReqIdRef = useRef(0);
 
-  function makeFakeStoryDetails(base) {
+  function normalizeDetails(res, base) {
+    // Schema: { success: true, data: { ...storyFields } }
+    const data = res?.data ?? res;
     return {
       ...base,
-      description:
-        base?.description ||
-        "هذه بيانات تجريبية لواجهة التفاصيل (Fallback) حتى يتم توفير API التفاصيل.",
-      lens: base?.lens || "POLITICAL",
-      sceneCount: base?.sceneCount ?? 7,
-      constitution: base?.constitution || {
-        settingTime: "زمن معاصر قريب",
-        settingPlace: "مدينة عربية كبيرة تخضع للمراقبة",
-        coreTheme: "السلطة في مواجهة الحقيقة",
-        tone: "متوتر، واقعي، بطيء التصاعد",
-        philosophy: "كل قرار له ثمن",
-        mainConflict: "كشف الحقيقة مقابل السلامة الشخصية",
-        forbiddenElements: "العنف المفرط، الكوميديا، السحر",
-        pacing: "تصاعد تدريجي حتى المواجهة الأخيرة",
-      },
-    };
-  }
-
-  function normalizeDetails(res, base) {
-    // expected possible shapes: {data: {...}} OR {...}
-    const raw = res?.data ?? res ?? {};
-    const candidate =
-      raw?.story ?? raw?.item ?? raw?.result ?? raw?.data ?? raw ?? {};
-    return {
-      ...makeFakeStoryDetails(base),
-      ...candidate,
+      ...data,
     };
   }
 
@@ -117,14 +63,17 @@ function InteractiveStories({ pageName = "قصص تفاعلية" }) {
 
     const reqId = ++detailsReqIdRef.current;
     try {
-      const res = await getHelper({
-        url: `${import.meta.env.VITE_API_URL}/stories/${story.id}`,
-      });
+      const res = await getStoryDetails(story.id);
       const details = normalizeDetails(res, story);
+      if (res?.messageStatus && res.messageStatus !== "SUCCESS") {
+        AlertToast(res?.message, res?.messageStatus);
+        return;
+      }
       if (reqId === detailsReqIdRef.current) setStoryDetails(details);
-    } catch {
-      const details = makeFakeStoryDetails(story);
-      if (reqId === detailsReqIdRef.current) setStoryDetails(details);
+    } catch (error) {
+      console.error("Failed to fetch story details:", error);
+      // Fallback to the story object we already have from the list
+      if (reqId === detailsReqIdRef.current) setStoryDetails(story);
     } finally {
       if (reqId === detailsReqIdRef.current) setDetailsLoading(false);
     }
@@ -135,13 +84,14 @@ function InteractiveStories({ pageName = "قصص تفاعلية" }) {
       if (replace) setLoading(true);
       else setLoadingMore(true);
 
-      const res = await getHelper({
-        url: `${import.meta.env.VITE_API_URL}/stories`, 
-        paginated: true,
+      const res = await getStories({
         page: pageToLoad,
         size: PAGE_SIZE,
       });
-
+     if (res?.messageStatus && res.messageStatus !== "SUCCESS") {
+      AlertToast(res?.message, res?.messageStatus);
+      return;
+     }
       const { content, totalPages } = extractPage(res);
 
       setStories((prev) => (replace ? content : [...prev, ...content]));
@@ -153,24 +103,15 @@ function InteractiveStories({ pageName = "قصص تفاعلية" }) {
         // If API doesn't return totalPages, infer from size
         setHasMore(content.length === PAGE_SIZE);
       }
-    } catch {
-      console.warn("API failed, loading fake stories");
-      // Fake data: simulate paging client-side
-      const start = pageToLoad * PAGE_SIZE;
-      const end = start + PAGE_SIZE;
-      const chunk = fakeStories.slice(start, end);
-      setStories((prev) => (replace ? chunk : [...prev, ...chunk]));
-      setPage(pageToLoad);
-      setHasMore(end < fakeStories.length);
+    } catch (error) {
+      console.error("Failed to fetch stories:", error);
+      if (replace) setStories([]);
+      setHasMore(false);
     } finally {
       setLoading(false);
       setLoadingMore(false);
     }
   };
-
-  useEffect(() => {
-    fetchPage(0, { replace: true });
-  }, []);
 
   const genres = useMemo(() => {
     const set = new Set();
@@ -220,7 +161,7 @@ function InteractiveStories({ pageName = "قصص تفاعلية" }) {
         if (!first?.isIntersecting) return;
         fetchPage(page + 1);
       },
-      { root: null, rootMargin: "250px", threshold: 0 }
+      { root: null, rootMargin: "250px", threshold: 0 },
     );
 
     observer.observe(el);
@@ -258,7 +199,6 @@ function InteractiveStories({ pageName = "قصص تفاعلية" }) {
               <>
                 {filteredStories.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-32">
-                    <div className="text-6xl mb-4">📚</div>
                     <p className="text-[17px] text-gray-600 font-medium">
                       لا توجد نتائج
                     </p>
@@ -270,15 +210,18 @@ function InteractiveStories({ pageName = "قصص تفاعلية" }) {
                   <>
                     {/* Featured Carousel - First 5 Stories */}
                     {featuredStories.length > 0 && (
-                      <FeaturedCarousel 
-                        stories={featuredStories} 
-                        onStoryClick={openStoryDetails} 
+                      <FeaturedCarousel
+                        stories={featuredStories}
+                        onStoryClick={openStoryDetails}
                       />
                     )}
 
                     {/* Remaining Stories Grid */}
                     {remainingStories.length > 0 && (
-                      <Cards stories={remainingStories} onStoryClick={openStoryDetails} />
+                      <Cards
+                        stories={remainingStories}
+                        onStoryClick={openStoryDetails}
+                      />
                     )}
                   </>
                 )}
@@ -309,8 +252,8 @@ function InteractiveStories({ pageName = "قصص تفاعلية" }) {
         loading={detailsLoading}
         onStart={(story) => {
           if (story?.id) {
-            navigate("/reader/interactive-stories/play", { 
-              state: { storyId: story.id } 
+            navigate("/reader/interactive-stories/play", {
+              state: { storyId: story.id },
             });
           }
         }}

@@ -71,18 +71,26 @@ function FeaturedCarousel({ stories = [], onStoryClick }) {
         {/* Carousel Container */}
         <div 
           ref={carouselRef}
-          className="relative aspect-[4/5] sm:aspect-[16/9] md:aspect-[21/9] rounded-2xl md:rounded-[28px] overflow-hidden bg-black touch-pan-y"
+          className="relative aspect-[4/5] sm:aspect-[16/9] md:aspect-[21/9] rounded-2xl md:rounded-[28px] overflow-hidden bg-[var(--earth-cream)] touch-pan-y"
           onTouchStart={onTouchStart}
           onTouchMove={onTouchMove}
           onTouchEnd={onTouchEnd}
         >
           {/* Background Image */}
           <div className="absolute inset-0">
-            <img
-              src={currentStory.cover || "https://picsum.photos/1200/600?blur=3"}
-              alt={currentStory.title}
-              className="w-full h-full object-cover transition-transform duration-[2000ms] ease-out group-hover:scale-105"
-            />
+            {currentStory.cover ? (
+              <img
+                src={currentStory.cover}
+                alt={currentStory.title}
+                className="w-full h-full object-cover transition-transform duration-[2000ms] ease-out group-hover:scale-105"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-[var(--earth-brown)] opacity-10">
+                <svg className="w-32 h-32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+              </div>
+            )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
             <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/30 to-transparent" />
           </div>
@@ -106,7 +114,9 @@ function FeaturedCarousel({ stories = [], onStoryClick }) {
 
               {/* Description */}
               <p className="text-sm sm:text-base md:text-lg text-white/90 leading-relaxed line-clamp-2 md:line-clamp-3 max-w-2xl">
-                {currentStory.description || "اكتشف عالماً من القصص التفاعلية المشوقة. كل قرار تتخذه يشكل مسار القصة ويقودك إلى نهاية فريدة."}
+                {currentStory.description || (currentStory.constitution ? 
+                  `${currentStory.constitution.coreTheme || ""} ${currentStory.constitution.settingPlace ? `في ${currentStory.constitution.settingPlace}.` : ""}`.trim() : 
+                  "")}
               </p>
 
               {/* CTA Button */}

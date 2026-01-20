@@ -1,52 +1,61 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
-/**
- * SceneText Component
- * Displays the scene narrative text with beautiful typography and animations
- * Pure presentation component - all logic in mainComp
- */
-function SceneText({ text, sceneNumber = 0 }) {
+function SceneText({ text, sceneNumber = 0, isDarkMode = true }) {
   const [displayedText, setDisplayedText] = useState("");
-  const [isAnimating, setIsAnimating] = useState(true);
+  const scrollRef = useRef(null);
 
   useEffect(() => {
-    // Reset animation when text changes
     setDisplayedText("");
-    setIsAnimating(true);
+    let i = 0;
 
-    // Typewriter effect
-    let currentIndex = 0;
-    const intervalId = setInterval(() => {
-      if (currentIndex <= text.length) {
-        setDisplayedText(text.slice(0, currentIndex));
-        currentIndex++;
+    const interval = setInterval(() => {
+      if (i <= text.length) {
+        setDisplayedText(text.slice(0, i));
+        i++;
       } else {
-        setIsAnimating(false);
-        clearInterval(intervalId);
+        clearInterval(interval);
       }
-    }, 20); // Speed of typewriter effect
+    }, 18);
 
-    return () => clearInterval(intervalId);
+    return () => clearInterval(interval);
   }, [text]);
 
-  return (
-    <div className="mb-1 md:mb-2 relative">
-      {/* Main card - Very compact */}
-      <div className="relative glass rounded-lg p-3 md:p-4 shadow-sm border border-[var(--earth-sand)]/20">
-        {/* Scene number badge - Subtle */}
-        <div className="absolute -top-1.5 left-2 bg-[var(--earth-olive)] text-white px-2 py-0.5 rounded-full text-[9px] font-bold shadow-sm">
-          #{sceneNumber + 1}
-        </div>
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [displayedText]);
 
-        {/* Text content - Optimized for vertical space */}
-        <div className="relative pt-2" dir="rtl">
-          <p className="text-[var(--earth-brown-dark)] text-xs md:text-sm leading-relaxed font-semibold">
-            {displayedText}
-            {isAnimating && (
-              <span className="inline-block w-0.5 h-3 bg-[var(--earth-brown-dark)] ml-1 animate-pulse" />
-            )}
-          </p>
-        </div>
+  return (
+    <div className="relative w-full text-right" dir="rtl">
+      {/* Scene number */}
+      <div
+        className={`mb-2 md:mb-4 inline-flex items-center gap-2 px-3 py-1 rounded-full border ${isDarkMode ? "bg-[var(--earth-olive)]/10 border-[var(--earth-olive)]/20" : "bg-[var(--earth-olive)]/10 border-[var(--earth-olive)]/20"}`}
+      >
+        <span className="w-1.5 h-1.5 bg-[var(--earth-olive)] rounded-full animate-pulse" />
+        <span className="text-[10px] md:text-xs font-bold text-[var(--earth-olive)] uppercase tracking-[0.2em]">
+          المشهد {sceneNumber}
+        </span>
+      </div>
+
+      {/* Text container */}
+      <div
+        ref={scrollRef}
+        className={`
+          max-h-[7.2em] md:max-h-[8em]
+          overflow-y-auto
+          custom-scrollbar
+          leading-[1.8] md:leading-[2]
+          text-base md:text-xl
+          font-medium
+          text-right
+          whitespace-pre-wrap
+          pr-2
+          transition-colors duration-500
+          ${isDarkMode ? "text-white/90" : "text-[var(--earth-brown-dark)]"}
+        `}
+      >
+        {displayedText}
       </div>
     </div>
   );

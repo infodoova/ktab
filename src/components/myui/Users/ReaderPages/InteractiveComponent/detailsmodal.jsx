@@ -90,9 +90,13 @@ function DetailsModal({ open, onOpenChange, story, loading = false, onStart }) {
   const title = currentStory?.title || "تحميل تفاصيل الرواية...";
   const cover = currentStory?.cover || "";
   const genre = currentStory?.genre || "قصة تفاعلية";
-  const description =
-    currentStory?.description ||
-    "انطلق في رحلة غامرة عبر عوالم نسجتها خيالات المبدعين، حيث كل قرار تتخذه يشكل مسار القصة ويغير مصير أبطالها. اكتشف أسراراً دفينة، واجه تحديات أخلاقية معقدة، واستمتع بتجربة سردية تفاعلية فريدة تمزج بين الأدب الكلاسيكي وتقنيات الذكاء الاصطناعي الحديثة. هل أنت مستعد لكتابة فصلك الخاص؟";
+  
+  // Build a dynamic description from constitution if description is missing
+  const constitution = currentStory?.constitution;
+  const description = currentStory?.description || (constitution ? 
+    `${constitution.coreTheme || ""} ${constitution.settingPlace ? `في ${constitution.settingPlace}.` : ""} ${constitution.tone ? `تمتاز هذه القصة بأسلوب ${constitution.tone}.` : ""}`.trim() : 
+    "");
+
   const lensLabel = formatLens(currentStory?.lens);
   const lensStyle = getLensStyle(currentStory?.lens);
   const sceneCount = currentStory?.sceneCount ?? "0";
@@ -204,13 +208,21 @@ function DetailsModal({ open, onOpenChange, story, loading = false, onStart }) {
             </div>
 
             {/* --- Hero Image Section --- */}
-            <div className="relative h-[200px] sm:h-[280px] md:h-full md:w-[38%] lg:w-[42%] shrink-0 group overflow-hidden bg-[var(--earth-cream)] border-b md:border-b-0 md:border-l border-[var(--earth-sand)]">
-              <img
-                src={cover}
-                alt={title}
-                className="h-full w-full object-cover transition-transform duration-[5s] ease-out group-hover:scale-110"
-                loading="lazy"
-              />
+            <div className="relative h-[200px] sm:h-[280px] md:h-full md:w-[38%] lg:w-[42%] shrink-0 group overflow-hidden bg-[var(--earth-cream)] border-b md:border-b-0 md:border-l border-[var(--earth-sand)] flex items-center justify-center">
+              {cover ? (
+                <img
+                  src={cover}
+                  alt={title}
+                  className="h-full w-full object-cover transition-transform duration-[5s] ease-out group-hover:scale-110"
+                  loading="lazy"
+                />
+              ) : (
+                <div className="text-[var(--earth-brown)] opacity-10">
+                  <svg className="w-32 h-32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                  </svg>
+                </div>
+              )}
               {/* Overlay with Earth Brown tint */}
               <div className="absolute inset-0 bg-gradient-to-t from-[var(--earth-brown-dark)]/40 via-transparent to-transparent md:bg-[var(--earth-brown-dark)]/5" />
 
