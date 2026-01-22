@@ -105,7 +105,8 @@ export default function FlipBookViewer({
   bookRef,
   text = "",
   loading = false,
-  wordsPerPage = 100, // Can be a number or array of numbers [10, 15, 20, ...]
+  fontSize = 18,
+  wordsPerPage = 100,
   isRTL = true,
   onPageChange,
   onPagesGenerated, // Callback to send page info with start/end words
@@ -155,12 +156,62 @@ export default function FlipBookViewer({
 
   const ready = !loading && delayedReady;
 
+  /* ---------- RESPONSIVE DIMENSIONS ---------- */
+  const { width: vw, height: vh } = windowDimensions;
+  const isMobile = vw < 768; // Tablet/Mobile breakpoint
+
+  // Dimensions for a SINGLE page
+  let pageWidth, pageHeight;
+
+  if (isMobile) {
+    // Single page view: Page takes most of the screen width
+    pageWidth = Math.min(vw * 0.9, 550);
+    pageHeight = vh * 0.7; // Slightly reduced for mobile floating footer safe zone
+  } else {
+    // Double page view: Page takes ~42% of screen width (so 2 pages fit)
+    pageWidth = Math.min(vw * 0.42, 600);
+    // On desktop, we need to clear both header and footer (approx 240px total)
+    pageHeight = Math.min(vh - 260, vh * 0.65); 
+  }
+
+  // Font size calculation to fit text
+  const dynamicFontSize = `${fontSize}px`;
+  const dynamicLineHeight = isMobile ? "1.6" : "1.8";
+
+  /* ---------- DYNAMIC PAGINATION LOGIC ---------- */
+  // Intelligently calculate how many words fit based on font size AND page dimensions.
+  const calculatedWordsPerPage = useMemo(() => {
+    // 1. Calculate Line Height in pixels
+    const lineH = isMobile ? 1.6 : 1.8;
+    const pixelsPerLine = fontSize * lineH;
+    
+    // 2. Calculate how many lines fit in the page height (minus padding)
+    const paddingY = isMobile ? 80 : 120; // total top/bottom padding
+    const availableHeight = pageHeight - paddingY;
+    const linesThatFit = Math.floor(availableHeight / pixelsPerLine);
+    
+    // 3. Estimate words per line based on page width (minus padding)
+    const paddingX = isMobile ? 40 : 80; // total left/right padding
+    const availableWidth = pageWidth - paddingX;
+    
+    // Average word width is roughly Arabic text dependent
+    const wordsPerLine = Math.floor(availableWidth / (fontSize * 0.85));
+    
+    // 4. Calculate total words with a safety buffer (0.85x)
+    const safetyLimit = Math.floor(linesThatFit * wordsPerLine * 0.85);
+
+    // Use requested wordsPerPage but clamp to safety limit to prevent overflow
+    const finalWords = Math.min(wordsPerPage, safetyLimit);
+
+    return Math.max(15, finalWords);
+  }, [fontSize, isMobile, pageHeight, pageWidth, wordsPerPage]);
+
   /* ---------- DATA PIPELINE ---------- */
   const normalizedText = useMemo(() => normalizeText(text), [text]);
   const tokens = useMemo(() => tokenize(normalizedText), [normalizedText]);
   const pages = useMemo(
-    () => paginate(tokens, wordsPerPage),
-    [tokens, wordsPerPage]
+    () => paginate(tokens, calculatedWordsPerPage),
+    [tokens, calculatedWordsPerPage]
   );
   const totalPages = pages.length;
 
@@ -179,27 +230,6 @@ export default function FlipBookViewer({
     }
   }, [pages, tokens, onPagesGenerated]);
 
-  /* ---------- RESPONSIVE DIMENSIONS ---------- */
-  const { width: vw, height: vh } = windowDimensions;
-  const isMobile = vw < 768; // Tablet/Mobile breakpoint
-
-  // Dimensions for a SINGLE page
-  let pageWidth, pageHeight;
-
-  if (isMobile) {
-    // Single page view: Page takes most of the screen width
-    pageWidth = Math.min(vw * 0.9, 600);
-    pageHeight = vh * 0.7;
-  } else {
-    // Double page view: Page takes ~45% of screen width (so 2 pages fit)
-    pageWidth = Math.min(vw * 0.45, 600);
-    // Adjusted height logic for desktop
-    pageHeight = vw < 1024 ? vh * 0.55 : vh * 0.7;
-  }
-
-  // Font size calculation to fit text
-  const dynamicFontSize = isMobile ? "11px" : "15px";
-  const dynamicLineHeight = isMobile ? "1.8" : "2.1";
 
   /* ---------- EXPOSE BOOK API ---------- */
   useEffect(() => {
@@ -315,15 +345,15 @@ export default function FlipBookViewer({
     >
       <style>{`
         .tts-active-word {
-          background: rgba(0, 0, 0, 0.08) !important;
+          background: #fff176 !important;
           color: #000 !important;
-          border-radius: 6px;
+          border-radius: 4px;
           padding: 0 4px;
-          box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 2px 10px rgba(255, 241, 118, 0.4);
           display: inline-block;
           position: relative;
           z-index: 10;
-          font-weight: 800;
+          font-weight: 700;
           animation: highlight-pulse 0.4s ease-out;
         }
         @keyframes highlight-pulse {
@@ -424,18 +454,17 @@ const Page = forwardRef(
       ref={ref}
       className="bg-white flex items-center justify-center overflow-hidden border border-black/5"
     >
-      <div className="w-full h-full flex flex-col items-center justify-center p-4">
+      <div className="w-full h-full flex flex-col items-center justify-center py-12 px-6 sm:px-14">
         <div
           style={{
             width: "100%",
             maxWidth: "700px",
-            textAlign: "justify",
+            textAlign: "center",
             lineHeight: dynamicLineHeight,
             fontSize: dynamicFontSize,
-            fontFamily: "'Cairo', sans-serif",
+            fontFamily: "'Tajawal', 'Cairo', sans-serif",
             color: "var(--primary-text)",
             userSelect: "none",
-            fontWeight: 700,
             letterSpacing: "-0.01em"
           }}
         >

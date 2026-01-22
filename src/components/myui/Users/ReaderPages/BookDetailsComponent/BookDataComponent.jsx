@@ -33,6 +33,7 @@ export default function BookDataComponent({ bookId, navigate }) {
   // Assignment toggle
   const [isAssigned, setIsAssigned] = useState(false);
   const [isAssignLoading, setIsAssignLoading] = useState(false);
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
   // ============================
   // 1. FETCH BOOK DETAILS
@@ -92,9 +93,7 @@ export default function BookDataComponent({ bookId, navigate }) {
 
     try {
       const res = await getHelper({
-        url: `${
-          import.meta.env.VITE_API_URL
-        }/reader/books/${bookId}/isReviewed`,
+        url: `${import.meta.env.VITE_API_URL}/reader/books/${bookId}/isReviewed`,
       });
 
       // Handle if res is the axios response or the data directly
@@ -107,7 +106,6 @@ export default function BookDataComponent({ bookId, navigate }) {
         setIsReviewed(true);
 
         // FIX: Deep search for the ID.
-        // Checks: 1. Direct ID, 2. '_id', 3. 'reviewId', 4. Nested 'review.id'
         const backendId =
           data.reviewId ||
           data.id ||
@@ -160,9 +158,7 @@ export default function BookDataComponent({ bookId, navigate }) {
       if (isReviewed && reviewId) {
         // PATCH
         response = await patchHelper({
-          url: `${
-            import.meta.env.VITE_API_URL
-          }/reader/books/${bookId}/reviews/${reviewId}`,
+          url: `${import.meta.env.VITE_API_URL}/reader/books/${bookId}/reviews/${reviewId}`,
           body: payload,
         });
         if (response?.messageStatus !== "SUCCESS") {
@@ -210,12 +206,7 @@ export default function BookDataComponent({ bookId, navigate }) {
         );
 
         // REFRESH DATA
-        // 1. Refresh Book Stats (stars count)
         fetchBookDetails();
-
-        // 2. CRITICAL FIX: Refresh Review State
-        // This ensures we get the real ID from the server immediately after a POST,
-        // so the next time the user clicks submit, it counts as a PATCH.
         await fetchReviewState();
       } else {
         AlertToast("حدث خطأ أثناء حفظ التقييم.", "ERROR");
@@ -235,9 +226,7 @@ export default function BookDataComponent({ bookId, navigate }) {
 
     try {
       const res = await deleteHelper({
-        url: `${
-          import.meta.env.VITE_API_URL
-        }/reader/books/${bookId}/reviews/${reviewId}`,
+        url: `${import.meta.env.VITE_API_URL}/reader/books/${bookId}/reviews/${reviewId}`,
       });
 
       if (res?.messageStatus !== "SUCCESS") {
@@ -285,16 +274,59 @@ export default function BookDataComponent({ bookId, navigate }) {
 
   const handleShare = async () => {
     const shareUrl = generateEncryptedShareUrl();
-    try {
-      if (navigator.share) {
-        await navigator.share({ title: bookData?.title, url: shareUrl });
-        return;
+    const shareData = {
+      title: bookData?.title || "كتاب",
+      text: `اكتشف هذا الكتاب الرائع: ${bookData?.title}`,
+      url: shareUrl,
+    };
+
+    // 1. Try Native Share API
+    // Note: This ONLY works on HTTPS (or localhost)
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+        // If we reach here, the share sheet opened successfully
+        return; 
+      } catch (err) {
+        // User cancelled the share
+        if (err.name === 'AbortError') return;
+        console.warn("Native share failed, trying clipboard:", err);
       }
-    } catch {
-      //
     }
-    await navigator.clipboard.writeText(shareUrl);
-    AlertToast("✔ تم نسخ الرابط المشفّر!", "success");
+
+    // 2. Try Clipboard API (Modern)
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        AlertToast("✔ تم نسخ رابط الكتاب!", "SUCCESS");
+        return;
+      } catch (err) {
+        console.warn("Clipboard API failed, trying legacy:", err);
+      }
+    }
+
+    // 3. Ultra Legacy Fallback (Hidden Textarea) - Works on HTTP / Non-Secure Contexts
+    try {
+      const textArea = document.createElement("textarea");
+      textArea.value = shareUrl;
+      textArea.style.position = "fixed";
+      textArea.style.left = "-9999px";
+      textArea.style.top = "0";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      const successful = document.execCommand('copy');
+      document.body.removeChild(textArea);
+      
+      if (successful) {
+        AlertToast("✔ تم نسخ رابط الكتاب!", "SUCCESS");
+      } else {
+        throw new Error("execCommand failed");
+      }
+    } catch (err) {
+      console.error("All share/copy methods failed:", err);
+      AlertToast("تعذر مشاركة أو نسخ الرابط.", "ERROR");
+    }
   };
 
   // Check Assignment
@@ -383,201 +415,367 @@ export default function BookDataComponent({ bookId, navigate }) {
   };
 
   if (loadingBook || !bookData) {
-    return <div className="text-center py-10">جارٍ التحميل...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-[500px] w-full">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-[var(--primary-button)] border-t-transparent rounded-full animate-spin" />
+          <p className="text-white/40 animate-pulse">جارٍ تحميل بيانات الكتاب...</p>
+        </div>
+      </div>
+    );
   }
 
   const filledStars = Math.round(bookData.averageRating);
 
   return (
-    <div className="w-full animate-fade-in-up">
-      {/* MAIN LAYOUT */}
-      <div className="flex flex-col md:flex-row gap-8 lg:gap-16 items-start">
-        {/* COVER */}
-        <div className="w-full max-w-[320px] md:w-1/3 lg:w-1/4 mx-auto md:mx-0 group">
-          <div className="aspect-[3/4] rounded-[2.5rem] overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.15)] ring-1 ring-black/5 relative p-4 bg-gray-50 flex items-center justify-center">
-            <img
-              src={bookData.coverImageUrl}
-              alt={bookData.title}
-              className="w-full h-full object-cover rounded-[2rem] group-hover:scale-105 transition duration-700 shadow-md"
-            />
+    <div className="w-full relative" dir="rtl">
+      
+      {/* ========== SUBTLE BACKGROUND TEXTURE ========== */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+        {/* Dot Grid Pattern */}
+        <div 
+          className="absolute inset-0 opacity-[0.015]"
+          style={{
+            backgroundImage: `radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px)`,
+            backgroundSize: '24px 24px'
+          }}
+        />
+        {/* Subtle Top Glow */}
+        <div className="absolute -top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-[var(--primary-button)] opacity-[0.03] blur-[150px] rounded-full" />
+      </div>
+
+      {/* ========== MOBILE HERO COVER (Top of page, mobile only) ========== */}
+      {/* Starting from the absolute top of the screen by cancelling out parent padding and navigation offsets */}
+      <div className="absolute -top-[176px] sm:-top-[176px] left-1/2 -translate-x-1/2 w-screen h-[550px] md:hidden overflow-hidden -z-10">
+        <img
+          src={bookData.coverImageUrl}
+          alt={bookData.title}
+          className="w-full h-full object-cover scale-110 opacity-70"
+        />
+        {/* Stronger Bottom & Top Shadow Gradient for contrast */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black" />
+        <div className="absolute inset-x-0 bottom-0 h-[380px] bg-gradient-to-t from-black via-black/95 to-transparent" />
+      </div>
+
+      {/* ========== MAIN CONTENT ========== */}
+      <div className="relative z-10 flex flex-col md:flex-row gap-8 md:gap-12 lg:gap-20 items-stretch md:items-start w-full py-6 md:py-12">
+        
+        {/* Top Header Wrapper (Row on mobile, contents on desktop) */}
+        <div className="flex flex-row md:contents gap-4 sm:gap-8 items-start" dir="ltr">
+          
+          {/* ===== COVER IMAGE ===== */}
+          <div className="relative w-[120px] sm:w-[160px] md:w-[260px] lg:w-[340px] xl:w-[380px] shrink-0 group">
+            {/* Shadow Layer */}
+            <div className="absolute -inset-4 bg-gradient-to-b from-transparent via-black/50 to-black rounded-[1.5rem] md:rounded-[2rem] blur-2xl opacity-60 md:opacity-80 group-hover:opacity-100 transition-opacity duration-700" />
+            
+            {/* Image */}
+            <div className="relative aspect-[2/3] rounded-xl md:rounded-3xl overflow-hidden border border-white/10 shadow-2xl transform transition-transform duration-500 md:group-hover:scale-[1.02]">
+              <img
+                src={bookData.coverImageUrl}
+                alt={bookData.title}
+                className="w-full h-full object-cover"
+              />
+              {/* Hover Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 md:group-hover:opacity-100 transition-opacity duration-500" />
+            </div>
+          </div>
+
+          {/* ===== MOBILE INFO (Right of cover) ===== */}
+          <div className="flex-1 flex flex-col md:hidden gap-3 justify-between" dir="rtl">
+            {/* Title */}
+            <div className="space-y-2">
+              <h1 className="text-xl sm:text-2xl font-black text-white leading-[1.2] tracking-tight text-left drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]" dir="ltr">
+                {bookData.title}
+              </h1>
+              
+              {/* Genre Tags */}
+              <div className="flex flex-wrap gap-2 justify-end">
+                <span className="bg-[var(--primary-button)] text-black px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wide shadow-md">
+                  {bookData.genre || "أدب"}
+                </span>
+                {bookData.subgenre && (
+                  <span className="bg-black/60 text-white px-3 py-1.5 rounded-lg text-[10px] font-bold border border-[var(--primary-button)]/40 backdrop-blur-md shadow-lg">
+                    {bookData.subgenre}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Rating */}
+            <div className="flex items-center justify-end gap-2.5 bg-black/60 px-3 py-2 rounded-xl border border-[var(--primary-button)]/40 backdrop-blur-md w-fit mr-auto shadow-2xl">
+              <span className="text-base font-black text-[var(--primary-button)] drop-shadow-md">{bookData.averageRating}</span>
+              <div className="flex gap-0.5">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <Star
+                    key={i}
+                    size={12}
+                    className={i <= filledStars ? "text-[var(--primary-button)] fill-[var(--primary-button)]" : "text-white/20"}
+                  />
+                ))}
+              </div>
+              <span className="text-[10px] text-white/60 font-bold">({bookData.totalReviews})</span>
+            </div>
           </div>
         </div>
 
-        {/* INFO */}
-        <div className="flex-1 space-y-8 md:pt-4 text-center md:text-right">
-          {/* TITLE */}
-          <h1 className="text-5xl md:text-7xl font-black text-[var(--primary-text)] tracking-tighter">
-            {bookData.title}
-          </h1>
+        {/* ===== MOBILE STATS GRID (Under Row Header) ===== */}
+        <div className="grid grid-cols-3 gap-3 md:hidden w-full px-2 mt-4">
+           <div className="bg-white/10 backdrop-blur-md border border-[var(--primary-button)]/20 rounded-2xl p-4 flex flex-col items-center gap-1.5 shadow-xl">
+              <span className="text-[10px] text-white/60 font-black uppercase tracking-wider">اللغة</span>
+              <span className="text-sm font-black text-white">{bookData.language || "العربية"}</span>
+           </div>
+           <div className="bg-white/10 backdrop-blur-md border border-[var(--primary-button)]/20 rounded-2xl p-4 flex flex-col items-center gap-1.5 shadow-xl">
+              <span className="text-[10px] text-white/60 font-black uppercase tracking-wider">الصفحات</span>
+              <span className="text-sm font-black text-white">{bookData.pageCount || "—"}</span>
+           </div>
+           <div className="bg-white/10 backdrop-blur-md border border-[var(--primary-button)]/20 rounded-2xl p-4 flex flex-col items-center gap-1.5 shadow-xl">
+              <span className="text-[10px] text-white/60 font-black uppercase tracking-wider">الفئة</span>
+              <span className="text-sm font-black text-white">+{bookData.ageRangeMin || "10"}</span>
+           </div>
+        </div>
 
-          {/* STARS */}
-          <div className="flex justify-center md:justify-start items-center gap-3">
-            <div className="flex gap-1">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <Star
-                  key={i}
-                  className={`w-5 h-5 ${
-                    i <= filledStars
-                      ? "text-yellow-400 fill-yellow-400"
-                      : "text-black/5"
-                  }`}
-                />
-              ))}
-            </div>
-            <span className="text-[10px] font-black uppercase tracking-widest text-[var(--primary-text)]/40 px-3 border-l border-black/10">
-              {bookData.totalReviews} مراجعة لقرائنا
+        {/* ===== MAIN INFO CONTAINER (Desktop: Right Side, Mobile: Under Header) ===== */}
+        <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-right gap-6 md:gap-8 w-full px-2 md:px-0 mt-2 md:mt-0">
+          
+          {/* Genre Tags (Desktop Only) */}
+          <div className="hidden md:flex flex-wrap items-center justify-start gap-3">
+            <span className="bg-[var(--primary-button)] text-black px-6 py-2 rounded-full text-xs font-black uppercase tracking-wider shadow-lg">
+              {bookData.genre || "أدب"}
             </span>
-          </div>
-
-          {/* DESCRIPTION */}
-          {bookData.description && (
-            <p className="text-[var(--primary-text)]/60 text-xl max-w-3xl line-clamp-4 font-black tracking-tight leading-relaxed cursor-pointer hover:line-clamp-none transition-all">
-              {bookData.description}
-            </p>
-          )}
-
-          {/* TAGS */}
-          <div className="flex flex-wrap justify-center md:justify-start gap-3">
-            {bookData.genre && (
-              <span className="bg-gray-50 border border-black/10 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-black/40">
-                {bookData.genre}
-              </span>
-            )}
             {bookData.subgenre && (
-              <span className="bg-black text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest">
+              <span className="bg-white/10 text-white/70 px-5 py-2 rounded-full text-xs font-semibold border border-white/20 transition-colors hover:border-[var(--primary-button)]/30">
                 {bookData.subgenre}
               </span>
             )}
-            {bookData.language && (
-              <span className="bg-gray-50 border border-black/10 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-black/40">
-                {bookData.language}
-              </span>
-            )}
-            {bookData.pageCount && (
-              <span className="bg-gray-50 border border-black/10 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-black/40">
-                {bookData.pageCount} صفحة
-              </span>
-            )}
-            {bookData.ageRangeMin && bookData.ageRangeMax && (
-              <span className="bg-gray-50 border border-black/10 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-black/40">
-                العمر: {bookData.ageRangeMin}–{bookData.ageRangeMax}
-              </span>
-            )}
             {bookData.hasAudio && (
-              <span className="bg-[var(--primary-button)]/10 text-[var(--primary-button)] px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
-                <Headphones className="w-4 h-4" /> نسخة صوتية
+              <span className="bg-black/40 text-[var(--primary-button)] px-4 py-2 rounded-full text-xs font-bold flex items-center gap-1.5 border border-[var(--primary-button)]/20 backdrop-blur-sm shadow-md">
+                <Headphones size={13.5} /> صوتي
               </span>
             )}
           </div>
 
-          {/* ACTIONS */}
-          <div className="flex flex-col sm:flex-row items-center gap-6 pt-10">
+          {/* Title (Desktop Only) */}
+          <h1 className="hidden md:block text-4xl lg:text-5xl xl:text-7xl font-black text-white leading-[1.15] tracking-tight">
+            {bookData.title}
+          </h1>
+
+          {/* Metadata Row (Desktop Style) */}
+          <div className="hidden md:flex flex-wrap items-center justify-start gap-6 text-white/70">
+            {/* Rating */}
+            <div className="flex items-center gap-3 bg-white/[0.07] px-5 py-3 rounded-2xl border border-white/10 shadow-lg backdrop-blur-sm">
+              <div className="flex gap-0.5">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <Star
+                    key={i}
+                    size={14}
+                    strokeWidth={0}
+                    className={i <= filledStars ? "text-[var(--primary-button)] fill-[var(--primary-button)]" : "text-white/10"}
+                  />
+                ))}
+              </div>
+              <span className="text-xl font-black text-white">{bookData.averageRating}</span>
+              <span className="text-xs text-white/30 font-bold">({bookData.totalReviews} مراجعة)</span>
+            </div>
+
+            <div className="w-px h-5 bg-white/10" />
+
+            {/* Page Count */}
+            <div className="flex items-center gap-1.5">
+              <span className="text-lg font-bold text-white">{bookData.pageCount || "—"}</span>
+              <span className="text-xs text-white/40 uppercase tracking-wider">صفحة</span>
+            </div>
+
+            <div className="w-px h-5 bg-white/10" />
+
+            {/* Age */}
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-white/40 uppercase tracking-wider">الفئة</span>
+              <span className="text-lg font-bold text-white">+{bookData.ageRangeMin || "10"}</span>
+            </div>
+          </div>
+
+          {/* Description (Mobile & Desktop) */}
+          <div className="space-y-4 md:space-y-6 w-full">
+            <div className="flex items-center justify-center md:justify-start gap-4 md:hidden">
+               <div className="h-px flex-1 bg-white/10" />
+               <span className="text-[10px] text-white/40 font-black uppercase tracking-[0.4em]">عن الكتاب</span>
+               <div className="h-px flex-1 bg-white/10" />
+            </div>
+            <div 
+              onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+              className="relative group md:bg-transparent bg-white/[0.03] backdrop-blur-sm border border-transparent md:border-none md:p-0 p-5 rounded-3xl transition-all duration-300 cursor-pointer"
+            >
+              <p className={`text-base md:text-lg lg:text-xl text-white/70 md:text-white/50 leading-relaxed max-w-3xl group-hover:text-white transition-colors duration-300 ${isDescriptionExpanded ? "" : "line-clamp-6 md:line-clamp-5"}`}>
+                {bookData.description || "استكشف هذا العمل الأدبي الفريد الذي يجمع بين الخيال والواقع في رحلة سردية مذهلة."}
+              </p>
+            </div>
+          </div>
+
+          {/* ===== DESKTOP ACTIONS ===== */}
+          <div className="hidden md:flex items-center gap-6 pt-8">
             <Button
               onClick={() => navigate(`/reader/display/${bookData.id}`)}
-              className="w-full sm:w-auto px-12 h-16 text-[11px] font-black uppercase tracking-widest btn-premium text-white rounded-[1.25rem] transition-all active:scale-95 border-0"
+              className="group h-16 lg:h-[76px] px-24 lg:px-32 bg-white text-black hover:bg-[var(--primary-button)] rounded-2xl font-black uppercase text-sm lg:text-base tracking-[0.2em] shadow-2xl transition-all duration-300 active:scale-95 flex items-center justify-center min-w-[320px]"
             >
-              <BookOpen className="w-6 h-6 ml-3" strokeWidth={3} /> قراءة الآن
+              <BookOpen className="w-6 h-6 lg:w-7 lg:h-7 ml-4" strokeWidth={2.5} />
+              إقرأ الآن
             </Button>
 
-            <div className="flex gap-4">
-              <button
-                onClick={() => setIsRatingModalOpen(true)}
-                className={`w-14 h-14 rounded-2xl border flex items-center justify-center bg-white transition-all shadow-sm
-      ${
-        isReviewed
-          ? "border-yellow-400 text-yellow-500 bg-yellow-400/5"
-          : "border-black/10 text-black hover:border-black/20"
-      }
-    `}
-              >
-                <Star className={`w-6 h-6 ${isReviewed ? 'fill-yellow-400' : ''}`} strokeWidth={2.5} />
-              </button>
+            <button
+              onClick={() => setIsRatingModalOpen(true)}
+              className={`h-16 lg:h-[76px] px-8 rounded-2xl border-2 flex items-center justify-center gap-3 transition-all duration-300 hover:scale-[1.03] active:scale-95 min-w-[100px]
+                ${isReviewed 
+                  ? "bg-[var(--primary-button)] text-black border-transparent shadow-lg" 
+                  : "bg-white/5 text-white/60 border-white/10 hover:text-white hover:border-white/30 hover:bg-white/10"
+                }`}
+            >
+              <Star size={24} className={isReviewed ? "fill-black" : ""} strokeWidth={2.5} />
+              <span className="font-bold text-sm uppercase tracking-wider hidden lg:block">{isReviewed ? "قيمت" : "تقييم"}</span>
+            </button>
 
-              <button
-                onClick={toggleAssignBook}
-                disabled={isAssignLoading}
-                className={`w-14 h-14 rounded-2xl border flex items-center justify-center bg-white transition-all shadow-sm
-      ${
-        isAssigned
-          ? "border-[#5de3ba] text-[#5de3ba] bg-[#5de3ba]/5"
-          : "border-black/10 text-black hover:border-black/20"
-      } ${isAssignLoading ? "opacity-50 cursor-not-allowed" : ""}`}
-              >
-                <BookPlus className="w-6 h-6" strokeWidth={2.5} />
-              </button>
+            <button
+              onClick={toggleAssignBook}
+              disabled={isAssignLoading}
+              className={`h-16 lg:h-[76px] px-8 rounded-2xl border-2 flex items-center justify-center gap-3 transition-all duration-300 hover:scale-[1.03] active:scale-95 min-w-[100px]
+                ${isAssigned 
+                  ? "bg-white text-black border-transparent shadow-lg" 
+                  : "bg-white/5 text-white/60 border-white/10 hover:text-white hover:border-white/30 hover:bg-white/10"
+                } ${isAssignLoading ? "opacity-50" : ""}`}
+            >
+              <BookPlus size={24} strokeWidth={2.5} />
+              <span className="font-bold text-sm uppercase tracking-wider hidden lg:block">{isAssigned ? "في المكتبة" : "للمكتبة"}</span>
+            </button>
 
-              {bookData.pdfDownloadUrl && (
-                <button
-                  onClick={() => window.open(bookData.pdfDownloadUrl, "_blank")}
-                  className="w-14 h-14 rounded-2xl border border-black/10 flex items-center justify-center bg-white text-black hover:bg-black hover:text-white transition-all shadow-sm"
-                >
-                  <Download className="w-6 h-6" strokeWidth={2.5} />
-                </button>
-              )}
-
-              <button
-                onClick={handleShare}
-                className="w-14 h-14 rounded-2xl border border-black/10 flex items-center justify-center bg-white text-black hover:bg-black hover:text-white transition-all shadow-sm"
-              >
-                <Share2 className="w-6 h-6" strokeWidth={2.5} />
-              </button>
-            </div>
+            <button
+              onClick={handleShare}
+              className="h-16 lg:h-[76px] px-8 rounded-2xl bg-white/5 border-2 border-white/10 flex items-center justify-center gap-3 text-white/60 hover:text-white hover:border-white/30 hover:bg-white/10 transition-all duration-300 hover:scale-[1.03] active:scale-95 min-w-[100px]"
+            >
+              <Share2 size={24} strokeWidth={2.5} />
+              <span className="font-bold text-sm uppercase tracking-wider hidden lg:block">مشاركة</span>
+            </button>
           </div>
         </div>
       </div>
 
-      {/* RATING MODAL */}
-      {isRatingModalOpen && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-0 md:p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white/95 backdrop-blur-[40px] rounded-[3rem] p-10 w-full max-w-md shadow-[0_40px_100px_rgba(0,0,0,0.2)] relative text-center border border-black/10 fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 md:relative md:left-auto md:top-auto md:translate-x-0 md:translate-y-0">
-            <button
-              onClick={() => setIsRatingModalOpen(false)}
-              className="absolute top-8 left-8 text-black/20 hover:text-red-500 transition-colors"
+      {/* ========== MOBILE STICKY ACTION BAR (Single Row) ========== */}
+      <div className="fixed bottom-0 inset-x-0 z-[100] md:hidden">
+        <div className="bg-black/95 backdrop-blur-lg border-t border-white/5 px-3 py-3">
+          <div className="flex items-center gap-2">
+            {/* Read Button */}
+            <Button
+              onClick={() => navigate(`/reader/display/${bookData.id}`)}
+              className="flex-1 h-12 bg-white text-black hover:bg-[var(--primary-button)] rounded-xl font-bold uppercase text-xs tracking-wider shadow-lg transition-all active:scale-95 flex items-center justify-center"
             >
-              <X className="w-6 h-6" strokeWidth={3} />
+              <BookOpen className="w-4 h-4 ml-2" strokeWidth={2.5} />
+              إقرأ الآن
+            </Button>
+
+            {/* Rate Button */}
+            <button
+              onClick={() => setIsRatingModalOpen(true)}
+              className={`w-12 h-12 rounded-xl border-2 flex items-center justify-center transition-all active:scale-90 shrink-0
+                ${isReviewed 
+                  ? "bg-[var(--primary-button)] text-black border-transparent" 
+                  : "bg-white/5 text-white/50 border-white/10"
+                }`}
+            >
+              <Star size={20} className={isReviewed ? "fill-black" : ""} />
             </button>
 
-            <h2 className="text-3xl font-black text-[var(--primary-text)] mb-8 tracking-tighter">
-              ما رأيك في الكتاب؟
-            </h2>
+            {/* Library Button */}
+            <button
+              onClick={toggleAssignBook}
+              disabled={isAssignLoading}
+              className={`w-12 h-12 rounded-xl border-2 flex items-center justify-center transition-all active:scale-90 shrink-0
+                ${isAssigned 
+                  ? "bg-white text-black border-transparent" 
+                  : "bg-white/5 text-white/50 border-white/10"
+                } ${isAssignLoading ? "opacity-50" : ""}`}
+            >
+              <BookPlus size={20} />
+            </button>
 
-            <div className="flex justify-center gap-4 mb-10">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <Star
-                  key={i}
-                  onClick={() => setUserRating(i)}
-                  className={`w-12 h-12 cursor-pointer transition-all hover:scale-110 ${
-                    i <= userRating
-                      ? "text-yellow-400 fill-yellow-400"
-                      : "text-black/5"
-                  }`}
-                />
-              ))}
-            </div>
+            {/* Share Button */}
+            <button
+              onClick={handleShare}
+              className="w-12 h-12 rounded-xl bg-white/5 border-2 border-white/10 flex items-center justify-center text-white/50 transition-all active:scale-90 shrink-0"
+            >
+              <Share2 size={20} />
+            </button>
+          </div>
+        </div>
+      </div>
 
-            <textarea
-              className="w-full h-40 p-6 rounded-[1.5rem] border border-black/10 bg-gray-50/50 text-[var(--primary-text)] font-black tracking-tight focus:ring-4 focus:ring-[var(--primary-button)]/10 focus:border-[var(--primary-button)] outline-none resize-none text-right placeholder:text-black/10 text-lg mb-8"
-              placeholder="اكتب مراجعتك هنا..."
-              value={userReview}
-              onChange={(e) => setUserReview(e.target.value)}
-            />
+      {/* ========== RATING MODAL ========== */}
+      {isRatingModalOpen && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <div className="bg-[#0a0a0a] w-full max-w-sm rounded-3xl border border-white/10 shadow-2xl overflow-hidden">
+            {/* Top Accent */}
+            <div className="h-1 bg-gradient-to-r from-transparent via-[var(--primary-button)] to-transparent" />
 
-            <div className="space-y-4">
-              <Button
-                onClick={handleSubmitReview}
-                className="w-full h-16 btn-premium text-white rounded-2xl font-black uppercase text-xs tracking-widest transition-all active:scale-95 border-0"
+            <div className="p-6 md:p-8 relative">
+              {/* Close Button */}
+              <button
+                onClick={() => setIsRatingModalOpen(false)}
+                className="absolute top-4 left-4 p-2 bg-white/5 hover:bg-white/10 rounded-full text-white/40 hover:text-white transition-all"
               >
-                {isReviewed ? "تعديل المراجعة" : "تأكيد التقييم"}
-              </Button>
+                <X size={16} />
+              </button>
 
-              {isReviewed && (
-                <button
-                  onClick={handleDeleteReview}
-                  className="w-full h-12 text-xs font-black text-red-500/40 hover:text-red-500 transition-colors uppercase tracking-widest"
+              <div className="text-center pt-4">
+                <div className="w-14 h-14 mx-auto rounded-2xl bg-[var(--primary-button)]/10 flex items-center justify-center text-[var(--primary-button)] mb-5">
+                  <Star size={26} className="fill-[var(--primary-button)]" />
+                </div>
+
+                <h2 className="text-2xl font-black text-white mb-1 tracking-tight">قيم تجربتك</h2>
+                <p className="text-[10px] font-semibold text-white/30 uppercase tracking-widest mb-6">{bookData.title}</p>
+
+                {/* Stars */}
+                <div className="flex justify-center gap-2.5 mb-6">
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <button
+                      key={i}
+                      onClick={() => setUserRating(i)}
+                      className="transition-transform duration-200 hover:scale-110 active:scale-90"
+                    >
+                      <Star
+                        size={28}
+                        className={`transition-colors ${
+                          i <= userRating
+                            ? "text-[var(--primary-button)] fill-[var(--primary-button)]"
+                            : "text-white/10 hover:text-white/20"
+                        }`}
+                        strokeWidth={1.5}
+                      />
+                    </button>
+                  ))}
+                </div>
+
+                {/* Comment */}
+                <textarea
+                  className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[var(--primary-button)]/40 transition-all h-24 resize-none text-right mb-6"
+                  placeholder="شارك رأيك..."
+                  value={userReview}
+                  onChange={(e) => setUserReview(e.target.value)}
+                />
+
+                {/* Submit */}
+                <Button
+                  onClick={handleSubmitReview}
+                  className="w-full h-12 bg-[var(--primary-button)] text-black font-black uppercase text-xs tracking-widest rounded-xl shadow-lg active:scale-95 transition-all flex items-center justify-center"
                 >
-                  حذف التقييم
-                </button>
-              )}
+                  {isReviewed ? "تحديث التقييم" : "نشر التقييم"}
+                </Button>
+
+                {isReviewed && (
+                  <button
+                    onClick={handleDeleteReview}
+                    className="mt-4 text-[10px] font-bold text-red-500/50 hover:text-red-500 uppercase tracking-widest transition-colors"
+                  >
+                    حذف المراجعة
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -585,3 +783,4 @@ export default function BookDataComponent({ bookId, navigate }) {
     </div>
   );
 }
+

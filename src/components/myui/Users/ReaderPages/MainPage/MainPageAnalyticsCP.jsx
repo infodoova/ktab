@@ -27,7 +27,7 @@ export default function MainPageAnalyticsCP() {
               <div className="text-2xl font-black text-[var(--primary-text)] tracking-tight">
                 {item.value}
               </div>
-              <div className="text-[10px] font-black uppercase tracking-widest text-[var(--primary-text)]/40 mt-1">{item.label}</div>
+              <div className="text-sm font-black uppercase tracking-widest text-[var(--primary-text)]/40 mt-1">{item.label}</div>
             </div>
           );
         })}

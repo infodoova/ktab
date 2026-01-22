@@ -175,13 +175,14 @@ function InteractiveStories({ pageName = "قصص تفاعلية" }) {
   const handleSearchClick = () => setIsSearchOpen(true);
 
   return (
-    <div dir="rtl" className="min-h-screen bg-[var(--bg-dark)]">
+    <div dir="rtl" className="min-h-screen bg-[#0a0a0a]">
       <div dir="ltr">
         <Navbar
           pageName={pageName}
           collapsed={collapsed}
           setCollapsed={setCollapsed}
           onSearchClick={handleSearchClick}
+          isDark={true}
         />
       </div>
 
@@ -191,15 +192,17 @@ function InteractiveStories({ pageName = "قصص تفاعلية" }) {
         }`}
       >
         <main className="flex-1 flex flex-col w-full min-w-0">
-          <PageHeader mainTitle={pageName} onSearchClick={handleSearchClick} />
+          <PageHeader mainTitle={pageName} onSearchClick={handleSearchClick} isDark={true} />
 
-          <div className="w-full max-w-full overflow-hidden px-6 py-8">
+          <div className="w-full max-w-full overflow-hidden">
             {loading ? (
-              <SkeletonLoader count={PAGE_SIZE} />
+              <div className="px-6 py-8">
+                <SkeletonLoader count={PAGE_SIZE} />
+              </div>
             ) : (
               <>
                 {filteredStories.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-32">
+                  <div className="flex flex-col items-center justify-center py-32 px-6">
                     <p className="text-[17px] text-gray-600 font-medium">
                       لا توجد نتائج
                     </p>
@@ -214,15 +217,19 @@ function InteractiveStories({ pageName = "قصص تفاعلية" }) {
                       <FeaturedCarousel
                         stories={featuredStories}
                         onStoryClick={openStoryDetails}
+                        isDark={true}
                       />
                     )}
 
                     {/* Remaining Stories Grid */}
                     {remainingStories.length > 0 && (
-                      <Cards
-                        stories={remainingStories}
-                        onStoryClick={openStoryDetails}
-                      />
+                      <div className="px-6 py-12">
+                        <Cards
+                          stories={remainingStories}
+                          onStoryClick={openStoryDetails}
+                          isDark={true}
+                        />
+                      </div>
                     )}
                   </>
                 )}
@@ -230,7 +237,7 @@ function InteractiveStories({ pageName = "قصص تفاعلية" }) {
                 {/* Infinite scroll sentinel */}
                 {hasMore && (
                   <div ref={loadMoreRef} className="py-16">
-                    <div className="mx-auto h-8 w-8 rounded-full border-2 border-gray-200 border-t-gray-900 animate-spin" />
+                    <div className="mx-auto h-8 w-8 rounded-full border-2 border-white/20 border-t-white animate-spin" />
                   </div>
                 )}
               </>

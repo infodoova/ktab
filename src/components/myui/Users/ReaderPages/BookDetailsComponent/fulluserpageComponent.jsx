@@ -71,92 +71,109 @@ export default function FullUserRatesModal({ bookId, isOpen, onClose }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-0 md:p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-0 md:p-6 bg-black/95 md:bg-black/80 backdrop-blur-xl animate-in fade-in duration-300">
       <div
         className="
-          bg-white/95 backdrop-blur-[40px]
+          bg-[#0d0d0d]
           w-full h-full 
-          md:w-[850px] md:h-auto md:max-h-[85vh] md:rounded-[2.5rem] 
-          shadow-[0_40px_100px_rgba(0,0,0,0.2)]
+          md:w-[1000px] md:h-auto md:max-h-[90vh] md:rounded-[3.5rem] 
+          shadow-[0_60px_120px_rgba(0,0,0,0.9)]
           flex flex-col overflow-hidden
-          border border-black/10
-          fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 md:relative md:left-auto md:top-auto md:translate-x-0 md:translate-y-0
+          border-t md:border border-white/5
+          relative
         "
         dir="rtl"
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-8 border-b border-black/10 bg-white/50">
-          <h3 className="text-2xl font-black text-[var(--primary-text)] flex items-center gap-4 tracking-tight">
-             <div className="p-2 rounded-xl bg-gradient-to-br from-[#5de3ba]/20 to-[#76debf]/10">
-                <Star className="w-5 h-5 text-[var(--primary-button)]" />
-             </div>
-             جميع آراء القراء
-          </h3>
-          <button onClick={onClose} aria-label="Close" className="text-black/20 hover:text-red-500 transition-colors">
-            <X className="w-6 h-6" strokeWidth={3} />
+        <div className="flex items-center justify-between p-6 md:p-10 border-b border-white/5 bg-white/[0.02] shrink-0">
+          <div className="flex items-center gap-4 md:gap-6">
+            <div className="p-3 md:p-4 rounded-[1.25rem] md:rounded-[1.5rem] bg-gradient-to-br from-[#5de3ba] to-[#76debf] shadow-lg">
+              <Star size={24} className="text-white fill-white md:w-8 md:h-8" />
+            </div>
+            <div>
+              <h3 className="text-2xl md:text-4xl font-black text-white tracking-tighter">
+                آراء القراء
+              </h3>
+              <p className="text-white/40 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] md:tracking-[0.3em] mt-1">تجارب حقيقية</p>
+            </div>
+          </div>
+          <button 
+            onClick={onClose} 
+            className="p-2 md:p-3 bg-white/5 hover:bg-white/10 rounded-full text-white/40 hover:text-white transition-all active:scale-90"
+          >
+            <X size={24} className="md:w-8 md:h-8" strokeWidth={3} />
           </button>
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto" id="reviews-container">
+        <div className="flex-1 overflow-y-auto p-5 md:p-10 custom-scrollbar" id="reviews-container">
           {loading ? (
-            <div className="flex flex-col items-center justify-center py-10 text-[#5D4037]">
-              <Loader2 className="w-8 h-8 animate-spin mb-2" />
-              <p>جاري التحميل...</p>
+            <div className="flex flex-col items-center justify-center py-20 text-[var(--primary-button)]">
+              <Loader2 className="w-10 h-10 md:w-12 md:h-12 animate-spin mb-4" />
+              <p className="text-white/40 font-bold uppercase tracking-widest text-[10px] md:text-xs">جاري جلب الآراء...</p>
             </div>
           ) : reviews.length === 0 ? (
-            <p className="text-center text-[#5D4037] py-10">لا توجد تقييمات.</p>
+            <div className="text-center py-20 md:py-32">
+               <p className="text-white/20 text-xl md:text-2xl font-bold italic">لا توجد مراجعات حتى الآن.</p>
+            </div>
           ) : (
-            <div className="space-y-6">
+            <div className="space-y-4 md:space-y-8">
               {reviews.map((r, index) => (
                 <div
                   key={`${r.id}-${index}`}
-                  className="border rounded-xl p-5 bg-white shadow-sm"
+                  className="group bg-white/[0.03] p-6 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border border-white/5 hover:border-[var(--primary-button)]/30 hover:bg-white/[0.05] transition-all duration-500 shadow-xl"
                 >
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <p className="font-bold text-[#3E2723]">
-                        {r.userName || "قارئ مجهول"}
-                      </p>
-                      <span className="text-xs text-[#9E9E9E]">
-                        {r.createdAt
-                          ? new Date(r.createdAt).toLocaleDateString("ar-EG")
-                          : ""}
-                      </span>
+                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 md:mb-8 gap-4">
+                    <div className="flex items-center gap-4 md:gap-5">
+                      <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-gradient-to-br from-white/10 to-transparent flex items-center justify-center text-white/50 text-base md:text-xl font-black border border-white/10 shrink-0">
+                        {r.userName?.[0] || "ق"}
+                      </div>
+                      <div>
+                        <p className="text-lg md:text-2xl font-bold text-white tracking-tight">
+                          {r.userName || "قارئ مجهول"}
+                        </p>
+                        <span className="text-[10px] md:text-xs text-white/30 font-bold uppercase tracking-widest">
+                          {r.createdAt
+                            ? new Date(r.createdAt).toLocaleDateString("ar-EG")
+                            : ""}
+                        </span>
+                      </div>
                     </div>
 
-                    <div className="flex gap-0.5">
+                    <div className="flex gap-1 md:gap-1.5 bg-black/40 px-4 md:px-5 py-2 md:py-2.5 rounded-full border border-white/5 shadow-inner">
                       {[...Array(5)].map((_, idx) => (
                         <Star
                           key={idx}
-                          className={`w-4 h-4 ${
+                          size={14}
+                          className={`md:w-[18px] md:h-[18px] ${
                             idx < (r.rating || 0)
-                              ? "fill-[#DEC59E] text-[#DEC59E]"
-                              : "text-[#D7CCC8]"
+                              ? "fill-[var(--primary-button)] text-[var(--primary-button)]"
+                              : "text-white/[0.05]"
                           }`}
                         />
                       ))}
                     </div>
                   </div>
 
-                  <p className="text-[#5D4037] text-sm leading-relaxed">
-                    {r.comment || ""}
+                  <p className="text-white/70 text-base md:text-2xl leading-relaxed md:leading-[1.8] font-medium tracking-tight bg-gradient-to-l from-white/80 to-white/40 bg-clip-text text-transparent">
+                    {r.comment || "مراجعة مميزة لهذا العمل..."}
                   </p>
                 </div>
               ))}
 
               {/* Load More Button */}
               {page < totalPages - 1 && (
-                <div className="flex justify-center pt-8">
+                <div className="flex justify-center pt-8 pb-4 md:pt-12 md:pb-6">
                   <button
                     onClick={handleLoadMore}
                     disabled={isFetchingMore}
-                    className="flex items-center gap-3 px-10 py-4 rounded-2xl bg-black text-white font-black uppercase text-[10px] tracking-widest hover:opacity-90 active:scale-95 transition-all shadow-xl disabled:opacity-50"
+                    className="flex items-center gap-3 md:gap-4 px-10 md:px-16 py-4 md:py-6 rounded-2xl md:rounded-3xl bg-white text-black font-black uppercase text-[10px] md:text-xs tracking-[0.2em] hover:bg-[var(--primary-button)] hover:text-white active:scale-95 transition-all duration-500 shadow-xl disabled:opacity-50"
                   >
-                    {isFetchingMore && (
-                      <Loader2 className="w-4 h-4 animate-spin" />
+                    {isFetchingMore ? (
+                      <Loader2 className="w-5 h-5 md:w-6 md:h-6 animate-spin" />
+                    ) : (
+                      "عرض المزيد"
                     )}
-                    {isFetchingMore ? "جاري التحميل..." : "عرض المزيد من الآراء"}
                   </button>
                 </div>
               )}

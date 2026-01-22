@@ -67,266 +67,149 @@ export default function ReaderHeader({
     <>
       <header
         className="
-        fixed top-0 left-0 w-full z-50
-        h-20 bg-white/80 backdrop-blur-md
-        border-b border-black/10
-        shadow-sm
-        flex items-center justify-center
+        fixed left-1/2 -translate-x-1/2 z-50
+        w-[95%] top-4 rounded-2xl border border-black/[0.05] shadow-[0_20px_50px_rgba(0,0,0,0.1)]
+        sm:top-0 sm:left-0 sm:translate-x-0 sm:w-full sm:rounded-none sm:border-b sm:border-x-0 sm:border-t-0 sm:shadow-sm
+        h-16 sm:h-20 bg-white/90 backdrop-blur-xl
+        flex items-center justify-between px-4 sm:px-8
       "
       >
-        <div className="flex items-center gap-4 sm:gap-12">
-          {/* 1️⃣ VOICE MENU */}
+        {/* --- LEFT SECTION: SETTINGS --- */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* MORE OPTIONS */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <div>
-                <HeaderIcon
-                  icon={
-                    <UserRound
-                      size={22}
-                      className={
-                        voice === "none"
-                          ? "text-red-500"
-                          : "text-black"
-                      }
-                    />
-                  }
-                  label="الأصوات"
-                />
-              </div>
+              <button className="p-2 sm:p-3 text-black/40 hover:text-black hover:bg-black/5 rounded-full transition-all active:scale-90 border border-black/[0.03] shrink-0">
+                <MoreVertical size={20} strokeWidth={2.5} />
+              </button>
             </DropdownMenuTrigger>
-
             <DropdownMenuContent
               dir="rtl"
-              className="w-80 rounded-[1.5rem] border border-black/10 bg-white/95 backdrop-blur-xl p-3 shadow-2xl"
+              className="w-64 rounded-[2rem] border border-black/10 bg-white/95 backdrop-blur-xl p-4 shadow-2xl z-[1000]"
             >
-              <DropdownMenuLabel className="text-[var(--primary-text)] text-right font-black uppercase tracking-widest text-[10px] opacity-40">
-                اختر الصوت
-              </DropdownMenuLabel>
+              <DropdownMenuLabel className="text-black/30 font-black uppercase text-[10px] px-2 mb-2">إعدادات القراءة</DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-black/5" />
-
-              {[
-                {
-                  id: "IES4nrmZdUBHByLBde0P",
-                  label: "هيثم - صوت عربي دافئ ونشيط للمحادثات والسرد",
-                },
-                {
-                  id: "aCChyB4P5WEomwRsOKRh",
-                  label: "سلمى - صوت تعبيري للمحادثات",
-                },
-                {
-                  id: "rFDdsCQRZCUL8cPOWtnP",
-                  label: "غيداء - صوت سوري دافئ وسردي",
-                },
-                {
-                  id: "u0TsaWvt0v8migutHM3M",
-                  label: "غزلان - صوت هادئ ومتوازن",
-                },
-                {
-                  id: "mRdG9GYEjJmIzqbYTidv",
-                  label: "سنا - امرأة في منتصف العمر بصوت ناعم وبلمسة حيوية",
-                },
-                {
-                  id: "R6nda3uM038xEEKi7GFl",
-                  label: "أنس - رجل عربي في منتصف العمر بصوت هادئ وودود",
-                },
-                {
-                  id: "ocqVw6LVSdCxCra4XhMH",
-                  label: "عبدالله - صوت مصري دافئ",
-                },
-                {
-                  id: "s83SAGdFTflAwJcAV81K",
-                  label: "أديب - صوت عربي معبر ومتناغم للسرد والبودكاست",
-                },
-
-                {
-                  id: "QRq5hPRAKf5ZhSlTBH6r",
-                  label: "ff",
-                },
-              ].map((v) => (
+              <div className="space-y-1 mt-2">
                 <DropdownMenuItem
-                  key={v.id}
-                  onClick={() => onSelectVoice?.(v.id)}
-                  className={`flex items-center justify-between cursor-pointer rounded-xl py-3 px-4 transition-colors ${
-                    voice === v.id
-                      ? "bg-black text-white"
-                      : "text-[var(--primary-text)]/60 hover:bg-black/5 hover:text-[var(--primary-text)]"
-                  }`}
+                  className="flex items-center gap-3 cursor-pointer rounded-2xl py-3 px-4 hover:bg-black/5"
+                  onClick={() => setModalType("goto")}
                 >
-                  <div className="flex items-center gap-3">
-                    <UserRound size={18} className={voice === v.id ? "text-white/40" : "text-black/20"} />
-                    <span className="text-xs font-black tracking-tight">{v.label}</span>
-                  </div>
-                  {voice === v.id && <Check size={16} className="text-white" />}
+                  <MoreVertical size={16} className="rotate-90 opacity-40" />
+                  <span className="text-xs font-bold">الذهاب إلى صفحة...</span>
                 </DropdownMenuItem>
-              ))}
+                
+                {/* Note: Redundant 'Close Book' removed as requested */}
+              </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
+        {/* --- CENTER SECTION: CORE TOOLS --- */}
+        <div className="flex items-center gap-1 sm:gap-4 bg-black/[0.03] p-1.5 rounded-full border border-black/[0.05]">
+          {/* VOICE */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="p-2 sm:p-3 text-black/40 hover:text-black hover:bg-white/50 rounded-full transition-all active:scale-90">
+                <UserRound size={20} className={voice === "none" ? "text-red-500" : ""} strokeWidth={2.5} />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              dir="rtl"
+              className="w-72 sm:w-80 rounded-[2rem] border border-black/10 bg-white/95 backdrop-blur-xl p-4 shadow-2xl z-[1000]"
+            >
+              <DropdownMenuLabel className="text-black/30 font-black uppercase text-[10px] px-2 mb-2">اختر قارئك</DropdownMenuLabel>
+              <DropdownMenuSeparator className="bg-black/5" />
+              <div className="max-h-[350px] overflow-y-auto space-y-1 mt-2 custom-scrollbar">
+                {[
+                  { id: "IES4nrmZdUBHByLBde0P", label: "هيثم", desc: "صوت دافئ ونشيط" },
+                  { id: "aCChyB4P5WEomwRsOKRh", label: "سلمى", desc: "صوت تعبيري أنثوي" },
+                  { id: "rFDdsCQRZCUL8cPOWtnP", label: "غيداء", desc: "صوت سوري سردي" },
+                  { id: "u0TsaWvt0v8migutHM3M", label: "غزلان", desc: "صوت هادئ ومتوازن" },
+                  { id: "mRdG9GYEjJmIzqbYTidv", label: "سنا", desc: "صوت ناعم وحيوي" },
+                  { id: "R6nda3uM038xEEKi7GFl", label: "أنس", desc: "صوت رجل هادئ" },
+                  { id: "ocqVw6LVSdCxCra4XhMH", label: "عبدالله", desc: "صوت مصري دافئ" },
+                  { id: "s83SAGdFTflAwJcAV81K", label: "أديب", desc: "صوت سردي احترافي" }
+                ].map((v) => (
+                  <DropdownMenuItem
+                    key={v.id}
+                    onClick={() => onSelectVoice?.(v.id)}
+                    className="flex items-center justify-between cursor-pointer rounded-2xl py-3 px-4 transition-all hover:bg-black/5"
+                  >
+                    <div className="flex flex-col text-right">
+                      <span className="text-sm sm:text-base font-bold">{v.label}</span>
+                      <span className="text-[11px] sm:text-[13px] opacity-40 font-medium text-black">{v.desc}</span>
+                    </div>
+                    {voice === v.id && <Check size={16} className="text-[var(--primary-text)]" strokeWidth={3} />}
+                  </DropdownMenuItem>
+                ))}
+              </div>
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* 2️⃣ EFFECTS MENU OUTSIDE DOTS */}
+          <div className="w-px h-6 bg-black/10" />
+
+          {/* AMBIENT EFFECTS */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <div>
-                <HeaderIcon
-                  icon={
-                    <Music4
-                      size={22}
-                      className={
-                        effect === "none"
-                          ? "text-red-500"
-                          : "text-black"
-                      }
-                    />
-                  }
-                  label="المؤثرات"
-                />
-              </div>
+              <button className="p-2 sm:p-3 text-black/40 hover:text-black hover:bg-white/50 rounded-full transition-all active:scale-90">
+                <Music4 size={20} className={effect === "none" ? "" : "text-[var(--primary-text)]"} strokeWidth={2.5} />
+              </button>
             </DropdownMenuTrigger>
-
             <DropdownMenuContent
               dir="rtl"
-              className="w-56 rounded-[1.5rem] border border-black/10 bg-white/95 backdrop-blur-xl p-3 shadow-2xl"
+              className="w-56 rounded-[2rem] border border-black/10 bg-white/95 backdrop-blur-xl p-4 shadow-2xl z-[1000]"
             >
-              <DropdownMenuLabel className="text-[var(--primary-text)] text-right font-black uppercase tracking-widest text-[10px] opacity-40">
-                المؤثرات الصوتية
-              </DropdownMenuLabel>
- 
+              <DropdownMenuLabel className="text-black/30 font-black uppercase text-[10px] px-2 mb-2">الأجواء الصوتية</DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-black/5" />
-              <DropdownMenuItem
-                onClick={() => setEffect("none")}
-                className={`flex items-center justify-between cursor-pointer rounded-xl py-3 px-4 transition-colors ${
-                  effect === "none"
-                    ? "bg-black text-white"
-                    : "text-[var(--primary-text)]/60 hover:bg-black/5"
-                }`}
-              >
-                <span className="text-xs font-black tracking-widest uppercase">بدون مؤثرات</span>
-                {effect === "none" && <Check size={16} className="text-white" />}
-              </DropdownMenuItem>
- 
-              {[
-                {
-                  id: "running",
-                  label: "صوت الركض",
-                  icon: <Waves size={18} />,
-                },
-                {
-                  id: "rain",
-                  label: "صوت المطر",
-                  icon: <CloudRain size={18} />,
-                },
-                { id: "wind", label: "صوت الرياح", icon: <Wind size={18} /> },
-              ].map((eff) => (
-                <DropdownMenuItem
-                  key={eff.id}
-                  onClick={() => setEffect(eff.id)}
-                  className={`flex items-center justify-between cursor-pointer rounded-xl py-3 px-4 transition-colors ${
-                    effect === eff.id
-                      ? "bg-black text-white"
-                      : "text-[var(--primary-text)]/60 hover:bg-black/5"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className={effect === eff.id ? "text-white/40" : "text-black/20"}>{eff.icon}</div>
-                    <span className="text-xs font-black tracking-tight">{eff.label}</span>
-                  </div>
-                  {effect === eff.id && <Check size={16} className="text-white" />}
-                </DropdownMenuItem>
-              ))}
+              <div className="space-y-1 mt-2">
+                {[
+                  { id: "none", label: "بدون مؤثرات", icon: <X size={14} /> },
+                  { id: "rain", label: "صوت المطر", icon: <CloudRain size={16} /> },
+                  { id: "wind", label: "صوت الرياح", icon: <Wind size={16} /> },
+                  { id: "running", label: "صوت الركض", icon: <Waves size={16} /> }
+                ].map((eff) => (
+                  <DropdownMenuItem
+                    key={eff.id}
+                    onClick={() => setEffect(eff.id)}
+                    className="flex items-center justify-between cursor-pointer rounded-2xl py-3 px-4 transition-all hover:bg-black/5"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-black/20">{eff.icon}</span>
+                      <span className="text-xs font-bold">{eff.label}</span>
+                    </div>
+                    {effect === eff.id && <Check size={16} className="text-[var(--primary-text)]" strokeWidth={3} />}
+                  </DropdownMenuItem>
+                ))}
+              </div>
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* 3️⃣ VOLUME BUTTON */}
-          <HeaderIcon
-            icon={
-              isMuted || volume === 0 ? (
-                <VolumeX size={22} className="text-red-500" />
-              ) : volume < 0.4 ? (
-                <Volume1 size={22} className="text-black" />
-              ) : (
-                <Volume2 size={22} className="text-black" />
-              )
-            }
-            label="الصوت"
+          <div className="w-px h-6 bg-black/10" />
+
+          {/* VOLUME */}
+          <button
             onClick={() => onCycleVolume && onCycleVolume()}
-          />
-
-          {/* 4️⃣ GO TO PAGE (desktop only) */}
-          <div
-            className={`hidden sm:flex items-center gap-2 ${
-              readOnly ? "opacity-50 pointer-events-none" : ""
-            }`}
+            className="p-2 sm:p-3 text-black/40 hover:text-black hover:bg-white/50 rounded-full transition-all active:scale-90"
           >
-            <input
-              type="number"
-              min="1"
-              value={pageInput}
-              onChange={(e) => setPageInput(e.target.value)}
-              disabled={readOnly}
-              className="w-24 h-10 text-center border border-black/10 rounded-xl text-sm bg-white font-black focus:ring-4 focus:ring-[#5de3ba]/10 focus:border-[#5de3ba] outline-none transition-all"
-              placeholder="00"
-              dir="rtl"
-            />
-            <button
-              onClick={handleGoToPage}
-              disabled={readOnly}
-              className="px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest btn-premium text-white active:scale-95 transition-all"
-            >
-              انطلاق
-            </button>
-          </div>
-
-          {/* 5️⃣ BACK BUTTON — ALWAYS LAST ON DESKTOP */}
-          <div className="hidden sm:block">
-            <HeaderIcon
-              icon={<ArrowRight size={22} />}
-              label="رجوع"
-              onClick={onBack}
-            />
-          </div>
-
-          {/* 6️⃣ MOBILE 3-DOTS MENU */}
-          <div className="sm:hidden relative">
-            <button
-              className="ham-menu-button p-2 text-black/40 hover:text-black transition"
-              onClick={() => setIsHamOpen((s) => !s)}
-            >
-              <MoreVertical size={22} className="text-black" />
-            </button>
-
-            {isHamOpen && (
-              <div className="ham-menu-panel absolute top-12 right-0 w-56 rounded-xl border border-black/10 bg-white p-2 shadow-xl z-50">
-                <ul className="flex flex-col">
-                  {/* GO TO PAGE */}
-                  <li>
-                    <button
-                      className={`w-full text-right px-4 py-3 hover:bg-black/5 font-black uppercase tracking-widest text-[10px] ${
-                        readOnly ? "opacity-50 pointer-events-none" : ""
-                      }`}
-                      onClick={() => {
-                        if (readOnly) return;
-                        setIsHamOpen(false);
-                        setModalType("goto");
-                      }}
-                    >
-                      اذهب للصفحة
-                    </button>
-                  </li>
- 
-                  <li>
-                    <button
-                      className="w-full text-right px-4 py-3 hover:bg-black/5 font-black uppercase tracking-widest text-[10px] text-red-500/60"
-                      onClick={() => {
-                        setIsHamOpen(false);
-                        setModalType("back");
-                      }}
-                    >
-                      رجوع للمكتبة
-                    </button>
-                  </li>
-                </ul>
-              </div>
+            {isMuted || volume === 0 ? (
+              <VolumeX size={20} className="text-red-500" strokeWidth={2.5} />
+            ) : volume < 0.4 ? (
+              <Volume1 size={20} strokeWidth={2.5} />
+            ) : (
+              <Volume2 size={20} strokeWidth={2.5} />
             )}
-          </div>
+          </button>
+        </div>
+
+        {/* --- RIGHT SECTION: NAVIGATION --- */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          <button
+            onClick={onBack}
+            className="flex items-center gap-2 px-4 py-2 sm:px-6 sm:py-3 bg-black text-white rounded-xl sm:rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg group shrink-0"
+          >
+            <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" strokeWidth={2.5} />
+            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest hidden sm:block">العودة</span>
+          </button>
         </div>
       </header>
 
@@ -412,28 +295,6 @@ export default function ReaderHeader({
   );
 }
 
-/* --- ICON BUTTON COMPONENT --- */
-function HeaderIcon({ icon, label, onClick }) {
-  return (
-    <button
-      onClick={onClick}
-      className="group relative p-3 text-black/40 hover:text-black transition-all hover:bg-black/5 rounded-2xl"
-    >
-      {icon}
-      <span
-        className="
-          absolute -bottom-10 left-1/2 -translate-x-1/2
-          bg-black/95 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-widest
-          px-3 py-1.5 rounded-lg shadow-xl
-          opacity-0 group-hover:opacity-100
-          transition-all duration-300 pointer-events-none whitespace-nowrap z-[100]
-        "
-      >
-        {label}
-      </span>
-    </button>
-  );
-}
 
 /* --- MODAL COMPONENT --- */
 function Modal({ title, children, onClose }) {

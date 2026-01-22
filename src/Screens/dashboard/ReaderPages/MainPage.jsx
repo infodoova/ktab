@@ -17,6 +17,7 @@ function MainPage({ pageName = "الصفحة الرئيسية" }) {
         pageName={pageName}
         collapsed={collapsed}
         setCollapsed={setCollapsed}
+        showSearch={false}
       />
 
       <div

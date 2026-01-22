@@ -4,6 +4,7 @@ import {
   AlertDialogContent,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogCancel,
   AlertDialogAction,
@@ -32,9 +33,9 @@ export default function DeleteStoryModal({ story, isOpen, onClose, onConfirm }) 
           </AlertDialogTitle>
         </AlertDialogHeader>
 
-        <p className="text-black/60 text-sm mt-1 text-right font-bold">
+        <AlertDialogDescription className="text-black/60 text-sm mt-1 text-right font-bold">
           سيتم حذف قصة <span className="text-black underline">"{story?.title}"</span> نهائياً. هذا الإجراء لا يمكن التراجع عنه.
-        </p>
+        </AlertDialogDescription>
 
         <AlertDialogFooter className="mt-6 flex-row gap-3">
           <AlertDialogCancel className="flex-1 bg-black/[0.03] text-black/60 border-black/5 hover:bg-black/5 rounded-xl font-bold h-12">

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
-import { MoreVertical, Share2, Loader2, BookOpen, Star } from "lucide-react";
+import { MoreVertical, Loader2, BookOpen, Star } from "lucide-react";
 import SkeletonBookLoader from "./SkeletonBookLoader";
 import { Link } from "react-router-dom";
 
@@ -8,8 +8,8 @@ const ITEMS_PER_PAGE = 8;
 /* -----------------------------------------------------------
    🔹 MINIMAL BOOK CARD 
 ----------------------------------------------------------- */
-const MinimalBookCard = React.memo(
-  ({ book, openMenuId, setOpenMenuId, index }) => {
+export const MinimalBookCard = React.memo(
+  ({ book, openMenuId, setOpenMenuId, index, extraMenuItems, clickable = true }) => {
     const isOpen = openMenuId === book.id;
     const isAboveFold = index < 8;
 
@@ -19,25 +19,74 @@ const MinimalBookCard = React.memo(
       setOpenMenuId(isOpen ? null : book.id);
     };
 
-    const handleShare = async (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (navigator.share) {
-        try {
-          await navigator.share({
-            title: book.title,
-            text: "اطّلع على هذا الكتاب",
-            url: book.pdfDownloadUrl,
-          });
-        } catch (err) {
-          console.log("Share dismissed", err);
-        }
-      } else {
-        navigator.clipboard.writeText(book.pdfDownloadUrl);
-        alert("تم نسخ رابط الكتاب");
-      }
-      setOpenMenuId(null);
-    };
+    const CardContent = (
+      <>
+        <div className="w-full relative rounded-xl overflow-hidden shadow-sm bg-gray-100 pb-[160%]">
+          {/* Rating badge */}
+          {book.averageRating !== undefined &&
+            book.averageRating !== null && (
+              <div
+                className="
+                  absolute top-2 right-2 z-10
+                  flex items-center gap-1
+                  px-2.5 py-1
+                  rounded-full
+                  bg-white/90 backdrop-blur-md
+                  border border-black/10
+                  shadow-sm
+                  text-sm font-black
+                  text-[var(--primary-text)]
+                "
+                aria-label={`تقييم ${book.averageRating} من 5`}
+              >
+                <Star size={12} className="text-yellow-500 fill-yellow-500" />
+                <span>{Number(book.averageRating).toFixed(1)}</span>
+              </div>
+            )}
+
+          <img
+            src={book.coverImageUrl}
+            alt={`غلاف كتاب ${book.title}`}
+            loading={isAboveFold ? "eager" : "lazy"}
+            fetchPriority={isAboveFold ? "high" : "auto"}
+            decoding="async"
+            className="
+            absolute inset-0 w-full h-full object-cover 
+            transition-transform duration-500 ease-out
+            group-hover:scale-105 will-change-transform
+          "
+          />
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300 pointer-events-none" />
+        </div>
+        <h3
+          className="text-[var(--primary-text)] text-[15px] font-black tracking-tight line-clamp-1 group-hover:opacity-70 transition-opacity"
+          title={book.title}
+        >
+          {book.title}
+        </h3>
+      </>
+    );
+
+    if (!extraMenuItems) {
+      return (
+        <div className="relative flex flex-col gap-3 group" dir="rtl">
+          {clickable ? (
+            <Link
+              to={`/reader/BookDetails/${book.id}`}
+              state={{ book }}
+              className="flex flex-col gap-3 w-full"
+              aria-label={`عرض تفاصيل كتاب ${book.title}`}
+            >
+              {CardContent}
+            </Link>
+          ) : (
+            <div className="flex flex-col gap-3 w-full cursor-default">
+              {CardContent}
+            </div>
+          )}
+        </div>
+      );
+    }
 
     return (
       <div className="relative flex flex-col gap-3 group" dir="rtl">
@@ -55,66 +104,25 @@ const MinimalBookCard = React.memo(
               className="absolute top-9 left-0 w-36 bg-white/95 backdrop-blur-xl shadow-xl rounded-xl border border-black/10 p-1.5 text-sm z-30 animate-in fade-in zoom-in-95 duration-200"
               onClick={(e) => e.stopPropagation()}
             >
-              <button
-                onClick={handleShare}
-                className="w-full flex items-center justify-between px-3 py-2 hover:bg-black/5 rounded-lg text-[var(--primary-text)] transition-colors font-black uppercase tracking-tight"
-              >
-                <span>مشاركة</span> <Share2 size={14} />
-              </button>
+              {extraMenuItems}
             </div>
           )}
         </div>
 
-        <Link
-          to={`/reader/BookDetails/${book.id}`}
-          state={{ book }}
-          className="flex flex-col gap-3 w-full"
-          aria-label={`عرض تفاصيل كتاب ${book.title}`}
-        >
-          <div className="w-full relative rounded-xl overflow-hidden shadow-sm bg-gray-100 pb-[160%]">
-            {/* Rating badge */}
-            {book.averageRating !== undefined &&
-              book.averageRating !== null && (
-                <div
-                  className="
-                    absolute top-2 right-2 z-10
-                    flex items-center gap-1
-                    px-2.5 py-1
-                    rounded-full
-                    bg-white/90 backdrop-blur-md
-                    border border-black/10
-                    shadow-sm
-                    text-[10px] font-black
-                    text-[var(--primary-text)]
-                  "
-                  aria-label={`تقييم ${book.averageRating} من 5`}
-                >
-                  <Star size={12} className="text-yellow-500 fill-yellow-500" />
-                  <span>{Number(book.averageRating).toFixed(1)}</span>
-                </div>
-              )}
-
-            <img
-              src={book.coverImageUrl}
-              alt={`غلاف كتاب ${book.title}`}
-              loading={isAboveFold ? "eager" : "lazy"}
-              fetchPriority={isAboveFold ? "high" : "auto"}
-              decoding="async"
-              className="
-              absolute inset-0 w-full h-full object-cover 
-              transition-transform duration-500 ease-out
-              group-hover:scale-105 will-change-transform
-            "
-            />
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300 pointer-events-none" />
-          </div>
-          <h3
-            className="text-[var(--primary-text)] text-[13px] font-black tracking-tight line-clamp-1 group-hover:opacity-70 transition-opacity"
-            title={book.title}
+        {clickable ? (
+          <Link
+            to={`/reader/BookDetails/${book.id}`}
+            state={{ book }}
+            className="flex flex-col gap-3 w-full"
+            aria-label={`عرض تفاصيل كتاب ${book.title}`}
           >
-            {book.title}
-          </h3>
-        </Link>
+            {CardContent}
+          </Link>
+        ) : (
+          <div className="flex flex-col gap-3 w-full cursor-default">
+            {CardContent}
+          </div>
+        )}
       </div>
     );
   }

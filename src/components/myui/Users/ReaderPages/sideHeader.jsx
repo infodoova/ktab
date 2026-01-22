@@ -1,34 +1,30 @@
 import React from "react";
 import { Search } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const PageHeader = ({
   mainTitle = "Main Title",
   buttonTitle = "",
   onPress = () => {},
   onSearchClick, 
+  isDark = false,
 }) => {
   const showButton = buttonTitle && buttonTitle.trim() !== "";
   const showSearch = typeof onSearchClick === "function"; 
 
   return (
     <header
-      className="
-        hidden md:block 
-        sticky top-0 z-[50]
-        w-full h-16 
-        border-b border-black/5
-        bg-white/70 backdrop-blur-2xl
-        rtl relative
-      "
+      className={cn(
+        "hidden md:block sticky top-0 z-[50] w-full h-16 border-b backdrop-blur-2xl rtl relative transition-colors",
+        isDark ? "bg-black/40 border-white/5" : "bg-white/70 border-black/5"
+      )}
     >
 
       <div
-        className="
-          absolute left-1/2 top-1/2 
-          -translate-x-1/2 -translate-y-1/2
-          text-lg font-black text-black text-center
-          pointer-events-none tracking-tight
-        "
+        className={cn(
+          "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-lg font-black text-center pointer-events-none tracking-tight transition-colors",
+          isDark ? "text-white" : "text-black"
+        )}
       >
         {mainTitle}
       </div>
@@ -70,13 +66,10 @@ const PageHeader = ({
           <button
             onClick={onSearchClick}
             aria-label="بحث"
-            className="
-              p-2.5 rounded-full 
-              text-black/30
-              hover:text-[#5de3ba]
-              hover:bg-[#5de3ba]/5 
-              transition-all duration-300
-            "
+            className={cn(
+              "p-2.5 rounded-full transition-all duration-300",
+              isDark ? "text-white/40 hover:text-white hover:bg-white/10" : "text-black/30 hover:text-[#5de3ba] hover:bg-[#5de3ba]/5"
+            )}
           >
             <Search size={22} strokeWidth={2.5} />
           </button>

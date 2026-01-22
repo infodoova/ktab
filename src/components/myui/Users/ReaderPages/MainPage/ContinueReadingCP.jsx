@@ -31,36 +31,50 @@ export default function ContinueReadingCP() {
           return (
             <div
               key={i}
-              className="bg-white p-5 shadow-sm border border-black/10 rounded-[1.5rem] flex items-center gap-5 transition-all duration-300 hover:shadow-md"
+              className="bg-white p-4 sm:p-5 shadow-sm border border-[var(--primary-text)]/10 rounded-[1.5rem] flex flex-col sm:flex-row items-stretch sm:items-center gap-4 sm:gap-6 transition-all duration-300 hover:shadow-md group"
             >
-              {/* COVER */}
-              <img
-                src={b.cover}
-                alt={b.title}
-                className="w-20 h-24 object-cover rounded-xl shadow-sm border border-black/10"
-              />
-
-              {/* TEXT */}
-              <div className="flex-1">
-                <h3 className="text-[var(--primary-text)] font-black tracking-tight">{b.title}</h3>
-                <p className="text-[10px] font-black uppercase tracking-widest text-[var(--primary-text)]/40 mb-3">{b.author}</p>
-
-                <div className="w-full bg-gray-50 h-2.5 rounded-full overflow-hidden border border-black/10">
-                  <div
-                    className="bg-gradient-to-r from-[#5de3ba] to-[#76debf] h-full rounded-full shadow-[0_0_10px_rgba(93,227,186,0.3)]"
-                    style={{ width: `${percent}%` }}
-                  ></div>
+              {/* TOP CONTENT WRAPPER: Image + Text */}
+              <div className="flex items-center gap-4 sm:gap-5 flex-1">
+                {/* COVER */}
+                <div className="relative shrink-0">
+                  <img
+                    src={b.cover}
+                    alt={b.title}
+                    className="w-16 h-20 sm:w-20 sm:h-24 object-cover rounded-xl shadow-sm border border-black/10 transition-transform duration-300 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 rounded-xl shadow-inner pointer-events-none" />
                 </div>
 
-                <p className="text-[10px] font-black uppercase tracking-tight text-[var(--primary-text)]/40 mt-2">
-                  {b.progress} من {b.total} صفحة • {b.lastSeen}
-                </p>
+                {/* TEXT & PROGRESS */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-col h-full justify-center">
+                    <h3 className="text-[var(--primary-text)] font-black tracking-tight text-base sm:text-lg mb-0.5 truncate">{b.title}</h3>
+                    <p className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-[var(--primary-text)]/40 mb-3">{b.author}</p>
+
+                    {/* PROGRESS BAR */}
+                    <div className="w-full bg-gray-100/50 h-2 sm:h-2.5 rounded-full overflow-hidden border border-black/[0.05] relative">
+                      <div
+                        className="bg-gradient-to-l from-[#5de3ba] to-[#76debf] h-full rounded-full shadow-[0_0_10px_rgba(93,227,186,0.3)] transition-all duration-1000"
+                        style={{ width: `${percent}%` }}
+                      ></div>
+                    </div>
+
+                    <div className="flex items-center justify-between mt-2">
+                       <p className="text-[10px] sm:text-xs font-black uppercase tracking-tighter text-[var(--primary-text)]/40">
+                        {b.progress} / {b.total} صفحة
+                      </p>
+                      <p className="text-[10px] sm:text-xs font-black uppercase tracking-tighter text-[var(--primary-text)]/30">
+                        {b.lastSeen}
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              {/* ACTION */}
-              <button className="btn-premium flex items-center gap-2 px-6 py-3 rounded-xl text-white text-xs font-black uppercase tracking-widest active:scale-95 transition-all">
+              {/* ACTION: Full width on mobile, auto on desktop */}
+              <button className="btn-premium flex items-center justify-center gap-2 px-6 py-4 sm:py-3.5 rounded-2xl sm:rounded-xl text-white text-xs sm:text-sm font-black uppercase tracking-widest active:scale-[0.98] transition-all w-full sm:w-auto shadow-lg shadow-[#5de3ba]/20">
                 متابعة
-                <ArrowLeftCircle size={18} strokeWidth={3} />
+                <ArrowLeftCircle size={18} strokeWidth={3} className="mr-1" />
               </button>
             </div>
           );

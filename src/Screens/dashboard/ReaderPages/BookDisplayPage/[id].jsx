@@ -34,6 +34,18 @@ export default function BookDisplay() {
   const [effect, setEffect] = useState("none");
   const [isMuted, setIsMuted] = useState(false);
   const [volume, setVolume] = useState(0.2); // volume of effects
+  const [fontSize, setFontSize] = useState(() => {
+    if (typeof window !== "undefined") {
+      return window.innerWidth < 768 ? 16 : 18; // 89% for mobile, 100% for PC
+    }
+    return 18;
+  });
+
+  const handleFontSizeChange = (newSize) => {
+    setFontSize(newSize);
+    const percent = Math.round((newSize / 18) * 100);
+    AlertToast(`مستوى الخط: ${percent}%`, "INFO");
+  };
 
   // cycle volume: 0.2  -> 0.8 -> muted -> 0.2 ...
   const cycleVolume = useCallback(() => {
@@ -511,7 +523,7 @@ export default function BookDisplay() {
   }, [id]);
 
   return (
-    <div className="w-full bg-white flex flex-col h-screen">
+    <div className="w-full bg-[#fcfcfc] flex flex-col h-screen">
       <ReaderHeader
         onBack={() => navigate(-1)}
         onGoToPage={(p) => bookRef.current?.goToPage?.(p)}
@@ -525,11 +537,12 @@ export default function BookDisplay() {
         readOnly={ttsPlaying}
       />
 
-      <main className="flex-1 flex items-center justify-center overflow-hidden">
+      <main className="flex-1 flex items-center justify-center overflow-hidden pt-24 pb-28 sm:pt-20 sm:pb-32">
         <FlipBookViewer
           bookRef={bookRef}
           text={bookText}
           loading={loadingText}
+          fontSize={fontSize}
           wordsPerPage={wordsPerPage}
           onPageChange={onPageChange}
           readOnly={ttsPlaying}
@@ -541,6 +554,8 @@ export default function BookDisplay() {
         onPrev={() => bookRef.current?.pageFlip?.()?.flipPrev?.()}
         isPlaying={ttsPlaying}
         onTogglePlay={onTogglePlay}
+        fontSize={fontSize}
+        onFontSizeChange={handleFontSizeChange}
       />
     </div>
   );

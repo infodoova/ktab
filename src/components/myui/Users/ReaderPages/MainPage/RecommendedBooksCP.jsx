@@ -1,13 +1,28 @@
 import { Sparkles, BookOpen } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { MinimalBookCard } from "../Library/BooksCardComponent";
 
 export default function RecommendedBooksCP() {
+  const [openMenuId, setOpenMenuId] = useState(null);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const close = (e) => {
+      if (!e.target.closest(".book-menu-area")) {
+        setOpenMenuId(null);
+      }
+    };
+    document.addEventListener("click", close);
+    return () => document.removeEventListener("click", close);
+  }, []);
+
   const books = [
-    { title: "كتاب المعجزة", cover: "https://images.pexels.com/photos/1029141/pexels-photo-1029141.jpeg" },
-    { title: "الذكي الفقير", cover: "https://images.pexels.com/photos/8078549/pexels-photo-8078549.jpeg" },
-    { title: "رحلة النجاح", cover: "https://images.pexels.com/photos/14750508/pexels-photo-14750508.jpeg" },
-    { title: "نور الحكمة", cover: "https://images.pexels.com/photos/590493/pexels-photo-590493.jpeg" },
-    { title: "مملكة المعرفة", cover: "https://images.pexels.com/photos/46274/pexels-photo-46274.jpeg" },
-    { title: "المعرفة", cover: "https://images.pexels.com/photos/46274/pexels-photo-46274.jpeg" },
+    { id: "rec1", title: "كتاب المعجزة", coverImageUrl: "https://images.pexels.com/photos/1029141/pexels-photo-1029141.jpeg" },
+    { id: "rec2", title: "الذكي الفقير", coverImageUrl: "https://images.pexels.com/photos/8078549/pexels-photo-8078549.jpeg" },
+    { id: "rec3", title: "رحلة النجاح", coverImageUrl: "https://images.pexels.com/photos/14750508/pexels-photo-14750508.jpeg" },
+    { id: "rec4", title: "نور الحكمة", coverImageUrl: "https://images.pexels.com/photos/590493/pexels-photo-590493.jpeg" },
+    { id: "rec5", title: "مملكة المعرفة", coverImageUrl: "https://images.pexels.com/photos/46274/pexels-photo-46274.jpeg" },
+    { id: "rec6", title: "المعرفة", coverImageUrl: "https://images.pexels.com/photos/46274/pexels-photo-46274.jpeg" },
   ];
 
   return (
@@ -33,58 +48,14 @@ export default function RecommendedBooksCP() {
         >
           <div className="flex gap-4 w-max">
             {books.map((b, i) => (
-              <div
-                key={i}
-                className="
-                  group
-                  w-44
-                  bg-white/80 backdrop-blur-sm
-                  rounded-[2rem]
-                  shadow-sm
-                  hover:shadow-md
-                  border border-black/10
-                  transition-all duration-300 ease-out
-                  hover:-translate-y-2
-                  flex flex-col
-                  cursor-pointer
-                  overflow-hidden
-                "
-              >
-                {/* Image Container */}
-                <div className="relative w-full aspect-[3/4] overflow-hidden rounded-b-2xl bg-gray-50 flex items-center justify-center p-3">
-                  <img
-                    src={b.cover}
-                    alt={b.title}
-                    className="w-full h-full object-cover rounded-xl transition-transform duration-700 group-hover:scale-105 shadow-sm"
-                  />
-                </div>
-                
-                {/* Card Content */}
-                <div className="p-4 flex flex-col flex-grow">
-                  <h3 className="text-[var(--primary-text)] font-black text-sm line-clamp-1 mb-1 group-hover:text-[var(--primary-button)] transition-colors tracking-tight">
-                    {b.title}
-                  </h3>
-                  
-                  <span className="text-[10px] font-black uppercase tracking-widest text-[var(--primary-text)]/40 mb-4">تطوير الذات</span>
-                  
-                  <div className="mt-auto flex items-center justify-between">
-                    <span className="text-xs font-black text-[var(--primary-text)] flex items-center gap-1">
-                      <span className="text-yellow-400">★</span> 4.8
-                    </span>
-                    
-                    <div className="
-                      w-9 h-9 rounded-xl
-                      bg-white border border-black/10
-                      text-black
-                      flex items-center justify-center
-                      shadow-sm
-                      transition-all duration-300
-                      group-hover:scale-110 group-hover:bg-black group-hover:text-white
-                    ">
-                      <BookOpen size={16} strokeWidth={2.5} />
-                    </div>
-                  </div>
-                </div>
+              <div key={b.id} className="w-44">
+                <MinimalBookCard
+                  book={b}
+                  openMenuId={openMenuId}
+                  setOpenMenuId={setOpenMenuId}
+                  index={i}
+                  clickable={false}
+                />
               </div>
             ))}
           </div>

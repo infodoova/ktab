@@ -4,6 +4,7 @@ import {
   AlertDialogContent,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogCancel,
   AlertDialogAction,
@@ -58,9 +59,9 @@ export default function DeleteBook({ book, open, onClose, onDeleted }) {
             </AlertDialogTitle>
           </AlertDialogHeader>
 
-          <p className="text-[var(--earth-brown)]/70 text-sm mt-1 text-right">
+          <AlertDialogDescription className="text-[var(--earth-brown)]/70 text-sm mt-1 text-right">
             سيتم حذف الكتاب نهائياً من المنصة ومن ملفات S3.
-          </p>
+          </AlertDialogDescription>
 
           <AlertDialogFooter className="mt-4">
             <AlertDialogCancel className="bg-white text-[var(--earth-brown)] border border-[var(--earth-sand)] hover:bg-[var(--earth-cream)]">

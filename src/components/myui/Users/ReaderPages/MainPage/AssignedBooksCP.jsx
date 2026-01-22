@@ -3,11 +3,24 @@ import { BookPlus, X } from "lucide-react";
 import { getHelper, deleteHelper } from "../../../../../../apis/apiHelpers";
 import { AlertToast } from "../../../AlertToast";
 import { useNavigate } from "react-router-dom";
+import { MinimalBookCard } from "../Library/BooksCardComponent";
 export default function AssignedBooksCP() {
   const [books, setBooks] = useState([]);
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
+  const [openMenuId, setOpenMenuId] = useState(null);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const close = (e) => {
+      if (!e.target.closest(".book-menu-area")) {
+        setOpenMenuId(null);
+      }
+    };
+    document.addEventListener("click", close);
+    return () => document.removeEventListener("click", close);
+  }, []);
 
   // Fetch assigned books
   const fetchAssignedBooks = useCallback(async () => {
@@ -80,87 +93,37 @@ export default function AssignedBooksCP() {
       </div>
 
       {loading ? (
-        <p className="text-center text-[var(--primary-text)]/40 font-black uppercase tracking-widest text-xs py-10">
+        <p className="text-center text-[var(--primary-text)]/40 font-black uppercase tracking-widest text-sm py-10">
           جاري التحميل...
         </p>
       ) : books.length === 0 ? (
-        <p className="text-center text-[var(--primary-text)]/40 font-black uppercase tracking-widest text-xs py-10">
+        <p className="text-center text-[var(--primary-text)]/40 font-black uppercase tracking-widest text-sm py-10">
           لا توجد كتب في مكتبتك حالياً.
         </p>
       ) : (
         <div className="relative">
           <div className="overflow-x-auto overflow-y-hidden px-4 pb-4 scrollbar-hide">
             <div className="flex gap-4" style={{ width: "max-content" }}>
-              {books.map((b) => (
-                <div
-                  key={b.id}
-                  onClick={() => {
-                    navigate(`/reader/BookDetails/${b.id}`);
-                  }}
-                  className="
-                    group
-                    w-44
-                    bg-white
-                    rounded-[2rem]
-                    shadow-sm
-                    hover:shadow-md
-                    border border-black/10
-                    transition-all duration-300 ease-out
-                    hover:-translate-y-2
-                    flex flex-col
-                    cursor-pointer
-                    overflow-hidden
-                  "
-                >
-                  <div className="relative w-full aspect-[3/4] overflow-hidden bg-gray-50 flex items-center justify-center p-3">
-                    <img
-                      src={b.coverImageUrl}
-                      alt={b.title}
-                      className="w-full h-full object-cover rounded-xl transition-transform duration-500 group-hover:scale-105 shadow-sm"
-                    />
-
-                    {/* Remove Button */}
-                    <button
-                      className="
-                        absolute top-3 left-2
-                        w-6 h-6 rounded-full
-                        bg-white/90 backdrop-blur-sm
-                        text-red-500
-                        flex items-center justify-center
-                        opacity-0 group-hover:opacity-100
-                        transition-all duration-300
-                        hover:bg-red-500 hover:text-white
-                        transform translate-y-[-8px] group-hover:translate-y-0
-                        shadow-lg
-                      "
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleRemoveBook(b.id);
-                      }}
-                    >
-                      <X size={12} strokeWidth={2.5} />
-                    </button>
-                  </div>
-
-                  {/* Content */}
-                  <div className="p-4">
-                    <h3
-                      className="
-                      text-[var(--primary-text)]
-                      font-black
-                      text-xs
-                      text-center
-                      line-clamp-2
-                      group-hover:opacity-70
-                      transition-opacity
-                      min-h-[2.5rem]
-                      flex items-center justify-center
-                      tracking-tight
-                    "
-                    >
-                      {b.title}
-                    </h3>
-                  </div>
+              {books.map((b, index) => (
+                <div key={b.id} className="w-44">
+                  <MinimalBookCard
+                    book={b}
+                    openMenuId={openMenuId}
+                    setOpenMenuId={setOpenMenuId}
+                    index={index}
+                    extraMenuItems={
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleRemoveBook(b.id);
+                        }}
+                        className="w-full flex items-center justify-between px-3 py-2 hover:bg-red-50 rounded-lg text-red-600 transition-colors font-black uppercase tracking-tight"
+                      >
+                        <span>حذف</span> <X size={14} />
+                      </button>
+                    }
+                  />
                 </div>
               ))}
             </div>
