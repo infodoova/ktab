@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Play, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -104,7 +104,7 @@ function FeaturedCarousel({ stories = [], onStoryClick, isDark = false }) {
                 </div>
 
                 {/* MOBILE CONTENT OVERLAY - Inside Image */}
-                <div className="absolute inset-0 md:hidden flex flex-col justify-end p-6 pb-20 z-10" dir="rtl">
+                <div className="absolute inset-0 md:hidden flex flex-col justify-end p-6 pb-20 z-10 pointer-events-auto" dir="rtl">
                   <div className="space-y-4 text-right">
                     {/* Title */}
                     <h2 className="text-3xl sm:text-4xl font-black text-white leading-[1.1] tracking-tighter drop-shadow-2xl">
@@ -122,9 +122,6 @@ function FeaturedCarousel({ stories = [], onStoryClick, isDark = false }) {
                         onClick={() => onStoryClick?.(currentStory)}
                         className="group w-full flex flex-row-reverse items-center justify-center gap-3 bg-[#5de3ba] hover:bg-[#4dd2aa] text-black h-14 px-6 rounded-2xl font-black uppercase text-xs tracking-widest transition-all duration-300 active:scale-95 shadow-lg shadow-[#5de3ba]/30"
                       >
-                        <div className="w-8 h-8 rounded-xl bg-black/10 flex items-center justify-center">
-                          <Play size={14} className="fill-current rotate-180" />
-                        </div>
                         <span className="font-tajawal">ابدأ المغامرة</span>
                       </button>
                     </div>
@@ -136,7 +133,7 @@ function FeaturedCarousel({ stories = [], onStoryClick, isDark = false }) {
               <div className="hidden md:flex relative flex-1 h-full flex-col justify-center p-12 lg:p-20 text-right z-10" dir="rtl">
                 <div className="space-y-6 lg:space-y-8">
                   {/* Title */}
-                  <h2 className="text-5xl lg:text-7xl xl:text-8xl font-black text-white leading-[1.1] tracking-tighter drop-shadow-2xl">
+                  <h2 className="text-4xl lg:text-6xl xl:text-7xl font-black text-white leading-[1.1] tracking-tighter drop-shadow-2xl">
                     {currentStory.title}
                   </h2>
 
@@ -146,14 +143,11 @@ function FeaturedCarousel({ stories = [], onStoryClick, isDark = false }) {
                   </p>
 
                   {/* Action Row */}
-                  <div className="flex items-center justify-end gap-4 pt-4 lg:pt-8 text-right">
+                  <div className="flex items-center justify-start gap-4 pt-4 lg:pt-8 text-right">
                     <button
                       onClick={() => onStoryClick?.(currentStory)}
                       className="group flex flex-row-reverse items-center justify-center gap-4 bg-[#5de3ba] hover:bg-[#4dd2aa] text-black h-20 px-14 rounded-3xl font-black uppercase text-base tracking-widest transition-all duration-300 hover:scale-[1.02] active:scale-95 shadow-lg shadow-[#5de3ba]/20"
                     >
-                      <div className="w-11 h-11 rounded-xl bg-black/10 flex items-center justify-center transition-transform group-hover:-translate-x-1">
-                        <Play size={14} className="fill-current rotate-180" />
-                      </div>
                       <span className="font-tajawal">ابدأ المغامرة</span>
                     </button>
                   </div>

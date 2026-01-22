@@ -5,7 +5,7 @@ import React, { useState } from "react";
  * Displays the scene image with beautiful effects and animations
  * Pure presentation component - all logic in mainComp
  */
-function ImageScenes({ image, onImageClick, isGenerating }) {
+function ImageScenes({ image, onImageClick, isGenerating, isDarkMode = true }) {
   const [imageLoaded, setImageLoaded] = React.useState(false);
   const [imageError, setImageError] = React.useState(false);
 
@@ -21,18 +21,18 @@ function ImageScenes({ image, onImageClick, isGenerating }) {
     <div className="mb-4 md:mb-6 relative flex justify-center w-full h-full">
       {/* Main image container - perfect 16:9 aspect ratio with controlled size */}
       <div
-        className="relative overflow-hidden rounded-[2rem] shadow-2xl w-full aspect-video border border-white/10 cursor-zoom-in group/img"
+        className={`relative overflow-hidden rounded-[2rem] shadow-2xl w-full aspect-video border cursor-zoom-in group/img ${
+          isDarkMode ? "border-white/10" : "border-black/5"
+        }`}
         onClick={() => onImageClick?.(image)}
       >
         {/* Loading skeleton */}
         {showSkeleton && (
-          <div className="absolute inset-0 bg-[var(--bg-dark)] flex items-center justify-center overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
+          <div className={`absolute inset-0 flex items-center justify-center overflow-hidden ${
+            isDarkMode ? "bg-[#0c0c0c]" : "bg-[#F8F5F2]"
+          }`}>
             <div className="relative z-10 flex flex-col items-center gap-4">
-              <div className="w-12 h-12 border-4 border-[var(--primary-button)]/20 border-t-[var(--primary-button)] rounded-full animate-spin shadow-[0_0_20px_var(--primary-button)]/30" />
-              <div className="h-2 w-32 bg-[var(--primary-button)]/10 rounded-full overflow-hidden relative">
-                <div className="absolute inset-0 bg-[var(--primary-button)]/40 animate-[shimmer_1.5s_infinite]" />
-              </div>
+              <div className="w-12 h-12 border-4 border-[#5de3ba]/20 border-t-[#5de3ba] rounded-full animate-spin" />
             </div>
           </div>
         )}

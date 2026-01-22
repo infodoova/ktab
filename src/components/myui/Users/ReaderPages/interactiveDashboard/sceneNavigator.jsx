@@ -68,7 +68,7 @@ const SceneNavigator = ({
         <div className="flex items-center justify-between mb-3" dir="rtl">
           <span
             className={`font-extrabold text-[10px] uppercase tracking-widest ${
-              isDarkMode ? "text-white/40" : "text-[var(--primary-text)]/40"
+              isDarkMode ? "text-white/40" : "text-black/40"
             }`}
           >
             تاريخ الرحلة
@@ -124,7 +124,7 @@ const SceneNavigator = ({
       <div className="flex items-center justify-between mb-4" dir="rtl">
         <span
           className={`font-extrabold text-sm uppercase tracking-widest ${
-            isDarkMode ? "text-white/40" : "text-[var(--primary-text)]/40"
+            isDarkMode ? "text-white/40" : "text-black/40"
           }`}
         >
           تاريخ الرحلة

@@ -46,11 +46,11 @@ const navLinks = [
     icon: ArchiveIcon,
     href: "../../../Screens/dashboard/ReaderPages/Achievements",
   },
-  {
-    label: "   الملف الشخصي   ",
-    icon: Star,
-    href: "../../../Screens/dashboard/ReaderPages/Profile",
-  },
+  // {
+  //   label: "  الملف الشخصي  ",
+  //   icon: Star,
+  //   href: "../../../Screens/dashboard/ReaderPages/Profile",
+  // },
   {
     label: "   الاعدادات   ",
     icon: Settings,

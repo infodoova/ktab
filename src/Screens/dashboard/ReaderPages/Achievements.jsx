@@ -17,43 +17,44 @@ function Achievements({ pageName = "الإنجازات و الشارات" }) {
   const buttonTitleText = "زر";
 
   return (
-    <div className="min-h-screen bg-white rtl">
+    <div className="min-h-screen bg-[#f8f9fa] text-slate-900 font-tajawal rtl" dir="rtl">
       {/* NAVBAR */}
-      <Navbar
-        mobileButtonTitle={buttonTitleText}
-        onMobileButtonPress={handleButtonPress}
-        pageName={pageName}
-        collapsed={collapsed}
-        setCollapsed={setCollapsed}
-      />
+      <div dir="ltr">
+        <Navbar
+          pageName={pageName}
+          collapsed={collapsed}
+          setCollapsed={setCollapsed}
+          showSearch={false}
+        />
+      </div>
 
       {/* LAYOUT */}
       <div
-        className={`flex flex-col md:flex-row-reverse min-h-screen transition-all duration-300
-          ${collapsed ? "md:mr-20" : "md:mr-64"}
-        `}
+        className={`flex flex-col md:flex-row-reverse min-h-screen transition-all duration-300 ${
+          collapsed ? "md:mr-20" : "md:mr-64"
+        }`}
       >
         <main className="flex-1 flex flex-col">
           {/* HEADER */}
           <PageHeader
             mainTitle={pageName}
-            buttonTitle={buttonTitleText}
-            onPress={handleButtonPress}
           />
 
           {/* CONTENT */}
-          <div className="flex-1 p-8">
-            {/* STATS */}
-            <AchievementsHeaderCP stats={achievementsStats} />
+          <div className="flex-1 p-6 md:p-10 lg:p-14">
+            <div className="max-w-[1400px] mx-auto">
+              {/* STATS */}
+              <AchievementsHeaderCP stats={achievementsStats} />
 
-            {/* ACHIEVEMENTS GRID */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
-              {achievementsList.map((achievement) => (
-                <AchievementsCardsCP
-                  key={achievement.id}
-                  achievement={achievement}
-                />
-              ))}
+              {/* ACHIEVEMENTS GRID */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mt-10">
+                {achievementsList.map((achievement) => (
+                  <AchievementsCardsCP
+                    key={achievement.id}
+                    achievement={achievement}
+                  />
+                ))}
+              </div>
             </div>
           </div>
         </main>

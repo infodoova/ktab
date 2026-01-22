@@ -53,7 +53,7 @@ function SceneText({ text, sceneNumber = 0, isDarkMode = true }) {
           whitespace-pre-wrap
           pr-2
           transition-colors duration-500
-          ${isDarkMode ? "text-white/90" : "text-[var(--primary-text)]"}
+          ${isDarkMode ? "text-white/90" : "text-black"}
         `}
       >
         {displayedText}

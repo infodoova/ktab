@@ -12,16 +12,16 @@ function Nodes({
   if (!nodes.length) return null;
 
   return (
-    <div className="h-full flex flex-col text-right" dir="rtl">
+    <div className="h-full flex flex-col text-right mt-4 md:mt-6" dir="rtl">
       <div
         className={`mb-2 text-[11px] md:text-xs font-bold uppercase tracking-wider transition-colors duration-500 ${
-          isDarkMode ? "text-white/40" : "text-[var(--earth-brown)]/60"
+          isDarkMode ? "text-white/40" : "text-black"
         }`}
       >
         {chosenNodeId ? "مسارك الذي اخترته:" : "اختر مسارك:"}
       </div>
 
-      <div className="flex-1 grid grid-cols-2 lg:grid-cols-2 gap-2 lg:gap-3 md:gap-4 min-h-0 overflow-y-auto lg:overflow-visible">
+      <div className="flex-1 grid grid-cols-2 lg:grid-cols-2 gap-2 lg:gap-3 md:gap-4 min-h-0 overflow-y-auto lg:overflow-visible p-1 md:p-2">
         {nodes.map((node) => {
           const isHovered = hovered === node.nodeId;
           const isSelected = chosenNodeId === node.nodeId;
@@ -39,7 +39,7 @@ function Nodes({
                 text-right
                 px-3 py-3 md:px-5 md:py-5
                 rounded-xl md:rounded-2xl
-                border-2
+                border md:border-2
                 transition-all
                 duration-500
                 relative
@@ -91,11 +91,9 @@ function Nodes({
                   font-black
                   transition-colors
                   ${
-                    isSelected || isHovered
-                      ? "text-white"
-                      : isDarkMode
-                        ? "text-white/90"
-                        : "text-[var(--earth-brown-dark)]"
+                    isDarkMode 
+                      ? (isSelected || isHovered ? "text-white" : "text-white/90")
+                      : "text-black"
                   }
                 `}
               >
@@ -109,11 +107,9 @@ function Nodes({
                     mt-1
                     transition-colors
                     ${
-                      isSelected || isHovered
-                        ? "text-white/80"
-                        : isDarkMode
-                          ? "text-white/40"
-                          : "text-[var(--earth-brown)]/60"
+                      isDarkMode
+                        ? (isSelected || isHovered ? "text-white/80" : "text-white/40")
+                        : "text-black"
                     }
                   `}
                 >
