@@ -200,12 +200,12 @@ export default function CinematicIntro({ onComplete }) {
             className="absolute inset-0 bg-white mix-blend-overlay z-40"
         />
         
-        {/* Horizontal Lens Flare Line */}
+        {/* Horizontal Lens Flare Line - Updated to Mint */}
         <motion.div
             initial={{ scaleX: 0, opacity: 0 }}
             animate={phase === "impact" ? { scaleX: [0, 1.5, 0], opacity: [0, 1, 0] } : {}}
             transition={{ duration: 0.4, ease: "easeOut" }}
-            className="absolute top-1/2 left-0 right-0 h-[1px] bg-blue-300 blur-[2px] z-30"
+            className="absolute top-1/2 left-0 right-0 h-[1px] bg-[var(--primary-button)] blur-[2px] z-30"
         />
       </div>
 

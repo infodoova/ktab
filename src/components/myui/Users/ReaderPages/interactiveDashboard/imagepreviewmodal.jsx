@@ -61,15 +61,6 @@ function ImagePreviewModal({ isOpen, image, onClose, sceneNumber }) {
             alt="Scene Preview"
             className="max-w-full max-h-[85vh] object-contain rounded-[2rem] shadow-[0_50px_100px_rgba(0,0,0,0.8)] border border-white/10 transition-transform duration-700"
           />
-
-          {/* Floating actions (Optional - e.g., Download) */}
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 opacity-0 group-hover/modal:opacity-100 transition-opacity duration-500 delay-100">
-            <div className="px-6 py-3 bg-black/40 backdrop-blur-xl rounded-full border border-white/10 flex items-center gap-4">
-              <span className="text-white/80 text-xs font-bold tracking-wide">
-                نمط المشاهدة الغامر
-              </span>
-            </div>
-          </div>
         </div>
       </div>
     </div>

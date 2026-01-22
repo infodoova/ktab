@@ -3,7 +3,7 @@ import { Upload } from "lucide-react";
 
 export default function PdfInputCard({ onGenerate, loading }) {
   const [pdf, setPdf] = useState(null);
-  const [type, setType] = useState("ملخص شامل");
+  // const [type, setType] = useState("ملخص شامل");
   const [wordCount, setWordCount] = useState(1000);
   const [audience, setAudience] = useState("KIDS_8_10_ADVENTURE");
 
@@ -20,7 +20,7 @@ export default function PdfInputCard({ onGenerate, loading }) {
   const handlePress = () => {
     if (!pdf) return onGenerate(null, "لا يوجد ملف", "قم برفع ملف PDF");
 
-    onGenerate({ type, wordCount, audience, file: pdf });
+    onGenerate({ /* type, */ wordCount, audience, file: pdf });
   };
 
   return (
@@ -38,13 +38,13 @@ export default function PdfInputCard({ onGenerate, loading }) {
       dir="rtl"
     >
       {/* 🔵 نوع الخلاصة */}
+      {/* 
       <div>
         <label className="font-semibold text-[var(--earth-brown)] text-sm mb-2 block">
           نوع الخلاصة
         </label>
 
         <div className="grid grid-cols-2 gap-3">
-          {/* ملخص شامل */}
           <button
             onClick={() => setType("ملخص شامل")}
             className={`
@@ -59,7 +59,6 @@ export default function PdfInputCard({ onGenerate, loading }) {
             ملخص شامل
           </button>
 
-          {/* النقاط الرئيسية */}
           <button
             onClick={() => setType("النقاط الرئيسية")}
             className={`
@@ -74,7 +73,6 @@ export default function PdfInputCard({ onGenerate, loading }) {
             النقاط الرئيسية
           </button>
 
-          {/* رؤى تعليمية */}
           <button
             onClick={() => setType("رؤى تعليمية")}
             className={`
@@ -89,7 +87,6 @@ export default function PdfInputCard({ onGenerate, loading }) {
             رؤى تعليمية
           </button>
 
-          {/* الاستنتاجات الرئيسية */}
           <button
             onClick={() => setType("الاستنتاجات الرئيسية")}
             className={`
@@ -104,7 +101,8 @@ export default function PdfInputCard({ onGenerate, loading }) {
             الاستنتاجات الرئيسية
           </button>
         </div>
-      </div>
+      </div> 
+      */}
 
       {/* 🔵 عدد الكلمات */}
       <div>

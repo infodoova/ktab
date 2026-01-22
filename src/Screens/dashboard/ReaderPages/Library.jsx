@@ -109,7 +109,7 @@ export default function MyBooks({ pageName = "المكتبة" }) {
   );
 
   return (
-    <div dir="rtl" className="bg-[var(--earth-cream)] min-h-screen">
+    <div dir="rtl" className="bg-white min-h-screen">
       <div dir="ltr">
         <Navbar
           pageName={pageName}

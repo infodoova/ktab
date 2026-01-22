@@ -29,27 +29,27 @@ export default function StorySearchModal({ isOpen, onClose, onApply, genres = []
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 md:p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-0 md:p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
       <div
         className="
-          bg-white/95 backdrop-blur-xl
+          bg-white/95 backdrop-blur-[32px]
           w-full h-full 
-          md:w-[600px] md:h-auto md:max-h-[85vh] md:rounded-3xl 
-          shadow-2xl flex flex-col overflow-hidden border border-gray-200/50
+          md:w-[600px] md:h-auto md:max-h-[85vh] md:rounded-[2.5rem] 
+          shadow-[0_40px_80px_rgba(0,0,0,0.15)] flex flex-col overflow-hidden border border-[var(--primary-border)]/10
         "
         dir="rtl"
       >
         {/* HEADER */}
-        <div className="flex items-center justify-between p-5 border-b border-gray-200/50 bg-gradient-to-b from-[var(--earth-cream)]/40 to-transparent">
-          <h2 className="text-lg font-bold text-[var(--earth-brown)] flex items-center gap-2.5">
-            <Filter size={22} strokeWidth={2.5} />
+        <div className="flex items-center justify-between p-6 border-b border-[var(--primary-border)]/10">
+          <h2 className="text-xl font-black text-[var(--primary-text)] flex items-center gap-3 tracking-tight">
+            <Filter size={24} strokeWidth={2.5} className="text-[var(--primary-button)]" />
             البحث والتصنيف
           </h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100/80 rounded-full transition-all duration-200 active:scale-95"
+            className="p-3 hover:bg-[var(--primary-button)]/10 rounded-xl transition-all duration-300 active:scale-95 group"
           >
-            <X size={22} className="text-gray-500" />
+            <X size={24} className="text-[var(--primary-text)]/40 group-hover:text-[var(--primary-text)] group-hover:rotate-90 transition-all" />
           </button>
         </div>
 
@@ -57,16 +57,16 @@ export default function StorySearchModal({ isOpen, onClose, onApply, genres = []
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {/* SEARCH BAR */}
           <div className="relative">
-            <label className="text-sm font-semibold text-[var(--earth-brown)] mb-3 block">
+            <label className="text-sm font-black text-[var(--primary-text)]/60 mb-3 block uppercase tracking-widest">
               بحث عن قصة
             </label>
-            <div className="flex items-center bg-white/80 backdrop-blur-sm border border-gray-200/60 rounded-2xl px-4 py-3.5 focus-within:ring-2 focus-within:ring-[var(--earth-brown)]/20 focus-within:border-[var(--earth-brown)]/40 transition-all shadow-sm">
+            <div className="flex items-center bg-white border border-[var(--primary-border)]/20 rounded-2xl px-5 py-4 focus-within:ring-4 focus-within:ring-[var(--primary-button)]/10 focus-within:border-[var(--primary-button)] transition-all shadow-sm">
               <Search size={20} className="text-gray-400 ml-3" />
-              <input
+               <input
                 ref={inputRef}
                 type="text"
                 placeholder="ابحث عن قصة تفاعلية..."
-                className="bg-transparent w-full outline-none text-[15px] text-gray-900 placeholder:text-gray-400"
+                className="bg-transparent w-full outline-none text-[16px] text-[var(--primary-text)] font-bold placeholder:text-[var(--primary-text)]/20 placeholder:font-bold"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleApply()}
@@ -86,7 +86,7 @@ export default function StorySearchModal({ isOpen, onClose, onApply, genres = []
 
           {/* GENRES */}
           <div>
-            <h3 className="text-sm font-semibold text-[var(--earth-brown)] mb-3">
+            <h3 className="text-sm font-black text-[var(--primary-text)]/60 mb-4 uppercase tracking-widest">
               التصنيف
             </h3>
             
@@ -94,11 +94,11 @@ export default function StorySearchModal({ isOpen, onClose, onApply, genres = []
               <button
                 onClick={() => setSelectedGenre("ALL")}
                 className={`
-                  text-sm px-4 py-3 rounded-2xl border-2 transition-all duration-200 font-medium
+                  text-sm px-4 py-4 rounded-2xl border transition-all duration-300 font-black uppercase tracking-tight
                   ${
                     selectedGenre === "ALL"
-                      ? "bg-[var(--earth-brown)] text-white border-[var(--earth-brown)] shadow-md shadow-[var(--earth-brown)]/20"
-                      : "bg-white/80 text-gray-700 border-gray-200/60 hover:border-[var(--earth-brown)]/40 hover:bg-white"
+                      ? "btn-premium text-white border-0"
+                      : "bg-white text-[var(--primary-text)]/40 border-black/10 hover:border-[var(--primary-button)] hover:text-[var(--primary-text)]"
                   }
                 `}
               >
@@ -110,11 +110,11 @@ export default function StorySearchModal({ isOpen, onClose, onApply, genres = []
                   key={genre}
                   onClick={() => setSelectedGenre(genre)}
                   className={`
-                    text-sm px-4 py-3 rounded-2xl border-2 transition-all duration-200 font-medium
+                    text-sm px-4 py-4 rounded-2xl border transition-all duration-300 font-black uppercase tracking-tight
                     ${
                       selectedGenre === genre
-                        ? "bg-[var(--earth-brown)] text-white border-[var(--earth-brown)] shadow-md shadow-[var(--earth-brown)]/20"
-                        : "bg-white/80 text-gray-700 border-gray-200/60 hover:border-[var(--earth-brown)]/40 hover:bg-white"
+                        ? "btn-premium text-white border-0"
+                        : "bg-white text-[var(--primary-text)]/40 border-black/10 hover:border-[var(--primary-button)] hover:text-[var(--primary-text)]"
                     }
                   `}
                 >
@@ -126,23 +126,23 @@ export default function StorySearchModal({ isOpen, onClose, onApply, genres = []
         </div>
 
         {/* FOOTER ACTIONS */}
-        <div className="p-5 border-t border-gray-200/50 bg-gradient-to-t from-gray-50/50 to-transparent flex items-center justify-between gap-4">
+        <div className="p-6 border-t border-[var(--primary-border)]/10 bg-white/50 backdrop-blur-xl flex items-center justify-between gap-6">
           <button
             onClick={handleClear}
-            className="text-sm text-gray-600 hover:text-red-500 font-semibold px-4 py-2 rounded-xl hover:bg-gray-100/50 transition-all duration-200"
+            className="text-sm text-[var(--primary-text)]/40 hover:text-red-500 font-black uppercase tracking-widest px-6 py-2 rounded-xl transition-all duration-300"
           >
             إعادة تعيين
           </button>
           <button
             onClick={handleApply}
             className="
-              flex-1 bg-[var(--earth-brown)] text-white h-12 rounded-2xl 
-              font-bold hover:bg-[var(--earth-brown)]/90 transition-all duration-200
-              flex items-center justify-center gap-2.5 shadow-lg shadow-[var(--earth-brown)]/25
+              flex-1 btn-premium text-white h-14 rounded-2xl 
+              font-black text-lg uppercase tracking-tight transition-all duration-300
+              flex items-center justify-center gap-3
               active:scale-[0.98]
             "
           >
-            <Search size={18} />
+            <Search size={22} strokeWidth={3} />
             عرض النتائج
           </button>
         </div>

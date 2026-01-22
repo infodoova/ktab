@@ -10,7 +10,10 @@ import DetailsModal from "../../../components/myui/Users/ReaderPages/Interactive
 import StorySearchModal from "../../../components/myui/Users/ReaderPages/InteractiveComponent/StorySearchModal";
 import { AlertToast } from "../../../components/myui/AlertToast";
 
-import { getStories, getStoryDetails } from "../../../../apis/interactiveStoriesApi";
+import {
+  getStories,
+  getStoryDetails,
+} from "../../../../apis/interactiveStoriesApi";
 
 const PAGE_SIZE = 8;
 
@@ -18,7 +21,8 @@ function extractPage(res) {
   // Schema: { success: true, data: { content: [], totalPages: number } }
   const data = res?.data;
   const content = Array.isArray(data?.content) ? data.content : [];
-  const totalPages = typeof data?.totalPages === "number" ? data.totalPages : null;
+  const totalPages =
+    typeof data?.totalPages === "number" ? data.totalPages : null;
 
   return {
     content,
@@ -88,10 +92,10 @@ function InteractiveStories({ pageName = "قصص تفاعلية" }) {
         page: pageToLoad,
         size: PAGE_SIZE,
       });
-     if (res?.messageStatus && res.messageStatus !== "SUCCESS") {
-      AlertToast(res?.message, res?.messageStatus);
-      return;
-     }
+      if (res?.messageStatus && res.messageStatus !== "SUCCESS") {
+        AlertToast(res?.message, res?.messageStatus);
+        return;
+      }
       const { content, totalPages } = extractPage(res);
 
       setStories((prev) => (replace ? content : [...prev, ...content]));
@@ -134,11 +138,11 @@ function InteractiveStories({ pageName = "قصص تفاعلية" }) {
   }, [stories, search, genre]);
 
   const featuredStories = useMemo(() => {
-    return filteredStories.slice(0, 5);
+    return filteredStories.slice(0, 4);
   }, [filteredStories]);
 
   const remainingStories = useMemo(() => {
-    return filteredStories.slice(5);
+    return filteredStories.slice(4);
   }, [filteredStories]);
 
   // When filters/search change, reset and refetch first page (keeps API pagination correct)
@@ -171,10 +175,7 @@ function InteractiveStories({ pageName = "قصص تفاعلية" }) {
   const handleSearchClick = () => setIsSearchOpen(true);
 
   return (
-    <div
-      dir="rtl"
-      className="min-h-screen bg-gradient-to-br from-[var(--earth-cream)] via-white to-[var(--earth-cream)]"
-    >
+    <div dir="rtl" className="min-h-screen bg-[var(--bg-dark)]">
       <div dir="ltr">
         <Navbar
           pageName={pageName}
@@ -253,7 +254,7 @@ function InteractiveStories({ pageName = "قصص تفاعلية" }) {
         onStart={(story) => {
           if (story?.id) {
             navigate("/reader/interactive-stories/play", {
-              state: { storyId: story.id },
+              state: { storyId: story.id, storyTitle: story.title },
             });
           }
         }}

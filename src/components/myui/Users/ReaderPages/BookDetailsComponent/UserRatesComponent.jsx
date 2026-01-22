@@ -114,17 +114,19 @@ const fetchReviews = useCallback(async () => {
   }, [bookId, fetchReviews]);
 
   return (
-    <div className="border-t border-[#D7CCC8] pt-12">
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-3">
-          <div className="w-1.5 h-8 bg-[#3E2723] rounded-full"></div>
-          <h2 className="text-2xl font-bold text-[#3E2723]">آراء القراء</h2>
+    <div className="border-t border-black/10 pt-16">
+      <div className="flex items-center justify-between mb-10">
+        <div className="flex items-center gap-4">
+          <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#5de3ba]/20 to-[#76debf]/10">
+            <Quote className="w-6 h-6 text-[var(--primary-button)]" />
+          </div>
+          <h2 className="text-3xl font-black text-[var(--primary-text)] tracking-tight">آراء القراء</h2>
         </div>
 
         {reviews.length > 0 && (
           <button
             onClick={() => setShowAll(true)}
-            className="text-sm font-bold text-[#606C38] hover:underline"
+            className="text-[10px] font-black text-[var(--primary-text)]/40 hover:text-[var(--primary-text)] uppercase tracking-widest transition-colors mb-2"
           >
             عرض الكل
           </button>
@@ -138,18 +140,18 @@ const fetchReviews = useCallback(async () => {
           لا توجد تقييمات بعد.
         </p>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {reviews.map((r, i) => (
             <div
               key={i}
-              className="group bg-[#FEFCF8] p-8 rounded-2xl border border-transparent hover:border-[#D7CCC8] shadow-sm hover:shadow-md transition duration-300"
+              className="group bg-white p-8 rounded-[2rem] border border-black/10 hover:border-black/20 shadow-sm hover:shadow-xl transition-all duration-500"
             >
-              <div className="flex justify-between items-start mb-4">
+              <div className="flex justify-between items-start mb-6">
                 <div>
-                  <h4 className="font-bold text-[#3E2723] group-hover:text-[#606C38] transition-colors">
+                  <h4 className="font-black text-[var(--primary-text)] tracking-tight">
                     {r.userName || "قارئ مجهول"}
                   </h4>
-                  <span className="text-xs text-[#D7CCC8] font-bold">
+                  <span className="text-[10px] text-black/20 font-black uppercase tracking-widest">
                     {r.createdAt
                       ? new Date(r.createdAt).toLocaleDateString("ar-EG")
                       : ""}
@@ -160,18 +162,17 @@ const fetchReviews = useCallback(async () => {
                   {[...Array(5)].map((_, idx) => (
                     <Star
                       key={idx}
-                      className={`w-4 h-4 ${
+                      className={`w-3.5 h-3.5 ${
                         idx < (r.rating || 0)
-                          ? "fill-[#DEC59E] text-[#DEC59E]"
-                          : "text-[#D7CCC8]"
+                          ? "fill-yellow-400 text-yellow-400"
+                          : "text-black/5"
                       }`}
                     />
                   ))}
                 </div>
               </div>
 
-              <p className="text-[#5D4037] text-sm leading-relaxed relative font-medium">
-                <Quote className="w-4 h-4 inline-block ml-1 text-[#D7CCC8] transform -scale-x-100" />
+              <p className="text-[var(--primary-text)]/60 text-sm leading-[1.8] font-black tracking-tight line-clamp-4">
                 {r.comment || ""}
               </p>
             </div>

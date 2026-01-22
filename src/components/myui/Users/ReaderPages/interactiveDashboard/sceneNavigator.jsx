@@ -9,6 +9,58 @@ const SceneNavigator = ({
   type = "desktop",
 }) => {
   const isMobile = type === "mobile";
+  const internalDesktopRef = React.useRef(null);
+  const activeRef = isMobile ? sceneSelectorRef : internalDesktopRef;
+  const [scrollProgress, setScrollProgress] = React.useState(0);
+  const [showIndicator, setShowIndicator] = React.useState(false);
+
+  const updateProgress = () => {
+    const el = activeRef?.current;
+    if (el) {
+      const { scrollLeft, scrollWidth, clientWidth } = el;
+      const total = scrollWidth - clientWidth;
+      setShowIndicator(total > 10);
+      if (total > 0) {
+        // Handle RTL: scrollLeft is usually negative or 0
+        const progress = (Math.abs(scrollLeft) / total) * 100;
+        setScrollProgress(progress);
+      }
+    }
+  };
+
+  React.useEffect(() => {
+    const el = activeRef?.current;
+    if (el) {
+      el.addEventListener("scroll", updateProgress);
+      // Initial check
+      updateProgress();
+      // Also check on resize
+      window.addEventListener("resize", updateProgress);
+      return () => {
+        el.removeEventListener("scroll", updateProgress);
+        window.removeEventListener("resize", updateProgress);
+      };
+    }
+  }, [sceneHistory.length, isMobile]);
+
+  // Re-check when scenes are added
+  React.useEffect(() => {
+    setTimeout(updateProgress, 100);
+  }, [sceneHistory.length]);
+
+  const handleWheel = (e) => {
+    const el = activeRef?.current;
+    if (!el) return;
+
+    if (e.deltaY !== 0) {
+      // Prevent page scroll
+      e.preventDefault();
+      // Adjust scroll speed and direction for RTL
+      // deltaY > 0 (down) -> should scroll left (more negative in RTL)
+      // deltaY < 0 (up) -> should scroll right (towards 0 in RTL)
+      el.scrollLeft += e.deltaY;
+    }
+  };
 
   if (isMobile) {
     return (
@@ -16,17 +68,18 @@ const SceneNavigator = ({
         <div className="flex items-center justify-between mb-3" dir="rtl">
           <span
             className={`font-extrabold text-[10px] uppercase tracking-widest ${
-              isDarkMode ? "text-white/40" : "text-[var(--earth-brown)]/60"
+              isDarkMode ? "text-white/40" : "text-[var(--primary-text)]/40"
             }`}
           >
             تاريخ الرحلة
           </span>
-          <span className="text-[var(--earth-olive)] font-extrabold text-[10px]">
+          <span className="text-[var(--primary-button)] font-black text-[10px] uppercase tracking-tighter">
             المشهد {currentScene?.sceneNumber} / {sceneHistory.length}
           </span>
         </div>
         <div
           ref={sceneSelectorRef}
+          onWheel={handleWheel}
           className="flex items-center gap-2 overflow-x-auto no-scrollbar scroll-smooth snap-x py-1"
           dir="rtl"
         >
@@ -37,10 +90,10 @@ const SceneNavigator = ({
               onClick={() => handleGoToScene(index)}
               className={`w-12 h-12 flex-shrink-0 rounded-lg text-xs font-black transition-all snap-center flex items-center justify-center border-2 relative overflow-hidden group/nav ${
                 currentScene?.sceneId === scene.sceneId
-                  ? "border-[var(--earth-olive)] shadow-[0_0_25px_rgba(106,128,88,0.5)] scale-110"
+                  ? "border-[var(--primary-button)] scale-110"
                   : isDarkMode
                     ? "border-white/5 hover:border-white/20 hover:bg-white/10"
-                    : "border-[var(--earth-sand)]/20 hover:border-[var(--earth-sand)]/40 hover:shadow-md"
+                    : "border-black/10 hover:border-black/20 hover:bg-black/5"
               }`}
               style={{
                 backgroundImage: `url(${scene.sceneImage})`,
@@ -51,12 +104,12 @@ const SceneNavigator = ({
               <div
                 className={`absolute inset-0 transition-all duration-300 ${
                   currentScene?.sceneId === scene.sceneId
-                    ? "bg-[var(--earth-olive)]/60"
+                    ? "bg-[var(--primary-button)]/40"
                     : "bg-black/50 group-hover/nav:bg-black/30"
                 }`}
               />
               <span className="relative z-10 text-white drop-shadow-md">
-                {index}
+                {index + 1}
               </span>
             </button>
           ))}
@@ -71,16 +124,18 @@ const SceneNavigator = ({
       <div className="flex items-center justify-between mb-4" dir="rtl">
         <span
           className={`font-extrabold text-sm uppercase tracking-widest ${
-            isDarkMode ? "text-white/40" : "text-[var(--earth-brown)]/60"
+            isDarkMode ? "text-white/40" : "text-[var(--primary-text)]/40"
           }`}
         >
           تاريخ الرحلة
         </span>
-        <span className="text-[var(--earth-olive)] font-extrabold text-sm">
+        <span className="text-[var(--primary-button)] font-black text-sm uppercase tracking-tighter">
           المشهد {currentScene?.sceneNumber} / {sceneHistory.length}
         </span>
       </div>
       <div
+        ref={internalDesktopRef}
+        onWheel={handleWheel}
         className="flex items-center gap-4 overflow-x-auto no-scrollbar scroll-smooth snap-x py-2"
         dir="rtl"
       >
@@ -91,10 +146,10 @@ const SceneNavigator = ({
             onClick={() => handleGoToScene(index)}
             className={`w-16 h-16 flex-shrink-0 rounded-2xl text-base font-black transition-all snap-center flex items-center justify-center border-2 relative overflow-hidden group/nav ${
               currentScene?.sceneId === scene.sceneId
-                ? "border-[var(--earth-olive)] shadow-[0_0_25px_rgba(106,128,88,0.5)] scale-110"
+                ? "border-[var(--primary-button)] scale-110"
                 : isDarkMode
                   ? "border-white/5 hover:border-white/20 hover:bg-white/10"
-                  : "border-[var(--earth-sand)]/20 hover:border-[var(--earth-sand)]/40 hover:shadow-md"
+                  : "border-black/10 hover:border-black/20 hover:bg-black/5"
             }`}
             style={{
               backgroundImage: `url(${scene.sceneImage})`,
@@ -105,7 +160,7 @@ const SceneNavigator = ({
             <div
               className={`absolute inset-0 transition-all duration-300 ${
                 currentScene?.sceneId === scene.sceneId
-                  ? "bg-[var(--earth-olive)]/60"
+                  ? "bg-[var(--primary-button)]/40"
                   : "bg-black/50 group-hover/nav:bg-black/30"
               }`}
             />

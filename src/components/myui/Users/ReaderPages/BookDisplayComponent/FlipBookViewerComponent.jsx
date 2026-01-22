@@ -88,9 +88,12 @@ function paginate(tokens, wordsPerPageArray) {
    LOADER
 ================================ */
 const BookLoader = () => (
-  <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/30">
-    <div className="bg-white rounded-xl shadow-xl p-6 text-gray-700">
-      جاري تحميل الكتاب…
+  <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/40 backdrop-blur-md">
+    <div className="bg-white/95 backdrop-blur-[40px] rounded-[2rem] shadow-[0_40px_100px_rgba(0,0,0,0.1)] p-10 text-center border border-black/10">
+      <div className="w-12 h-12 border-4 border-black/5 border-t-black rounded-full animate-spin mb-4 mx-auto" />
+      <div className="text-xs font-black uppercase tracking-widest text-[var(--primary-text)]">
+        جاري تحميل الكتاب…
+      </div>
     </div>
   </div>
 );
@@ -312,19 +315,19 @@ export default function FlipBookViewer({
     >
       <style>{`
         .tts-active-word {
-          background: #ffd700 !important;
+          background: rgba(0, 0, 0, 0.08) !important;
           color: #000 !important;
-          border-radius: 4px;
-          padding: 2px 4px;
-          margin: -2px -4px;
-          box-shadow: 0 0 10px rgba(255,215,0,0.8);
+          border-radius: 6px;
+          padding: 0 4px;
+          box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
           display: inline-block;
           position: relative;
           z-index: 10;
-          animation: highlight-pulse 0.3s ease-out;
+          font-weight: 800;
+          animation: highlight-pulse 0.4s ease-out;
         }
         @keyframes highlight-pulse {
-          0% { transform: scale(1.05); }
+          0% { transform: scale(1.02); }
           100% { transform: scale(1); }
         }
         
@@ -419,7 +422,7 @@ const Page = forwardRef(
   ({ number, children, dynamicFontSize, dynamicLineHeight }, ref) => (
     <div
       ref={ref}
-      className="bg-[#faf8f3] flex items-center justify-center overflow-hidden"
+      className="bg-white flex items-center justify-center overflow-hidden border border-black/5"
     >
       <div className="w-full h-full flex flex-col items-center justify-center p-4">
         <div
@@ -429,9 +432,11 @@ const Page = forwardRef(
             textAlign: "justify",
             lineHeight: dynamicLineHeight,
             fontSize: dynamicFontSize,
-            fontFamily: "'Noto Naskh Arabic', serif",
-            color: "#1f2937",
+            fontFamily: "'Cairo', sans-serif",
+            color: "var(--primary-text)",
             userSelect: "none",
+            fontWeight: 700,
+            letterSpacing: "-0.01em"
           }}
         >
           {children}
@@ -439,8 +444,8 @@ const Page = forwardRef(
         {number && (
           <div className="absolute bottom-6 left-0 right-0 flex flex-col items-center">
             {/* Subtle divider line (optional) */}
-            <span className="text-[10px] uppercase tracking-widest text-gray-400 font-medium tabular-nums">
-              — {number} —
+            <span className="text-[10px] uppercase tracking-widest text-black/20 font-black tabular-nums">
+              {number}
             </span>
           </div>
         )}

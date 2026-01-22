@@ -12,7 +12,9 @@ import babyageDesktop from "../../../assets/images/babyageDesktop.png";
 import teenageDesktop from "../../../assets/images/teenageDesktop.png";
 import adultageDesktop from "../../../assets/images/adultageDesktop.png";
 import oldageDesktop from "../../../assets/images/oldageDesktop.png";
-
+import a1 from "../../../assets/images/a1.png";
+import a2 from "../../../assets/images/a2.png";
+import a3 from "../../../assets/images/a3.png";
 /* ───────────────────────────────
    CARD DATA
 ─────────────────────────────────── */
@@ -23,24 +25,24 @@ const allSteps = {
       subtitle: "بداية الخيال",
       text: "قصص مصوّرة وحكايات تفاعلية تبني مفردات الطفل وتغرس فيه حب الاستكشاف.",
       icon: Sparkles,
-      img: babyage,
-      color: "var(--earth-olive)",
+      img: a1,
+      color: "var(--primary-button)",
     },
     {
       title: "لليافعين",
       subtitle: "عالم من المغامرة",
       text: "روايات خيال علمي وكتب تطوير ذات تواكب فضولهم وتجيب على أسئلتهم.",
       icon: BookOpen,
-      img: teenage,
-      color: "var(--earth-brown-dark)",
+      img: a2,
+      color: "var(--primary-border)",
     },
     {
       title: "للكبار",
       subtitle: "واحة المعرفة",
       text: "كتب عميقة في شتى المجالات تعزز الفهم وترافق لحظات القهوة.",
       icon: Coffee,
-      img: adultage,
-      color: "var(--earth-sand-dark)",
+      img: a3,
+      color: "var(--primary-button)",
     },
     {
       title: "للجميع",
@@ -48,7 +50,7 @@ const allSteps = {
       text: "مكتبة رقمية تستقبل كل قارئ، من كل مكان، بمحتوى يناسب كل الأعمار.",
       icon: Globe,
       img: oldage,
-      color: "var(--earth-olive-dark)",
+      color: "var(--primary-button)",
     },
   ],
   desktop: [
@@ -57,24 +59,24 @@ const allSteps = {
       subtitle: "بداية الخيال",
       text: "قصص مصوّرة وحكايات تفاعلية تبني مفردات الطفل وتغرس فيه حب الاستكشاف.",
       icon: Sparkles,
-      img: babyageDesktop,
-      color: "var(--earth-olive)",
+      img: a1,
+      color: "var(--primary-button)",
     },
     {
       title: "لليافعين",
       subtitle: "عالم من المغامرة",
       text: "روايات خيال علمي وكتب تطوير ذات تواكب فضولهم وتجيب على أسئلتهم.",
       icon: BookOpen,
-      img: teenageDesktop,
-      color: "var(--earth-brown-dark)",
+      img: a2,
+      color: "var(--primary-border)",
     },
     {
       title: "للكبار",
       subtitle: "واحة المعرفة",
       text: "كتب عميقة في شتى المجالات تعزز الفهم وترافق لحظات القهوة.",
       icon: Coffee,
-      img: adultageDesktop,
-      color: "var(--earth-sand-dark)",
+      img: a3,
+      color: "var(--primary-button)",
     },
     {
       title: "للجميع",
@@ -82,13 +84,13 @@ const allSteps = {
       text: "مكتبة رقمية تستقبل كل قارئ، من كل مكان، بمحتوى يناسب كل الأعمار.",
       icon: Globe,
       img: oldageDesktop,
-      color: "var(--earth-olive-dark)",
+      color: "var(--primary-button)",
     },
   ],
 };
 
 /* ───────────────────────────────
-   CARD (Memoized & Lightweight)
+   CARD
 ─────────────────────────────────── */
 const Card = memo(function Card({
   i,
@@ -104,7 +106,7 @@ const Card = memo(function Card({
   return (
     <div
       id="age"
-      className="relative h-screen flex items-center justify-center sticky top-0"
+      className="relative h-screen bg-[var(--bg-dark)] flex items-center justify-center sticky top-0"
     >
       <motion.div
         style={{
@@ -117,11 +119,7 @@ const Card = memo(function Card({
       >
         <div
           dir="rtl"
-          style={{
-            backgroundColor: "var(--earth-paper)",
-            borderColor: "var(--earth-brown)",
-          }}
-          className="relative w-full h-full rounded-[2.5rem] md:rounded-[3.5rem] overflow-hidden border-4 shadow-2xl"
+          className="relative w-full h-full rounded-[2.5rem] md:rounded-[4rem] overflow-hidden border border-white/10 bg-[var(--bg-card)] shadow-2xl"
         >
           {/* IMAGE */}
           <motion.div
@@ -135,7 +133,6 @@ const Card = memo(function Card({
               imgClassName="object-cover"
               rounded="rounded-none"
             />
-
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
           </motion.div>
 
@@ -149,13 +146,7 @@ const Card = memo(function Card({
                 <Icon size={28} />
               </div>
 
-              <span
-                style={{
-                  color: "var(--earth-brown-dark)",
-                  backgroundColor: "var(--earth-sand-dark)",
-                }}
-                className="font-extrabold tracking-wide text-md uppercase px-6 py-3 rounded-full shadow-lg backdrop-blur-sm"
-              >
+              <span className="font-black tracking-widest text-xs uppercase px-6 py-3 rounded-full shadow-lg backdrop-blur-md bg-[var(--bg-surface)]/90 text-white border border-white/10">
                 {subtitle}
               </span>
             </div>
@@ -199,38 +190,42 @@ export default function ForAllAges() {
     <main
       ref={container}
       id="age"
-      className="relative"
-      style={{ backgroundColor: "var(--earth-cream)" }}
+      className="relative bg-[var(--bg-dark)]
+"
       dir="rtl"
     >
-      {/* HEADER */}
-      <div className="max-w-7xl mx-auto px-6 py-28 md:py-40 text-center">
-        <span className="inline-block text-xl md:text-2xl font-bold mb-4 px-4 py-1 border-b-4 border-[var(--earth-olive)] text-[var(--earth-olive)]">
+      {/* HEADER SECTION - Unified Design */}
+      <div className="max-w-7xl mx-auto px-6 py-28 md:py-40 text-center relative z-10">
+        <span className="inline-block px-5 py-2 rounded-full border border-[var(--primary-button)]/30 bg-[var(--primary-button)]/5 text-[var(--primary-button)] text-[10px] md:text-xs font-black uppercase tracking-[0.3em] mb-6">
           لكل قارئ فيك
         </span>
-        <h2 className="text-6xl md:text-8xl font-black mb-6 leading-tight text-[var(--earth-brown-dark)]">
-          مكتبة لكل الأعمار
+
+        <h2 className="text-4xl md:text-7xl lg:text-8xl font-black mb-6 leading-tight text-[var(--secondary-text)] tracking-tight">
+          مكتبة لكل{" "}
+          <span className="text-[var(--primary-button)]">الأعمار</span>
         </h2>
-        <p className="text-xl md:text-2xl max-w-4xl mx-auto font-medium text-[var(--earth-brown)]">
-          محتوى مُنسّق بعناية ليرافق القارئ في كل مرحلة من مراحل حياته.
+
+        <p className="text-lg md:text-xl lg:text-2xl max-w-3xl mx-auto font-medium text-[var(--secondary-text)]/60 leading-relaxed">
+          محتوى مُنسّق بعناية ليرافق القارئ في كل مرحلة من مراحل حياته، من
+          الخيال الأول إلى الحكمة العميقة.
         </p>
       </div>
 
       {/* STACKED CARDS */}
-      <div className="pb-[40vh]">
+      <div>
         {projects.map((project, i) => {
           const targetScale = 1 - (projects.length - i) * 0.05;
 
-          // derive transforms ONCE here
           const scaleValue = useTransform(
             scrollYProgress,
             [i * 0.25, (i + 1) * 0.25 + 0.05],
-            [1, targetScale]
+            [1, targetScale],
           );
+
           const imageScaleValue = useTransform(
             scrollYProgress,
             [i * 0.25, (i + 1) * 0.25],
-            [2, 1]
+            [2, 1],
           );
 
           return (

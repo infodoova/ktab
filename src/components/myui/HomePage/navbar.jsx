@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import logo from "@/assets/logo/logo.png";
+import logo2 from "@/assets/logo/logo2.png";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -11,7 +12,7 @@ const links = [
   { label: "رحلة لكل الأعمار", target: "age" },
   { label: "الأدوار", target: "roles" },
   { label: "ما هو كُتّاب؟", target: "what-about" },
-    { label: " المكتبة ", target: "library" },
+  { label: " المكتبة ", target: "library" },
 
   { label: "الأسعار", target: "pricing" },
   { label: "الاسئلة الشائعة", target: "FAQ" },
@@ -39,7 +40,7 @@ export default function Navbar() {
 
     const observer = new IntersectionObserver(
       ([entry]) => setIsHero(entry.isIntersecting),
-      { threshold: 0.6 }
+      { threshold: 0.6 },
     );
 
     observer.observe(hero);
@@ -62,24 +63,24 @@ export default function Navbar() {
     setOpen(false);
   };
 
-  // NAVBAR STYLE DYNAMIC
+  // NAVBAR STYLE DYNAMIC - Netflix Dark Theme
   const headerStyle = {
-    backgroundColor: isHero ? "transparent" : "rgba(255,255,255,0.65)",
-    backdropFilter: isHero ? "none" : "blur(14px)",
-    boxShadow: isHero ? "none" : "0 4px 20px rgba(0,0,0,0.08)",
-    borderBottom: isHero ? "none" : "1px solid rgba(0,0,0,0.05)",
-    transition: "all 0.35s ease",
+    backgroundColor: isHero ? "transparent" : "rgba(10, 10, 10, 0.92)",
+    backdropFilter: isHero ? "none" : "blur(20px)",
+    boxShadow: isHero ? "none" : "0 4px 30px rgba(0,0,0,0.5)",
+    borderBottom: isHero ? "none" : "1px solid rgba(255,255,255,0.05)",
+    transition: "all 0.5s cubic-bezier(0.19, 1, 0.22, 1)",
   };
 
-  // BUTTON STYLE WHEN HERO IS VISIBLE
+  // BUTTON STYLE WHEN HERO IS VISIBLE - Netflix Dark Theme
   const transparentBtn =
-    "rounded-full px-5 h-10 border-white/40 text-white hover:border-white hover:bg-white/10 transition";
+    "rounded-full px-6 h-11 border-white/20 text-white hover:border-white hover:bg-white/10 transition-all duration-300 font-bold";
 
   const filledBtn =
-    "rounded-full px-5 h-10 bg-[var(--earth-olive)] text-white hover:bg-black transition";
+    "rounded-full px-6 h-11 text-[var(--bg-dark)] font-bold transition-all duration-300 hover:scale-105 shadow-xl shadow-[var(--primary-button)]/30";
 
   const loginBtnFilled =
-    "rounded-full px-5 h-10 bg-[var(--earth-brown)] text-white hover:bg-black transition";
+    "rounded-full px-6 h-11 border-2 border-[var(--primary-border)] text-white font-bold hover:bg-[var(--primary-button)]/10 transition-all duration-300";
 
   return (
     <motion.header
@@ -88,16 +89,19 @@ export default function Navbar() {
       style={headerStyle}
     >
       <div className="max-w-[1400px] mx-auto px-4 h-20 flex items-center justify-between relative">
-
-        {/* LOGO */}
+        {/* LOGO - Fixed visual size imbalance using explicit height ratios */}
         <div
           className="cursor-pointer flex items-center"
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         >
-          <img
-            src={logo}
-            alt="Ktab logo"
-            className="h-24 sm:h-28 opacity-95"
+          <img 
+            src={isHero ? logo : logo2} 
+            alt="Ktab logo" 
+            style={{ 
+              height: isHero ? (isMobileLike ? '85px' : '110px') : (isMobileLike ? '35px' : '48px'),
+              width: 'auto'
+            }}
+            className="opacity-95 object-contain" 
           />
         </div>
 
@@ -105,9 +109,7 @@ export default function Navbar() {
         {isMobileLike && (
           <button
             onClick={() => setOpen(!open)}
-            className={`p-2 rounded-full ${
-              isHero ? "text-white" : "text-black"
-            }`}
+            className="p-2 rounded-full text-white"
           >
             {open ? <X size={30} /> : <Menu size={30} />}
           </button>
@@ -120,10 +122,7 @@ export default function Navbar() {
               <button
                 key={link.target}
                 onClick={() => scrollToSection(link.target)}
-                className={`
-                  text-[15px] transition font-medium
-                  ${isHero ? "text-white hover:opacity-80" : "text-black hover:text-[var(--earth-olive)]"}
-                `}
+                className="text-[15px] transition font-medium text-white/80 hover:text-[var(--primary-button)]"
               >
                 {link.label}
               </button>
@@ -136,6 +135,7 @@ export default function Navbar() {
           <div className="flex items-center gap-2">
             <Button
               className={isHero ? transparentBtn : filledBtn}
+              style={!isHero ? { background: "var(--gradient)" } : {}}
               onClick={() => navigate("/Screens/auth/signup")}
             >
               تسجيل حساب
@@ -160,8 +160,9 @@ export default function Navbar() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             className="
-              w-full bg-white/10 backdrop-blur-2xl
-              border border-white/20 shadow-xl p-5 flex flex-col gap-3
+              w-full bg-[var(--bg-surface)]/95 backdrop-blur-2xl
+              border border-white/5
+              shadow-2xl p-5 flex flex-col gap-3
             "
           >
             {links.map((link) => (
@@ -169,26 +170,29 @@ export default function Navbar() {
                 key={link.target}
                 onClick={() => scrollToSection(link.target)}
                 className="
-                  text-right px-4 py-3 rounded-xl text-black
-                  hover:bg-[var(--earth-brown)]/10
+                  text-right px-4 py-3 rounded-xl
+                  text-white/80
+                  hover:bg-white/5 hover:text-[var(--primary-button)]
+                  transition-all duration-200
                 "
               >
                 {link.label}
               </button>
             ))}
 
-            <div className="h-px bg-[var(--earth-brown)]/15" />
+            <div className="h-px bg-white/10" />
 
             <Button
               variant="outline"
-              className="w-full rounded-full border-[var(--earth-brown)] text-[var(--earth-brown)]"
+              className="w-full h-12 rounded-full border-2 border-[var(--primary-border)] text-white font-bold hover:bg-[var(--primary-button)]/10"
               onClick={() => navigate("/Screens/auth/login")}
             >
               تسجيل دخول
             </Button>
 
-            <Button
-              className="w-full rounded-full bg-[var(--earth-olive)] text-white"
+            <Button 
+              className="w-full h-12 rounded-full text-[var(--bg-dark)] font-bold"
+              style={{ background: "var(--gradient)" }}
               onClick={() => navigate("/Screens/auth/signup")}
             >
               تسجيل حساب جديد

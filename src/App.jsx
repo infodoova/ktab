@@ -10,6 +10,7 @@ import NewBooks from "./Screens/dashboard/AuthorPages/newBookPublish";
 import InterActiveStory from "./Screens/dashboard/AuthorPages/NewInteractiveStory";
 import Ratings from "./Screens/dashboard/AuthorPages/ratings";
 import Settings from "./Screens/dashboard/AuthorPages/Settings";
+import MyStories from "./Screens/dashboard/AuthorPages/mystories";
 // Reader Pages
 import MainPage from "./Screens/dashboard/ReaderPages/MainPage";
 import InteractiveStories from "./Screens/dashboard/ReaderPages/InteractiveStories";
@@ -59,6 +60,7 @@ function App() {
           path="/author/interactive-story"
           element={<InterActiveStory />}
         />
+        <Route path="/author/my-stories" element={<MyStories />} />
 
         <Route path="/author/new-book" element={<NewBooks />} />
         <Route path="/author/books/edit/:draftId" element={<NewBooks />} />
@@ -77,6 +79,7 @@ function App() {
           path="/Screens/dashboard/AuthorPages/newBookPublish"
           element={<Navigate to="/author/new-book" replace />}
         />
+
         <Route
           path="/Screens/dashboard/AuthorPages/Settings"
           element={<Navigate to="/author/settings" replace />}
@@ -88,6 +91,10 @@ function App() {
         <Route
           path="/Screens/dashboard/AuthorPages/NewInteractiveStory"
           element={<Navigate to="/author/interactive-story" replace />}
+        />
+        <Route
+          path="/Screens/dashboard/AuthorPages/mystories"
+          element={<Navigate to="/author/my-stories" replace />}
         />
         <Route
           path="/Screens/dashboard/AuthorPages/aiTools"

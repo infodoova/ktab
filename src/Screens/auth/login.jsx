@@ -6,11 +6,10 @@ import ResetPassword from "../../components/myui/ResetPassword";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertToast } from "../../components/myui/AlertToast";
 import owlLogin from "../../assets/character/owl4.png";
 import { saveToken, getUserData } from "../../../store/authToken";
-import { success } from "zod";
+import { ArrowRight } from "lucide-react";
 export default function LoginPage() {
   const navigate = useNavigate();
   const [resetOpen, setResetOpen] = useState(false);
@@ -88,134 +87,197 @@ export default function LoginPage() {
   };
 
   return (
-    <>
+    <div dir="rtl" className="h-screen w-full bg-black flex overflow-hidden">
+      {/* LEFT — FORM PANEL */}
       <div
-        dir="rtl"
-        className="h-screen w-full flex bg-[var(--earth-cream)] overflow-hidden"
+        className="
+      relative z-10
+      w-full md:w-[48%]
+      bg-white
+      flex items-center justify-center
+      px-6 sm:px-10 md:px-14
+      overflow-y-auto
+      custom-scrollbar
+    "
       >
-        {/* LEFT SIDE — OWL */}
-        <div className="hidden md:flex flex-1 md:basis-1/2 items-center justify-center bg-gradient-to-b from-[var(--earth-brown)] via-[#3c271a] to-[#2b1b12] relative overflow-hidden py-16">
-          <div className="absolute inset-0 opacity-30 pointer-events-none">
-            <div className="absolute -top-24 -right-20 w-80 h-80 bg-[#f5e5c5]/20 blur-3xl rounded-full" />
-            <div className="absolute bottom-[-80px] left-[-40px] w-72 h-72 bg-[#f2d3a3]/15 blur-3xl rounded-full" />
-          </div>
-          <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.7 }}
-            className="px-6 max-w-md text-center scale-[0.92] md:scale-100"
-          >
-            <img
-              src={owlLogin}
-              alt="owl"
-              className="w-[300px] md:w-[360px] h-auto drop-shadow-[0_24px_60px_rgba(0,0,0,0.55)] mx-auto"
-            />
-            <h2 className="text-3xl md:text-4xl font-bold text-[#fdf7ee] mt-8">
-              مرحباً بك في كتّاب
-            </h2>
-            <p className="text-[#f5e9db]/80 text-lg mt-4 leading-relaxed mx-auto max-w-sm">
-              منصتك للقراءة العربية الحديثة — اقرأ، استمع، وتفاعل مع محتوى مصمم
-              ليناسبك في كل مرحلة من رحلتك.
-            </p>
-          </motion.div>
+        {/* Ambient blurs for the left side - Refined for New Palette */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute -top-24 -left-24 w-64 h-64 bg-[var(--primary-button)]/10 blur-[80px] rounded-full" />
+          <div className="absolute top-1/2 -right-32 w-80 h-80 bg-[var(--primary-border)]/10 blur-[100px] rounded-full" />
+          <div className="absolute bottom-10 left-10 w-40 h-40 bg-[var(--primary-button)]/5 blur-[60px] rounded-full" />
         </div>
 
-        {/* RIGHT SIDE — FORM */}
-        <div className="flex-1 md:basis-1/2 flex items-center justify-center px-8 sm:px-10 md:px-16 bg-[var(--earth-cream)]">
-          <div className="w-full max-w-md">
-            <div className="mb-8">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-[var(--earth-brown)] leading-tight">
-                أهلاً بعودتك
-              </h1>
-              <p className="text-[var(--earth-brown)]/70 text-base sm:text-lg md:text-xl mt-3 leading-relaxed">
-                سجّل دخولك لتتابع الكتب، القصص التفاعلية، والتقدم الذي أحرزته في
-                كتّاب.
-              </p>
+        {/* subtle divider */}
+        <div className="absolute top-0 right-0 h-full w-px bg-black/5 hidden md:block" />
+
+        {/* Back to Home Button */}
+        <Link
+          to="/"
+          className="absolute top-8 right-8 p-2.5 rounded-2xl bg-black/5 hover:bg-black/10 transition-all duration-300 group flex items-center justify-center z-20"
+          title="العودة للرئيسية"
+        >
+          <ArrowRight className="w-5 h-5 text-black/40 group-hover:text-black group-hover:scale-110 transition-all duration-300" />
+        </Link>
+
+        <div className="w-full max-w-md">
+          <div className="relative mb-8">
+            {/* Branded Eyebrow */}
+            <div className="flex items-center gap-2 mb-4">
+              <span className="w-8 h-[2px] bg-[var(--primary-button)] opacity-60 rounded-full" />
+              <span className="text-[10px] md:text-xs font-black tracking-[0.3em] text-[var(--primary-button)] uppercase">
+                K T A B
+              </span>
             </div>
 
-            <Card className="shadow-md border border-[var(--earth-sand)]/40 bg-white/90 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="text-[var(--earth-brown)] text-2xl font-semibold">
-                  تسجيل الدخول
-                </CardTitle>
-              </CardHeader>
+            {/* Main Title with Decorative Element */}
+            <div className="relative">
+              <h1 className="text-4xl md:text-5xl font-black text-[var(--primary-text)] tracking-tight">
+                أهلاً{" "}
+                <span className="text-[var(--primary-button)] ">بعودتك</span>
+              </h1>
+              {/* Floating aesthetic dot */}
+              <div className="absolute -top-4 -right-12 w-24 h-24 bg-[var(--primary-button)]/5 rounded-full blur-2xl" />
+            </div>
 
-              <CardContent className="space-y-6">
-                <div className="space-y-1">
-                  <Label className="text-[var(--earth-brown)] font-medium">
-                    البريد الإلكتروني
-                  </Label>
-                  <Input
-                    type="email"
-                    placeholder="example@mail.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="bg-white border-[var(--earth-sand)]/40 focus-visible:ring-[var(--earth-brown)]/40"
-                  />
-                  {errors.email && (
-                    <p className="text-red-600 text-sm mt-1">{errors.email}</p>
-                  )}
-                </div>
+            {/* Subtitle */}
+            <p className="mt-4 text-[var(--primary-text)]/60 text-base md:text-lg leading-relaxed max-w-md font-medium">
+              سجّل دخولك لمتابعة القراءة،{" "}
+              <span className="text-[var(--primary-button)] font-bold">
+                القصص التفاعلية،
+              </span>{" "}
+              وتقدمك الشخصي.
+            </p>
+          </div>
 
-                <div className="space-y-1">
-                  <Label className="text-[var(--earth-brown)] font-medium">
-                    كلمة المرور
-                  </Label>
-                  <Input
-                    type="password"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="bg-white border-[var(--earth-sand)]/40 focus-visible:ring-[var(--earth-brown)]/40"
-                  />
-                  {errors.password && (
-                    <p className="text-red-600 text-sm mt-1">
-                      {errors.password}
-                    </p>
-                  )}
-                </div>
+          <div
+            className="
+            mt-10
+            bg-[var(--glass-bg)]
+            backdrop-blur-xl
+            border border-[var(--glass-border)]
+            shadow-[var(--shadow-soft)]
+            rounded-[2.5rem]
+            px-8 py-9
+            relative
+            overflow-hidden
+          "
+          >
+            {/* Subtle inner tint */}
+            <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary-button)]/[0.03] to-transparent pointer-events-none" />
 
-                <Button
-                  type="button"
-                  onClick={handleSubmit}
-                  disabled={loading}
-                  className={`w-full py-3 text-lg font-bold rounded-xl ${
-                    loading
-                      ? "bg-[var(--earth-brown)]/50 cursor-not-allowed"
-                      : "bg-[var(--earth-brown)] text-white hover:bg-[#5a3f2d]"
-                  }`}
+            <div className="relative z-10 space-y-6">
+              {/* Email */}
+              <div className="space-y-1 mb-5">
+                <Label className="text-black font-medium">
+                  البريد الإلكتروني
+                </Label>
+                <Input
+                  type="email"
+                  placeholder="example@mail.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="bg-white border-black/10 focus-visible:ring-black/20"
+                />
+                {errors.email && (
+                  <p className="text-red-600 text-sm mt-1">{errors.email}</p>
+                )}
+              </div>
+
+              {/* Password */}
+              <div className="space-y-1 mb-6">
+                <Label className="text-black font-medium">كلمة المرور</Label>
+                <Input
+                  type="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="bg-white border-black/10 focus-visible:ring-black/20"
+                />
+                {errors.password && (
+                  <p className="text-red-600 text-sm mt-1">{errors.password}</p>
+                )}
+              </div>
+            </div>
+
+            {/* CTA */}
+            <Button
+              onClick={handleSubmit}
+              disabled={loading}
+              className="
+              relative z-10
+              w-full py-7
+              text-lg font-bold
+              text-[var(--primary-text)]
+              rounded-2xl
+              transition-all duration-300
+              hover:scale-[1.02] hover:shadow-xl hover:shadow-[var(--primary-button)]/20
+              active:scale-[0.98]
+              disabled:opacity-50
+              disabled:cursor-not-allowed
+              mt-2
+            "
+              style={{ background: "var(--gradient)" }}
+            >
+              {loading ? "جاري الدخول..." : "دخول"}
+            </Button>
+
+            {/* Links */}
+            <div className="mt-8 text-center space-y-3 relative z-10">
+              <p className="text-sm text-black/60">
+                ليس لديك حساب؟{" "}
+                <Link
+                  to="/Screens/auth/signup"
+                  className="text-black font-semibold hover:underline"
                 >
-                  {loading ? "جاري الدخول..." : "دخول"}
-                </Button>
+                  إنشاء حساب جديد
+                </Link>
+              </p>
 
-                <div className="text-center mt-3">
-                  <p className="text-sm text-[var(--earth-brown)]/70">
-                    ليس لديك حساب؟{" "}
-                    <Link
-                      to="/Screens/auth/signup"
-                      className="text-[var(--earth-brown)] font-semibold hover:underline"
-                    >
-                      إنشاء حساب جديد
-                    </Link>
-                  </p>
-                </div>
-                <div className="text-center mt-3">
-                  <p className="text-sm text-[var(--earth-brown)]/70">
-                    هل نسيت كلمة المرور؟{" "}
-                    <span
-                      onClick={() => setResetOpen(true)}
-                      className="text-[var(--earth-brown)] font-semibold hover:underline cursor-pointer"
-                    >
-                      إعادة تعيين كلمة المرور
-                    </span>
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+              <p className="text-sm text-black/60">
+                هل نسيت كلمة المرور؟{" "}
+                <span
+                  onClick={() => setResetOpen(true)}
+                  className="text-black font-semibold hover:underline cursor-pointer"
+                >
+                  إعادة تعيين كلمة المرور
+                </span>
+              </p>
+            </div>
           </div>
         </div>
-        {resetOpen && <ResetPassword onClose={() => setResetOpen(false)} />}
       </div>
-    </>
+
+      {/* RIGHT — QUIET VISUAL */}
+      <div className="hidden md:flex flex-1 relative bg-black items-center justify-center">
+        {/* ambient light */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute -top-32 -right-32 w-96 h-96 bg-white/10 blur-[120px] rounded-full" />
+          <div className="absolute bottom-[-120px] left-[-120px] w-96 h-96 bg-white/5 blur-[120px] rounded-full" />
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="relative z-10 text-center px-10 max-w-md"
+        >
+          <img
+            src={owlLogin}
+            alt="owl"
+            className="w-[300px] mx-auto drop-shadow-[0_20px_60px_rgba(0,0,0,0.6)]"
+          />
+
+          <h2 className="mt-10 text-3xl font-bold text-white">
+            اقرأ. استمع. تفاعل.
+          </h2>
+
+          <p className="mt-4 text-white/70 text-lg leading-relaxed">
+            كتّاب ليست منصة قراءة فقط، بل تجربة معرفية مصممة لك.
+          </p>
+        </motion.div>
+      </div>
+
+      {resetOpen && <ResetPassword onClose={() => setResetOpen(false)} />}
+    </div>
   );
 }

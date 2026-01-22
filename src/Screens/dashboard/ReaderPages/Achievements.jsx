@@ -17,7 +17,7 @@ function Achievements({ pageName = "الإنجازات و الشارات" }) {
   const buttonTitleText = "زر";
 
   return (
-    <div className="min-h-screen bg-[var(--earth-cream)] rtl">
+    <div className="min-h-screen bg-white rtl">
       {/* NAVBAR */}
       <Navbar
         mobileButtonTitle={buttonTitleText}
@@ -42,12 +42,12 @@ function Achievements({ pageName = "الإنجازات و الشارات" }) {
           />
 
           {/* CONTENT */}
-          <div className="flex-1 p-6">
+          <div className="flex-1 p-8">
             {/* STATS */}
             <AchievementsHeaderCP stats={achievementsStats} />
 
             {/* ACHIEVEMENTS GRID */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
               {achievementsList.map((achievement) => (
                 <AchievementsCardsCP
                   key={achievement.id}

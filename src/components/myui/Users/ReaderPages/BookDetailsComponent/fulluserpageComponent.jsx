@@ -71,13 +71,29 @@ export default function FullUserRatesModal({ bookId, isOpen, onClose }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-black/40 flex items-center justify-center p-4">
-      <div className="bg-[#FEFCF8] w-full max-w-4xl max-h-[85vh] rounded-2xl shadow-xl overflow-hidden flex flex-col">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-0 md:p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
+      <div
+        className="
+          bg-white/95 backdrop-blur-[40px]
+          w-full h-full 
+          md:w-[850px] md:h-auto md:max-h-[85vh] md:rounded-[2.5rem] 
+          shadow-[0_40px_100px_rgba(0,0,0,0.2)]
+          flex flex-col overflow-hidden
+          border border-black/10
+          fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 md:relative md:left-auto md:top-auto md:translate-x-0 md:translate-y-0
+        "
+        dir="rtl"
+      >
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b">
-          <h3 className="text-xl font-bold text-[#3E2723]">جميع آراء القراء</h3>
-          <button onClick={onClose} aria-label="Close">
-            <X className="w-5 h-5 text-[#5D4037]" />
+        <div className="flex items-center justify-between p-8 border-b border-black/10 bg-white/50">
+          <h3 className="text-2xl font-black text-[var(--primary-text)] flex items-center gap-4 tracking-tight">
+             <div className="p-2 rounded-xl bg-gradient-to-br from-[#5de3ba]/20 to-[#76debf]/10">
+                <Star className="w-5 h-5 text-[var(--primary-button)]" />
+             </div>
+             جميع آراء القراء
+          </h3>
+          <button onClick={onClose} aria-label="Close" className="text-black/20 hover:text-red-500 transition-colors">
+            <X className="w-6 h-6" strokeWidth={3} />
           </button>
         </div>
 
@@ -131,16 +147,16 @@ export default function FullUserRatesModal({ bookId, isOpen, onClose }) {
 
               {/* Load More Button */}
               {page < totalPages - 1 && (
-                <div className="flex justify-center pt-4">
+                <div className="flex justify-center pt-8">
                   <button
                     onClick={handleLoadMore}
                     disabled={isFetchingMore}
-                    className="flex items-center gap-2 px-6 py-2 rounded-full border border-[#5D4037] text-[#5D4037] hover:bg-[#5D4037] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex items-center gap-3 px-10 py-4 rounded-2xl bg-black text-white font-black uppercase text-[10px] tracking-widest hover:opacity-90 active:scale-95 transition-all shadow-xl disabled:opacity-50"
                   >
                     {isFetchingMore && (
                       <Loader2 className="w-4 h-4 animate-spin" />
                     )}
-                    {isFetchingMore ? "جاري التحميل..." : "عرض المزيد"}
+                    {isFetchingMore ? "جاري التحميل..." : "عرض المزيد من الآراء"}
                   </button>
                 </div>
               )}

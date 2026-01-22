@@ -11,6 +11,7 @@ import {
   Wind,
   MoreVertical,
   Check,
+  X,
 } from "lucide-react";
 
 import {
@@ -67,8 +68,8 @@ export default function ReaderHeader({
       <header
         className="
         fixed top-0 left-0 w-full z-50
-        h-16 bg-[#fcfbf7]
-        border-b border-[#e5e0d8]
+        h-20 bg-white/80 backdrop-blur-md
+        border-b border-black/10
         shadow-sm
         flex items-center justify-center
       "
@@ -85,7 +86,7 @@ export default function ReaderHeader({
                       className={
                         voice === "none"
                           ? "text-red-500"
-                          : "text-[var(--earth-olive)]"
+                          : "text-black"
                       }
                     />
                   }
@@ -96,12 +97,12 @@ export default function ReaderHeader({
 
             <DropdownMenuContent
               dir="rtl"
-              className="w-80 rounded-xl border border-black/10 bg-white p-2 shadow-xl"
+              className="w-80 rounded-[1.5rem] border border-black/10 bg-white/95 backdrop-blur-xl p-3 shadow-2xl"
             >
-              <DropdownMenuLabel className="text-[var(--earth-brown-dark)] text-right">
+              <DropdownMenuLabel className="text-[var(--primary-text)] text-right font-black uppercase tracking-widest text-[10px] opacity-40">
                 اختر الصوت
               </DropdownMenuLabel>
-              <DropdownMenuSeparator />
+              <DropdownMenuSeparator className="bg-black/5" />
 
               {[
                 {
@@ -145,17 +146,17 @@ export default function ReaderHeader({
                 <DropdownMenuItem
                   key={v.id}
                   onClick={() => onSelectVoice?.(v.id)}
-                  className={`flex items-center justify-between cursor-pointer ${
+                  className={`flex items-center justify-between cursor-pointer rounded-xl py-3 px-4 transition-colors ${
                     voice === v.id
-                      ? "bg-[var(--earth-cream)] font-semibold text-[var(--earth-olive)]"
-                      : ""
+                      ? "bg-black text-white"
+                      : "text-[var(--primary-text)]/60 hover:bg-black/5 hover:text-[var(--primary-text)]"
                   }`}
                 >
-                  <div className="flex items-center gap-2">
-                    <UserRound size={18} />
-                    <span className="text-xs sm:text-sm">{v.label}</span>
+                  <div className="flex items-center gap-3">
+                    <UserRound size={18} className={voice === v.id ? "text-white/40" : "text-black/20"} />
+                    <span className="text-xs font-black tracking-tight">{v.label}</span>
                   </div>
-                  {voice === v.id && <Check size={16} />}
+                  {voice === v.id && <Check size={16} className="text-white" />}
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
@@ -172,7 +173,7 @@ export default function ReaderHeader({
                       className={
                         effect === "none"
                           ? "text-red-500"
-                          : "text-[var(--earth-olive)]"
+                          : "text-black"
                       }
                     />
                   }
@@ -183,25 +184,25 @@ export default function ReaderHeader({
 
             <DropdownMenuContent
               dir="rtl"
-              className="w-56 rounded-xl border border-black/10 bg-white p-2 shadow-xl"
+              className="w-56 rounded-[1.5rem] border border-black/10 bg-white/95 backdrop-blur-xl p-3 shadow-2xl"
             >
-              <DropdownMenuLabel className="text-[var(--earth-brown-dark)] text-right">
+              <DropdownMenuLabel className="text-[var(--primary-text)] text-right font-black uppercase tracking-widest text-[10px] opacity-40">
                 المؤثرات الصوتية
               </DropdownMenuLabel>
-
-              <DropdownMenuSeparator />
+ 
+              <DropdownMenuSeparator className="bg-black/5" />
               <DropdownMenuItem
                 onClick={() => setEffect("none")}
-                className={`flex items-center justify-between cursor-pointer ${
+                className={`flex items-center justify-between cursor-pointer rounded-xl py-3 px-4 transition-colors ${
                   effect === "none"
-                    ? "bg-[var(--earth-cream)] font-semibold text-[var(--earth-olive)]"
-                    : ""
+                    ? "bg-black text-white"
+                    : "text-[var(--primary-text)]/60 hover:bg-black/5"
                 }`}
               >
-                <span>بدون مؤثرات</span>
-                {effect === "none" && <Check size={16} />}
+                <span className="text-xs font-black tracking-widest uppercase">بدون مؤثرات</span>
+                {effect === "none" && <Check size={16} className="text-white" />}
               </DropdownMenuItem>
-
+ 
               {[
                 {
                   id: "running",
@@ -218,17 +219,17 @@ export default function ReaderHeader({
                 <DropdownMenuItem
                   key={eff.id}
                   onClick={() => setEffect(eff.id)}
-                  className={`flex items-center justify-between cursor-pointer ${
+                  className={`flex items-center justify-between cursor-pointer rounded-xl py-3 px-4 transition-colors ${
                     effect === eff.id
-                      ? "bg-[var(--earth-cream)] font-semibold text-[var(--earth-olive)]"
-                      : ""
+                      ? "bg-black text-white"
+                      : "text-[var(--primary-text)]/60 hover:bg-black/5"
                   }`}
                 >
-                  <div className="flex items-center gap-2">
-                    {eff.icon}
-                    <span>{eff.label}</span>
+                  <div className="flex items-center gap-3">
+                    <div className={effect === eff.id ? "text-white/40" : "text-black/20"}>{eff.icon}</div>
+                    <span className="text-xs font-black tracking-tight">{eff.label}</span>
                   </div>
-                  {effect === eff.id && <Check size={16} />}
+                  {effect === eff.id && <Check size={16} className="text-white" />}
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
@@ -240,9 +241,9 @@ export default function ReaderHeader({
               isMuted || volume === 0 ? (
                 <VolumeX size={22} className="text-red-500" />
               ) : volume < 0.4 ? (
-                <Volume1 size={22} className="text-[var(--earth-olive)]" />
+                <Volume1 size={22} className="text-black" />
               ) : (
-                <Volume2 size={22} className="text-[var(--earth-olive)]" />
+                <Volume2 size={22} className="text-black" />
               )
             }
             label="الصوت"
@@ -261,16 +262,16 @@ export default function ReaderHeader({
               value={pageInput}
               onChange={(e) => setPageInput(e.target.value)}
               disabled={readOnly}
-              className="w-20 h-8 text-center border rounded-lg text-sm bg-white"
-              placeholder="الصفحة"
+              className="w-24 h-10 text-center border border-black/10 rounded-xl text-sm bg-white font-black focus:ring-4 focus:ring-[#5de3ba]/10 focus:border-[#5de3ba] outline-none transition-all"
+              placeholder="00"
               dir="rtl"
             />
             <button
               onClick={handleGoToPage}
               disabled={readOnly}
-              className="px-3 py-1 rounded-lg text-sm bg-[var(--earth-olive)] text-white"
+              className="px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest btn-premium text-white active:scale-95 transition-all"
             >
-              اذهب
+              انطلاق
             </button>
           </div>
 
@@ -286,10 +287,10 @@ export default function ReaderHeader({
           {/* 6️⃣ MOBILE 3-DOTS MENU */}
           <div className="sm:hidden relative">
             <button
-              className="ham-menu-button p-2 text-[#5c4d43] hover:text-black transition"
+              className="ham-menu-button p-2 text-black/40 hover:text-black transition"
               onClick={() => setIsHamOpen((s) => !s)}
             >
-              <MoreVertical size={22} className="text-[var(--earth-olive)]" />
+              <MoreVertical size={22} className="text-black" />
             </button>
 
             {isHamOpen && (
@@ -298,7 +299,7 @@ export default function ReaderHeader({
                   {/* GO TO PAGE */}
                   <li>
                     <button
-                      className={`w-full text-right px-3 py-2 hover:bg-gray-50 ${
+                      className={`w-full text-right px-4 py-3 hover:bg-black/5 font-black uppercase tracking-widest text-[10px] ${
                         readOnly ? "opacity-50 pointer-events-none" : ""
                       }`}
                       onClick={() => {
@@ -310,17 +311,16 @@ export default function ReaderHeader({
                       اذهب للصفحة
                     </button>
                   </li>
-
-                  {/* ALWAYS LAST — BACK BUTTON */}
+ 
                   <li>
                     <button
-                      className="w-full text-right px-3 py-2 hover:bg-gray-50"
+                      className="w-full text-right px-4 py-3 hover:bg-black/5 font-black uppercase tracking-widest text-[10px] text-red-500/60"
                       onClick={() => {
                         setIsHamOpen(false);
                         setModalType("back");
                       }}
                     >
-                      رجوع
+                      رجوع للمكتبة
                     </button>
                   </li>
                 </ul>
@@ -336,19 +336,19 @@ export default function ReaderHeader({
           <p className="mb-4">هل تريد الرجوع فعلاً؟</p>
           <div className="flex gap-2 justify-end">
             <button
-              className="px-3 py-1 rounded-lg bg-gray-200"
+              className="px-6 py-2 rounded-xl bg-gray-100 text-[10px] font-black uppercase tracking-widest"
               onClick={() => setModalType(null)}
             >
               إلغاء
             </button>
             <button
-              className="px-3 py-1 rounded-lg bg-[var(--earth-olive)] text-white"
+              className="px-6 py-2 rounded-xl bg-red-500 text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-red-500/20"
               onClick={() => {
                 setModalType(null);
                 onBack?.();
               }}
             >
-              رجوع
+              تأكيد الخروج
             </button>
           </div>
         </Modal>
@@ -356,24 +356,24 @@ export default function ReaderHeader({
 
       {modalType === "goto" && (
         <Modal title="اذهب للصفحة" onClose={() => setModalType(null)}>
-          <div className="flex gap-2 items-center">
+          <div className="flex gap-4 items-center justify-center">
             <input
               type="number"
               min="1"
               value={pageInput}
               onChange={(e) => setPageInput(e.target.value)}
-              className="w-28 h-10 text-center border rounded-lg text-sm bg-white"
-              placeholder="الصفحة"
+              className="w-28 h-12 text-center border border-black/10 rounded-2xl text-lg font-black bg-white/50 focus:ring-4 focus:ring-[#5de3ba]/10 focus:border-[#5de3ba] outline-none transition-all"
+              placeholder="00"
               dir="rtl"
             />
             <button
-              className="px-3 py-2 rounded-lg bg-[var(--earth-olive)] text-white"
+              className="px-8 py-3 rounded-2xl btn-premium text-white text-[10px] font-black uppercase tracking-widest active:scale-95 transition-all"
               onClick={() => {
                 handleGoToPage();
                 setModalType(null);
               }}
             >
-              اذهب
+              انطلاق
             </button>
           </div>
         </Modal>
@@ -381,7 +381,7 @@ export default function ReaderHeader({
 
       {modalType === "effects" && (
         <Modal title="المؤثرات" onClose={() => setModalType(null)}>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-3">
             {[
               { id: "running", label: "صوت الركض" },
               { id: "rain", label: "صوت المطر" },
@@ -390,11 +390,13 @@ export default function ReaderHeader({
             ].map((e) => (
               <button
                 key={e.id}
-                className={
-                  effect === e.id
-                    ? "bg-[var(--earth-cream)] px-3 py-2 rounded"
-                    : "px-3 py-2 rounded hover:bg-gray-50"
-                }
+                className={`
+                  w-full py-4 px-6 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all
+                  ${effect === e.id
+                    ? "bg-black text-white shadow-lg"
+                    : "bg-white text-black/40 border border-black/5 hover:bg-black/5 hover:text-black"
+                  }
+                `}
                 onClick={() => {
                   setEffect(e.id);
                   setModalType(null);
@@ -415,16 +417,16 @@ function HeaderIcon({ icon, label, onClick }) {
   return (
     <button
       onClick={onClick}
-      className="group relative p-2 text-[#5c4d43] hover:text-black transition"
+      className="group relative p-3 text-black/40 hover:text-black transition-all hover:bg-black/5 rounded-2xl"
     >
       {icon}
       <span
         className="
-          absolute -bottom-8 left-1/2 -translate-x-1/2
-          bg-black/80 text-white text-[10px]
-          px-2 py-1 rounded
+          absolute -bottom-10 left-1/2 -translate-x-1/2
+          bg-black/95 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-widest
+          px-3 py-1.5 rounded-lg shadow-xl
           opacity-0 group-hover:opacity-100
-          transition pointer-events-none whitespace-nowrap
+          transition-all duration-300 pointer-events-none whitespace-nowrap z-[100]
         "
       >
         {label}
@@ -436,18 +438,20 @@ function HeaderIcon({ icon, label, onClick }) {
 /* --- MODAL COMPONENT --- */
 function Modal({ title, children, onClose }) {
   return (
-    <div className="fixed inset-0 z-60 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-
-      <div className="relative bg-white rounded-lg shadow-xl w-[90%] max-w-md p-4 z-10">
-        <div className="flex justify-between items-center mb-3">
-          <h3 className="font-semibold">{title}</h3>
-          <button onClick={onClose} className="text-gray-500">
-            اغلاق
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300" onClick={onClose} />
+ 
+      <div className="relative bg-white/95 backdrop-blur-[40px] rounded-[3rem] shadow-[0_40px_100px_rgba(0,0,0,0.2)] w-full max-w-md p-10 z-10 border border-black/10 text-center">
+        <div className="flex justify-center items-center mb-8">
+          <h3 className="text-2xl font-black text-[var(--primary-text)] tracking-tight">{title}</h3>
+          <button onClick={onClose} className="absolute top-8 left-8 text-black/20 hover:text-red-500 transition-colors">
+            <X className="w-6 h-6" strokeWidth={3} />
           </button>
         </div>
-
-        {children}
+ 
+        <div className="relative">
+           {children}
+        </div>
       </div>
     </div>
   );

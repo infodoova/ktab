@@ -6,8 +6,9 @@ function SceneText({ text, sceneNumber = 0, isDarkMode = true }) {
 
   useEffect(() => {
     setDisplayedText("");
-    let i = 0;
+    if (!text) return;
 
+    let i = 0;
     const interval = setInterval(() => {
       if (i <= text.length) {
         setDisplayedText(text.slice(0, i));
@@ -30,10 +31,10 @@ function SceneText({ text, sceneNumber = 0, isDarkMode = true }) {
     <div className="relative w-full text-right" dir="rtl">
       {/* Scene number */}
       <div
-        className={`mb-2 md:mb-4 inline-flex items-center gap-2 px-3 py-1 rounded-full border ${isDarkMode ? "bg-[var(--earth-olive)]/10 border-[var(--earth-olive)]/20" : "bg-[var(--earth-olive)]/10 border-[var(--earth-olive)]/20"}`}
+        className="mb-2 md:mb-4 inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[var(--primary-button)]/20 bg-[var(--primary-button)]/5"
       >
-        <span className="w-1.5 h-1.5 bg-[var(--earth-olive)] rounded-full animate-pulse" />
-        <span className="text-[10px] md:text-xs font-bold text-[var(--earth-olive)] uppercase tracking-[0.2em]">
+        <span className="w-1.5 h-1.5 bg-[var(--primary-button)] rounded-full animate-pulse" />
+        <span className="text-[10px] md:text-xs font-bold text-[var(--primary-button)] uppercase tracking-[0.2em]">
           المشهد {sceneNumber}
         </span>
       </div>
@@ -52,7 +53,7 @@ function SceneText({ text, sceneNumber = 0, isDarkMode = true }) {
           whitespace-pre-wrap
           pr-2
           transition-colors duration-500
-          ${isDarkMode ? "text-white/90" : "text-[var(--earth-brown-dark)]"}
+          ${isDarkMode ? "text-white/90" : "text-[var(--primary-text)]"}
         `}
       >
         {displayedText}

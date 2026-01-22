@@ -14,52 +14,53 @@ function Loaders({ type = "initial" }) {
           {/* Sidebar Skeletons */}
           <div className="lg:col-span-5 space-y-8">
             {/* Image Box Skeleton */}
-            <div className="relative w-full aspect-video bg-white/20 rounded-2xl overflow-hidden border border-white/20">
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-[shimmer_1.5s_infinite]" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-12 h-12 border-2 border-[var(--earth-sand)]/20 border-t-[var(--earth-olive)] rounded-full animate-spin" />
+            <div className="relative w-full aspect-video bg-white/5 rounded-2xl md:rounded-[2rem] overflow-hidden border border-white/10">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-[shimmer_1.5s_infinite]" />
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
+                <div className="w-12 h-12 border-4 border-[var(--primary-button)]/10 border-t-[var(--primary-button)] rounded-full animate-spin" />
+                <div className="h-2 w-24 bg-[var(--primary-button)]/10 rounded-full" />
               </div>
             </div>
             
             {/* Journey History Skeleton */}
-            <div className="bg-white/20 backdrop-blur-md rounded-2xl p-6 border border-white/20 space-y-4">
+            <div className="bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10 space-y-4">
               <div className="flex justify-between">
-                <div className="h-3 bg-[var(--earth-sand)]/20 rounded-full w-24 animate-pulse" />
-                <div className="h-3 bg-[var(--earth-sand)]/20 rounded-full w-16 animate-pulse" />
+                <div className="h-3 bg-white/10 rounded-full w-24 animate-pulse" />
+                <div className="h-3 bg-white/10 rounded-full w-16 animate-pulse" />
               </div>
               <div className="flex gap-2">
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="w-10 h-10 bg-[var(--earth-sand)]/10 rounded-xl animate-pulse" />
+                   <div key={i} className="w-10 h-10 bg-[var(--primary-button)]/5 rounded-xl animate-pulse" />
                 ))}
               </div>
             </div>
 
             {/* Progress Skeleton */}
-            <div className="hidden lg:block bg-white/20 backdrop-blur-md rounded-2xl p-6 border border-white/20 space-y-4">
-              <div className="h-3 bg-[var(--earth-sand)]/20 rounded-full w-20 animate-pulse" />
-              <div className="w-full h-1.5 bg-[var(--earth-sand)]/10 rounded-full overflow-hidden" />
+            <div className="hidden lg:block bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10 space-y-4">
+              <div className="h-3 bg-white/10 rounded-full w-20 animate-pulse" />
+              <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden" />
             </div>
           </div>
           
           {/* Main Content Skeletons */}
           <div className="lg:col-span-7 space-y-8">
             {/* Narrative Skeleton */}
-            <div className="bg-white/30 backdrop-blur-xl rounded-[2.5rem] p-8 md:p-12 space-y-6 border border-white/30">
-              <div className="h-6 bg-[var(--earth-olive)]/10 rounded-full w-24 animate-pulse" />
+            <div className="bg-white/5 backdrop-blur-xl rounded-[2.5rem] p-8 md:p-12 space-y-6 border border-white/10">
+              <div className="h-6 bg-[var(--primary-button)]/10 rounded-full w-24 animate-pulse" />
               <div className="space-y-4">
-                <div className="h-3.5 bg-[var(--earth-sand)]/20 rounded-full w-full animate-pulse" />
-                <div className="h-3.5 bg-[var(--earth-sand)]/20 rounded-full w-[95%] animate-pulse" />
-                <div className="h-3.5 bg-[var(--earth-sand)]/20 rounded-full w-[98%] animate-pulse" />
-                <div className="h-3.5 bg-[var(--earth-sand)]/20 rounded-full w-4/5 animate-pulse" />
+                <div className="h-3.5 bg-white/10 rounded-full w-full animate-pulse" />
+                <div className="h-3.5 bg-white/10 rounded-full w-[95%] animate-pulse" />
+                <div className="h-3.5 bg-white/10 rounded-full w-[98%] animate-pulse" />
+                <div className="h-3.5 bg-white/10 rounded-full w-4/5 animate-pulse" />
               </div>
             </div>
 
             {/* Choice Nodes Skeleton */}
             <div className="space-y-4">
-              <div className="h-3 bg-[var(--earth-sand)]/20 rounded-full w-24 mb-6 animate-pulse" />
+              <div className="h-3 bg-white/10 rounded-full w-24 mb-6 animate-pulse" />
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="h-20 bg-white/20 rounded-2xl border-2 border-white/20 animate-pulse relative overflow-hidden">
+                  <div key={i} className="h-20 bg-white/5 rounded-2xl border-2 border-white/10 animate-pulse relative overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
                   </div>
                 ))}
@@ -77,11 +78,11 @@ function Loaders({ type = "initial" }) {
       <div className="w-full space-y-8 animate-in fade-in duration-500">
         <div className="flex items-center justify-center gap-4 mb-2">
           <div className="flex gap-1">
-            <div className="w-1.5 h-1.5 bg-[var(--earth-olive)] rounded-full animate-bounce [animation-delay:-0.3s]" />
-            <div className="w-1.5 h-1.5 bg-[var(--earth-olive)] rounded-full animate-bounce [animation-delay:-0.15s]" />
-            <div className="w-1.5 h-1.5 bg-[var(--earth-olive)] rounded-full animate-bounce" />
+            <div className="w-1.5 h-1.5 bg-[var(--primary-button)] rounded-full animate-bounce [animation-delay:-0.3s]" />
+            <div className="w-1.5 h-1.5 bg-[var(--primary-button)] rounded-full animate-bounce [animation-delay:-0.15s]" />
+            <div className="w-1.5 h-1.5 bg-[var(--primary-button)] rounded-full animate-bounce" />
           </div>
-          <p className="text-[var(--earth-brown-dark)] text-sm font-bold opacity-70 tracking-wide">
+          <p className="text-[var(--primary-button)] text-sm font-black opacity-80 tracking-widest uppercase">
             يرسم الذكاء الاصطناعي ملامح طريقك...
           </p>
         </div>

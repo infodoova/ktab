@@ -1,4 +1,4 @@
-import React,{ useState } from "react";
+import React, { useState } from "react";
 
 const ResponsiveImageSkeleton = React.memo(function ResponsiveImageSkeleton({
   src,
@@ -15,41 +15,31 @@ const ResponsiveImageSkeleton = React.memo(function ResponsiveImageSkeleton({
       key={src}
       className={`
         relative overflow-hidden 
-        bg-[var(--earth-paper)]
+        bg-neutral-900
         ${rounded} 
         ${className}
       `}
     >
-      {/* Embedded CSS: Leaf Organic Skeleton */}
       <style>{`
-        @keyframes leafShimmer {
-          0% {
-            transform: translateX(-120%) rotate(0deg);
-          }
-          100% {
-            transform: translateX(120%) rotate(2deg);
-          }
+        @keyframes shimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
         }
-
-        /* Leaf shape mask using radial gradients resembling leaf veins */
-        .leaf-mask {
-          background:
-            radial-gradient(circle at 20% 30%, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 60%),
-            radial-gradient(circle at 80% 40%, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 55%),
-            radial-gradient(circle at 50% 80%, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0) 60%);
-          background-color: var(--earth-sand);
-          filter: blur(8px);
-          opacity: 0.7;
-          animation: leafShimmer 2.2s ease-in-out infinite;
-          will-change: transform;
+        .shimmer-layer {
+          background: linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.03) 50%,
+            transparent 100%
+          );
+          animation: shimmer 1.5s infinite;
         }
       `}</style>
 
-      {/* Leaf Skeleton */}
+      {/* Modern Dark Skeleton */}
       {!loaded && !error && (
-        <div className="absolute inset-0 bg-[var(--earth-sand-dark)] overflow-hidden">
-          {/* Leaf shimmer layer */}
-          <div className="leaf-mask absolute inset-0" />
+        <div className="absolute inset-0 bg-neutral-800/50 overflow-hidden">
+          <div className="shimmer-layer absolute inset-0" />
         </div>
       )}
 
@@ -62,7 +52,6 @@ const ResponsiveImageSkeleton = React.memo(function ResponsiveImageSkeleton({
         onError={() => setError(true)}
         className={`
           h-full w-full object-cover 
-          transition-opacity duration-300
           ${loaded && !error ? "opacity-100" : "opacity-0"}
           ${imgClassName}
         `}
@@ -70,11 +59,12 @@ const ResponsiveImageSkeleton = React.memo(function ResponsiveImageSkeleton({
 
       {/* Error Message */}
       {error && (
-        <div className="absolute inset-0 flex items-center justify-center text-xs text-[var(--earth-brown)]">
+        <div className="absolute inset-0 flex items-center justify-center text-xs text-white/20">
           خطأ في التحميل
         </div>
       )}
     </div>
   );
-})
+});
+
 export default ResponsiveImageSkeleton;

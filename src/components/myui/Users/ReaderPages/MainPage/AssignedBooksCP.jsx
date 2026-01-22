@@ -72,19 +72,19 @@ export default function AssignedBooksCP() {
   return (
     <section dir="rtl" className="w-full">
       {/* Header */}
-      <div className="flex items-center gap-2 px-4 mb-5">
-        <div className="p-1.5 rounded-lg bg-red-50">
-          <BookPlus size={20} className="text-[var(--earth-olive)]" />
+      <div className="flex items-center gap-3 px-4 mb-6">
+        <div className="p-2 rounded-xl bg-gradient-to-br from-[#5de3ba]/20 to-[#76debf]/10">
+          <BookPlus size={20} className="text-[var(--primary-button)]" />
         </div>
-        <h2 className="text-xl font-bold text-[var(--earth-brown)]">المفضلة</h2>
+        <h2 className="text-xl font-black text-[var(--primary-text)] tracking-tight">المفضلة</h2>
       </div>
 
       {loading ? (
-        <p className="text-center text-[var(--earth-brown)] font-medium">
+        <p className="text-center text-[var(--primary-text)]/40 font-black uppercase tracking-widest text-xs py-10">
           جاري التحميل...
         </p>
       ) : books.length === 0 ? (
-        <p className="text-center text-[var(--earth-brown)] font-medium">
+        <p className="text-center text-[var(--primary-text)]/40 font-black uppercase tracking-widest text-xs py-10">
           لا توجد كتب في مكتبتك حالياً.
         </p>
       ) : (
@@ -99,23 +99,24 @@ export default function AssignedBooksCP() {
                   }}
                   className="
                     group
-                    w-40
+                    w-44
                     bg-white
-                    rounded-2xl
-                    shadow-[0_2px_12px_-4px_rgba(0,0,0,0.08)]
-                    hover:shadow-[0_8px_24px_-6px_rgba(0,0,0,0.12)]
-                    border border-gray-100
+                    rounded-[2rem]
+                    shadow-sm
+                    hover:shadow-md
+                    border border-black/10
                     transition-all duration-300 ease-out
-                    hover:-translate-y-1.5
+                    hover:-translate-y-2
                     flex flex-col
                     cursor-pointer
+                    overflow-hidden
                   "
                 >
-                  <div className="relative w-full aspect-[2/3] overflow-hidden rounded-t-2xl bg-gray-100">
+                  <div className="relative w-full aspect-[3/4] overflow-hidden bg-gray-50 flex items-center justify-center p-3">
                     <img
                       src={b.coverImageUrl}
                       alt={b.title}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      className="w-full h-full object-cover rounded-xl transition-transform duration-500 group-hover:scale-105 shadow-sm"
                     />
 
                     {/* Remove Button */}
@@ -142,18 +143,19 @@ export default function AssignedBooksCP() {
                   </div>
 
                   {/* Content */}
-                  <div className="p-2.5">
+                  <div className="p-4">
                     <h3
                       className="
-                      text-[var(--earth-brown)]
-                      font-bold
+                      text-[var(--primary-text)]
+                      font-black
                       text-xs
                       text-center
                       line-clamp-2
-                      group-hover:text-[var(--earth-olive)]
-                      transition-colors
-                      min-h-[2rem]
+                      group-hover:opacity-70
+                      transition-opacity
+                      min-h-[2.5rem]
                       flex items-center justify-center
+                      tracking-tight
                     "
                     >
                       {b.title}

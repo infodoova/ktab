@@ -11,13 +11,15 @@ export default function AIComponents({ selectedAiTool, setSelectedAiTool, aiInpu
   ];
 
   return (
-    <div className="border-t border-[#D7CCC8] pt-12">
+    <div className="border-t border-black/10 pt-16">
       
       {/* Header */}
-      <div className="flex items-center gap-3 mb-8">
-        <div className="w-1.5 h-8 bg-[#606C38] rounded-full"></div>
-        <h3 className="text-2xl font-bold text-[#3E2723] flex items-center gap-2">
-           مساعد الذكاء الاصطناعي <Sparkles className="w-5 h-5 text-[#DEC59E]" />
+      <div className="flex items-center gap-4 mb-10">
+        <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#5de3ba]/20 to-[#76debf]/10">
+          <Sparkles className="w-6 h-6 text-[var(--primary-button)]" />
+        </div>
+        <h3 className="text-3xl font-black text-[var(--primary-text)] tracking-tight">
+           مساعد الذكاء الاصطناعي
         </h3>
       </div>
 
@@ -30,35 +32,35 @@ export default function AIComponents({ selectedAiTool, setSelectedAiTool, aiInpu
                 key={tool.id}
                 onClick={() => setSelectedAiTool(tool.id)}
                 className={`
-                w-full text-right px-5 py-4 rounded-xl text-sm font-bold transition-all flex justify-between items-center
+                w-full text-right px-6 py-4.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex justify-between items-center border
                 ${selectedAiTool === tool.id 
-                    ? "bg-[#606C38] text-white shadow-lg shadow-[#606C38]/20" 
-                    : "bg-[#FEFCF8] text-[#5D4037] border border-[#D7CCC8] hover:bg-white hover:border-[#606C38]"}
+                    ? "bg-black text-white border-black shadow-lg" 
+                    : "bg-white text-[var(--primary-text)]/40 border-black/10 hover:border-black/20 hover:text-[var(--primary-text)]"}
                 `}
             >
                 {tool.label}
-                {selectedAiTool === tool.id && <Wand2 className="w-4 h-4 text-white" />}
+                {selectedAiTool === tool.id && <Wand2 className="w-4 h-4 text-[#5de3ba]" />}
             </button>
             ))}
         </div>
 
         {/* Right: Interaction Area */}
-        <div className="lg:col-span-3 bg-[#FEFCF8] rounded-2xl p-2 border border-[#D7CCC8] shadow-sm">
+        <div className="lg:col-span-3 bg-white rounded-[2rem] border border-black/10 shadow-sm overflow-hidden flex flex-col">
             <textarea
                 value={aiInput}
                 onChange={(e) => setAiInput(e.target.value)}
                 placeholder="أطلب من الذكاء الاصطناعي تحليل هذا الكتاب..."
-                className="w-full h-40 p-6 bg-transparent text-[#3E2723] placeholder:text-[#D7CCC8] focus:outline-none resize-none text-lg"
+                className="w-full h-56 p-8 bg-transparent text-[var(--primary-text)] font-black tracking-tight placeholder:text-black/10 focus:outline-none resize-none text-xl"
             />
-            <div className="flex justify-between items-center px-6 pb-4 pt-4 border-t border-[#D7CCC8]/50">
-                <span className="text-xs text-[#D7CCC8] font-semibold tracking-wider"> </span>
-                <div className="flex gap-3">
-                    <Button variant="ghost" onClick={() => setAiInput("")} className="text-[#5D4037] hover:text-[#3E2723] hover:bg-[#F4EFE9]">
+            <div className="flex justify-between items-center px-8 py-6 border-t border-black/10 bg-gray-50/50">
+                <span className="text-xs text-black/20 font-black tracking-widest uppercase">جاهز للتحليل</span>
+                <div className="flex gap-4">
+                    <Button variant="ghost" onClick={() => setAiInput("")} className="text-[var(--primary-text)]/40 hover:text-red-500 font-black uppercase text-xs tracking-widest">
                         مسح
                     </Button>
-                    <Button className="bg-[#3E2723] text-white hover:bg-[#5D4037] rounded-lg px-8 font-bold">
-                        <Bot className="w-4 h-4 ml-2" />
-                        توليد
+                    <Button className="btn-premium text-white rounded-2xl h-14 px-10 font-black uppercase text-xs tracking-widest transition-all active:scale-95">
+                        <Bot className="w-5 h-5 ml-2" strokeWidth={3} />
+                        توليد النتائج
                     </Button>
                 </div>
             </div>

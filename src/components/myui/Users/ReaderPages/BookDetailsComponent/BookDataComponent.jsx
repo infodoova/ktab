@@ -393,12 +393,12 @@ export default function BookDataComponent({ bookId, navigate }) {
       {/* MAIN LAYOUT */}
       <div className="flex flex-col md:flex-row gap-8 lg:gap-16 items-start">
         {/* COVER */}
-        <div className="w-full max-w-[280px] md:w-1/3 lg:w-1/4 mx-auto md:mx-0 group">
-          <div className="aspect-[2/3] rounded-2xl overflow-hidden shadow-2xl ring-4 ring-[#FEFCF8]/50 relative">
+        <div className="w-full max-w-[320px] md:w-1/3 lg:w-1/4 mx-auto md:mx-0 group">
+          <div className="aspect-[3/4] rounded-[2.5rem] overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.15)] ring-1 ring-black/5 relative p-4 bg-gray-50 flex items-center justify-center">
             <img
               src={bookData.coverImageUrl}
               alt={bookData.title}
-              className="w-full h-full object-cover group-hover:scale-105 transition duration-700"
+              className="w-full h-full object-cover rounded-[2rem] group-hover:scale-105 transition duration-700 shadow-md"
             />
           </div>
         </div>
@@ -406,118 +406,120 @@ export default function BookDataComponent({ bookId, navigate }) {
         {/* INFO */}
         <div className="flex-1 space-y-8 md:pt-4 text-center md:text-right">
           {/* TITLE */}
-          <h1 className="text-4xl md:text-6xl font-black text-[#3E2723]">
+          <h1 className="text-5xl md:text-7xl font-black text-[var(--primary-text)] tracking-tighter">
             {bookData.title}
           </h1>
 
           {/* STARS */}
-          <div className="flex justify-center md:justify-start gap-2">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <Star
-                key={i}
-                className={`w-6 h-6 ${
-                  i <= filledStars
-                    ? "text-[#DEC59E] fill-[yellow]"
-                    : "text-[#D7CCC8]"
-                }`}
-              />
-            ))}
-            <span className="text-[#5D4037] font-medium">
-              ({bookData.totalReviews} مراجعة)
+          <div className="flex justify-center md:justify-start items-center gap-3">
+            <div className="flex gap-1">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <Star
+                  key={i}
+                  className={`w-5 h-5 ${
+                    i <= filledStars
+                      ? "text-yellow-400 fill-yellow-400"
+                      : "text-black/5"
+                  }`}
+                />
+              ))}
+            </div>
+            <span className="text-[10px] font-black uppercase tracking-widest text-[var(--primary-text)]/40 px-3 border-l border-black/10">
+              {bookData.totalReviews} مراجعة لقرائنا
             </span>
           </div>
 
           {/* DESCRIPTION */}
           {bookData.description && (
-            <p className="text-[#5D4037] text-lg max-w-3xl line-clamp-4 font-medium cursor-pointer hover:line-clamp-none">
+            <p className="text-[var(--primary-text)]/60 text-xl max-w-3xl line-clamp-4 font-black tracking-tight leading-relaxed cursor-pointer hover:line-clamp-none transition-all">
               {bookData.description}
             </p>
           )}
 
           {/* TAGS */}
-          <div className="flex flex-wrap justify-center md:justify-start gap-3 text-sm font-semibold text-[#5D4037]">
+          <div className="flex flex-wrap justify-center md:justify-start gap-3">
             {bookData.genre && (
-              <span className="bg-[#ECE7E3] px-3 py-1 rounded-xl">
-                التصنيف: {bookData.genre}
+              <span className="bg-gray-50 border border-black/10 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-black/40">
+                {bookData.genre}
               </span>
             )}
             {bookData.subgenre && (
-              <span className="bg-[#ECE7E3] px-3 py-1 rounded-xl">
-                التصنيف الفرعي: {bookData.subgenre}
+              <span className="bg-black text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest">
+                {bookData.subgenre}
               </span>
             )}
             {bookData.language && (
-              <span className="bg-[#ECE7E3] px-3 py-1 rounded-xl">
-                اللغة: {bookData.language}
+              <span className="bg-gray-50 border border-black/10 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-black/40">
+                {bookData.language}
               </span>
             )}
             {bookData.pageCount && (
-              <span className="bg-[#ECE7E3] px-3 py-1 rounded-xl">
+              <span className="bg-gray-50 border border-black/10 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-black/40">
                 {bookData.pageCount} صفحة
               </span>
             )}
             {bookData.ageRangeMin && bookData.ageRangeMax && (
-              <span className="bg-[#ECE7E3] px-3 py-1 rounded-xl">
-                الفئة العمرية: {bookData.ageRangeMin}–{bookData.ageRangeMax}
+              <span className="bg-gray-50 border border-black/10 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-black/40">
+                العمر: {bookData.ageRangeMin}–{bookData.ageRangeMax}
               </span>
             )}
             {bookData.hasAudio && (
-              <span className="bg-[#606C38]/10 text-[#606C38] px-3 py-1 rounded-xl flex items-center gap-1">
+              <span className="bg-[var(--primary-button)]/10 text-[var(--primary-button)] px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
                 <Headphones className="w-4 h-4" /> نسخة صوتية
               </span>
             )}
           </div>
 
           {/* ACTIONS */}
-          <div className="flex flex-col sm:flex-row items-center gap-4 pt-6">
+          <div className="flex flex-col sm:flex-row items-center gap-6 pt-10">
             <Button
               onClick={() => navigate(`/reader/display/${bookData.id}`)}
-              className="w-full sm:w-auto px-10 h-14 text-lg font-bold bg-[#606C38] text-white rounded-xl hover:bg-[#3E4A20]"
+              className="w-full sm:w-auto px-12 h-16 text-[11px] font-black uppercase tracking-widest btn-premium text-white rounded-[1.25rem] transition-all active:scale-95 border-0"
             >
-              <BookOpen className="w-6 h-6" /> قراءة الآن
+              <BookOpen className="w-6 h-6 ml-3" strokeWidth={3} /> قراءة الآن
             </Button>
 
-            <div className="flex gap-3">
+            <div className="flex gap-4">
               <button
                 onClick={() => setIsRatingModalOpen(true)}
-                className={`w-14 h-14 rounded-full border-2 flex items-center justify-center bg-[#FEFCF8] transition
+                className={`w-14 h-14 rounded-2xl border flex items-center justify-center bg-white transition-all shadow-sm
       ${
         isReviewed
-          ? "border-[#B800D0] text-[#B800D0] shadow-[0_0_12px_rgba(184,0,208,0.5)]"
-          : "border-[#D7CCC8] text-[#5D4037] hover:border-yellow-500 hover:text-yellow-500"
+          ? "border-yellow-400 text-yellow-500 bg-yellow-400/5"
+          : "border-black/10 text-black hover:border-black/20"
       }
     `}
               >
-                <Star className="w-6 h-6" />
+                <Star className={`w-6 h-6 ${isReviewed ? 'fill-yellow-400' : ''}`} strokeWidth={2.5} />
               </button>
 
               <button
                 onClick={toggleAssignBook}
                 disabled={isAssignLoading}
-                className={`w-14 h-14 rounded-full border-2 flex items-center justify-center bg-[#FEFCF8] transition
+                className={`w-14 h-14 rounded-2xl border flex items-center justify-center bg-white transition-all shadow-sm
       ${
         isAssigned
-          ? "border-[#006A6A] text-[#006A6A] shadow-[0_0_10px_rgba(0,106,106,0.6)]"
-          : "border-[#D7CCC8] text-[#5D4037] hover:border-green-500 hover:text-green-500"
+          ? "border-[#5de3ba] text-[#5de3ba] bg-[#5de3ba]/5"
+          : "border-black/10 text-black hover:border-black/20"
       } ${isAssignLoading ? "opacity-50 cursor-not-allowed" : ""}`}
               >
-                <BookPlus className="w-6 h-6" />
+                <BookPlus className="w-6 h-6" strokeWidth={2.5} />
               </button>
 
               {bookData.pdfDownloadUrl && (
                 <button
                   onClick={() => window.open(bookData.pdfDownloadUrl, "_blank")}
-                  className="w-14 h-14 rounded-full border-2 flex items-center justify-center bg-[#FEFCF8] border-[#D7CCC8] hover:border-black text-[#5D4037] hover:text-black transition"
+                  className="w-14 h-14 rounded-2xl border border-black/10 flex items-center justify-center bg-white text-black hover:bg-black hover:text-white transition-all shadow-sm"
                 >
-                  <Download className="w-6 h-6" />
+                  <Download className="w-6 h-6" strokeWidth={2.5} />
                 </button>
               )}
 
               <button
                 onClick={handleShare}
-                className="w-14 h-14 rounded-full border-2 flex items-center justify-center bg-[#FEFCF8] border-[#D7CCC8] hover:border-blue-500 text-[#5D4037] hover:text-blue-500 transition"
+                className="w-14 h-14 rounded-2xl border border-black/10 flex items-center justify-center bg-white text-black hover:bg-black hover:text-white transition-all shadow-sm"
               >
-                <Share2 className="w-6 h-6" />
+                <Share2 className="w-6 h-6" strokeWidth={2.5} />
               </button>
             </div>
           </div>
@@ -526,55 +528,57 @@ export default function BookDataComponent({ bookId, navigate }) {
 
       {/* RATING MODAL */}
       {isRatingModalOpen && (
-        <div className="fixed inset-0 bg-[#3E2723]/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-[#FEFCF8] rounded-2xl p-8 w-full max-w-md shadow-2xl relative text-center border border-[#D7CCC8]">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-0 md:p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white/95 backdrop-blur-[40px] rounded-[3rem] p-10 w-full max-w-md shadow-[0_40px_100px_rgba(0,0,0,0.2)] relative text-center border border-black/10 fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 md:relative md:left-auto md:top-auto md:translate-x-0 md:translate-y-0">
             <button
               onClick={() => setIsRatingModalOpen(false)}
-              className="absolute top-4 left-4 text-[#D7CCC8] hover:text-[#3E2723]"
+              className="absolute top-8 left-8 text-black/20 hover:text-red-500 transition-colors"
             >
-              <X className="w-6 h-6" />
+              <X className="w-6 h-6" strokeWidth={3} />
             </button>
 
-            <h2 className="text-2xl font-bold text-[#3E2723] mb-6">
+            <h2 className="text-3xl font-black text-[var(--primary-text)] mb-8 tracking-tighter">
               ما رأيك في الكتاب؟
             </h2>
 
-            <div className="flex justify-center gap-4 mb-6">
+            <div className="flex justify-center gap-4 mb-10">
               {[1, 2, 3, 4, 5].map((i) => (
                 <Star
                   key={i}
                   onClick={() => setUserRating(i)}
-                  className={`w-10 h-10 cursor-pointer transition hover:scale-110 ${
+                  className={`w-12 h-12 cursor-pointer transition-all hover:scale-110 ${
                     i <= userRating
-                      ? "text-[#DEC59E] fill-[yellow]"
-                      : "text-[#D7CCC8]"
+                      ? "text-yellow-400 fill-yellow-400"
+                      : "text-black/5"
                   }`}
                 />
               ))}
             </div>
 
             <textarea
-              className="w-full h-32 p-4 rounded-xl border-2 border-[#D7CCC8] bg-[#F4EFE9] text-[#3E2723] focus:border-[#606C38] outline-none resize-none text-right"
+              className="w-full h-40 p-6 rounded-[1.5rem] border border-black/10 bg-gray-50/50 text-[var(--primary-text)] font-black tracking-tight focus:ring-4 focus:ring-[var(--primary-button)]/10 focus:border-[var(--primary-button)] outline-none resize-none text-right placeholder:text-black/10 text-lg mb-8"
               placeholder="اكتب مراجعتك هنا..."
               value={userReview}
               onChange={(e) => setUserReview(e.target.value)}
             />
 
-            <Button
-              onClick={handleSubmitReview}
-              className="w-full h-12 bg-[#606C38] text-white rounded-xl font-bold hover:bg-[#3E4A20]"
-            >
-              {isReviewed ? "تعديل التقييم" : "تأكيد التقييم"}
-            </Button>
-
-            {isReviewed && (
-              <button
-                onClick={handleDeleteReview}
-                className="mt-3 w-full h-12 bg-red-600 text-white rounded-xl hover:bg-red-700"
+            <div className="space-y-4">
+              <Button
+                onClick={handleSubmitReview}
+                className="w-full h-16 btn-premium text-white rounded-2xl font-black uppercase text-xs tracking-widest transition-all active:scale-95 border-0"
               >
-                حذف التقييم
-              </button>
-            )}
+                {isReviewed ? "تعديل المراجعة" : "تأكيد التقييم"}
+              </Button>
+
+              {isReviewed && (
+                <button
+                  onClick={handleDeleteReview}
+                  className="w-full h-12 text-xs font-black text-red-500/40 hover:text-red-500 transition-colors uppercase tracking-widest"
+                >
+                  حذف التقييم
+                </button>
+              )}
+            </div>
           </div>
         </div>
       )}

@@ -70,10 +70,10 @@ export default function BookSearchModal({ isOpen, onClose, onApply }) {
       setSelectedSubGenres((prevSub) =>
         prevSub.filter((subId) => {
           const parent = genres.find((g) =>
-            g.subGenres?.some((s) => s.id === subId)
+            g.subGenres?.some((s) => s.id === subId),
           );
           return parent && newSelected.includes(parent.id);
-        })
+        }),
       );
 
       return newSelected;
@@ -88,7 +88,7 @@ export default function BookSearchModal({ isOpen, onClose, onApply }) {
     setSelectedSubGenres((prev) =>
       prev.includes(subId)
         ? prev.filter((id) => id !== subId)
-        : [...prev, subId]
+        : [...prev, subId],
     );
   };
 
@@ -115,20 +115,23 @@ export default function BookSearchModal({ isOpen, onClose, onApply }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 md:p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-0 md:p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
       <div
         className="
-          bg-white 
+          bg-white/95 backdrop-blur-[40px]
           w-full h-full 
-          md:w-[650px] md:h-auto md:max-h-[85vh] md:rounded-2xl 
-          shadow-2xl flex flex-col overflow-hidden
+          md:w-[650px] md:h-auto md:max-h-[85vh] md:rounded-[2.5rem] 
+          shadow-[0_40px_100px_rgba(0,0,0,0.2)]
+          flex flex-col overflow-hidden
+          border border-black/10
+          fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 md:relative md:left-auto md:top-auto md:translate-x-0 md:translate-y-0
         "
         dir="rtl"
       >
         {/* HEADER */}
-        <div className="flex items-center justify-between p-4 border-b bg-[var(--earth-cream)]/30">
-          <h2 className="text-lg font-bold text-[var(--earth-brown)] flex items-center gap-2">
-            <Filter size={20} />
+        <div className="flex items-center justify-between p-6 border-b border-black/10 bg-white/50">
+          <h2 className="text-xl font-black text-[var(--primary-text)] flex items-center gap-3 tracking-tight">
+            <Filter size={22} className="text-[var(--primary-button)]" />
             البحث والتصنيف
           </h2>
           <button
@@ -140,19 +143,23 @@ export default function BookSearchModal({ isOpen, onClose, onApply }) {
         </div>
 
         {/* SCROLLABLE BODY */}
-        <div className="flex-1 overflow-y-auto p-5 space-y-6">
+        <div className="flex-1 overflow-y-auto p-6 space-y-8">
           {/* 1. SEARCH BAR */}
           <div className="relative">
-            <label className="text-sm font-semibold text-[var(--earth-brown)] mb-2 block">
+            <label className="text-[18px] font-black uppercase tracking-widest text-[var(--primary-text)] mb-3 block">
               بحث
             </label>
-            <div className="flex items-center bg-gray-50 border border-gray-200 rounded-xl px-3 py-3 focus-within:ring-2 focus-within:ring-[var(--earth-olive)]/20 focus-within:border-[var(--earth-olive)] transition-all">
-              <Search size={20} className="text-gray-400 ml-3" />
+            <div className="flex items-center bg-gray-50/50 border border-black/10 rounded-[1.25rem] px-5 py-4 focus-within:ring-4 focus-within:ring-[var(--primary-button)]/10 focus-within:border-[var(--primary-button)] transition-all">
+              <Search
+                size={22}
+                strokeWidth={3}
+                className="text-[var(--primary-text)]/20 ml-4"
+              />
               <input
                 ref={inputRef}
                 type="text"
                 placeholder="ابحث عن عنوان، مؤلف..."
-                className="bg-transparent w-full outline-none text-[var(--earth-brown-dark)] placeholder:text-gray-400"
+                className="bg-transparent w-full outline-none text-[var(--primary-text)] font-black tracking-tight placeholder:text-gray-300"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleApply()}
@@ -171,7 +178,7 @@ export default function BookSearchModal({ isOpen, onClose, onApply }) {
           <div className="flex flex-col gap-2">
             {/* Genres */}
             <div>
-              <h3 className="text-sm font-semibold text-[var(--earth-brown)] mb-3">
+              <h3 className="text-[18px] font-black uppercase tracking-widest text-[var(--primary-text)] mb-4">
                 التصنيف الرئيسي
               </h3>
 
@@ -186,11 +193,11 @@ export default function BookSearchModal({ isOpen, onClose, onApply }) {
                         <button
                           onClick={() => toggleMainGenre(g.id)}
                           className={`
-                text-xs px-3 py-1.5 rounded-full border transition-all flex-1 text-center
+                text-xs px-4 py-2.5 rounded-2xl border transition-all flex-1 text-center font-black tracking-tight
                 ${
                   active
-                    ? "bg-[var(--earth-olive)] text-white border-[var(--earth-olive)] shadow-sm"
-                    : "bg-white text-gray-600 border-gray-200 hover:border-[var(--earth-olive)]"
+                    ? "bg-gradient-to-r from-[#5de3ba] to-[#76debf] text-white border-0 shadow-md"
+                    : "bg-white text-[var(--primary-text)]/40 border-black/10 hover:border-[var(--primary-button)] hover:text-[var(--primary-text)]"
                 }
               `}
                         >
@@ -226,18 +233,18 @@ export default function BookSearchModal({ isOpen, onClose, onApply }) {
               if (!parent) return null;
               return (
                 <div className="bg-gray-50 border border-gray-200 rounded-xl p-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-semibold text-[var(--earth-brown)]">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <span className="text-[10px] font-black uppercase tracking-widest text-[var(--primary-text)]">
                         التصنيفات الفرعية
                       </span>
-                      <span className="text-xs px-2 py-1 rounded-full bg-[var(--earth-olive)] text-white text-[11px]">
+                      <span className="text-[10px] px-3 py-1 font-black uppercase tracking-widest bg-[var(--primary-button)] text-white rounded-lg shadow-sm">
                         {parent.nameAr}
                       </span>
                     </div>
                     <button
                       onClick={() => setExpandedGenre(null)}
-                      className="text-sm text-gray-500 hover:text-gray-700"
+                      className="text-xs font-black text-[var(--primary-text)] hover:text-red-500 uppercase tracking-widest"
                     >
                       إغلاق
                     </button>
@@ -251,11 +258,11 @@ export default function BookSearchModal({ isOpen, onClose, onApply }) {
                           key={sub.id}
                           onClick={() => toggleSubGenre(sub.id)}
                           className={`
-                  text-xs px-3 py-1.5 rounded-full border transition-all
+                  text-xs px-4 py-2 rounded-2xl border transition-all font-black tracking-tight
                   ${
                     active
-                      ? "bg-[var(--earth-brown)] text-white border-[var(--earth-brown)] shadow-sm"
-                      : "bg-white text-gray-600 border-gray-200 hover:border-[var(--earth-brown)]"
+                      ? "bg-black text-white border-black"
+                      : "bg-white text-[var(--primary-text)] border-black/10 hover:border-black/20"
                   }
                 `}
                         >
@@ -274,11 +281,11 @@ export default function BookSearchModal({ isOpen, onClose, onApply }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Rating */}
             <div>
-              <div className="flex justify-between items-center mb-2">
-                <h3 className="text-sm font-semibold text-[var(--earth-brown)]">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-[18px] font-black uppercase tracking-widest text-[var(--primary-text)]">
                   التقييم (الحد الأدنى)
                 </h3>
-                <span className="text-sm font-bold text-[var(--earth-olive)]">
+                <span className="text-sm font-black text-[var(--primary-button)]">
                   {selectedRating} / 5
                 </span>
               </div>
@@ -289,7 +296,7 @@ export default function BookSearchModal({ isOpen, onClose, onApply }) {
                 step="0.5"
                 value={selectedRating}
                 onChange={(e) => setSelectedRating(Number(e.target.value))}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[var(--earth-olive)]"
+                className="w-full h-2  rounded-lg  cursor-pointer accent-[var(--primary-button)]"
               />
               <div className="flex justify-between text-xs text-gray-400 mt-1">
                 <span>0</span>
@@ -299,20 +306,20 @@ export default function BookSearchModal({ isOpen, onClose, onApply }) {
 
             {/* Age Range */}
             <div>
-              <h3 className="text-sm font-semibold text-[var(--earth-brown)] mb-3">
+              <h3 className="text-[18px] font-black uppercase tracking-widest text-[var(--primary-text)] mb-4">
                 الفئة العمرية
               </h3>
 
               <div
                 className="
       flex items-center gap-3 
-      bg-gray-100 
-      rounded-xl 
-      px-4 py-3 
-      border border-gray-200 
-      focus-within:ring-2 
-      focus-within:ring-[var(--earth-olive)]/20 
-      focus-within:border-[var(--earth-olive)] 
+      bg-gray-50/50
+      rounded-[1.25rem] 
+      px-5 py-4
+      border border-black/10
+      focus-within:ring-4
+      focus-within:ring-[var(--primary-button)]/10
+      focus-within:border-[var(--primary-button)] 
       transition-all
     "
               >
@@ -326,8 +333,9 @@ export default function BookSearchModal({ isOpen, onClose, onApply }) {
         bg-transparent 
         w-full 
         outline-none 
-        text-[var(--earth-brown-dark)] 
-        placeholder:text-gray-400 
+        text-[var(--primary-text)] 
+        font-black tracking-tight
+        placeholder:text-gray-300 
         text-sm
       "
                   value={selectedAge}
@@ -347,23 +355,23 @@ export default function BookSearchModal({ isOpen, onClose, onApply }) {
           </div>
         </div>
 
-        {/* FOOTER ACTIONS */}
-        <div className="p-4 border-t bg-gray-50 flex items-center justify-between gap-4">
+        <div className="p-6 border-t border-black/10 bg-white/50 flex items-center justify-between gap-6">
           <button
             onClick={handleClear}
-            className="text-sm text-gray-500 hover:text-red-500 font-medium px-4"
+            className="text-xs font-black uppercase tracking-widest text-[var(--primary-text)] hover:text-red-500 px-4 transition-colors"
           >
             إعادة تعيين
           </button>
           <button
             onClick={handleApply}
             className="
-                    flex-1 bg-[var(--earth-brown)] text-white h-11 rounded-xl 
-                    font-bold hover:bg-[var(--earth-brown)]/90 transition-colors
-                    flex items-center justify-center gap-2
+                    flex-1 btn-premium text-white h-14 rounded-2xl 
+                    font-black uppercase tracking-tight 
+                    active:scale-95 transition-all
+                    flex items-center justify-center gap-3
                 "
           >
-            <Search size={18} />
+            <Search size={20} strokeWidth={3} />
             عرض النتائج
           </button>
         </div>

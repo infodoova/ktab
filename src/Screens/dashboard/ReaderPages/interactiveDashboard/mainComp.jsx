@@ -17,6 +17,7 @@ function InteractiveDashboard() {
   const location = useLocation();
   const navigate = useNavigate();
   const storyId = location.state?.storyId;
+  const initialStoryTitle = location.state?.storyTitle;
 
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [loading, setLoading] = useState(true);
@@ -67,27 +68,32 @@ function InteractiveDashboard() {
       const data = response?.data;
 
       if (data) {
-        // Use the centralized helper to map A, B, C, D choices to UI nodes
-        const nodes = mapApiChoicesToNodes(data);
-
-        const scene = {
-          sceneId: `turn_${data.turnIndex}`,
-          sceneNumber: data.turnIndex,
-          sceneText: data.sceneText,
-          sceneImage: data.imageUrl || "", // Keeping imageUrl if provided by API
-          nodes: nodes,
-        };
+        // Handle both single turn and multiple turns (resuming session)
+        // Note: data.turns often comes in reverse order from API [latest ... first]
+        const turnsData = data.turns || [data];
+        
+        const history = turnsData.map((t, i) => ({
+          sceneId: `turn_${t.turnIndex}`,
+          sceneNumber: t.turnIndex,
+          sceneText: t.sceneText,
+          sceneImage: t.imageUrl || "",
+          nodes: mapApiChoicesToNodes(t),
+          chosenNodeId: turnsData[i + 1]?.chosenId || null,
+        })).reverse();
 
         // We need a sessionId for the next /choose call. 
-        // If the API returns it in data, use it; otherwise fallback to storyId or check response structure.
         const activeSessionId = data.sessionId || data.id || storyId;
         setSessionId(activeSessionId);
         
-        setCurrentScene(scene);
-        setSceneHistory([scene]);
+        setSceneHistory(history);
+        setCurrentScene(history[history.length - 1]);
         
         // If story metadata is available in the response, set it
-        if (data.story) setStoryMetadata(data.story);
+        setStoryMetadata({
+          title: initialStoryTitle, // Fallback title
+          ...(data.story || {}),
+          storyScenes: data.storyScenes || data.story?.storyScenes
+        });
       } else {
         throw new Error("Invalid response from session start");
       }
@@ -113,6 +119,20 @@ function InteractiveDashboard() {
       setGeneratingScene(true);
       setError(null);
 
+      // 1. Create a "pending" scene and add it to history immediately
+      const pendingScene = {
+        sceneId: `pending_${Date.now()}`,
+        sceneNumber: (sceneHistory[sceneHistory.length - 1]?.sceneNumber || 0) + 1,
+        sceneText: "جاري التوليد...",
+        sceneImage: "",
+        nodes: [],
+        chosenNodeId: chosenNode.nodeId, // Link this pending scene to the choice
+        isPending: true
+      };
+
+      setSceneHistory(prev => [...prev, pendingScene]);
+      setCurrentScene(pendingScene);
+
       try {
         const response = await submitChoice(sessionId, chosenNode.nodeId);
 
@@ -121,25 +141,45 @@ function InteractiveDashboard() {
         const data = response?.data;
 
         if (data) {
-          const nodes = mapApiChoicesToNodes(data);
+          const turnsData = data.turns || [data];
+          const latestTurn = turnsData[0];
+          
+          const nodes = mapApiChoicesToNodes(latestTurn);
 
           const nextScene = {
-            sceneId: `turn_${data.turnIndex}`,
-            sceneNumber: data.turnIndex,
-            sceneText: data.sceneText,
-            sceneImage: data.imageUrl || "",
+            sceneId: `turn_${latestTurn.turnIndex}`,
+            sceneNumber: latestTurn.turnIndex,
+            sceneText: latestTurn.sceneText,
+            sceneImage: latestTurn.imageUrl || "",
             nodes: nodes,
             chosenNodeId: chosenNode.nodeId,
           };
 
-          setCurrentScene(nextScene);
-          setSceneHistory((prev) => [...prev, nextScene]);
+          // Replace the pending item in history
+          setSceneHistory((prev) => {
+            const newHistory = [...prev];
+            const pendingIdx = newHistory.findIndex(s => s.isPending);
+            if (pendingIdx !== -1) {
+              newHistory[pendingIdx] = nextScene;
+            } else {
+              newHistory.push(nextScene);
+            }
+            return newHistory;
+          });
+
+          // Sync current scene if user is still on the loading page
+          setCurrentScene((prev) => (prev.isPending ? nextScene : prev));
         } else {
           throw new Error("Invalid next scene data");
         }
       } catch (err) {
         console.error("API failed:", err);
         if (reqId !== requestIdRef.current) return;
+        
+        // Remove pending scene on error
+        setSceneHistory(prev => prev.filter(s => !s.isPending));
+        setCurrentScene(sceneHistory[sceneHistory.length - 1] || null);
+        
         setError(err.message || "فشل توليد المشهد التالي. يرجى المحاولة مرة أخرى.");
       } finally {
         if (reqId === requestIdRef.current) {
@@ -147,7 +187,7 @@ function InteractiveDashboard() {
         }
       }
     },
-    [sessionId],
+    [sessionId, sceneHistory, mapApiChoicesToNodes],
   );
 
   const handleNodeClick = (node) => {
@@ -217,15 +257,15 @@ function InteractiveDashboard() {
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
         {isDarkMode ? (
           <>
-            <div className="absolute inset-0 bg-[#0c0c0c]" />
-            <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-[#5d4037]/20 rounded-full blur-[120px] animate-pulse" />
-            <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-[#2e3a23]/20 rounded-full blur-[120px] animate-pulse [animation-delay:2s]" />
+            <div className="absolute inset-0 bg-[var(--bg-dark)]" />
+            <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-[var(--primary-button)]/10 rounded-full blur-[120px] animate-pulse" />
+            <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-[var(--primary-border)]/10 rounded-full blur-[120px] animate-pulse [animation-delay:2s]" />
             <div className="absolute inset-0 opacity-[0.03] blend-multiply" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }} />
           </>
         ) : (
           <>
-            <div className="absolute top-0 left-1/4 w-[1000px] h-[1000px] bg-[var(--earth-olive)]/5 rounded-full blur-[120px] -translate-y-1/2 -translate-x-1/2" />
-            <div className="absolute bottom-0 right-1/4 w-[800px] h-[800px] bg-[var(--earth-brown)]/5 rounded-full blur-[100px] translate-y-1/2 translate-x-1/2" />
+            <div className="absolute top-0 left-1/4 w-[1000px] h-[1000px] bg-[var(--primary-button)]/10 rounded-full blur-[120px] -translate-y-1/2 -translate-x-1/2" />
+            <div className="absolute bottom-0 right-1/4 w-[800px] h-[800px] bg-[var(--primary-border)]/10 rounded-full blur-[100px] translate-y-1/2 translate-x-1/2" />
             <div className="absolute inset-0 opacity-[0.03] blend-multiply" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }} />
           </>
         )}
@@ -240,11 +280,11 @@ function InteractiveDashboard() {
           border-radius: 10px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: ${isDarkMode ? "rgba(255, 255, 255, 0.15)" : "var(--earth-sand)"};
+          background: ${isDarkMode ? "rgba(255, 255, 255, 0.15)" : "var(--primary-border)"};
           border-radius: 10px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: var(--earth-olive);
+          background: var(--primary-button);
         }
         @keyframes shimmer {
           100% {
@@ -265,7 +305,7 @@ function InteractiveDashboard() {
       ) : (
         <div className="relative z-10 flex flex-col h-full overflow-y-auto lg:overflow-hidden">
           {/* Header - Enhanced Premium AppBar */}
-          <div className={`flex items-center px-4 md:px-8 py-3 md:py-4 border-b transition-all duration-500 ${isDarkMode ? "border-white/5 bg-black/20" : "border-[var(--earth-sand)]/20 bg-white/60"} backdrop-blur-xl flex-shrink-0 relative z-50 shadow-xl`}>
+          <div className={`flex items-center px-4 md:px-8 py-3 md:py-4 border-b transition-all duration-500 ${isDarkMode ? "border-white/5 bg-black/40" : "border-[var(--primary-border)]/20 bg-white/60"} backdrop-blur-xl flex-shrink-0 relative z-50 shadow-xl`}>
             
             {/* Left side: Back & Theme Toggle */}
             <div className="flex-1 flex justify-start items-center gap-3 md:gap-6">
@@ -274,7 +314,7 @@ function InteractiveDashboard() {
                 className={`group p-2 md:p-4 transition-all duration-300 rounded-xl md:rounded-2xl border flex items-center justify-center ${
                   isDarkMode 
                     ? "bg-white/5 hover:bg-white/10 text-white/70 border-white/10 shadow-[0_0_20px_rgba(0,0,0,0.3)]" 
-                    : "bg-white/80 hover:bg-[var(--earth-olive)] hover:text-white border-[var(--earth-sand)]/50 text-[var(--earth-brown)] shadow-sm"
+                    : "bg-white/80 hover:bg-[var(--primary-button)] hover:text-[var(--primary-text)] border-[var(--primary-border)]/50 text-[var(--primary-text)] shadow-sm"
                 }`}
                 title="الخروج"
               >
@@ -303,8 +343,8 @@ function InteractiveDashboard() {
             <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none max-w-[40%] sm:max-w-[50%]">
               {storyMetadata && (
                 <div className="space-y-0.5 md:space-y-1">
-                  <span className="text-[8px] md:text-xs font-bold text-[var(--earth-olive)] uppercase tracking-[0.2em] opacity-80">مغامرة تفاعلية</span>
-                  <h1 className={`text-xs md:text-2xl font-extrabold truncate transition-colors duration-500 ${isDarkMode ? "text-white" : "text-[var(--earth-brown-dark)]"}`}>
+                  <span className="text-[8px] md:text-xs font-bold text-[var(--primary-button)] uppercase tracking-[0.2em] opacity-80">مغامرة تفاعلية</span>
+                  <h1 className={`text-xs md:text-2xl font-extrabold truncate transition-colors duration-500 ${isDarkMode ? "text-white" : "text-[var(--primary-text)]"}`}>
                     {storyMetadata.title}
                   </h1>
                 </div>
@@ -318,12 +358,12 @@ function InteractiveDashboard() {
                 className={`group px-3 md:px-8 py-2 md:py-4 rounded-xl md:rounded-2xl text-[10px] md:text-base font-bold transition-all duration-300 border flex items-center gap-2 md:gap-4 ${
                   isDarkMode 
                     ? "bg-white/5 hover:bg-white/10 text-white/80 border-white/10 shadow-[0_0_20px_rgba(0,0,0,0.3)]" 
-                    : "bg-white/80 hover:bg-[var(--earth-cream)] border-[var(--earth-sand)]/50 text-[var(--earth-brown-dark)] shadow-sm"
+                    : "bg-white/80 hover:bg-[var(--primary-border)]/10 border-[var(--primary-border)]/30 text-[var(--primary-text)] shadow-sm"
                 }`}
               >
                 <span className="hidden sm:inline opacity-80 group-hover:opacity-100 transition-opacity">إعادة بدء المغامرة</span>
                 <span className="sm:hidden">إعادة</span>
-                <div className={`p-1 md:p-1.5 rounded-lg md:rounded-xl transition-all duration-300 ${isDarkMode ? "bg-white/5 group-hover:bg-[var(--earth-olive)]" : "bg-[var(--earth-sand)]/20 group-hover:bg-[var(--earth-olive)] group-hover:text-white"}`}>
+                <div className={`p-1 md:p-1.5 rounded-lg md:rounded-xl transition-all duration-300 ${isDarkMode ? "bg-white/5 group-hover:bg-[var(--primary-button)]" : "bg-[var(--primary-button)]/10 group-hover:bg-[var(--primary-button)] group-hover:text-[var(--primary-text)]"}`}>
                   <svg className="w-4 h-4 md:w-6 md:h-6 transition-transform duration-500 group-hover:rotate-[360deg]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                   </svg>
@@ -350,11 +390,11 @@ function InteractiveDashboard() {
                   />
 
                   <div className="flex-1 flex flex-col gap-4 lg:gap-8 min-h-0">
-                    <div className="lg:flex-[5.5] aspect-video lg:aspect-auto min-h-0 shadow-[0_20px_40px_rgba(0,0,0,0.3)] lg:shadow-[0_30px_60px_rgba(0,0,0,0.5)] rounded-2xl lg:rounded-[2.5rem] overflow-hidden border border-white/10">
+                    <div className="w-full aspect-video min-h-0 rounded-2xl lg:rounded-[2.5rem] overflow-hidden">
                       <ImageScenes
                         image={currentScene.sceneImage}
-                        sceneNumber={currentScene.sceneNumber}
                         onImageClick={(img) => setPreviewImage(img)}
+                        isGenerating={currentScene.isPending}
                       />
                     </div>
                     
@@ -379,7 +419,7 @@ function InteractiveDashboard() {
                 {/* Right/Bottom: Narrative & Choices */}
                 <div className="lg:col-span-7 flex flex-col gap-6 lg:gap-12 min-h-0">
                   <div className="lg:flex-1 min-h-[300px] lg:min-h-0 glass-panel rounded-2xl lg:rounded-[3rem] p-6 lg:p-16 flex flex-col relative overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.3)] lg:shadow-[0_40px_80px_rgba(0,0,0,0.6)] border border-white/10">
-                    {generatingScene ? (
+                    {currentScene.isPending ? (
                       <div className="p-4 lg:p-0"><Loaders type="text" /></div>
                     ) : (
                       <div className="flex-1 flex flex-col justify-center">
@@ -393,7 +433,7 @@ function InteractiveDashboard() {
                   </div>
 
                   <div className="lg:flex-1 min-h-0 flex flex-col">
-                    {generatingScene ? (
+                    {currentScene.isPending ? (
                       <div className="glass-panel rounded-2xl lg:rounded-[2.5rem] p-6 lg:p-10 flex-1 border border-white/10">
                         <Loaders type="generating" />
                       </div>
@@ -437,33 +477,33 @@ function InteractiveDashboard() {
       {/* Exit Confirmation Dialog */}
       {showExitConfirm && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="glass rounded-[2rem] p-8 md:p-10 max-w-[420px] w-full border border-white/40 shadow-[0_0_50px_rgba(0,0,0,0.3)] animate-in zoom-in slide-in-from-bottom-4 duration-300">
+          <div className="bg-white/95 backdrop-blur-[40px] rounded-[3rem] p-10 max-w-[420px] w-full border border-black/10 shadow-[0_40px_100px_rgba(0,0,0,0.2)] animate-in zoom-in slide-in-from-bottom-4 duration-300">
             <div className="text-center">
-              <div className="w-20 h-20 bg-[var(--earth-olive)]/10 rounded-full flex items-center justify-center mx-auto mb-6 ring-8 ring-[var(--earth-olive)]/5">
-                <svg className="w-10 h-10 text-[var(--earth-olive)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              <div className="w-24 h-24 bg-[#5de3ba]/10 rounded-full flex items-center justify-center mx-auto mb-8 ring-8 ring-[#5de3ba]/5">
+                <svg className="w-12 h-12 text-[#5de3ba]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                 </svg>
               </div>
-              <h3 className="text-[var(--earth-brown-dark)] text-xl md:text-2xl font-bold mb-3">
+              <h3 className="text-black text-3xl font-black mb-4 tracking-tighter">
                 هل تريد الخروج؟
               </h3>
-              <p className="text-[var(--earth-brown)] text-sm md:text-base mb-8 leading-relaxed">
+              <p className="text-black/40 text-[10px] font-black uppercase tracking-widest mb-10 leading-relaxed">
                 سيتم حفظ تقدمك الحالي، ويمكنك العودة لإكمال مغامرتك في أي وقت
                 لاحق.
               </p>
-
-              <div className="flex flex-col sm:flex-row gap-3">
-                <button
-                  onClick={handleCancelExit}
-                  className="flex-1 px-6 py-3.5 bg-white/60 hover:bg-white text-[var(--earth-brown-dark)] rounded-2xl text-sm font-bold transition-all border border-[var(--earth-sand)]/50 shadow-sm"
-                >
-                  البقاء في القصة
-                </button>
+ 
+              <div className="flex flex-col gap-4">
                 <button
                   onClick={handleConfirmExit}
-                  className="flex-1 px-6 py-3.5 bg-[var(--earth-olive)] hover:bg-[var(--earth-olive-dark)] text-white rounded-2xl text-sm font-bold transition-all shadow-lg shadow-[var(--earth-olive)]/20"
+                  className="btn-premium w-full h-16 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl transition-all active:scale-95"
                 >
                   تأكيد الخروج
+                </button>
+                <button
+                  onClick={handleCancelExit}
+                  className="w-full h-12 text-[10px] font-black uppercase tracking-widest text-black/20 hover:text-black transition-colors"
+                >
+                  البقاء في القصة
                 </button>
               </div>
             </div>
@@ -474,33 +514,33 @@ function InteractiveDashboard() {
       {/* Restart Confirmation Dialog */}
       {showRestartConfirm && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="glass rounded-[2rem] p-8 md:p-10 max-w-[420px] w-full border border-white/40 shadow-[0_0_50px_rgba(0,0,0,0.3)] animate-in zoom-in slide-in-from-bottom-4 duration-300">
+          <div className="bg-white/95 backdrop-blur-[40px] rounded-[3rem] p-10 max-w-[420px] w-full border border-black/10 shadow-[0_40px_100px_rgba(0,0,0,0.2)] animate-in zoom-in slide-in-from-bottom-4 duration-300">
             <div className="text-center">
-              <div className="w-20 h-20 bg-[#BC6C25]/10 rounded-full flex items-center justify-center mx-auto mb-6 ring-8 ring-[#BC6C25]/5">
-                <svg className="w-10 h-10 text-[#BC6C25]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              <div className="w-24 h-24 bg-[#5de3ba]/10 rounded-full flex items-center justify-center mx-auto mb-8 ring-8 ring-[#5de3ba]/5">
+                <svg className="w-12 h-12 text-[#5de3ba]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
               </div>
-              <h3 className="text-[var(--earth-brown-dark)] text-xl md:text-2xl font-bold mb-3">
+              <h3 className="text-black text-3xl font-black mb-4 tracking-tighter">
                 إعادة بدء المغامرة؟
               </h3>
-              <p className="text-[var(--earth-brown)] text-sm md:text-base mb-8 leading-relaxed">
+              <p className="text-black/40 text-[10px] font-black uppercase tracking-widest mb-10 leading-relaxed">
                 هل أنت متأكد؟ سيؤدي هذا إلى مسح تقدمك الحالي والبدء من المشهد
                 الأول.
               </p>
-
-              <div className="flex flex-col sm:flex-row gap-3">
-                <button
-                  onClick={handleCancelRestart}
-                  className="flex-1 px-6 py-3.5 bg-white/60 hover:bg-white text-[var(--earth-brown-dark)] rounded-2xl text-sm font-bold transition-all border border-[var(--earth-sand)]/50 shadow-sm"
-                >
-                  إلغاء
-                </button>
+ 
+              <div className="flex flex-col gap-4">
                 <button
                   onClick={handleConfirmRestart}
-                  className="flex-1 px-6 py-3.5 bg-[#BC6C25] hover:bg-[#a05a1e] text-white rounded-2xl text-sm font-bold transition-all shadow-lg shadow-[#BC6C25]/20"
+                  className="btn-premium w-full h-16 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl transition-all active:scale-95"
                 >
                   تأكيد الإعادة
+                </button>
+                <button
+                  onClick={handleCancelRestart}
+                  className="w-full h-12 text-[10px] font-black uppercase tracking-widest text-black/20 hover:text-black transition-colors"
+                >
+                  إلغاء
                 </button>
               </div>
             </div>

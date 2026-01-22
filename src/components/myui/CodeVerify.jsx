@@ -63,7 +63,7 @@ export default function CodeVerify({ email, onClose }) {
             "ngrok-skip-browser-warning": "true",
           },
           body: JSON.stringify({ email, code }),
-        }
+        },
       );
 
       const data = await response.json();
@@ -88,28 +88,30 @@ export default function CodeVerify({ email, onClose }) {
     <div
       dir="rtl"
       className="
-        fixed inset-0 z-[9999]
-        flex flex-col items-center justify-center
-        bg-[var(--earth-cream)]
-        px-4 py-8
-      "
+      fixed inset-0 z-[9999]
+      flex flex-col items-center justify-center
+      bg-white
+      px-4 py-8
+    "
     >
+      {/* CLOSE BUTTON */}
       {onClose && (
         <button
           onClick={onClose}
-          className="absolute left-4 top-4 text-[var(--earth-brown)]/60 hover:text-[var(--earth-brown)] transition"
+          className="absolute left-4 top-4 text-black/50 hover:text-black transition"
         >
           <X className="w-6 h-6" />
         </button>
       )}
 
-      {/* Title */}
-      <h1 className="text-[var(--earth-brown-dark)] text-3xl font-extrabold mb-2 text-center">
+      {/* TITLE */}
+      <h1 className="text-black text-3xl font-extrabold mb-2 text-center">
         تأكيد البريد الإلكتروني
       </h1>
 
-      <p className="text-[var(--earth-brown)]/70 text-sm text-center mb-10 max-w-xs sm:max-w-sm">
-        أدخل رمز التحقق المكوّن من 6 أرقام والذي تم إرساله إلى {email}
+      <p className="text-black/60 text-sm text-center mb-10 max-w-xs sm:max-w-sm leading-relaxed">
+        أدخل رمز التحقق المكوّن من 6 أرقام والذي تم إرساله إلى{" "}
+        <span className="font-semibold text-black">{email}</span>
       </p>
 
       {/* OTP */}
@@ -121,51 +123,54 @@ export default function CodeVerify({ email, onClose }) {
                 key={i}
                 index={i}
                 className="
-                  !w-12 !h-12 text-xl
-                  sm:!w-16 sm:!h-16 sm:text-2xl
-                  font-bold text-center
-                  bg-white
-                  border border-[var(--earth-sand)]
-                  rounded-md
-                  shadow-sm
-                "
+                !w-12 !h-12 text-xl
+                sm:!w-16 sm:!h-16 sm:text-2xl
+                font-bold text-center
+                bg-white
+                border border-black/10
+                rounded-md
+                shadow-sm
+                focus:border-black
+              "
               />
             ))}
           </InputOTPGroup>
         </InputOTP>
       </div>
 
-      {/* Confirm */}
+      {/* CONFIRM — ONLY COLOR */}
       <Button
         disabled={code.length < 6 || loading}
         onClick={handleVerify}
         className="
-          w-full max-w-xs sm:max-w-sm 
-          mt-10 py-3 sm:py-4
-          text-lg font-bold
-          bg-[var(--earth-brown)] text-white
-          hover:bg-[var(--earth-brown-dark)]
-          rounded-xl
-          disabled:bg-[var(--earth-brown)]/40
-        "
+        w-full max-w-xs sm:max-w-sm
+        mt-10 py-3 sm:py-4
+        text-lg font-bold
+        text-black
+        rounded-xl
+        transition-all
+        hover:scale-[1.02]
+        disabled:opacity-50
+        disabled:cursor-not-allowed
+      "
+        style={{ background: "var(--gradient)" }}
       >
         {loading ? "جاري التحقق..." : "تأكيد الرمز"}
       </Button>
 
-      {/* Resend */}
-      <div className="mt-6 text-[var(--earth-brown)]/70 text-sm">
+      {/* RESEND */}
+      <div className="mt-6 text-black/60 text-sm">
         {canResend ? (
           <span
             onClick={handleResend}
-            className="font-semibold text-[var(--earth-brown)] hover:underline cursor-pointer"
+            className="font-semibold text-black hover:underline cursor-pointer"
           >
             إعادة إرسال الرمز
           </span>
         ) : (
           <span>
             يمكنك إعادة الإرسال بعد{" "}
-            <span className="font-bold text-[var(--earth-brown)]">{timer}</span>{" "}
-            ثانية
+            <span className="font-bold text-black">{timer}</span> ثانية
           </span>
         )}
       </div>

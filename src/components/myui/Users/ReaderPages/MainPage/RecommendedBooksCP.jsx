@@ -13,10 +13,10 @@ export default function RecommendedBooksCP() {
   return (
     <section dir="rtl" className="w-full max-w-full py-6 overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 mb-5">
-        <h2 className="text-xl font-bold flex items-center gap-2 text-[var(--earth-brown)]">
-          <div className="p-1.5 rounded-lg bg-[var(--earth-olive)]/10">
-            <Sparkles size={20} className="text-[var(--earth-olive)]" />
+      <div className="flex items-center justify-between px-4 mb-6">
+        <h2 className="text-xl font-black flex items-center gap-3 text-[var(--primary-text)] tracking-tight">
+          <div className="p-2 rounded-xl bg-gradient-to-br from-[#5de3ba]/20 to-[#76debf]/10">
+            <Sparkles size={20} className="text-[var(--primary-button)]" />
           </div>
           موصى به لك
         </h2>
@@ -37,51 +37,51 @@ export default function RecommendedBooksCP() {
                 key={i}
                 className="
                   group
-                  w-40
-                  bg-white
-                  rounded-2xl
-                  shadow-[0_2px_12px_-4px_rgba(0,0,0,0.08)]
-                  hover:shadow-[0_8px_24px_-6px_rgba(0,0,0,0.12)]
-                  border border-gray-100
+                  w-44
+                  bg-white/80 backdrop-blur-sm
+                  rounded-[2rem]
+                  shadow-sm
+                  hover:shadow-md
+                  border border-black/10
                   transition-all duration-300 ease-out
-                  hover:-translate-y-1.5
+                  hover:-translate-y-2
                   flex flex-col
                   cursor-pointer
+                  overflow-hidden
                 "
               >
                 {/* Image Container */}
-                <div className="relative w-full aspect-[2/3] overflow-hidden rounded-t-2xl bg-gray-100">
+                <div className="relative w-full aspect-[3/4] overflow-hidden rounded-b-2xl bg-gray-50 flex items-center justify-center p-3">
                   <img
                     src={b.cover}
                     alt={b.title}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    className="w-full h-full object-cover rounded-xl transition-transform duration-700 group-hover:scale-105 shadow-sm"
                   />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
                 </div>
                 
                 {/* Card Content */}
-                <div className="p-3 flex flex-col flex-grow">
-                  <h3 className="text-[var(--earth-brown)] font-bold text-sm line-clamp-1 mb-1 group-hover:text-[var(--earth-olive)] transition-colors">
+                <div className="p-4 flex flex-col flex-grow">
+                  <h3 className="text-[var(--primary-text)] font-black text-sm line-clamp-1 mb-1 group-hover:text-[var(--primary-button)] transition-colors tracking-tight">
                     {b.title}
                   </h3>
                   
-                  <span className="text-xs text-gray-400 mb-3">تطوير الذات</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-[var(--primary-text)]/40 mb-4">تطوير الذات</span>
                   
                   <div className="mt-auto flex items-center justify-between">
-                    <span className="text-xs font-semibold text-[var(--earth-brown)]">
-                      4.8 ★
+                    <span className="text-xs font-black text-[var(--primary-text)] flex items-center gap-1">
+                      <span className="text-yellow-400">★</span> 4.8
                     </span>
                     
                     <div className="
-                      w-8 h-8 rounded-full 
-                      bg-[var(--earth-olive)]/10 
-                      text-[var(--earth-olive)] 
+                      w-9 h-9 rounded-xl
+                      bg-white border border-black/10
+                      text-black
                       flex items-center justify-center
-                      group-hover:bg-[var(--earth-olive)]
-                      group-hover:text-white
+                      shadow-sm
                       transition-all duration-300
+                      group-hover:scale-110 group-hover:bg-black group-hover:text-white
                     ">
-                      <BookOpen size={14} />
+                      <BookOpen size={16} strokeWidth={2.5} />
                     </div>
                   </div>
                 </div>

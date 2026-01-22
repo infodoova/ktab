@@ -17,17 +17,17 @@ export default function SortBar({ sortField = "title", ascending = true, onSortC
   };
 
   return (
-    <div className="w-full flex justify-between items-center py-4 px-4 sm:px-6 border-b border-neutral-100 bg-white/50">
+    <div className="w-full flex justify-between items-center py-5 px-6 border-b border-black/10 bg-white/80 backdrop-blur-md relative z-10">
       
       {/* Left Side: Sort Dropdown */}
-      <div className="flex items-center gap-3">
-        <span className="text-sm font-medium text-neutral-500">
+      <div className="flex items-center gap-4">
+        <span className="text-[10px] font-black uppercase tracking-widest text-[var(--primary-text)]/40">
           فرز حسب:
         </span>
 
         <div className="relative">
           <select
-            className="appearance-none bg-white border border-neutral-200 rounded-lg pl-9 pr-3 py-2 text-sm font-medium text-neutral-700 shadow-sm transition-all cursor-pointer hover:border-neutral-300 focus:outline-none focus:ring-2 focus:ring-neutral-100 focus:border-neutral-300 w-[140px]"
+            className="appearance-none bg-white border border-black/10 rounded-xl pl-10 pr-4 py-2.5 text-xs font-black uppercase tracking-tight text-[var(--primary-text)] shadow-sm transition-all cursor-pointer hover:border-black/20 focus:outline-none focus:ring-4 focus:ring-black/5 w-[150px]"
             value={sortField}
             onChange={(e) => handleSortChange(e.target.value)}
           >
@@ -49,15 +49,15 @@ export default function SortBar({ sortField = "title", ascending = true, onSortC
 
       {/* Right Side: Round Toggle Button */}
       <Button
-        variant="outline"
+        variant="ghost"
         size="icon"
         onClick={toggleOrder}
-        className="rounded-full w-10 h-10 border-neutral-200 hover:bg-neutral-50 hover:text-neutral-900 transition-colors shadow-sm"
+        className="rounded-xl w-11 h-11 border border-black/10 hover:bg-black/5 text-[var(--primary-text)] transition-all shadow-sm active:scale-90"
       >
         {ascending ? (
-          <ChevronsUp size={18} className="text-neutral-600" />
+          <ChevronsUp size={20} strokeWidth={2.5} />
         ) : (
-          <ChevronsDown size={18} className="text-neutral-600" />
+          <ChevronsDown size={20} strokeWidth={2.5} />
         )}
       </Button>
     </div>

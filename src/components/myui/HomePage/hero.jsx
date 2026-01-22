@@ -32,98 +32,96 @@ export default function Hero() {
   };
 
   return (
-    <section
-      id="hero"
-      className="relative w-full h-screen overflow-hidden bg-black select-none"
+  <section
+    id="hero"
+    className="relative w-full h-screen overflow-hidden bg-black select-none"
+  >
+    {/* Video */}
+    <div className="absolute inset-0 w-full h-full">
+      <video
+        className="w-full h-full object-cover"
+        autoPlay
+        loop
+        muted
+        playsInline
+        src={heroVideo}
+      />
+      <div className="absolute inset-0 bg-black/30" />
+    </div>
+
+    {/* Content */}
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="
+        relative z-10 w-full h-full 
+        flex flex-col items-center justify-center 
+        text-center px-4 sm:px-6
+      "
+      dir="rtl"
     >
-      {/* Video */}
-      <div className="absolute inset-0 w-full h-full">
-        <video
-          className="w-full h-full object-cover"
-          autoPlay
-          loop
-          muted
-          playsInline
-          src={heroVideo}
-        />
-        <div className="absolute inset-0 bg-black/30" />
-      </div>
-
-      {/* Content */}
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
+      {/* TITLE */}
+      <motion.h1
+        variants={itemVariants}
         className="
-          relative z-10 w-full h-full 
-          flex flex-col items-center justify-center 
-          text-center px-4 sm:px-6
+          font-black text-center
+          leading-[1.3] lg:leading-[1.8]
+          text-[clamp(2.2rem,9vw,110px)]
+          py-8 lg:py-16
+          px-4
+          mx-auto
+          whitespace-normal
+          relative
+          overflow-visible
+          block
+          bg-gradient-to-b from-white/20 via-white/90 to-white
+          bg-clip-text text-transparent
+          drop-shadow-[0_15px_35px_rgba(0,0,0,0.5)]
         "
-        dir="rtl"
       >
-        {/* TITLE */}
-        <motion.h1
-          variants={itemVariants}
+        جيل جديد من القراءة العربية
+      </motion.h1>
+
+      {/* BUTTONS */}
+      <motion.div
+        variants={itemVariants}
+        className="mt-12 flex flex-col sm:flex-row gap-5 justify-center items-center w-full"
+      >
+        {/* PRIMARY CTA */}
+        <button
+          onClick={() => navigate("/Screens/auth/login")}
           className="
-            font-black text-white tracking-tight text-center
-            drop-shadow-[0_10px_25px_rgba(0,0,0,0.55)]
-            leading-[1.05]
-            text-[clamp(40px,7vw,120px)]
-                 pt-4 pb-4 
-
-            mx-auto
-            md:whitespace-nowrap
-            whitespace-normal
-            relative
+            w-[230px]
+            px-10 py-5 rounded-full
+            text-[var(--bg-dark)]
+            text-lg font-black
+            transition-all duration-300 hover:scale-105
+            shadow-2xl shadow-[var(--primary-button)]/40
+            relative overflow-hidden
           "
-         style={{
-  WebkitBoxOrient: "vertical",
-  overflow: "hidden",
-  display: "-webkit-box",
-  WebkitMaskImage:
-    "linear-gradient(to bottom, rgba(0,0,0,0) 10%, rgba(0,0,0,1) 50%)",
-  maskImage:
-    "linear-gradient(to bottom, rgba(0,0,0,0) 10%, rgba(0,0,0,1) 50%)",
-}}
+          style={{ background: "var(--gradient)" }}
         >
-          جيل جديد من القراءة العربية
-        </motion.h1>
+          ابدأ الآن
+        </button>
 
-        {/* BUTTONS */}
-        <motion.div
-          variants={itemVariants}
-          className="mt-12 flex flex-col sm:flex-row gap-5 justify-center items-center w-full"
+        {/* SECONDARY CTA */}
+        <button
+          onClick={() => scrollToSection("age")}
+          className="
+            w-[230px]
+            px-10 py-4 rounded-full
+            bg-white/10 backdrop-blur-md
+            border border-white/30
+            text-white text-lg font-bold
+            transition-all duration-300 hover:scale-105
+            shadow-lg
+          "
         >
-          <button
-            onClick={() => navigate("/Screens/auth/login")}
-            className="
-              w-[230px]
-              px-10 py-4 rounded-full
-              bg-[var(--earth-olive)] hover:bg-[var(--earth-olive)]/90
-              text-white text-lg font-bold
-              transition-all duration-300 hover:scale-105
-              shadow-lg shadow-[var(--earth-olive)]/20
-            "
-          >
-            ابدأ الآن
-          </button>
-
-          <button
-            onClick={() => scrollToSection("age")}
-            className="
-              w-[230px]
-              px-10 py-4 rounded-full
-              bg-white/10 backdrop-blur-md
-              border border-white/30
-              text-white text-lg font-bold
-              transition-all duration-300 hover:scale-105
-              shadow-lg
-            "
-          >
-            اكتشف المنصة
-          </button>
-        </motion.div>
+          اكتشف المنصة
+        </button>
       </motion.div>
-    </section>
-  );
+    </motion.div>
+  </section>
+);
 }

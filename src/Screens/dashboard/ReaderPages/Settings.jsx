@@ -4,7 +4,7 @@ import Navbar from "../../../components/myui/Users/ReaderPages/navbar";
 import PageHeader from "../../../components/myui/Users/ReaderPages/sideHeader";
 import { LogOut } from "lucide-react";
 
-function Settings({ pageName = "   الاعدادات " }) {
+function Settings({ pageName = "الاعدادات" }) {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
 
@@ -17,8 +17,7 @@ function Settings({ pageName = "   الاعدادات " }) {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--earth-cream)] rtl">
-
+    <div className="min-h-screen bg-white rtl">
       {/* NAVBAR */}
       <Navbar
         mobileButtonTitle={buttonTitleText}
@@ -34,7 +33,6 @@ function Settings({ pageName = "   الاعدادات " }) {
         `}
       >
         <main className="flex-1 flex flex-col">
-
           <PageHeader
             mainTitle={pageName}
             buttonTitle={buttonTitleText}
@@ -43,34 +41,31 @@ function Settings({ pageName = "   الاعدادات " }) {
 
           {/* CONTENT */}
           <div className="p-10 flex flex-col items-center gap-10">
-
             {/* TITLE */}
             <div className="text-center">
-              <h1 className="text-3xl font-bold text-[var(--earth-brown)] mb-3">
-                Hi this is {pageName}
+              <h1 className="text-4xl font-black text-black tracking-tight mb-3 uppercase">
+                {pageName}
               </h1>
-              <p className="text-[var(--earth-brown)]/70 text-lg">
-                مرحباً بك في صفحة {pageName}
+              <p className="text-black/40 text-[10px] font-black uppercase tracking-widest">
+                مرحباً بك في صفحة الإعدادات الخاصة بك
               </p>
             </div>
 
             <button
               onClick={handleLogout}
               className="
-                flex items-center gap-3 
-                bg-[var(--earth-brown)] text-white
-                px-8 py-3 rounded-xl
-                shadow-md hover:shadow-lg 
-                hover:bg-[var(--earth-brown-dark)]
+                btn-premium
+                flex items-center gap-4 
+                text-white
+                px-10 py-5 rounded-[2rem]
                 active:scale-95 transition-all
-                text-lg font-semibold
+                text-[10px] font-black uppercase tracking-[0.2em]
               "
             >
-              <LogOut size={20} />
-              تسجيل الخروج
+              <LogOut size={18} strokeWidth={3} />
+              <span>تسجيل الخروج</span>
             </button>
           </div>
-
         </main>
       </div>
     </div>

@@ -22,7 +22,7 @@ export default function ContinueReadingCP() {
 
   return (
     <section dir="rtl">
-      <h2 className="text-xl font-bold mb-4 text-[var(--earth-brown)]">متابعة القراءة</h2>
+      <h2 className="text-xl font-black mb-6 text-[var(--primary-text)] tracking-tight">متابعة القراءة</h2>
 
       <div className="space-y-3">
         {books.map((b, i) => {
@@ -31,36 +31,36 @@ export default function ContinueReadingCP() {
           return (
             <div
               key={i}
-              className="bg-white p-4 shadow-md border border-[var(--earth-olive)/20] rounded-xl flex items-center gap-4"
+              className="bg-white p-5 shadow-sm border border-black/10 rounded-[1.5rem] flex items-center gap-5 transition-all duration-300 hover:shadow-md"
             >
               {/* COVER */}
               <img
                 src={b.cover}
                 alt={b.title}
-                className="w-16 h-20 object-cover rounded-md shadow-sm"
+                className="w-20 h-24 object-cover rounded-xl shadow-sm border border-black/10"
               />
 
               {/* TEXT */}
               <div className="flex-1">
-                <h3 className="text-[var(--earth-brown)] font-semibold">{b.title}</h3>
-                <p className="text-xs text-[var(--earth-brown)]/60">{b.author}</p>
+                <h3 className="text-[var(--primary-text)] font-black tracking-tight">{b.title}</h3>
+                <p className="text-[10px] font-black uppercase tracking-widest text-[var(--primary-text)]/40 mb-3">{b.author}</p>
 
-                <div className="w-full bg-gray-200 h-2 rounded-full mt-2">
+                <div className="w-full bg-gray-50 h-2.5 rounded-full overflow-hidden border border-black/10">
                   <div
-                    className="bg-blue-600 h-full rounded-full"
+                    className="bg-gradient-to-r from-[#5de3ba] to-[#76debf] h-full rounded-full shadow-[0_0_10px_rgba(93,227,186,0.3)]"
                     style={{ width: `${percent}%` }}
                   ></div>
                 </div>
 
-                <p className="text-xs text-[var(--earth-brown)]/60 mt-1">
+                <p className="text-[10px] font-black uppercase tracking-tight text-[var(--primary-text)]/40 mt-2">
                   {b.progress} من {b.total} صفحة • {b.lastSeen}
                 </p>
               </div>
 
               {/* ACTION */}
-              <button className="flex items-center gap-1 text-blue-600 text-sm font-medium">
+              <button className="btn-premium flex items-center gap-2 px-6 py-3 rounded-xl text-white text-xs font-black uppercase tracking-widest active:scale-95 transition-all">
                 متابعة
-                <ArrowLeftCircle size={18} />
+                <ArrowLeftCircle size={18} strokeWidth={3} />
               </button>
             </div>
           );

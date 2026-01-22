@@ -1,209 +1,114 @@
 /* eslint-disable */
 import React from "react";
 import { motion } from "framer-motion";
-import ResponsiveImageSkeleton from "../imageSkeletonLoaderCP"
+import ResponsiveImageSkeleton from "../imageSkeletonLoaderCP";
+
+// Role data
 const rolesData = [
   {
     id: "reader",
-    heading: "قارئ",
-    description:
-      "القارئ يحتاج إلى تجربة قراءة واضحة ومريحة تُساعده على الاستمرار. المنصّة تجمع بين تصميم نظيف وأدوات ذكية مثل تتبّع التقدّم، الإشارات المرجعية، والمكتبة الشخصية.",
-    images: [
-      "https://images.pexels.com/photos/3494806/pexels-photo-3494806.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/373465/pexels-photo-373465.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/3095621/pexels-photo-3095621.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/6549631/pexels-photo-6549631.jpeg?auto=compress&cs=tinysrgb&w=600",
-    ],
+    heading: "القارئ",
+    subHeading: "عالم من الخيال في انتظارك",
+    description: "تجربة قراءة واضحة ومريحة تُساعده على الاستمرار مع أدوات ذكية لتتبّع التقدّم والمكتبة الشخصية.",
+    image: "https://images.pexels.com/photos/3494806/pexels-photo-3494806.jpeg?auto=compress&cs=tinysrgb&w=800",
   },
   {
     id: "author",
-    heading: "مؤلّف",
-    description:
-      "المؤلّف يحتاج إلى بيئة نشر تدعم الإبداع وتُسهّل الوصول إلى الجمهور. المنصّة توفّر أدوات لعرض الكتب، متابعة تفاعل القرّاء، وتحليل الأداء.",
-    images: [
-      "https://images.pexels.com/photos/8717959/pexels-photo-8717959.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/6037566/pexels-photo-6037566.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/6752320/pexels-photo-6752320.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/11025214/pexels-photo-11025214.jpeg?auto=compress&cs=tinysrgb&w=600",
-    ],
+    heading: "المؤلّف",
+    subHeading: "أطلق العنان لإبداعك",
+    description: "بيئة نشر تدعم الإبداع وتُسهّل الوصول إلى الجمهور مع أدوات احترافية لعرض الكتب وتحليل الأداء.",
+    image: "https://images.pexels.com/photos/8717959/pexels-photo-8717959.jpeg?auto=compress&cs=tinysrgb&w=800",
   },
   {
     id: "educator",
-    heading: "معلّم",
-    description:
-      "المعلّم يحتاج إلى أدوات تُبسّط إدارة الصف وتُعزّز من جودة التفاعل. المنصّة تقدّم نظامًا لتعيين الواجبات، قياس مستوى الطلاب، وتحليل النتائج مباشرة.",
-    images: [
-      "https://images.pexels.com/photos/6266987/pexels-photo-6266987.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/7582590/pexels-photo-7582590.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/6326377/pexels-photo-6326377.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/5212682/pexels-photo-5212682.jpeg?auto=compress&cs=tinysrgb&w=600",
-    ],
+    heading: "المعلّم",
+    subHeading: "إدارة تعليمية بلمسة ذكية",
+    description: "أدوات تُبسّط إدارة الصف وتُعزّز التفاعل من خلال نظام تعيين الواجبات وقياس مستوى الطلاب.",
+    image: "https://images.pexels.com/photos/6266987/pexels-photo-6266987.jpeg?auto=compress&cs=tinysrgb&w=800",
   },
   {
     id: "student",
-    heading: "طالب",
-    description:
-      "الطالب يحتاج إلى أدوات تُساعده على الدراسة بذكاء وليس بكثرة. المنصّة توفّر ملخصات ذكية، تتبّع للإنجاز، ومحتوى تعليمي مبسّط يمكّنه من الفهم بسرعة.",
-    images: [
-      "https://images.pexels.com/photos/1251861/pexels-photo-1251861.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/1326947/pexels-photo-1326947.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/3807755/pexels-photo-3807755.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/261895/pexels-photo-261895.jpeg?auto=compress&cs=tinysrgb&w=600",
-    ],
+    heading: "الطالب",
+    subHeading: "تعلّم بذكاء وسرعة",
+    description: "أدوات تُساعدك على الدراسة بذكاء من خلال ملخصات ذكية وتتبّع دقيق للإنجاز الأكاديمي.",
+    image: "https://images.pexels.com/photos/1251861/pexels-photo-1251861.jpeg?auto=compress&cs=tinysrgb&w=800",
   },
 ];
 
-
-// Section wrapper fade animation
-const sectionFade = {
-  hidden: { opacity: 0, y: 40 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6, ease: "easeOut" },
-  },
-};
-
-
-// Grid stagger animation
-const gridStagger = {
-  hidden: {},
-  show: {
-    transition: { staggerChildren: 0.15 },
-  },
-};
-
-const gridItem = {
-  hidden: { opacity: 0, scale: 0.95 },
-  show: { opacity: 1, scale: 1, transition: { duration: 0.45 } },
-};
-
-
-// Image grid component
-const ImageGrid = React.memo(function ImageGrid({ images }) {
+const RoleCard = ({ role, index }) => {
   return (
     <motion.div
-      className="grid grid-cols-2 gap-4"
-      variants={gridStagger}
-      initial="hidden"
-      whileInView="show"
-      viewport={{ once: true, amount: 0.3 }}
+      initial={{ opacity: 1, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.6, delay: index * 0.1 }}
+      className="group relative bg-[#111111] rounded-[2.5rem] overflow-hidden border border-white/5 hover:border-[var(--primary-button)]/30 transition-all duration-500"
     >
-      {images.map((src, i) => (
-        <motion.div
-          key={i}
-          variants={gridItem}
-          whileHover={{ scale: 1.04, rotate: 1 }}
-          className="relative overflow-hidden rounded-2xl shadow-md will-change-transform"
-          style={{ aspectRatio: "1/1" }}
-        >
-          <ResponsiveImageSkeleton
-            src={src}
-            alt=""
-            className="w-full h-full"
-            imgClassName="object-cover transition-all duration-500 group-hover:scale-110"
-            rounded="rounded-2xl"
-          />
-        </motion.div>
-      ))}
-    </motion.div>
-  );
-});
-
-const RoleSection = ({ role, index }) => {
-  const isEven = index % 2 === 0;
-
-  return (
-    <motion.section
-      variants={sectionFade}
-      initial="hidden"
-      whileInView="show"
-      viewport={{ once: true, amount: 0.2 }}
-      className="py-20 border-t border-[var(--earth-brown)]/10"
-    >
-      <div
-        className="
-          grid grid-cols-1 md:grid-cols-2 
-          gap-12 items-center 
-          px-6 md:px-16
-        "
-      >
-        {/* TEXT SIDE - Now centered on all screens */}
-        <div
-          className={`
-            w-full
-            flex flex-col justify-center
-            items-center text-center
-            ${isEven ? "md:order-1" : "md:order-2"}
-          `}
-        >
-          <h2 className="text-[32px] md:text-[42px] font-black text-[var(--earth-brown-dark)] mb-4">
-            {role.heading}
-          </h2>
-
-          <p className="italic text-[18px] md:text-[20px] leading-[1.9] text-[var(--earth-brown)]/85 mb-8">
-            {role.description}
-          </p>
-        </div>
-
-        {/* IMAGES SIDE */}
-        <div
-          className={`
-            w-full
-            ${isEven ? "md:order-2" : "md:order-1"}
-          `}
-        >
-          <ImageGrid images={role.images} />
-        </div>
+      <div className="aspect-[16/9] overflow-hidden relative">
+        <ResponsiveImageSkeleton
+          src={role.image}
+          alt={role.heading}
+          className="w-full h-full"
+          imgClassName="object-cover" // Removed hover scaling
+          rounded="rounded-none"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#111111] via-transparent to-transparent" />
       </div>
-    </motion.section>
+
+      <div className="p-8 md:p-10">
+        <h3 className="text-3xl md:text-4xl font-black text-white mb-2">{role.heading}</h3>
+        <p className="text-[var(--primary-button)] text-xs font-black tracking-[0.2em] uppercase mb-4 opacity-80">
+          {role.subHeading}
+        </p>
+        <p className="text-white/50 text-lg leading-relaxed font-medium">
+          {role.description}
+        </p>
+      </div>
+    </motion.div>
   );
 };
 
-// Main page
+
+
 export default function RolesPage() {
   return (
-    <div dir="rtl" className="bg-[var(--earth-cream)] min-h-screen" id="roles">
+    <section id="roles" dir="rtl" className="py-24 md:py-32 bg-[#0a0a0a] overflow-hidden">
+      <div className="max-w-7xl mx-auto px-6">
+        <header className="mb-20 text-center relative">
+          {/* Subtle background element */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[var(--primary-button)]/5 blur-[120px] rounded-full pointer-events-none" />
+          
+          <motion.h2
+            initial={{ opacity: 1, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            className="text-5xl md:text-8xl font-black text-white tracking-tighter relative z-10"
+          >
+            أدوار <span className="text-[var(--primary-button)] text-glow">تتناغم</span> معاً
+          </motion.h2>
+          <motion.p
+             initial={{ opacity: 1, y: 20 }}
+             whileInView={{ opacity: 1, y: 0 }}
+             viewport={{ once: true, margin: "-50px" }}
+             transition={{ delay: 0.2 }}
+             className="mt-6 text-xl md:text-2xl text-white/30 max-w-2xl mx-auto leading-relaxed relative z-10 font-medium"
+          >
+            بيئة رقمية شاملة تجمع كل أطراف العملية الإبداعية والتعليمية في فضاء واحد.
+          </motion.p>
+        </header>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
+          {rolesData.map((role, index) => (
+            <RoleCard key={role.id} role={role} index={index} />
+          ))}
+        </div>
+      </div>
       
-      {/* HEADER */}
-      <header className="pt-24 pb-16 text-center px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="inline-block px-6 py-2 rounded-full border border-[var(--earth-brown)]/20 bg-[var(--earth-paper)] text-[var(--earth-brown)] text-sm mb-6"
-        >
-          منظومة متكاملة
-        </motion.div>
-
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-4xl md:text-6xl font-black text-[var(--earth-brown-dark)] mb-4"
-        >
-          أدوار تتناغم معاً
-        </motion.h1>
-
-        <motion.div
-          initial={{ width: 0 }}
-          whileInView={{ width: "96px" }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="h-1 bg-[var(--earth-olive)] mx-auto rounded-full"
-        />
-      </header>
-
-
-      {/* SECTIONS */}
-   {rolesData.map((role, index) => (
-  <RoleSection key={role.id} role={role} index={index} />
-))}
-
-
-      <div className="h-24"></div>
-    </div>
+      <style>{`
+        .text-glow {
+          text-shadow: 0 0 30px rgba(93, 227, 186, 0.2);
+        }
+      `}</style>
+    </section>
   );
 }

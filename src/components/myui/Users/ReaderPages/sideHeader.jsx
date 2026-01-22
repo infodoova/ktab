@@ -14,21 +14,20 @@ const PageHeader = ({
     <header
       className="
         hidden md:block 
-        sticky top-0 z-50
+        sticky top-0 z-[50]
         w-full h-16 
-        border-b 
-        bg-[#f7f4ef]/80 backdrop-blur-md
+        border-b border-black/5
+        bg-white/70 backdrop-blur-2xl
         rtl relative
       "
     >
 
-      {/* TITLE CENTERED */}
       <div
         className="
           absolute left-1/2 top-1/2 
           -translate-x-1/2 -translate-y-1/2
-          text-xl font-bold text-[var(--earth-brown)] text-center
-          pointer-events-none
+          text-lg font-black text-black text-center
+          pointer-events-none tracking-tight
         "
       >
         {mainTitle}
@@ -46,19 +45,19 @@ const PageHeader = ({
           <button
             onClick={onPress}
             className="
-              h-9 px-4 rounded-md border 
-              border-[var(--earth-olive)]
-              text-[var(--earth-olive)]
-              hover:bg-[var(--earth-olive)]/10
-              transition font-semibold
-              whitespace-nowrap
+              h-9 px-6 rounded-xl border-0
+              bg-gradient-to-r from-[#5de3ba] to-[#76debf]
+              text-white
+              hover:opacity-90
+              transition-all duration-300 font-black uppercase tracking-widest text-[10px]
+              whitespace-nowrap shadow-[0_10px_20px_rgba(93,227,186,0.15)]
             "
           >
             {buttonTitle}
           </button>
         </div>
       )}
-
+ 
       {/* SEARCH BUTTON (ONLY IF PROVIDED) */}
       {showSearch && (
         <div
@@ -72,13 +71,14 @@ const PageHeader = ({
             onClick={onSearchClick}
             aria-label="بحث"
             className="
-              p-2 rounded-full 
-              text-[var(--earth-brown)]
-              hover:bg-[var(--earth-brown)]/10 
-              transition-colors
+              p-2.5 rounded-full 
+              text-black/30
+              hover:text-[#5de3ba]
+              hover:bg-[#5de3ba]/5 
+              transition-all duration-300
             "
           >
-            <Search size={22} strokeWidth={2} />
+            <Search size={22} strokeWidth={2.5} />
           </button>
         </div>
       )}

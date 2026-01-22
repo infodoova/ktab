@@ -12,7 +12,7 @@ function MainPage({ pageName = "الصفحة الرئيسية" }) {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[var(--earth-cream)] rtl">
+    <div className="min-h-screen bg-white rtl">
       <Navbar
         pageName={pageName}
         collapsed={collapsed}

@@ -17,7 +17,7 @@ export default function AITools({ pageName = "مولّد الخلاصات الذ
   const onGenerate = async (values, errTitle, errMsg) => {
     if (errTitle) return AlertToast(errMsg, "error");
 
-    const { type, wordCount, audience, file } = values;
+    const { wordCount, audience, file } = values;
 
     setLoading(true);
     setSummary("");
@@ -39,7 +39,7 @@ export default function AITools({ pageName = "مولّد الخلاصات الذ
             Authorization: token ? `Bearer ${token}` : undefined,
           },
           body: formData,
-        }
+        },
       );
 
       //------------------------------
@@ -54,19 +54,18 @@ export default function AITools({ pageName = "مولّد الخلاصات الذ
         return;
       }
 
-    const endingText = data?.data?.endingText;
+      const endingText = data?.data?.endingText;
 
-    if (!endingText) {
-      setLoading(false);
-      return AlertToast("الخادم لم يرجع نص نهاية صالح", "error");
-    }
+      if (!endingText) {
+        setLoading(false);
+        return AlertToast("الخادم لم يرجع نص نهاية صالح", "error");
+      }
 
-    setSummary(endingText);
-
+      setSummary(endingText);
 
       AlertToast(
         data.message || "الخلاصة جاهزة الآن.",
-        data.messageStatus || "success"
+        data.messageStatus || "success",
       );
     } catch (err) {
       AlertToast(err.message || "خطأ غير متوقع", "error");

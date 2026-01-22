@@ -20,7 +20,7 @@ export default function BookDetails() {
   if (!bookId) return <div className="flex items-center justify-center h-screen bg-[#F4EFE9] text-[#5D4037]">لا توجد بيانات للكتاب</div>;
 
   return (
-    <div dir="rtl" className="relative min-h-screen bg-[#F4EFE9] text-[#3E2723] overflow-x-hidden">
+    <div dir="rtl" className="relative min-h-screen bg-white text-[var(--primary-text)] overflow-x-hidden">
       {/* --- CONTENT WRAPPER --- */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-8 pb-20">
         
@@ -28,9 +28,9 @@ export default function BookDetails() {
         <div className="pt-6 mb-8">
             <button
             onClick={() => navigate(-1)}
-            className="flex items-center gap-2 text-[#5D4037] hover:text-[#3E2723] transition group font-medium"
+            className="flex items-center gap-3 text-[var(--primary-text)]/40 hover:text-[var(--primary-text)] transition group font-black uppercase text-xs tracking-widest"
             >
-            <ArrowRight className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+            <ArrowRight className="w-5 h-5 group-hover:-translate-x-1 transition-transform" strokeWidth={3} />
             <span>العودة للتصفح</span>
             </button>
         </div>

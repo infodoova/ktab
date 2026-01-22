@@ -8,8 +8,9 @@ import {
   MousePointerClick,
   Bot,
   Star,
+  BookCopyIcon,
   Settings,
-  SquareLibrary
+  SquareLibrary,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -25,44 +26,80 @@ import { useNavigate } from "react-router-dom";
 import { getUserData } from "../../../../../store/authToken";
 import ktabLogo from "../../../../assets/logo/logo.png";
 
-
 const navLinks = [
-  { label: " لوحة التحكم", icon: BookOpen, href: "../../../Screens/dashboard/AuthorPages/controlBoard" },
-  { label: " كتبي ", icon: SquareLibrary, href: "../../../Screens/dashboard/AuthorPages/myBooks" },
-  { label: "رفع كتاب جديد", icon: FolderOpen, href: "../../../Screens/dashboard/AuthorPages/newBookPublish" },
-  { label: " قصة تفاعلية جديدة ", icon: MousePointerClick, href: "../../../Screens/dashboard/AuthorPages/NewInteractiveStory" },
-  { label: "   ادوات الذكاء الاصطناعي ", icon: Bot, href: "../../../Screens/dashboard/AuthorPages/aiTools" },
-  { label: "   التقييمات   ", icon: Star, href: "../../../Screens/dashboard/AuthorPages/ratings" },
-  { label: "   الاعدادات   ", icon: Settings, href: "../../../Screens/dashboard/AuthorPages/Settings" },
-];
+  {
+    label: " لوحة التحكم",
+    icon: BookOpen,
+    href: "../../../Screens/dashboard/AuthorPages/controlBoard",
+  },
+  {
+    label: " كتبي ",
+    icon: SquareLibrary,
+    href: "../../../Screens/dashboard/AuthorPages/myBooks",
+  },
+  {
+    label: " قصصي التغاعلية   ",
+    icon: BookCopyIcon,
+    href: "../../../Screens/dashboard/AuthorPages/mystories",
+  },
 
+  {
+    label: "رفع كتاب جديد",
+    icon: FolderOpen,
+    href: "../../../Screens/dashboard/AuthorPages/newBookPublish",
+  },
+  {
+    label: " قصة تفاعلية جديدة ",
+    icon: MousePointerClick,
+    href: "../../../Screens/dashboard/AuthorPages/NewInteractiveStory",
+  },
+  {
+    label: "   ادوات الذكاء الاصطناعي ",
+    icon: Bot,
+    href: "../../../Screens/dashboard/AuthorPages/aiTools",
+  },
+  {
+    label: "   التقييمات   ",
+    icon: Star,
+    href: "../../../Screens/dashboard/AuthorPages/ratings",
+  },
+  {
+    label: "   الاعدادات   ",
+    icon: Settings,
+    href: "../../../Screens/dashboard/AuthorPages/Settings",
+  },
+];
 
 const SidebarContent = ({ collapsed, onToggle }) => {
   const navigate = useNavigate();
-  
 
-  const userData = getUserData() || {}; 
+  const userData = getUserData() || {};
 
   return (
-    <div className="flex flex-col h-full rtl bg-[#f7f4ef] border-l border-[var(--earth-sand)]/40">
-
+    <div className="flex flex-col h-full rtl bg-white border-l border-black/5">
       {!collapsed ? (
-        <div className="h-16 flex items-center justify-center px-4 border-b">
-          <img src={ktabLogo} className="h-30 w-auto object-contain" alt="Logo" />
+        <div className="h-16 flex items-center justify-between px-8 border-b border-black/5 bg-white/50 backdrop-blur-xl">
+          <img
+            src={ktabLogo}
+            className="h-16 w-auto object-contain scale-150 origin-right"
+            alt="Logo"
+          />
           <button
             onClick={onToggle}
-            className="h-9 w-9 rounded-full bg-[var(--earth-paper)] hover:bg-[var(--earth-sand)]/40 shadow flex items-center justify-center"
+            className="h-9 w-9 rounded-2xl bg-white border border-black/5 hover:bg-[#5de3ba]/10 hover:text-[#5de3ba] transition-all flex items-center justify-center shadow-sm"
           >
-            <ChevronLeft className="h-5 w-5 text-[var(--earth-brown)]" />
+            <ChevronLeft className="h-5 w-5 text-black/50" />
           </button>
         </div>
       ) : (
-        <div className="h-16 flex items-center justify-center px-4 border-b">
+        <div className="h-16 flex items-center justify-center px-4 border-b border-black/5 bg-white/50 backdrop-blur-xl">
+
+
           <button
             onClick={onToggle}
-            className="h-9 w-9 rounded-full bg-[var(--earth-paper)] hover:bg-[var(--earth-sand)]/40 shadow flex items-center justify-center"
+            className="h-9 w-9 rounded-2xl bg-white border border-black/5 hover:bg-[#5de3ba]/10 hover:text-[#5de3ba] transition-all flex items-center justify-center shadow-sm"
           >
-            <ChevronRight className="h-5 w-5 text-[var(--earth-brown)]" />
+            <ChevronRight className="h-5 w-5 text-black/50" />
           </button>
         </div>
       )}
@@ -76,10 +113,9 @@ const SidebarContent = ({ collapsed, onToggle }) => {
               key={i}
               onClick={() => navigate(link.href)}
               className={cn(
-                "group flex w-full items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-semibold transition-all duration-200",
-                "text-[var(--earth-brown)]/70 hover:text-[var(--earth-brown)]",
-                "hover:bg-[var(--earth-paper)] hover:shadow-sm",
-                collapsed && "justify-center px-2"
+                "group flex w-full items-center gap-4 px-4 py-3.5 rounded-2xl text-[14px] font-black tracking-tight transition-all duration-300",
+                "text-black/70 hover:text-black hover:bg-black/5",
+                collapsed && "justify-center px-2",
               )}
             >
               <Icon className="h-5 w-5" />
@@ -98,21 +134,23 @@ const SidebarContent = ({ collapsed, onToggle }) => {
         })}
       </ScrollArea>
 
-
-      <div dir="rtl"
+      <div
+        dir="rtl"
         className={cn(
-          "h-20 border-t border-[var(--earth-sand)]/40 flex px-4 items-center gap-3",
-          collapsed && "flex-col justify-center gap-1"
+          "py-6 border-t border-black/5 flex px-6 items-center gap-4 bg-white/50 backdrop-blur-xl",
+          collapsed && "flex-col justify-center gap-2 px-2",
         )}
       >
-        <div className="h-11 w-11 rounded-full bg-[var(--earth-olive)]/30 border border-[var(--earth-brown)]/20 text-[var(--earth-brown)] flex items-center justify-center font-bold text-lg">
-          {userData.firstName ? userData.firstName[0] : 'أ'}
+        <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-[#5de3ba] to-[#b6e8e1] text-black flex items-center justify-center font-black text-sm shadow-[0_5px_15px_rgba(93,227,186,0.1)]">
+          {userData.firstName ? userData.firstName[0] : "أ"}
         </div>
 
         {!collapsed && (
-          <div className="flex flex-col text-[var(--earth-brown)] justify-start ">
-            <span className="font-semibold text-sm">{userData.firstName || 'User'} {userData.lastName || ''} </span>
-            <span className="text-xs opacity-70">مؤلف</span>
+          <div className="flex flex-col text-black justify-start min-w-0 ">
+            <span className="font-bold text-sm truncate">
+              {userData.firstName || "User"} {userData.lastName || ""}{" "}
+            </span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-[#5de3ba]">مؤلف</span>
           </div>
         )}
       </div>
@@ -131,10 +169,10 @@ const Navbar = ({
 
   return (
     <>
-      {/* MOBILE HEADER - ADDED fixed top-0 w-full and a high z-index */}
-      <header className="md:hidden fixed top-0 z-[100] w-full grid grid-cols-[1fr_auto_1fr] items-center px-4 py-3 bg-[#f7f4ef] border-b rtl h-16">
+      {/* MOBILE HEADER */}
+      <header className="md:hidden fixed top-0 z-[100] w-full grid grid-cols-[1fr_auto_1fr] items-center px-4 py-3 bg-white/80 backdrop-blur-2xl border-b border-black/5 rtl h-16">
         <div className="flex justify-start">
-          {mobileButtonTitle ? (
+          {mobileButtonTitle && (
             <Button
               variant="outline"
               onClick={onMobileButtonPress}
@@ -142,13 +180,11 @@ const Navbar = ({
             >
               {mobileButtonTitle}
             </Button>
-          ) : (
-            <div className="w-10" />
           )}
         </div>
 
         <div className="flex justify-center">
-          <h1 className="text-lg font-bold text-[var(--earth-brown)]">
+          <h1 className="text-lg font-black text-black tracking-tight">
             {pageName}
           </h1>
         </div>
@@ -163,7 +199,7 @@ const Navbar = ({
 
             <SheetContent
               side="right"
-              className="w-64 p-0 rtl bg-[#f7f4ef] [&>button]:hidden"
+              className="w-64 p-0 rtl bg-white border-l border-black/5 [&>button]:hidden"
             >
               <SidebarContent
                 collapsed={false}
@@ -180,8 +216,8 @@ const Navbar = ({
       <aside
         style={{ right: 0, left: "auto" }}
         className={cn(
-          "hidden md:flex h-screen bg-[#f7f4ef] border-l border-[var(--earth-sand)]/40 flex-col rtl transition-all duration-300 fixed top-0",
-          collapsed ? "w-20" : "w-64"
+          "hidden md:flex h-screen bg-white border-l border-black/5 flex-col rtl transition-all duration-300 fixed top-0 z-[100]",
+          collapsed ? "w-20" : "w-64",
         )}
       >
         <SidebarContent

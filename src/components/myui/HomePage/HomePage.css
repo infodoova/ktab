@@ -1,0 +1,230 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   HOMEPAGE DARK THEME - Netflix Inspired
+   All styles scoped to .homepage-dark class
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Dark Theme Variables - Scoped to HomePage */
+/* These override the root variables ONLY within .homepage-dark */
+.homepage-dark {
+  /* Override root variables for dark theme */
+  --primary-text: #ffffff;
+  --secondary-text: #e5e5e5;
+  
+  /* Dark Surfaces - These are NEW variables for homepage */
+  --bg-dark: #0a0a0a;
+  --bg-darker: #000000;
+  --bg-surface: #141414;
+  --bg-elevated: #1a1a1a;
+  --bg-card: #181818;
+  --bg-card-hover: #232323;
+  --bg-mint-soft: #0a0a0a;
+
+  /* Glass Effects - Dark Version */
+  --glass-bg: rgba(20, 20, 20, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.08);
+
+  /* Effects */
+  --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.5);
+
+  /* Keep the gradient vibrant */
+  --gradient: linear-gradient(135deg, #5de3ba 0%, #4ed4ab 100%);
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     HOMEPAGE-SPECIFIC VARIABLES (hp- prefix)
+     ───────────────────────────────────────────────────────────────────────── */
+  
+  /* TEXT - Netflix Dark Theme */
+  --hp-text-primary: #ffffff;
+  --hp-text-secondary: #e5e5e5;
+  --hp-text-muted: #808080;
+
+  /* BRAND - Mint as Netflix-style accent */
+  --hp-accent: #5de3ba;
+  --hp-accent-border: #4ed4ab;
+  --hp-accent-glow: rgba(93, 227, 186, 0.4);
+
+  /* DARK SURFACES - Netflix Inspired */
+  --hp-bg-dark: #0a0a0a;
+  --hp-bg-darker: #000000;
+  --hp-bg-surface: #141414;
+  --hp-bg-elevated: #1a1a1a;
+  --hp-bg-card: #181818;
+  --hp-bg-card-hover: #232323;
+
+  /* GLASS - Dark Glass Effects */
+  --hp-glass-bg: rgba(20, 20, 20, 0.85);
+  --hp-glass-border: rgba(255, 255, 255, 0.08);
+  --hp-glass-light: rgba(255, 255, 255, 0.05);
+
+  /* EFFECTS */
+  --hp-shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --hp-shadow-glow: 0 0 40px rgba(93, 227, 186, 0.15);
+  --hp-shadow-card: 0 8px 40px rgba(0, 0, 0, 0.6);
+
+  /* GRADIENT - Premium Dark Gradients */
+  --hp-gradient: linear-gradient(135deg, #5de3ba 0%, #4ed4ab 100%);
+  --hp-gradient-dark: linear-gradient(180deg, #141414 0%, #0a0a0a 100%);
+  --hp-gradient-card: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%);
+  --hp-gradient-overlay: linear-gradient(0deg, #0a0a0a 0%, transparent 100%);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   HOMEPAGE GLASS UTILITY
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.homepage-dark .hp-glass {
+  background: var(--hp-glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--hp-glass-border);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   HOMEPAGE BUTTONS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.homepage-dark .hp-btn-primary {
+  background: var(--hp-gradient);
+  color: var(--hp-bg-dark);
+  font-weight: 800;
+  border: none;
+  box-shadow: 0 8px 32px rgba(93, 227, 186, 0.3);
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.homepage-dark .hp-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(93, 227, 186, 0.45);
+  filter: brightness(1.05);
+}
+
+.homepage-dark .hp-btn-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: white;
+  font-weight: 700;
+  transition: all 0.3s ease;
+}
+
+.homepage-dark .hp-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   HOMEPAGE CARDS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.homepage-dark .hp-card {
+  background: var(--hp-bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 1.5rem;
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.homepage-dark .hp-card:hover {
+  background: var(--hp-bg-card-hover);
+  border-color: rgba(93, 227, 186, 0.2);
+  box-shadow: var(--hp-shadow-card);
+  transform: translateY(-4px);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   HOMEPAGE SECTION BACKGROUNDS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.homepage-dark .hp-section-dark {
+  background: var(--hp-bg-dark);
+}
+
+.homepage-dark .hp-section-surface {
+  background: var(--hp-bg-surface);
+}
+
+.homepage-dark .hp-section-elevated {
+  background: var(--hp-bg-elevated);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   HOMEPAGE TEXT STYLES
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.homepage-dark .hp-text-primary {
+  color: var(--hp-text-primary);
+}
+
+.homepage-dark .hp-text-secondary {
+  color: var(--hp-text-secondary);
+}
+
+.homepage-dark .hp-text-muted {
+  color: var(--hp-text-muted);
+}
+
+.homepage-dark .hp-text-accent {
+  color: var(--hp-accent);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   HOMEPAGE BADGE / TAG STYLES
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.homepage-dark .hp-badge {
+  display: inline-block;
+  padding: 0.5rem 1.25rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(93, 227, 186, 0.3);
+  background: rgba(93, 227, 186, 0.1);
+  color: var(--hp-accent);
+  font-size: 0.65rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   HOMEPAGE BORDERS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.homepage-dark .hp-border-subtle {
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+.homepage-dark .hp-border-accent {
+  border-color: rgba(93, 227, 186, 0.3);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   HOMEPAGE GLOW EFFECTS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.homepage-dark .hp-glow {
+  box-shadow: var(--hp-shadow-glow);
+}
+
+.homepage-dark .hp-glow-accent {
+  box-shadow: 0 0 60px rgba(93, 227, 186, 0.2);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   HOMEPAGE SCROLLBAR (DARK)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.homepage-dark::-webkit-scrollbar {
+  width: 8px;
+}
+
+.homepage-dark::-webkit-scrollbar-track {
+  background: var(--hp-bg-dark);
+}
+
+.homepage-dark::-webkit-scrollbar-thumb {
+  background: var(--hp-bg-elevated);
+  border-radius: 20px;
+}
+
+.homepage-dark::-webkit-scrollbar-thumb:hover {
+  background: var(--hp-accent);
+}

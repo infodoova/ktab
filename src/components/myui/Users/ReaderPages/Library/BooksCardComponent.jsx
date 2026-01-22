@@ -46,18 +46,18 @@ const MinimalBookCard = React.memo(
             onClick={toggleMenu}
             aria-label="خيارات إضافية"
             aria-expanded={isOpen}
-            className="p-1.5 rounded-full bg-white/80 backdrop-blur-md shadow-sm text-[var(--earth-brown)] hover:bg-[var(--earth-cream)] transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--earth-brown)]"
+            className="p-1.5 rounded-full bg-white/80 backdrop-blur-md shadow-sm text-[var(--primary-text)] border border-black/10 hover:bg-black/5 transition-colors focus:outline-none"
           >
             <MoreVertical size={16} />
           </button>
           {isOpen && (
             <div
-              className="absolute top-9 left-0 w-36 bg-white shadow-xl rounded-xl border border-[var(--earth-sand)]/50 p-1.5 text-sm z-30 animate-in fade-in zoom-in-95 duration-200"
+              className="absolute top-9 left-0 w-36 bg-white/95 backdrop-blur-xl shadow-xl rounded-xl border border-black/10 p-1.5 text-sm z-30 animate-in fade-in zoom-in-95 duration-200"
               onClick={(e) => e.stopPropagation()}
             >
               <button
                 onClick={handleShare}
-                className="w-full flex items-center justify-between px-3 py-2 hover:bg-[var(--earth-cream)] rounded-lg text-[var(--earth-brown)] transition-colors"
+                className="w-full flex items-center justify-between px-3 py-2 hover:bg-black/5 rounded-lg text-[var(--primary-text)] transition-colors font-black uppercase tracking-tight"
               >
                 <span>مشاركة</span> <Share2 size={14} />
               </button>
@@ -77,15 +77,16 @@ const MinimalBookCard = React.memo(
               book.averageRating !== null && (
                 <div
                   className="
-      absolute top-2 right-2 z-10
-      flex items-center gap-1
-      px-2 py-1
-      rounded-full
-      bg-white/90 backdrop-blur-md
-      shadow-sm
-      text-[10px] font-bold
-      text-[var(--earth-brown-dark)]
-    "
+                    absolute top-2 right-2 z-10
+                    flex items-center gap-1
+                    px-2.5 py-1
+                    rounded-full
+                    bg-white/90 backdrop-blur-md
+                    border border-black/10
+                    shadow-sm
+                    text-[10px] font-black
+                    text-[var(--primary-text)]
+                  "
                   aria-label={`تقييم ${book.averageRating} من 5`}
                 >
                   <Star size={12} className="text-yellow-500 fill-yellow-500" />
@@ -108,7 +109,7 @@ const MinimalBookCard = React.memo(
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300 pointer-events-none" />
           </div>
           <h3
-            className="text-[var(--earth-brown-dark)] text-xs font-bold line-clamp-1 group-hover:text-[var(--earth-brown)] transition-colors"
+            className="text-[var(--primary-text)] text-[13px] font-black tracking-tight line-clamp-1 group-hover:opacity-70 transition-opacity"
             title={book.title}
           >
             {book.title}
@@ -271,7 +272,7 @@ export default function BooksGrid({
   }, []);
 
   return (
-    <div className="w-full min-h-screen bg-[var(--earth-cream)]">
+    <div className="w-full min-h-screen bg-white">
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Note: Search Bar removed from here */}
 
@@ -283,9 +284,9 @@ export default function BooksGrid({
             ))}
           </div>
         ) : books.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-[var(--earth-brown)]/50">
-            <BookOpen size={48} strokeWidth={1} />
-            <p className="mt-4 text-lg font-medium">
+          <div className="flex flex-col items-center justify-center py-20 text-[var(--primary-text)]/20">
+            <BookOpen size={64} strokeWidth={1} />
+            <p className="mt-6 text-xl font-black tracking-tight text-[var(--primary-text)]/40 uppercase">
               {activeFilters?.query
                 ? `لا توجد نتائج لـ "${activeFilters.query}"`
                 : "لا توجد كتب"}
@@ -313,7 +314,7 @@ export default function BooksGrid({
           {loadingMore && (
             <Loader2
               size={24}
-              className="animate-spin text-[var(--earth-brown)]/50"
+              className="animate-spin text-[var(--primary-button)]"
             />
           )}
         </div>

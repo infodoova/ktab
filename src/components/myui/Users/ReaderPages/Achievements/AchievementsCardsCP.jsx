@@ -6,36 +6,41 @@ export default function AchievementsCardsCP({ achievement }) {
   );
 
   return (
-    <div className="bg-white rounded-xl p-5 shadow-sm flex flex-col gap-3">
-      <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-[var(--earth-brown)]">
+    <div className="bg-white rounded-[2.5rem] p-8 border border-black/10 shadow-[0_10px_40px_rgba(0,0,0,0.04)] hover:shadow-2xl transition-all duration-500 group">
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="text-lg font-black text-black tracking-tight group-hover:text-black">
           {achievement.title}
         </h3>
 
         {achievement.status === "completed" && (
-          <span className="text-xs text-[var(--earth-blue)] font-medium">
+          <span className="bg-black text-white text-[8px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full shadow-lg">
             مكتسب 🏆
           </span>
         )}
       </div>
 
-      <p className="text-sm text-[var(--earth-brown)]/70">
+      <p className="text-xs text-black/50 font-medium leading-relaxed mb-6">
         {achievement.description}
       </p>
 
       {achievement.status !== "completed" && (
-        <>
-          <div className="w-full h-2 bg-[var(--earth-cream)] rounded-full overflow-hidden">
+        <div className="space-y-3">
+          <div className="w-full h-2 bg-black/5 rounded-full overflow-hidden">
             <div
-              className="h-full bg-[var(--earth-olive)] transition-all"
+              className="h-full bg-black transition-all duration-1000 ease-out"
               style={{ width: `${progressPercent}%` }}
             />
           </div>
 
-          <div className="text-xs text-right text-[var(--earth-brown)]/60">
-            {achievement.progress}/{achievement.total}
+          <div className="flex justify-between items-center">
+            <span className="text-[10px] font-black text-black/20 uppercase tracking-widest">
+              التقدم
+            </span>
+            <div className="text-[10px] font-black text-black tracking-widest tabular-nums">
+              {achievement.progress}/{achievement.total}
+            </div>
           </div>
-        </>
+        </div>
       )}
     </div>
   );

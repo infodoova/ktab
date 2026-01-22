@@ -6,7 +6,13 @@ const FooterLink = ({ href, children }) => (
   <li>
     <a
       href={href}
-      className="text-sm text-[var(--earth-brown)]/70 hover:text-[var(--earth-brown)] transition-all duration-300 hover:translate-x-1"
+      className="
+        text-sm
+        text-[var(--secondary-text)]/70
+        hover:text-[var(--secondary-text)]
+        transition-all duration-300
+        hover:translate-x-1
+      "
     >
       {children}
     </a>
@@ -19,7 +25,7 @@ const SocialLink = ({ href, icon, label }) => (
     transition={{ type: "spring", stiffness: 200 }}
     href={href}
     aria-label={label}
-    className="text-[var(--earth-brown)]/70 hover:text-[var(--earth-brown)]"
+    className="text-white/60 hover:text-[var(--primary-button)] transition-colors duration-300"
   >
     {icon}
   </motion.a>
@@ -31,63 +37,77 @@ export default function Footer() {
   return (
     <footer
       dir="rtl"
-      className="
-        relative pt-24 pb-12 
-     
-        overflow-hidden
-      "
-            style={{ backgroundColor: "var(--earth-cream)" }}
-
+      className="relative pt-28 pb-12 overflow-hidden bg-[var(--bg-dark)]"
     >
-      {/* FLOATING BACKGROUND BLOBS */}
+      {/* SOFT BACKGROUND BLOBS */}
       <motion.div
-        animate={{ y: [0, -20, 0], opacity: [0.3, 0.45, 0.3] }}
-        transition={{ duration: 10, repeat: Infinity, repeatType: "reverse" }}
+        animate={{ y: [0, -20, 0], opacity: [0.15, 0.25, 0.15] }}
+        transition={{ duration: 12, repeat: Infinity, repeatType: "reverse" }}
         className="
-          absolute top-[-120px] right-[-120px]
-          w-[420px] h-[420px]
-          rounded-full bg-[var(--earth-sand)] blur-[120px] opacity-30
+          absolute top-[-140px] right-[-140px]
+          w-[500px] h-[500px]
+          rounded-full
+          bg-[var(--primary-button)]/10
+          blur-[140px]
         "
       />
 
       <motion.div
-        animate={{ y: [0, 25, 0], opacity: [0.25, 0.4, 0.25] }}
-        transition={{ duration: 12, repeat: Infinity, repeatType: "reverse" }}
+        animate={{ y: [0, 25, 0], opacity: [0.1, 0.2, 0.1] }}
+        transition={{ duration: 14, repeat: Infinity, repeatType: "reverse" }}
         className="
-          absolute bottom-[-160px] left-[-160px]
-          w-[480px] h-[480px]
-          rounded-full bg-[var(--earth-paper)] blur-[150px] opacity-40
+          absolute bottom-[-180px] left-[-180px]
+          w-[600px] h-[600px]
+          rounded-full
+          bg-white/10
+          blur-[160px]
         "
       />
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
-
         {/* TOP GRID */}
         <div className="grid md:grid-cols-3 gap-16">
-
-          {/* Branding Section */}
+          {/* BRAND */}
           <div className="space-y-6">
-            <div className="text-[2.3rem] font-bold text-[var(--earth-brown)]">
+            <div className="text-[2.3rem] font-black text-[var(--secondary-text)]">
               كتاب
             </div>
 
-            <p className="text-[var(--earth-brown)]/70 leading-relaxed max-w-xs text-sm">
-              منصّة قراءة عربية تجمع القرّاء، الأطفال، المعلّمين، والأهالي في مكان واحد.
-              نصنع تجربة قراءة ممتعة، آمنة، وتفاعلية.
+            <p className="text-[var(--secondary-text)]/70 leading-relaxed max-w-xs text-sm">
+              منصّة قراءة عربية تجمع القرّاء، الأطفال، المعلّمين، والأهالي في
+              مكان واحد. نصنع تجربة قراءة ممتعة، آمنة، وتفاعلية.
             </p>
 
             <div className="flex gap-4 mt-4">
-              <SocialLink href="#" icon={<Instagram className="h-5 w-5" />} label="Instagram" />
-              <SocialLink href="#" icon={<Facebook className="h-5 w-5" />} label="Facebook" />
-              <SocialLink href="#" icon={<Youtube className="h-5 w-5" />} label="Youtube" />
-              <SocialLink href="mailto:hello@kuttab.com" icon={<Mail className="h-5 w-5" />} label="Mail" />
+              <SocialLink
+                href="#"
+                icon={<Instagram className="h-5 w-5" />}
+                label="Instagram"
+              />
+              <SocialLink
+                href="#"
+                icon={<Facebook className="h-5 w-5" />}
+                label="Facebook"
+              />
+              <SocialLink
+                href="#"
+                icon={<Youtube className="h-5 w-5" />}
+                label="Youtube"
+              />
+              <SocialLink
+                href="mailto:hello@kuttab.com"
+                icon={<Mail className="h-5 w-5" />}
+                label="Mail"
+              />
             </div>
           </div>
 
-          {/* Links Column 1 */}
+          {/* LINKS 1 */}
           <div className="grid grid-cols-2 gap-12">
             <div>
-              <h3 className="font-semibold text-[var(--earth-brown)]">المنصّة</h3>
+              <h3 className="font-semibold text-[var(--secondary-text)]">
+                المنصّة
+              </h3>
               <ul className="mt-4 space-y-3">
                 <FooterLink href="#">كيف يعمل كتّاب؟</FooterLink>
                 <FooterLink href="#">التجربة التفاعلية</FooterLink>
@@ -97,7 +117,9 @@ export default function Footer() {
             </div>
 
             <div>
-              <h3 className="font-semibold text-[var(--earth-brown)]">لمن؟</h3>
+              <h3 className="font-semibold text-[var(--secondary-text)]">
+                لمن؟
+              </h3>
               <ul className="mt-4 space-y-3">
                 <FooterLink href="#">للأهل</FooterLink>
                 <FooterLink href="#">للمعلّمين</FooterLink>
@@ -107,10 +129,12 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Links Column 2 */}
+          {/* LINKS 2 */}
           <div className="grid grid-cols-2 gap-12">
             <div>
-              <h3 className="font-semibold text-[var(--earth-brown)]">الدعم</h3>
+              <h3 className="font-semibold text-[var(--secondary-text)]">
+                الدعم
+              </h3>
               <ul className="mt-4 space-y-3">
                 <FooterLink href="#">الأسئلة الشائعة</FooterLink>
                 <FooterLink href="#">مركز المساعدة</FooterLink>
@@ -119,7 +143,9 @@ export default function Footer() {
             </div>
 
             <div>
-              <h3 className="font-semibold text-[var(--earth-brown)]">قانوني</h3>
+              <h3 className="font-semibold text-[var(--secondary-text)]">
+                قانوني
+              </h3>
               <ul className="mt-4 space-y-2">
                 <FooterLink href="#">الشروط والأحكام</FooterLink>
                 <FooterLink href="#">سياسة الخصوصية</FooterLink>
@@ -127,20 +153,18 @@ export default function Footer() {
               </ul>
             </div>
           </div>
-
         </div>
 
-        {/* BOTTOM BAR */}
-        <div className="mt-16 border-t border-[var(--earth-sand)]/40 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-xs text-[var(--earth-brown)]/60">
-            © {year} كتاب — جميع الحقوق محفوظة.
+        {/* BOTTOM */}
+        <div className="mt-20 border-t border-white/5 pt-10 flex flex-col md:flex-row justify-between items-center gap-6">
+          <p className="text-sm text-[var(--secondary-text)]/40">
+            © {year} كُتّاب — جميع الحقوق محفوظة.
           </p>
 
-          <p className="text-xs text-[var(--earth-brown)]/60">
-            صُنع بحُب في الوطن العربي ❤️
+          <p className="text-sm text-[var(--secondary-text)]/40 flex items-center gap-2">
+            صُنع بحُب في الوطن العربي <span className="text-red-500/80 animate-pulse">❤️</span>
           </p>
         </div>
-
       </div>
     </footer>
   );

@@ -511,7 +511,7 @@ export default function BookDisplay() {
   }, [id]);
 
   return (
-    <div className="w-full bg-[#f2e8d5] flex flex-col h-screen">
+    <div className="w-full bg-white flex flex-col h-screen">
       <ReaderHeader
         onBack={() => navigate(-1)}
         onGoToPage={(p) => bookRef.current?.goToPage?.(p)}

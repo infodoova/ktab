@@ -13,8 +13,8 @@ const PageHeader = ({
         hidden md:block 
         sticky top-0 z-50
         w-full h-16 
-        border-b 
-        bg-[#f7f4ef]/80 backdrop-blur-md
+        border-b border-black/5
+        bg-white/70 backdrop-blur-md
         rtl relative
       "
     >
@@ -24,8 +24,8 @@ const PageHeader = ({
         className="
           absolute left-1/2 top-1/2 
           -translate-x-1/2 -translate-y-1/2
-          text-xl font-bold text-[var(--earth-brown)] text-center
-          pointer-events-none
+          text-lg font-black text-black text-center
+          pointer-events-none tracking-tight
         "
       >
         {mainTitle}
@@ -43,11 +43,12 @@ const PageHeader = ({
           <button
             onClick={onPress}
             className="
-              h-9 px-4 rounded-md border 
-              border-[var(--earth-olive)]
-              text-[var(--earth-olive)]
-              hover:bg-[var(--earth-olive)]/10
-              transition font-semibold
+              h-9 px-6 rounded-xl border-0
+              bg-gradient-to-r from-[#5de3ba] to-[#76debf]
+              text-white
+              hover:opacity-90
+              transition-all duration-300 font-black uppercase tracking-widest text-[10px]
+              whitespace-nowrap shadow-[0_10px_20px_rgba(93,227,186,0.15)]
             "
           >
             {buttonTitle}

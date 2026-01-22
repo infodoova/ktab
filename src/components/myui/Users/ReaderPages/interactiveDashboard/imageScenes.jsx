@@ -5,20 +5,36 @@ import React, { useState } from "react";
  * Displays the scene image with beautiful effects and animations
  * Pure presentation component - all logic in mainComp
  */
-function ImageScenes({ image, sceneNumber, onImageClick }) {
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const [imageError, setImageError] = useState(false);
+function ImageScenes({ image, onImageClick, isGenerating }) {
+  const [imageLoaded, setImageLoaded] = React.useState(false);
+  const [imageError, setImageError] = React.useState(false);
+
+  // Reset image loaded state when image URL changes
+  React.useEffect(() => {
+    setImageLoaded(false);
+    setImageError(false);
+  }, [image]);
+
+  const showSkeleton = isGenerating || (!imageLoaded && !imageError);
 
   return (
     <div className="mb-4 md:mb-6 relative flex justify-center w-full h-full">
       {/* Main image container - perfect 16:9 aspect ratio with controlled size */}
       <div
-        className="relative overflow-hidden rounded-[2rem] shadow-2xl w-full h-full border border-white/10 cursor-zoom-in group/img"
+        className="relative overflow-hidden rounded-[2rem] shadow-2xl w-full aspect-video border border-white/10 cursor-zoom-in group/img"
         onClick={() => onImageClick?.(image)}
       >
         {/* Loading skeleton */}
-        {!imageLoaded && !imageError && (
-          <div className="absolute inset-0 bg-gradient-to-r from-white/5 via-white/10 to-white/5 animate-pulse" />
+        {showSkeleton && (
+          <div className="absolute inset-0 bg-[var(--bg-dark)] flex items-center justify-center overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
+            <div className="relative z-10 flex flex-col items-center gap-4">
+              <div className="w-12 h-12 border-4 border-[var(--primary-button)]/20 border-t-[var(--primary-button)] rounded-full animate-spin shadow-[0_0_20px_var(--primary-button)]/30" />
+              <div className="h-2 w-32 bg-[var(--primary-button)]/10 rounded-full overflow-hidden relative">
+                <div className="absolute inset-0 bg-[var(--primary-button)]/40 animate-[shimmer_1.5s_infinite]" />
+              </div>
+            </div>
+          </div>
         )}
 
         {/* Error state */}
@@ -36,7 +52,6 @@ function ImageScenes({ image, sceneNumber, onImageClick }) {
         {/* Actual image */}
         <img
           src={image}
-          alt={`Scene ${sceneNumber}`}
           onLoad={() => setImageLoaded(true)}
           onError={() => setImageError(true)}
           className={`
@@ -67,19 +82,12 @@ function ImageScenes({ image, sceneNumber, onImageClick }) {
         </div>
 
         {/* Gradient overlay for better text readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[var(--earth-brown-dark)]/40 via-[var(--earth-brown)]/10 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent pointer-events-none" />
 
-        {/* Vignette effect */}
-        <div className="absolute inset-0 shadow-[inset_0_0_40px_rgba(62,39,35,0.3)] pointer-events-none" />
+        {/* Dynamic glow effect */}
+        <div className="absolute inset-0 shadow-[inset_0_0_100px_rgba(0,0,0,0.4)] pointer-events-none" />
 
-        {/* Decorative corner elements */}
-        <div className="absolute top-0 right-0 w-12 h-12 bg-gradient-to-bl from-[var(--earth-sand)]/20 to-transparent pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-12 h-12 bg-gradient-to-tr from-[var(--earth-sand)]/20 to-transparent pointer-events-none" />
-
-        {/* Scene number watermark */}
-        <div className="absolute top-2 right-2 bg-[var(--earth-brown)]/60 backdrop-blur-sm px-2 py-0.5 rounded-full border border-[var(--earth-sand)]/30">
-          <span className="text-white text-xs font-bold">#{sceneNumber}</span>
-        </div>
+       
 
         {/* Animated particles - smaller */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-60">

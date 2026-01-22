@@ -9,6 +9,10 @@ import FAQ from "./components/myui/HomePage/FAQ";
 import CinematicIntro from "./components/myui/HomePage/CinematicIntro";
 import Navbar from "./components/myui/HomePage/navbar";
 import BooksMasonry from "./components/myui/HomePage/BooksMasonry";
+
+// Import HomePage-specific dark theme styles
+import "./components/myui/HomePage/HomePage.css";
+
 const HomePage = () => {
   const [playIntro, setPlayIntro] = useState(true);
   useEffect(() => {
@@ -16,16 +20,12 @@ const HomePage = () => {
     return () => clearTimeout(timer);
   }, []);
 
-
-
   if (playIntro) {
     return <CinematicIntro />;
   }
 
   return (
-    <>
-
-
+    <div className="homepage-dark">
       <Navbar />
       <HeroSection />
       <ForAllAges />
@@ -35,7 +35,7 @@ const HomePage = () => {
       <PricingSection />
       <FAQ />
       <Footer />
-    </>
+    </div>
   );
 };
 
