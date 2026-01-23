@@ -8,49 +8,41 @@ export default function CardStates({ stats }) {
         <StatCard
           title="التقييم"
           value={stats?.averageRating?.toFixed(2)}
-          icon={<Star className="w-6 h-6 text-amber-500" />}
-          gradient="from-[#FFEEC6] to-[#F9E0A6]"
+          icon={<Star className="w-6 h-6 text-[#5de3ba]" />}
         />
         <StatCard
           title="عدد القراء "
           value={stats?.totalReads}
-          icon={<Eye className="w-6 h-6 text-blue-700" />}
-          gradient="from-[#DCEBFF] to-[#C5DBFF]"
+          icon={<Eye className="w-6 h-6 text-[#5de3ba]" />}
         />
         <StatCard
           title="مجموع التقييمات"
           value={stats?.totalReviews}
-          icon={<Users className="w-6 h-6 text-emerald-700" />}
-          gradient="from-[#D9F4E4] to-[#C0EFD4]"
+          icon={<Users className="w-6 h-6 text-[#5de3ba]" />}
         />
         <StatCard
           title="الكتب"
           value={stats?.totalBooks}
-          icon={<BookOpen className="w-6 h-6 text-[var(--earth-brown)]" />}
-          gradient="from-[#F5E5C9] to-[#E8D6B2]"
+          icon={<BookOpen className="w-6 h-6 text-[#5de3ba]" />}
         />
       </div>
     </section>
   );
 }
 
-function StatCard({ title, value, icon, gradient }) {
+function StatCard({ title, value, icon }) {
   return (
     <div
-      className={`rounded-3xl border border-[var(--earth-shadow)] bg-gradient-to-br ${gradient} p-5 shadow-[0_4px_18px_rgba(0,0,0,0.07)] hover:shadow-[0_6px_22px_rgba(0,0,0,0.12)] transition-all backdrop-blur-xl`}
+      className="bg-white shadow-sm border border-black/10 rounded-2xl p-6 flex flex-col items-center text-center transition-all duration-300 hover:shadow-md hover:-translate-y-1"
     >
-      <div className="flex items-center justify-between">
-        <div className="flex flex-col gap-0.5">
-          <p className="text-[var(--earth-brown)]/70 text-xs md:text-sm font-medium">
-            {title}
-          </p>
-          <h3 className="text-3xl md:text-4xl font-extrabold text-[var(--earth-brown-dark)] tracking-tight">
-            {value ?? 0}
-          </h3>
-        </div>
-        <div className="p-3 rounded-2xl bg-white/60 shadow-inner backdrop-blur-md">
-          {icon}
-        </div>
+      <div className="p-3 rounded-xl bg-gradient-to-br from-[#5de3ba]/20 to-[#76debf]/10 mb-3">
+        {React.cloneElement(icon, { className: "text-[#5de3ba]", size: 24 })}
+      </div>
+      <div className="text-2xl font-black text-black tracking-tight">
+        {value ?? 0}
+      </div>
+      <div className="text-sm font-black uppercase tracking-widest text-black/40 mt-1">
+        {title}
       </div>
     </div>
   );

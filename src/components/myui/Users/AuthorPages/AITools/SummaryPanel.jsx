@@ -95,30 +95,30 @@ const cleanMarkdown = (text) => {
     <div
       className="
         flex-1 flex flex-col relative overflow-hidden
-        rounded-2xl p-4 sm:p-6
-        bg-[var(--earth-paper)]
-        border border-[var(--earth-sand)]/40 
-        shadow-sm
-        max-h-[80vh]
+        rounded-[2.5rem] p-6 md:p-10
+        bg-white
+        border border-black/5 
+        shadow-[0_20px_50px_rgba(0,0,0,0.05)]
+        max-h-[85vh]
       "
     >
       {/* --------------------- EMPTY STATE --------------------- */}
       {!summary && !loading && (
-        <div className="flex flex-col items-center justify-center text-center h-full animate-fadeIn">
-          <div className="relative mb-4">
-            <div className="absolute inset-0 bg-[var(--earth-olive)]/20 blur-3xl rounded-full" />
+        <div className="flex flex-col items-center justify-center text-center h-full animate-fadeIn space-y-6">
+          <div className="relative">
+            <div className="absolute inset-0 bg-[#5de3ba]/10 blur-3xl rounded-full" />
             <Bot
               size={80}
-              className="relative text-[var(--earth-olive)] opacity-90 drop-shadow"
+              className="relative text-[#5de3ba] opacity-90 drop-shadow-xl"
             />
           </div>
 
-          <p className="text-lg font-semibold text-[var(--earth-brown)]/80">
+          <p className="text-3xl md:text-5xl font-black text-black tracking-tight">
             ابدأ الآن
           </p>
 
-          <p className="text-sm text-[var(--earth-brown)]/60 mt-1">
-            قم برفع ملف PDF وتوليد الخلاصة مباشرة هنا
+          <p className="text-sm md:text-base font-bold text-black/40 max-w-sm">
+            قم برفع ملف PDF وتوليد الخاتمة الذكية مباشرة هنا لتوفير الوقت والجهد
           </p>
         </div>
       )}
@@ -139,7 +139,7 @@ const cleanMarkdown = (text) => {
       {/* ---------------------- SUMMARY ------------------------- */}
       {summary && (
         <div className="h-full overflow-y-auto relative z-10 px-2 mt-2 custom-scrollbar">
-          <h2 className="text-xl font-bold text-center text-[var(--earth-brown)] mb-4">
+          <h2 className="text-2xl md:text-4xl font-black text-center text-black mb-10 tracking-tight">
             الخلاصة المولدة
           </h2>
 
@@ -182,17 +182,16 @@ const cleanMarkdown = (text) => {
           <button
             onClick={handleCopy}
             className="
-              p-3 rounded-xl 
-              bg-white/80 backdrop-blur-xl
-              shadow-md border border-[var(--earth-sand)]/60 
-              transition-all hover:bg-[var(--earth-cream)]/80 
+              p-4 rounded-2xl 
+              bg-white shadow-xl border border-black/5 
+              transition-all hover:bg-black/5 
               hover:scale-105 active:scale-95
             "
           >
             {copied ? (
-              <Check size={20} className="text-[var(--earth-olive)]" />
+              <Check size={20} className="text-[#5de3ba]" />
             ) : (
-              <Copy size={20} className="text-[var(--earth-brown)]" />
+              <Copy size={20} className="text-black/40" />
             )}
           </button>
 
@@ -200,17 +199,16 @@ const cleanMarkdown = (text) => {
           <button
             onClick={handleShare}
             className="
-              p-3 rounded-xl 
-              bg-white/80 backdrop-blur-xl
-              shadow-md border border-[var(--earth-sand)]/60 
-              transition-all hover:bg-[var(--earth-cream)]/80
+              p-4 rounded-2xl 
+              bg-white shadow-xl border border-black/5 
+              transition-all hover:bg-black/5
               hover:scale-105 active:scale-95
             "
           >
             {shared ? (
-              <Check size={20} className="text-[var(--earth-olive)]" />
+              <Check size={20} className="text-[#5de3ba]" />
             ) : (
-              <Share2 size={20} className="text-[var(--earth-brown)]" />
+              <Share2 size={20} className="text-black/40" />
             )}
           </button>
         </div>

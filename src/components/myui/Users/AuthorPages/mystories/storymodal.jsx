@@ -11,11 +11,11 @@ import {
 import ResponsiveImageSkeleton from "../../../imageSkeletonLoaderCP";
 /* eslint-disable  */
 const DetailRow = ({ label, value, icon: Icon }) => (
-  <div className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-black/[0.03] hover:border-[#5de3ba]/30 transition-colors">
+  <div className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-black/[0.03] hover:border-[#5de3ba]/30 transition-colors text-right">
     <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-[#5de3ba] shrink-0 shadow-sm border border-black/[0.05]">
       <Icon size={18} />
     </div>
-    <div className="min-w-0">
+    <div className="min-w-0 flex-1">
       <p className="text-[9px] font-black uppercase tracking-[0.15em] text-black/30 mb-0.5">
         {label}
       </p>
@@ -33,16 +33,19 @@ export default function StoryModal({ story, onClose }) {
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6 overflow-hidden">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-slate-900/40 backdrop-blur-md animate-in fade-in duration-300"
+        className="absolute inset-0 bg-slate-900/60 md:backdrop-blur-sm animate-in fade-in duration-300"
         onClick={onClose}
       />
 
       {/* Modal Container */}
-      <div className="relative w-full max-w-6xl bg-white rounded-[3rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.2)] overflow-hidden flex flex-col md:flex-row-reverse animate-in zoom-in-95 duration-500 max-h-[90vh]">
+      <div 
+        dir="rtl"
+        className="relative w-full max-w-6xl bg-white rounded-[3rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.2)] overflow-hidden flex flex-col md:flex-row animate-in fade-in zoom-in-95 duration-300 max-h-[90vh]"
+      >
         {/* Close Button - Floating */}
         <button
           onClick={onClose}
-          className="absolute top-6 left-6 z-50 w-10 h-10 rounded-full bg-white/80 backdrop-blur-md border border-black/5 flex items-center justify-center text-black/40 hover:text-black transition-all hover:scale-110"
+          className="absolute top-4 left-4 z-50 w-10 h-10 rounded-full bg-white md:bg-white/80 md:backdrop-blur-md border border-black/5 flex items-center justify-center text-black/40 hover:text-black transition-all hover:scale-110"
         >
           <X size={20} />
         </button>
@@ -60,7 +63,7 @@ export default function StoryModal({ story, onClose }) {
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
           <div className="absolute bottom-10 right-10 left-10 text-right">
-            <div className="flex flex-wrap justify-end gap-2 mb-4">
+            <div className="flex flex-wrap justify-start gap-2 mb-4">
               <span className="px-3 py-1 rounded-lg bg-[#5de3ba] text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-[#5de3ba]/20">
                 {story.genre}
               </span>
@@ -76,8 +79,7 @@ export default function StoryModal({ story, onClose }) {
 
         {/* Content Side - Spacious and Non-stacked */}
         <div
-          className="flex-1 p-8 md:p-12 lg:p-16 overflow-y-auto no-scrollbar text-right"
-          dir="rtl"
+          className="flex-1 p-8 md:p-12 lg:p-14 overflow-y-auto no-scrollbar text-right"
         >
           <div className="max-w-3xl mx-auto space-y-12">
             {/* Overview Section */}

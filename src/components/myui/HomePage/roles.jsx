@@ -1,114 +1,177 @@
 /* eslint-disable */
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import ResponsiveImageSkeleton from "../imageSkeletonLoaderCP";
 
-// Role data
+// Simplified role data focusing on Title and Content for high-end typography
 const rolesData = [
   {
     id: "reader",
     heading: "القارئ",
-    subHeading: "عالم من الخيال في انتظارك",
     description: "تجربة قراءة واضحة ومريحة تُساعده على الاستمرار مع أدوات ذكية لتتبّع التقدّم والمكتبة الشخصية.",
     image: "https://images.pexels.com/photos/3494806/pexels-photo-3494806.jpeg?auto=compress&cs=tinysrgb&w=800",
   },
   {
     id: "author",
-    heading: "المؤلّف",
-    subHeading: "أطلق العنان لإبداعك",
+    heading: "المؤلف",
     description: "بيئة نشر تدعم الإبداع وتُسهّل الوصول إلى الجمهور مع أدوات احترافية لعرض الكتب وتحليل الأداء.",
     image: "https://images.pexels.com/photos/8717959/pexels-photo-8717959.jpeg?auto=compress&cs=tinysrgb&w=800",
   },
   {
     id: "educator",
-    heading: "المعلّم",
-    subHeading: "إدارة تعليمية بلمسة ذكية",
+    heading: "المعلم",
     description: "أدوات تُبسّط إدارة الصف وتُعزّز التفاعل من خلال نظام تعيين الواجبات وقياس مستوى الطلاب.",
     image: "https://images.pexels.com/photos/6266987/pexels-photo-6266987.jpeg?auto=compress&cs=tinysrgb&w=800",
   },
   {
     id: "student",
     heading: "الطالب",
-    subHeading: "تعلّم بذكاء وسرعة",
     description: "أدوات تُساعدك على الدراسة بذكاء من خلال ملخصات ذكية وتتبّع دقيق للإنجاز الأكاديمي.",
     image: "https://images.pexels.com/photos/1251861/pexels-photo-1251861.jpeg?auto=compress&cs=tinysrgb&w=800",
   },
 ];
 
-const RoleCard = ({ role, index }) => {
+// Custom Typewriter component that preserves Arabic joining by using string slicing
+const Typewriter = ({ text, speed = 30, delay = 0 }) => {
+  const [displayedText, setDisplayedText] = useState("");
+  const [isStarted, setIsStarted] = useState(false);
+
+  useEffect(() => {
+    if (!isStarted) return;
+    let i = 0;
+    const timer = setInterval(() => {
+      setDisplayedText(text.slice(0, i));
+      i++;
+      if (i > text.length) clearInterval(timer);
+    }, speed);
+    return () => clearInterval(timer);
+  }, [isStarted, text, speed]);
+
+  return (
+    <motion.span
+      onViewportEnter={() => setTimeout(() => setIsStarted(true), delay)}
+      className="inline-block"
+    >
+      {displayedText}
+      {displayedText.length < text.length && (
+        <motion.span
+          animate={{ opacity: [0, 1, 0] }}
+          transition={{ duration: 0.8, repeat: Infinity }}
+          className="inline-block w-[2px] h-[1em] bg-[var(--primary-button)] align-middle mr-1"
+        />
+      )}
+    </motion.span>
+  );
+};
+
+const RolePane = ({ role, index, active, onHover, isMobile }) => {
   return (
     <motion.div
-      initial={{ opacity: 1, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.6, delay: index * 0.1 }}
-      className="group relative bg-[#111111] rounded-[2.5rem] overflow-hidden border border-white/5 hover:border-[var(--primary-button)]/30 transition-all duration-500"
+      onMouseEnter={() => !isMobile && onHover(index)}
+      onClick={() => isMobile && onHover(index === -1 ? index : (index === active ? -1 : index))}
+      className={`
+        relative overflow-hidden transition-all duration-700 ease-[cubic-bezier(0.4,0,0.2,1)]
+        ${isMobile ? (active ? "h-[300px]" : "h-[70px]") : (active ? "flex-[3]" : "flex-1")}
+        ${!isMobile && "border-l border-white/5 first:border-l-0"}
+        ${isMobile && "border-b border-white/5 last:border-b-0"}
+        bg-[#111]
+      `}
     >
-      <div className="aspect-[16/9] overflow-hidden relative">
+      {/* Background Image */}
+      <div className="absolute inset-0 z-0">
         <ResponsiveImageSkeleton
           src={role.image}
           alt={role.heading}
           className="w-full h-full"
-          imgClassName="object-cover" // Removed hover scaling
+          imgClassName={`object-cover transition-all duration-1000 ${active ? "scale-105 grayscale-0" : "scale-125 grayscale"}`}
           rounded="rounded-none"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#111111] via-transparent to-transparent" />
+        <div className={`absolute inset-0 transition-opacity duration-700 ${active ? "bg-black/30" : "bg-black/60"}`} />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
       </div>
 
-      <div className="p-8 md:p-10">
-        <h3 className="text-3xl md:text-4xl font-black text-white mb-2">{role.heading}</h3>
-        <p className="text-[var(--primary-button)] text-xs font-black tracking-[0.2em] uppercase mb-4 opacity-80">
-          {role.subHeading}
-        </p>
-        <p className="text-white/50 text-lg leading-relaxed font-medium">
-          {role.description}
-        </p>
+      {/* Title Label (Collapsed) */}
+      <motion.div
+        animate={{ 
+          opacity: active ? 0 : 1,
+        }}
+        className="absolute inset-0 flex items-center justify-center pointer-events-none"
+      >
+        <span className={`text-white/30 font-black tracking-tighter uppercase transition-all duration-500 ${isMobile ? "text-2xl" : "text-4xl rotate-90 whitespace-nowrap"}`}>
+          {role.heading}
+        </span>
+      </motion.div>
+
+      {/* Expanded Content */}
+      <div className={`relative z-10 h-full p-6 md:p-12 flex flex-col justify-end transition-all duration-700 ${active ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
+        <div className="max-w-4xl">
+           <h3 className="text-4xl md:text-7xl lg:text-8xl font-black text-white leading-[0.9] mb-4 tracking-tighter">
+              {role.heading}
+           </h3>
+
+           <div className="max-w-xl">
+              <p className="text-white/70 text-base md:text-xl lg:text-2xl leading-relaxed font-medium">
+                {active && <Typewriter text={role.description} speed={20} delay={400} />}
+              </p>
+           </div>
+        </div>
       </div>
     </motion.div>
   );
 };
 
-
-
 export default function RolesPage() {
-  return (
-    <section id="roles" dir="rtl" className="py-24 md:py-32 bg-[#0a0a0a] overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6">
-        <header className="mb-20 text-center relative">
-          {/* Subtle background element */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[var(--primary-button)]/5 blur-[120px] rounded-full pointer-events-none" />
-          
-          <motion.h2
-            initial={{ opacity: 1, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-50px" }}
-            className="text-5xl md:text-8xl font-black text-white tracking-tighter relative z-10"
-          >
-            أدوار <span className="text-[var(--primary-button)] text-glow">تتناغم</span> معاً
-          </motion.h2>
-          <motion.p
-             initial={{ opacity: 1, y: 20 }}
-             whileInView={{ opacity: 1, y: 0 }}
-             viewport={{ once: true, margin: "-50px" }}
-             transition={{ delay: 0.2 }}
-             className="mt-6 text-xl md:text-2xl text-white/30 max-w-2xl mx-auto leading-relaxed relative z-10 font-medium"
-          >
-            بيئة رقمية شاملة تجمع كل أطراف العملية الإبداعية والتعليمية في فضاء واحد.
-          </motion.p>
-        </header>
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
-          {rolesData.map((role, index) => (
-            <RoleCard key={role.id} role={role} index={index} />
-          ))}
-        </div>
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  return (
+    <section id="roles" dir="rtl" className="bg-black overflow-hidden relative w-full">
+      {/* HEADER SECTION - Adopted from ForAllAges.jsx Design */}
+      <div className="w-full px-6 py-28 md:py-40 text-center relative z-10">
+     
+
+        <motion.h2 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-4xl md:text-7xl lg:text-8xl font-black mb-6 leading-tight text-[var(--secondary-text)] tracking-tight"
+        >
+          أدوار <span className="text-[var(--primary-button)]">تتناغم</span> معـاً
+        </motion.h2>
+
+        <motion.p 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-lg md:text-xl lg:text-2xl max-w-3xl mx-auto font-medium text-[var(--secondary-text)]/60 leading-relaxed"
+        >
+          بيئة رقمية متكاملة تجمع كل أطراف العملية الإبداعية والتعليمية في فضاء واحد، مصممة لتعزيز الإبداع وتسهيل الوصول.
+        </motion.p>
       </div>
-      
-      <style>{`
-        .text-glow {
-          text-shadow: 0 0 30px rgba(93, 227, 186, 0.2);
-        }
-      `}</style>
+
+      {/* Accordion Container - Full Width */}
+      <div className={`
+        relative w-full overflow-hidden border-t border-white/10
+        flex ${isMobile ? "flex-col h-auto" : "h-[500px] md:h-[600px]"}
+      `}>
+        {rolesData.map((role, index) => (
+          <RolePane
+            key={role.id}
+            role={role}
+            index={index}
+            active={activeIndex === index}
+            onHover={setActiveIndex}
+            isMobile={isMobile}
+          />
+        ))}
+      </div>
     </section>
   );
 }

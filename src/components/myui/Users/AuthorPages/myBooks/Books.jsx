@@ -3,12 +3,10 @@ import {
   Star,
   UserStar,
   MoreVertical,
-  Share2,
   Trash,
   Loader2,
   BookOpen,
   Search,
-  
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import SkeletonBookLoader from "./SkeletonBookLoader";
@@ -33,19 +31,6 @@ const MinimalBookCard = ({
     setOpenMenuId(isOpen ? null : book.id);
   };
 
-  const handleShare = async () => {
-    if (navigator.share) {
-      await navigator.share({
-        title: book.title,
-        text: "اطّلع على هذا الكتاب",
-        url: book.pdfDownloadUrl,
-      });
-    } else {
-      navigator.clipboard.writeText(book.pdfDownloadUrl);
-      alert("تم نسخ رابط الكتاب");
-    }
-    setOpenMenuId(null);
-  };
 
   return (
     <div className="relative group flex flex-col gap-3" dir="rtl">
@@ -53,7 +38,7 @@ const MinimalBookCard = ({
       <div className="absolute top-2 left-2 z-20 book-menu-area">
         <button
           onClick={toggleMenu}
-          className="p-1.5 rounded-full bg-white/80 backdrop-blur-md shadow text-[var(--earth-brown)] hover:bg-[var(--earth-cream)]"
+          className="p-1.5 rounded-full bg-white/80 backdrop-blur-md shadow text-black/60 hover:bg-black/5"
         >
           <MoreVertical size={16} />
         </button>
@@ -63,15 +48,6 @@ const MinimalBookCard = ({
             className="absolute top-8 left-0 w-40 bg-white shadow-lg rounded-xl border border-[var(--earth-sand)]/50 p-2 text-sm z-30 book-menu-area"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* SHARE — PUBLISHED ONLY */}
-            {!isDraft && (
-              <button
-                onClick={handleShare}
-                className="w-full flex items-center justify-between px-2 py-2 hover:bg-[var(--earth-cream)] rounded-lg text-[var(--earth-brown)]"
-              >
-                <span>مشاركة</span> <Share2 size={14} />
-              </button>
-            )}
 
             {/* DELETE — ALWAYS */}
             <button
@@ -101,8 +77,8 @@ const MinimalBookCard = ({
         <div
           className="
           relative aspect-[2/3] w-full overflow-hidden rounded-[20px]
-          bg-[var(--earth-sand)]/20 shadow-sm transition-all duration-500
-          group-hover:shadow-xl group-hover:shadow-[var(--earth-sand)]/50
+          bg-black/5 shadow-sm transition-all duration-500
+          group-hover:shadow-xl group-hover:shadow-[#5de3ba]/10
         "
         >
           {book.coverImageUrl ? (
@@ -112,7 +88,7 @@ const MinimalBookCard = ({
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center text-[var(--earth-sand)]">
+            <div className="flex h-full w-full items-center justify-center text-black/10">
               <BookOpen size={48} />
             </div>
           )}
@@ -120,18 +96,18 @@ const MinimalBookCard = ({
           <div
             className="
             absolute top-3 right-3 flex items-center gap-1 rounded-full
-            bg-white/90 px-2.5 py-1 text-[10px] font-bold text-[var(--earth-brown)] shadow
+            bg-white/90 px-2.5 py-1 text-[10px] font-bold text-black shadow
             text-[14px]
           "
           >
-            <Star size={14} className="fill-yellow-400" />
+            <Star size={14} className="fill-yellow-400 text-yellow-500" />
             {book.averageRating?.toFixed(1) ?? "0.0"}
           </div>
 
           <div
             className="
             absolute bottom-3 right-3 flex items-center gap-1 rounded-full
-            bg-[var(--earth-brown)]/70 text-white px-2 py-1 text-[10px]
+            bg-black/70 text-white px-2 py-1 text-[10px]
           "
           >
             <UserStar size={10} /> {book.totalReviews ?? 0}
@@ -141,8 +117,8 @@ const MinimalBookCard = ({
         <div className="px-1 mt-2">
           <h3
             className="
-            line-clamp-1 text-base font-semibold text-[var(--earth-brown)]
-            group-hover:text-[var(--earth-olive)] transition
+            line-clamp-1 text-base font-black text-black
+            group-hover:text-[#5de3ba] transition-colors
           "
           >
             {book.title}
@@ -236,13 +212,13 @@ export default function Books({ fetchFunction }) {
   }, []);
 
   return (
-    <div className="w-full min-h-screen bg-[var(--earth-cream)]">
+    <div className="w-full min-h-screen bg-[#fafffe]">
       {/* STICKY HEADER ROW */}
       <div
         className="
     sticky top-0 z-40
-    bg-[var(--earth-cream)]/90 backdrop-blur-xl
-    border-b border-[var(--earth-sand)]/40
+    bg-[#fafffe]/90 backdrop-blur-xl
+    border-b border-black/5
   "
       >
         <div className="max-w-7xl mx-auto px-6 py-4">
@@ -257,11 +233,11 @@ export default function Books({ fetchFunction }) {
                   setPage(0);
                 }}
                 className={`
-            flex-1 md:flex-none px-6 py-3 rounded-xl text-sm font-bold transition-all
+            flex-1 md:flex-none px-6 py-3 rounded-xl text-sm font-black tracking-tight transition-all
             ${
               activeTab === "PUBLISHED"
-                ? "bg-[var(--earth-olive)] text-white shadow-md"
-                : "bg-white text-[var(--earth-brown)] border border-[var(--earth-sand)]"
+                ? "bg-[#5de3ba] text-black shadow-lg shadow-[#5de3ba]/20"
+                : "bg-white text-black/60 border border-black/5 hover:bg-black/5"
             }
           `}
               >
@@ -276,11 +252,11 @@ export default function Books({ fetchFunction }) {
                   setPage(0);
                 }}
                 className={`
-            flex-1 md:flex-none px-6 py-3 rounded-xl text-sm font-bold transition-all
+            flex-1 md:flex-none px-6 py-3 rounded-xl text-sm font-black tracking-tight transition-all
             ${
               activeTab === "DRAFT"
-                ? "bg-[var(--earth-olive)] text-white shadow-md"
-                : "bg-white text-[var(--earth-brown)] border border-[var(--earth-sand)]"
+                ? "bg-[#5de3ba] text-black shadow-lg shadow-[#5de3ba]/20"
+                : "bg-white text-black/60 border border-black/5 hover:bg-black/5"
             }
           `}
               >
@@ -297,17 +273,17 @@ export default function Books({ fetchFunction }) {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="
             w-full pl-4 pr-10 py-2.5
-            bg-[var(--earth-sand)]/20
-            text-[var(--earth-brown)]
-            border border-[var(--earth-sand)]/40
-            rounded-xl text-sm outline-none text-right
-            focus:bg-white focus:ring-2 focus:ring-[var(--earth-olive)]/30
+            bg-black/5
+            text-black
+            border border-transparent
+            rounded-xl text-sm outline-none text-right font-bold
+            focus:bg-white focus:border-[#5de3ba] focus:ring-4 focus:ring-[#5de3ba]/10 transition-all
           "
                 dir="rtl"
               />
               <Search
                 size={16}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--earth-brown)]/60"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-black/30"
               />
             </div>
           </div>
@@ -323,9 +299,9 @@ export default function Books({ fetchFunction }) {
             ))}
           </div>
         ) : filteredBooks.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-[var(--earth-brown)]/50">
+          <div className="flex flex-col items-center justify-center py-20 text-black/20">
             <BookOpen size={48} strokeWidth={1} />
-            <p className="mt-4 text-lg font-medium">لا توجد نتائج</p>
+            <p className="mt-4 text-lg font-black tracking-tight">لا توجد نتائج</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
@@ -353,7 +329,7 @@ export default function Books({ fetchFunction }) {
           {loadingMore && (
             <Loader2
               size={24}
-              className="animate-spin text-[var(--earth-brown)]/50"
+              className="animate-spin text-[#5de3ba]"
             />
           )}
         </div>

@@ -3,12 +3,11 @@ import Navbar from "../../../components/myui/Users/AuthorPages/navbar";
 import PageHeader from "../../../components/myui/Users/AuthorPages/sideHeader";
 import { AlertToast } from "../../../components/myui/AlertToast";
 import { getHelper, deleteHelper } from "../../../../apis/apiHelpers";
-import { BookOpen, Plus, Loader2 } from "lucide-react";
+import { BookOpen, Plus, Loader2, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 // Story Components
 import StorySkeletonLoader from "../../../components/myui/Users/AuthorPages/mystories/skeletonloader";
-import SearchStoryComponent from "../../../components/myui/Users/AuthorPages/mystories/searchStoryComponent";
 import StoryCardsComponent from "../../../components/myui/Users/AuthorPages/mystories/storyCardsComponent";
 import StoryModal from "../../../components/myui/Users/AuthorPages/mystories/storymodal";
 import DeleteStoryModal from "../../../components/myui/Users/AuthorPages/mystories/deletemodal";
@@ -29,6 +28,7 @@ function MyStories({ pageName = "قصصي التفاعلية" }) {
   const [selectedStory, setSelectedStory] = useState(null);
   const [storyToDelete, setStoryToDelete] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [openMenuId, setOpenMenuId] = useState(null);
   
   const lastRef = useRef(null);
 
@@ -84,6 +84,17 @@ function MyStories({ pageName = "قصصي التفاعلية" }) {
     };
   }, [page, totalPages, loadingMore, loading]);
 
+  // Click outside menu listener
+  useEffect(() => {
+    const close = (e) => {
+      if (!e.target.closest(".book-menu-area")) {
+        setOpenMenuId(null);
+      }
+    };
+    document.addEventListener("click", close);
+    return () => document.removeEventListener("click", close);
+  }, []);
+
   // Actions
   const openDeleteModal = (story) => {
     setStoryToDelete(story);
@@ -124,8 +135,6 @@ function MyStories({ pageName = "قصصي التفاعلية" }) {
             pageName={pageName}
             collapsed={collapsed}
             setCollapsed={setCollapsed}
-            mobileButtonTitle="قصة جديدة"
-            onMobileButtonPress={() => navigate("/author/interactive-story")}
         />
       </div>
 
@@ -141,15 +150,40 @@ function MyStories({ pageName = "قصصي التفاعلية" }) {
             onPress={() => navigate("/author/interactive-story")}
           />
 
-          {/* Scrollable Header Tools */}
-          <div className="bg-white border-b border-black/5 p-6 md:p-8">
-             <div className="max-w-7xl mx-auto flex flex-col md:flex-row-reverse gap-6 items-center justify-between">
-                <div className="space-y-1 text-right">
-                   <h2 className="text-2xl font-black text-black">رحلاتك <span className="text-[#5de3ba]">التفاعلية</span></h2>
-                   <p className="text-xs font-bold text-black/30 uppercase tracking-widest">إدارة العوالم التي صنعتها</p>
+          {/* STICKY HEADER ROW - MATCHING BOOKS DESIGN */}
+          <div
+            className="
+              sticky top-0 z-40
+              bg-white/90 backdrop-blur-xl
+              border-b border-black/5
+            "
+          >
+            <div className="max-w-7xl mx-auto px-6 py-4">
+              <div className="flex justify-start">
+                {/* SEARCH */}
+                <div className="relative w-full md:w-80 group">
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                    <Search
+                      size={18}
+                      className="text-black/20 group-focus-within:text-[#5de3ba] transition-colors"
+                    />
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="ابحث عن قصة..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="
+                      w-full h-11 pr-11 pl-4
+                      bg-black/5 border border-transparent rounded-xl
+                      text-sm font-bold text-black
+                      placeholder:text-black/20 focus:outline-none focus:bg-white focus:ring-4 focus:ring-[#5de3ba]/5 focus:border-[#5de3ba]/20 transition-all
+                    "
+                    dir="rtl"
+                  />
                 </div>
-                <SearchStoryComponent value={searchQuery} onChange={setSearchQuery} />
-             </div>
+              </div>
+            </div>
           </div>
 
           {/* Main Content */}
@@ -181,6 +215,8 @@ function MyStories({ pageName = "قصصي التفاعلية" }) {
                     onStoryClick={setSelectedStory}
                     onDeleteStory={openDeleteModal}
                     onEditStory={handleEditStory}
+                    openMenuId={openMenuId}
+                    setOpenMenuId={setOpenMenuId}
                   />
                   
                   {/* Load More Trigger */}

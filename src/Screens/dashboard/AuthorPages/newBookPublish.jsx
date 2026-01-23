@@ -521,7 +521,7 @@ export default function NewBooks({ pageName = "رفع كتاب جديد" }) {
   return (
     <div
       dir="rtl"
-      className="min-h-screen bg-[var(--earth-cream)] font-[family-name:var(--font-arabic)]"
+      className="min-h-screen bg-white font-arabic"
     >
       <div dir="ltr">
         <Navbar
@@ -540,50 +540,52 @@ export default function NewBooks({ pageName = "رفع كتاب جديد" }) {
           <PageHeader mainTitle={pageName} />
 
           <div className="flex-1 px-4 sm:px-6 md:px-12 py-10">
-            <div className="w-full max-w-6xl mx-auto bg-[var(--earth-paper)] rounded-3xl shadow-md border p-8 md:p-14">
+            <div className="w-full max-w-6xl mx-auto bg-white rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-black/5 p-8 md:p-14">
               {/* Header Text */}
-              <div className="mb-10 text-right">
-                <h2 className="text-3xl font-bold text-[var(--earth-brown-dark)]">
+              <div className="mb-14 text-right">
+                <h2 className="text-2xl md:text-6xl lg:text-7xl font-black text-black tracking-[-0.04em] mb-4">
                   {isEditingDraft ? "تعديل المسودة ونشرها" : "رفع كتاب جديد"}
                 </h2>
-                <p className="text-[var(--earth-brown)]/70 mt-2">
-                  {isEditingDraft
-                    ? "يمكنك تعديل بيانات المسودة أدناه ثم حفظها أو نشرها مباشرة."
-                    : "املأ المعلومات التالية لنشر كتابك على المنصة."}
-                </p>
+                <div className="flex items-center gap-3">
+                   <div className="h-1 lg:h-1.5 w-16 md:w-24 bg-[#5de3ba] rounded-full" />
+                   <p className="text-black/40 font-bold text-sm md:text-lg">
+                      {isEditingDraft
+                        ? "قم بتحديث بيانات كتابك ونشره للعالم."
+                        : "شارك معرفتك وقصصك مع الملايين من خلال بضع خطوات بسيطة."}
+                    </p>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
                 {/* LEFT SIDE: Inputs */}
                 <div className="lg:col-span-7 space-y-8">
                   {/* Title */}
-                  <div>
-                    <label className="font-semibold text-[var(--earth-brown-dark)]">
+                  <div className="group">
+                    <label className="block text-sm md:text-base font-black uppercase tracking-[0.2em] text-black/40 mb-4 mr-1 transition-colors group-focus-within:text-[#5de3ba]">
                       عنوان الكتاب *
                     </label>
                     <input
                       type="text"
-                      className="w-full h-14 px-5 rounded-xl bg-white border text-lg focus:outline-none focus:ring-2 focus:ring-[var(--earth-olive)]"
-                      placeholder="أدخل عنوان الكتاب"
+                      className="w-full h-12 md:h-14 px-5 md:px-6 rounded-2xl border border-black/5 bg-black/[0.04] text-base md:text-lg font-bold text-black transition-all text-right outline-none focus:bg-white focus:border-[#5de3ba]/30 focus:ring-4 focus:ring-[#5de3ba]/5"
+                      placeholder="أدخل عنواناً جذاباً لكتابك"
                       value={formData.title}
                       onChange={(e) =>
                         handleInputChange("title", e.target.value)
                       }
                     />
-                    <WarningBox>
-                      الحد الأقصى للعنوان هو{" "}
-                      <span className="font-semibold">255 حرف</span>.
-                    </WarningBox>
+                    <div className="flex items-center gap-2 mt-2 px-1">
+                       <Info size={12} className="text-[#5de3ba]" />
+                       <span className="text-[10px] font-bold text-black/40">الحد الأقصى للعنوان هو 255 حرف.</span>
+                    </div>
                   </div>
                   {/* Language */}
                   <div>
-                    <label className="font-semibold text-[var(--earth-brown-dark)]">
+                    <label className="block text-sm md:text-base font-black uppercase tracking-[0.2em] text-black/40 mb-4 mr-1">
                       اللغة *
                     </label>
-
                     <div className="relative">
                       <select
-                        className="w-full h-14 px-5 rounded-xl bg-white border text-lg appearance-none focus:outline-none focus:ring-2 focus:ring-[var(--earth-olive)]"
+                        className="w-full h-12 md:h-14 px-5 md:px-6 rounded-2xl border border-black/5 bg-black/[0.04] text-base md:text-lg font-bold text-black appearance-none transition-all outline-none focus:bg-white focus:border-[#5de3ba]/30 focus:ring-4 focus:ring-[#5de3ba]/5"
                         value={formData.language}
                         onChange={(e) =>
                           handleInputChange("language", e.target.value)
@@ -595,75 +597,68 @@ export default function NewBooks({ pageName = "رفع كتاب جديد" }) {
                           </option>
                         ))}
                       </select>
-
-                      <ChevronDown className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-400 pointer-events-none" />
+                      <ChevronDown className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-black/20 pointer-events-none" />
                     </div>
                   </div>
 
                   {/* Category */}
                   <div>
-                    <label className="font-semibold text-[var(--earth-brown-dark)]">
+                    <label className="block text-sm md:text-base font-black uppercase tracking-[0.2em] text-black/40 mb-4 mr-1">
                       التصنيف الرئيسي *
                     </label>
-
                     <div className="relative">
                       <select
-                        className="w-full h-14 px-5 rounded-xl bg-white border text-lg appearance-none focus:outline-none focus:ring-2 focus:ring-[var(--earth-olive)]"
+                        className="w-full h-12 md:h-14 px-5 md:px-6 rounded-2xl border border-black/5 bg-black/[0.04] text-base md:text-lg font-bold text-black appearance-none transition-all outline-none focus:bg-white focus:border-[#5de3ba]/30 focus:ring-4 focus:ring-[#5de3ba]/5"
                         value={formData.category}
                         onChange={(e) => handleGenreChange(e.target.value)}
                         disabled={genresLoading}
                       >
                         <option value="">
-                          {genresLoading ? "جاري التحميل..." : "اختر التصنيف"}
+                          {genresLoading ? "جاري التحميل..." : "اختر التصنيف الرئيسي"}
                         </option>
-
                         {genres.map((genre) => (
                           <option key={genre.id} value={genre.id}>
                             {genre.nameAr}
                           </option>
                         ))}
                       </select>
-
-                      <ChevronDown className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-400 pointer-events-none" />
+                      <ChevronDown className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-black/20 pointer-events-none" />
                     </div>
                   </div>
 
                   {formData.category && subGenres.length > 0 && (
                     <div>
-                      <label className="font-semibold text-[var(--earth-brown-dark)]">
+                      <label className="block text-sm md:text-base font-black uppercase tracking-[0.2em] text-black/40 mb-4 mr-1">
                         التصنيف الفرعي (اختياري)
                       </label>
-
                       <div className="relative">
                         <select
-                          className="w-full h-14 px-5 rounded-xl bg-white border text-lg appearance-none focus:outline-none focus:ring-2 focus:ring-[var(--earth-olive)]"
+                          className="w-full h-12 md:h-14 px-5 md:px-6 rounded-2xl border border-black/5 bg-black/[0.04] text-base md:text-lg font-bold text-black appearance-none transition-all outline-none focus:bg-white focus:border-[#5de3ba]/30 focus:ring-4 focus:ring-[#5de3ba]/5"
                           value={formData.subCategory}
                           onChange={(e) =>
                             handleInputChange("subCategory", e.target.value)
                           }
                         >
                           <option value="">بدون تصنيف فرعي</option>
-
                           {subGenres.map((sub) => (
                             <option key={sub.id} value={sub.id}>
                               {sub.nameAr}
                             </option>
                           ))}
                         </select>
-
-                        <ChevronDown className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-400 pointer-events-none" />
+                        <ChevronDown className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-black/20 pointer-events-none" />
                       </div>
                     </div>
                   )}
 
                   {/* Age Group */}
                   <div>
-                    <label className="font-semibold text-[var(--earth-brown-dark)]">
+                    <label className="block text-sm md:text-base font-black uppercase tracking-[0.2em] text-black/40 mb-4 mr-1">
                       الفئة العمرية *
                     </label>
                     <div className="relative">
                       <select
-                        className="w-full h-14 px-5 rounded-xl bg-white border text-lg appearance-none focus:outline-none focus:ring-2 focus:ring-[var(--earth-olive)]"
+                        className="w-full h-12 md:h-14 px-5 md:px-6 rounded-2xl border border-black/5 bg-black/[0.04] text-base md:text-lg font-bold text-black appearance-none transition-all outline-none focus:bg-white focus:border-[#5de3ba]/30 focus:ring-4 focus:ring-[#5de3ba]/5"
                         value={formData.ageGroup}
                         onChange={(e) =>
                           handleInputChange("ageGroup", e.target.value)
@@ -676,27 +671,27 @@ export default function NewBooks({ pageName = "رفع كتاب جديد" }) {
                           </option>
                         ))}
                       </select>
-                      <ChevronDown className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-400 pointer-events-none" />
+                      <ChevronDown className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-black/20 pointer-events-none" />
                     </div>
                   </div>
 
                   {/* Description */}
                   <div>
-                    <label className="font-semibold text-[var(--earth-brown-dark)]">
+                    <label className="block text-sm md:text-base font-black uppercase tracking-[0.2em] text-black/40 mb-4 mr-1">
                       وصف الكتاب *
                     </label>
                     <textarea
-                      className="w-full p-5 rounded-xl bg-white border text-lg h-40 focus:outline-none focus:ring-2 focus:ring-[var(--earth-olive)]"
-                      placeholder="اكتب وصفاً للكتاب"
+                      className="w-full p-5 md:p-6 h-40 md:h-48 rounded-[2rem] border border-black/5 bg-black/[0.04] text-base md:text-lg font-bold text-black transition-all text-right resize-none outline-none focus:bg-white focus:border-[#5de3ba]/30 focus:ring-4 focus:ring-[#5de3ba]/5"
+                      placeholder="اكتب وصفاً مشوقاً لمحتوى هذا الكتاب..."
                       value={formData.description}
                       onChange={(e) =>
                         handleInputChange("description", e.target.value)
                       }
                     />
-                    <WarningBox>
-                      حاول كتابة وصف مختصر وواضح ليساعد القراء على فهم محتوى
-                      الكتاب.
-                    </WarningBox>
+                    <div className="flex items-center gap-2 mt-2 px-1">
+                       <Info size={12} className="text-[#5de3ba]" />
+                       <span className="text-[10px] font-bold text-black/40">حاول كتابة وصف مختصر وواضح ليساعد القراء على فهم محتوى الكتاب.</span>
+                    </div>
                   </div>
                 </div>
 
@@ -704,6 +699,9 @@ export default function NewBooks({ pageName = "رفع كتاب جديد" }) {
                 <div className="lg:col-span-5 flex flex-col gap-8 mt-4">
                   {/* Cover Upload */}
                   <div>
+                    <label className="block text-sm md:text-base font-black uppercase tracking-[0.2em] text-black/40 mb-4 mr-1">
+                      صورة الغلاف *
+                    </label>
                     <input
                       id="coverInput"
                       type="file"
@@ -715,48 +713,50 @@ export default function NewBooks({ pageName = "رفع كتاب جديد" }) {
                     />
                     <label htmlFor="coverInput">
                       <div
-                        className={`border-2 border-dashed rounded-2xl w-full flex flex-col items-center justify-center text-center cursor-pointer shadow-sm p-6 overflow-hidden transition-colors ${
+                        className={`group relative border-2 border-dashed rounded-[2.5rem] w-full flex flex-col items-center justify-center text-center cursor-pointer overflow-hidden transition-all duration-300 shadow-sm ${
                           formData.coverFile || existingData.coverUrl
-                            ? "border-[var(--earth-olive)] bg-[var(--earth-olive)]/5"
-                            : "bg-white border-gray-300"
+                            ? "border-[#5de3ba]/30 bg-white shadow-lg shadow-[#5de3ba]/5"
+                            : "bg-black/[0.04] border-black/5 hover:border-[#5de3ba]/30 hover:bg-white"
                         }`}
-                        style={{ aspectRatio: "1 / 1.6" }}
+                        style={{ aspectRatio: "1 / 1.55" }}
                       >
                         {formData.coverFile ? (
                           <img
                             src={URL.createObjectURL(formData.coverFile)}
                             alt="Preview"
-                            className="w-full h-full rounded-2xl object-cover"
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                           />
                         ) : existingData.coverUrl ? (
                           <img
                             src={existingData.coverUrl}
                             alt="Existing Cover"
-                            className="w-full h-full rounded-2xl object-cover"
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                           />
                         ) : (
-                          <>
-                            <Upload className="w-8 h-8 mb-3 text-gray-600" />
-                            <p className="text-lg text-gray-700">
-                              اضغط لرفع صورة الغلاف
-                            </p>
-                          </>
+                          <div className="flex flex-col items-center p-8">
+                            <div className="w-16 h-16 rounded-[1.5rem] bg-white shadow-sm border border-black/5 flex items-center justify-center text-[#5de3ba] mb-4 group-hover:scale-110 transition-transform">
+                              <Upload size={28} />
+                            </div>
+                            <p className="text-lg font-black text-black leading-tight">اضغط لرفع صورة الغلاف</p>
+                            <p className="text-xs font-bold text-black/40 uppercase tracking-widest mt-2">JPG, PNG (Max 5MB)</p>
+                          </div>
                         )}
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors pointer-events-none" />
                       </div>
                     </label>
-                    <WarningBox>
-                      النسبة المطلوبة:{" "}
-                      <span className="font-semibold">1.6:1</span> (1.5 - 1.7).
-                      <br />
-                      الحد الأقصى: <span className="font-semibold">
-                        5MB
-                      </span>{" "}
-                      (JPG/PNG).
-                    </WarningBox>
+                    <div className="flex flex-col gap-1 mt-4 px-2">
+                       <div className="flex items-center gap-2">
+                         <div className="w-1.5 h-1.5 rounded-full bg-[#5de3ba]" />
+                         <span className="text-[10px] font-bold text-black/40">النسبة المطلوبة: <span className="text-black">1.6:1</span></span>
+                       </div>
+                    </div>
                   </div>
 
                   {/* PDF Upload */}
-                  <div>
+                  <div className="mt-4">
+                    <label className="block text-sm md:text-base font-black uppercase tracking-[0.2em] text-black/40 mb-4 mr-1">
+                      ملف المحتوى (PDF) *
+                    </label>
                     <input
                       id="pdfInput"
                       type="file"
@@ -768,58 +768,45 @@ export default function NewBooks({ pageName = "رفع كتاب جديد" }) {
                     />
                     <label htmlFor="pdfInput">
                       <div
-                        className={`border-2 border-dashed rounded-2xl h-[180px] w-full flex flex-col items-center justify-center text-center cursor-pointer shadow-sm p-6 transition-colors ${
+                        className={`group border-2 border-dashed rounded-[2rem] p-8 w-full flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-300 shadow-sm ${
                           formData.pdfFile || existingData.pdfName
-                            ? "border-[var(--earth-olive)] bg-[var(--earth-olive)]/5"
-                            : "bg-white border-gray-300"
+                            ? "border-[#5de3ba]/30 bg-white shadow-lg shadow-[#5de3ba]/5"
+                            : "bg-black/[0.04] border-black/5 hover:border-[#5de3ba]/30 hover:bg-white"
                         }`}
                       >
-                        <Upload
-                          className={`w-8 h-8 mb-3 ${
-                            formData.pdfFile || existingData.pdfName
-                              ? "text-[var(--earth-olive)]"
-                              : "text-gray-600"
-                          }`}
-                        />
-                        <p className="text-lg text-gray-700 font-medium px-4 truncate w-full">
+                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 transition-all ${formData.pdfFile || existingData.pdfName ? "bg-[#5de3ba] text-white shadow-lg shadow-[#5de3ba]/20" : "bg-white border border-black/5 text-black/10 group-hover:text-[#5de3ba]"}`}>
+                           <Upload size={24} strokeWidth={3} />
+                        </div>
+                        <p className="text-base font-black text-black px-4 truncate w-full">
                           {formData.pdfFile
                             ? formData.pdfFile.name
                             : existingData.pdfName
                             ? existingData.pdfName
-                            : "اضغط لرفع ملف الكتاب (PDF)"}
+                            : "اختر ملف الكتاب"}
                         </p>
-                        {(formData.pdfFile || existingData.pdfName) && (
-                          <span className="text-xs text-[var(--earth-olive)] mt-2 font-bold">
-                            تم تحديد الملف
-                          </span>
-                        )}
+                        <p className="text-xs font-bold text-black/40 uppercase tracking-widest mt-2">PDF ONLY (Max 50MB)</p>
                       </div>
                     </label>
-                    <WarningBox>
-                      صيغة PDF فقط. الحجم الأقصى 50MB.
-                      <br />
-                      سيتم حساب الصفحات تلقائياً.
-                    </WarningBox>
                   </div>
                 </div>
               </div>
 
               {/* ACTION BUTTONS */}
-              <div className="flex gap-4 pt-10 border-t mt-10">
-                <button
-                  onClick={handleSaveDraft}
-                  disabled={loading}
-                  className="px-8 py-4 bg-[var(--earth-sand)] text-[var(--earth-brown)] rounded-xl font-semibold hover:bg-[#e8dec8] transition-colors disabled:opacity-50"
-                >
-                  {isEditingDraft ? "تحديث المسودة" : "حفظ كمسودة"}
-                </button>
-
+              <div className="flex flex-col sm:flex-row gap-4 pt-12 border-t border-black/5 mt-12">
                 <button
                   onClick={handlePublishBook}
                   disabled={loading}
-                  className="px-12 py-4 bg-[var(--earth-olive)] text-white rounded-xl font-semibold hover:bg-[#6b7c4a] transition-colors disabled:opacity-50 flex-1 sm:flex-none"
+                  className="flex-1 btn-premium px-12 py-5 rounded-2xl text-white text-sm font-black uppercase tracking-widest transition-all active:scale-[0.98] disabled:opacity-50 shadow-xl shadow-[#5de3ba]/20"
                 >
-                  {loading ? "جاري النشر..." : "نشر الكتاب"}
+                  {loading ? "جاري النشر..." : "نشر الكتاب الآن"}
+                </button>
+
+                <button
+                  onClick={handleSaveDraft}
+                  disabled={loading}
+                  className="px-10 py-5 bg-white border border-black/10 text-black hover:bg-black/5 rounded-2xl font-black text-sm uppercase tracking-widest transition-all disabled:opacity-50"
+                >
+                  {isEditingDraft ? "تحديث المسودة" : "حفظ كمسودة"}
                 </button>
               </div>
             </div>

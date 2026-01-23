@@ -6,7 +6,7 @@ import { AlertToast } from "../../../components/myui/AlertToast";
 import SummaryPanel from "../../../components/myui/Users/AuthorPages/AITools/SummaryPanel";
 import PdfInputCard from "../../../components/myui/Users/AuthorPages/AITools/PdfInputCard";
 
-export default function AITools({ pageName = "مولّد الخلاصات الذكي" }) {
+export default function AITools({ pageName = "مولّد الخاتمة الذكي" }) {
   const [collapsed, setCollapsed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [summary, setSummary] = useState("");
@@ -74,7 +74,7 @@ export default function AITools({ pageName = "مولّد الخلاصات الذ
   };
 
   return (
-    <div className="min-h-screen bg-[var(--earth-cream)] rtl">
+    <div className="min-h-screen bg-white rtl">
       {/* NAVBAR */}
       <Navbar
         collapsed={collapsed}

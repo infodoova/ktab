@@ -38,7 +38,7 @@ export default function MyBooks({ pageName = "كتبي" }) {
   }, []);
 
   return (
-    <div dir="rtl" className="bg-[var(--earth-cream)] min-h-screen">
+    <div dir="rtl" className="bg-[#fafffe] min-h-screen">
       <div dir="ltr">
         <Navbar
           pageName={pageName}

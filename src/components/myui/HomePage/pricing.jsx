@@ -1,6 +1,5 @@
 /* eslint-disable no-unused-vars */
 import { useState } from "react";
-import { motion } from "framer-motion";
 import { Check } from "lucide-react";
 import { Label } from "@/components/ui/label";
 
@@ -88,38 +87,23 @@ export default function PricingSection() {
       <div className="max-w-6xl mx-auto px-6">
         {/* HEADER SECTION - Unified Design */}
         <div className="text-center mb-16 relative z-10">
-          <motion.span
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            className="inline-block px-5 py-2 rounded-full border border-[var(--primary-button)]/30 bg-[var(--primary-button)]/5 text-[var(--primary-button)] text-[10px] md:text-xs font-black uppercase tracking-[0.3em] mb-6"
-          >
-            باقات الاشتراك
-          </motion.span>
+       
 
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+          <h2
             className="text-4xl md:text-6xl lg:text-7xl font-black text-[var(--secondary-text)] tracking-tight mb-6"
           >
             خطط بسيطة <span className="text-[var(--primary-button)]">وواضحة</span>
-          </motion.h2>
+          </h2>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+          <p
             className="max-w-2xl mx-auto text-lg md:text-xl text-[var(--secondary-text)]/60 font-medium leading-relaxed"
           >
             اختر ما يناسبك من باقاتنا المرنة المصممة لتلبية احتياجاتك التعليمية والمعرفية بدون أي تعقيد.
-          </motion.p>
+          </p>
         </div>
 
         {/* BILLING TOGGLE */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
+        <div
           className="flex justify-center mt-12"
         >
           <div className="flex items-center gap-4 bg-[var(--bg-surface)]/80 backdrop-blur px-6 py-3 rounded-full shadow-lg border border-white/10">
@@ -145,27 +129,24 @@ export default function PricingSection() {
               سنوي
             </Label>
           </div>
-        </motion.div>
+        </div>
 
         {/* PRICING CARDS */}
         <div className="mt-24 grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {plans.map((plan) => (
-            <motion.div
+            <div
               key={plan.id}
-              initial={{ opacity: 0, y: 25 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4 }}
               className={`
                 relative rounded-[2.5rem] p-10
                 bg-[var(--bg-card)]/95 backdrop-blur-xl
                 border border-white/5
                 shadow-[0_20px_50px_rgba(0,0,0,0.3)]
-                transition-all duration-500
                 overflow-hidden
+                h-full flex flex-col
                 ${
                   plan.highlight
-                    ? "scale-[1.06] shadow-[0_40px_80px_rgba(0,0,0,0.5)] border-[var(--primary-button)]/50"
-                    : "hover:scale-[1.03] hover:shadow-[0_30px_60px_rgba(0,0,0,0.4)] hover:border-white/10"
+                    ? "border-[var(--primary-button)]/50 shadow-[0_40px_80px_rgba(0,0,0,0.5)]"
+                    : "hover:border-white/10"
                 }
               `}
             >
@@ -219,18 +200,17 @@ export default function PricingSection() {
               {/* CTA */}
               <button
                 className="
-                  w-full mt-10 py-4 rounded-2xl
+                  w-full mt-auto py-4 rounded-2xl
                   font-black text-lg
                   text-[var(--bg-dark)]
                   shadow-xl shadow-[var(--primary-button)]/30
-                  hover:scale-[1.02]
                   transition-all duration-300
                 "
                 style={{ background: "var(--gradient)" }}
               >
                 ابدأ الآن
               </button>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>

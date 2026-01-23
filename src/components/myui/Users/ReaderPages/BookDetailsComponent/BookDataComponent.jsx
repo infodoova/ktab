@@ -1,9 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import {
-  Share2,
   BookOpen,
   Star,
-  Download,
   Headphones,
   X,
   BookPlus,
@@ -258,76 +256,6 @@ export default function BookDataComponent({ bookId, navigate }) {
   // ============================
   // OTHER HELPERS
   // ============================
-  const encryptLink = (text) => {
-    try {
-      return btoa(encodeURIComponent(text));
-    } catch {
-      return text;
-    }
-  };
-
-  const generateEncryptedShareUrl = () => {
-    const original = window.location.href;
-    const encrypted = encryptLink(original);
-    return `${window.location.origin}/share?r=${encrypted}`;
-  };
-
-  const handleShare = async () => {
-    const shareUrl = generateEncryptedShareUrl();
-    const shareData = {
-      title: bookData?.title || "كتاب",
-      text: `اكتشف هذا الكتاب الرائع: ${bookData?.title}`,
-      url: shareUrl,
-    };
-
-    // 1. Try Native Share API
-    // Note: This ONLY works on HTTPS (or localhost)
-    if (navigator.share) {
-      try {
-        await navigator.share(shareData);
-        // If we reach here, the share sheet opened successfully
-        return; 
-      } catch (err) {
-        // User cancelled the share
-        if (err.name === 'AbortError') return;
-        console.warn("Native share failed, trying clipboard:", err);
-      }
-    }
-
-    // 2. Try Clipboard API (Modern)
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      try {
-        await navigator.clipboard.writeText(shareUrl);
-        AlertToast("✔ تم نسخ رابط الكتاب!", "SUCCESS");
-        return;
-      } catch (err) {
-        console.warn("Clipboard API failed, trying legacy:", err);
-      }
-    }
-
-    // 3. Ultra Legacy Fallback (Hidden Textarea) - Works on HTTP / Non-Secure Contexts
-    try {
-      const textArea = document.createElement("textarea");
-      textArea.value = shareUrl;
-      textArea.style.position = "fixed";
-      textArea.style.left = "-9999px";
-      textArea.style.top = "0";
-      document.body.appendChild(textArea);
-      textArea.focus();
-      textArea.select();
-      const successful = document.execCommand('copy');
-      document.body.removeChild(textArea);
-      
-      if (successful) {
-        AlertToast("✔ تم نسخ رابط الكتاب!", "SUCCESS");
-      } else {
-        throw new Error("execCommand failed");
-      }
-    } catch (err) {
-      console.error("All share/copy methods failed:", err);
-      AlertToast("تعذر مشاركة أو نسخ الرابط.", "ERROR");
-    }
-  };
 
   // Check Assignment
   useEffect(() => {
@@ -613,13 +541,6 @@ export default function BookDataComponent({ bookId, navigate }) {
 
           {/* ===== DESKTOP ACTIONS ===== */}
           <div className="hidden md:flex items-center gap-6 pt-8">
-            <Button
-              onClick={() => navigate(`/reader/display/${bookData.id}`)}
-              className="group h-16 lg:h-[76px] px-24 lg:px-32 bg-white text-black hover:bg-[var(--primary-button)] rounded-2xl font-black uppercase text-sm lg:text-base tracking-[0.2em] shadow-2xl transition-all duration-300 active:scale-95 flex items-center justify-center min-w-[320px]"
-            >
-              <BookOpen className="w-6 h-6 lg:w-7 lg:h-7 ml-4" strokeWidth={2.5} />
-              إقرأ الآن
-            </Button>
 
             <button
               onClick={() => setIsRatingModalOpen(true)}
@@ -646,13 +567,6 @@ export default function BookDataComponent({ bookId, navigate }) {
               <span className="font-bold text-sm uppercase tracking-wider hidden lg:block">{isAssigned ? "في المكتبة" : "للمكتبة"}</span>
             </button>
 
-            <button
-              onClick={handleShare}
-              className="h-16 lg:h-[76px] px-8 rounded-2xl bg-white/5 border-2 border-white/10 flex items-center justify-center gap-3 text-white/60 hover:text-white hover:border-white/30 hover:bg-white/10 transition-all duration-300 hover:scale-[1.03] active:scale-95 min-w-[100px]"
-            >
-              <Share2 size={24} strokeWidth={2.5} />
-              <span className="font-bold text-sm uppercase tracking-wider hidden lg:block">مشاركة</span>
-            </button>
           </div>
         </div>
       </div>
@@ -662,13 +576,6 @@ export default function BookDataComponent({ bookId, navigate }) {
         <div className="bg-black/95 backdrop-blur-lg border-t border-white/5 px-3 py-3">
           <div className="flex items-center gap-2">
             {/* Read Button */}
-            <Button
-              onClick={() => navigate(`/reader/display/${bookData.id}`)}
-              className="flex-1 h-12 bg-white text-black hover:bg-[var(--primary-button)] rounded-xl font-bold uppercase text-xs tracking-wider shadow-lg transition-all active:scale-95 flex items-center justify-center"
-            >
-              <BookOpen className="w-4 h-4 ml-2" strokeWidth={2.5} />
-              إقرأ الآن
-            </Button>
 
             {/* Rate Button */}
             <button
@@ -695,13 +602,6 @@ export default function BookDataComponent({ bookId, navigate }) {
               <BookPlus size={20} />
             </button>
 
-            {/* Share Button */}
-            <button
-              onClick={handleShare}
-              className="w-12 h-12 rounded-xl bg-white/5 border-2 border-white/10 flex items-center justify-center text-white/50 transition-all active:scale-90 shrink-0"
-            >
-              <Share2 size={20} />
-            </button>
           </div>
         </div>
       </div>

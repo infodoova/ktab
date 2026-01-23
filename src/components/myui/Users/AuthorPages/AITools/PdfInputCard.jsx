@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Upload } from "lucide-react";
+import { Upload, ChevronDown } from "lucide-react";
 
 export default function PdfInputCard({ onGenerate, loading }) {
   const [pdf, setPdf] = useState(null);
@@ -27,12 +27,11 @@ export default function PdfInputCard({ onGenerate, loading }) {
     <div
       className="
         w-full max-w-xl
-        p-8 rounded-2xl
-        bg-[var(--earth-paper)]
-        border border-[var(--earth-brown)]/15
-        shadow-[0_4px_20px_rgba(0,0,0,0.04)]
-        backdrop-blur-sm
-        flex flex-col gap-6
+        p-8 md:p-10 rounded-[2.5rem]
+        bg-white
+        border border-black/5
+        shadow-[0_20px_50px_rgba(0,0,0,0.05)]
+        flex flex-col gap-8
         animate-fadeIn
       "
       dir="rtl"
@@ -106,8 +105,8 @@ export default function PdfInputCard({ onGenerate, loading }) {
 
       {/* 🔵 عدد الكلمات */}
       <div>
-        <label className="font-semibold text-[var(--earth-brown)] text-sm mb-2 block">
-          طول الخلاصة — {wordCount} كلمة
+        <label className="block text-sm md:text-base font-black uppercase tracking-[0.2em] text-black/40 mb-6 mr-1">
+          طول الخاتمة — {wordCount} كلمة
         </label>
 
         <input
@@ -116,60 +115,61 @@ export default function PdfInputCard({ onGenerate, loading }) {
           max="2000"
           value={wordCount}
           onChange={(e) => setWordCount(Number(e.target.value))}
-          className="w-full accent-[var(--earth-olive)]"
+          className="w-full accent-[#5de3ba]"
         />
 
-        <div className="flex justify-between text-xs opacity-60 mt-1">
-          <span>(500) مختصر</span>
-          <span>(1000) متوسط</span>
-          <span>(2000) مفصل</span>
+        <div className="flex justify-between text-[10px] font-bold text-black/30 uppercase tracking-widest mt-2 px-1">
+          <span>مختصر</span>
+          <span>متوسط</span>
+          <span>مفصل</span>
         </div>
       </div>
 
       {/* 🔵 الجمهور */}
       <div>
-        <label className="font-semibold text-[var(--earth-brown)] text-sm mb-2 block">
+        <label className="block text-sm md:text-base font-black uppercase tracking-[0.2em] text-black/40 mb-4 mr-1">
           مستوى الجمهور
         </label>
 
-        <select
-          value={audience}
-          onChange={(e) => setAudience(e.target.value)}
-          className="
-      w-full h-12 px-3 rounded-xl
-      border border-[var(--earth-sand)]
-      bg-[var(--earth-cream)]/80
-      focus:outline-none
-    "
-        >
-          <option value="KIDS_8_10_ADVENTURE">أطفال (8–10)</option>
-          <option value="MIDDLE_GRADE_10_13_MYSTERY">ناشئة (10–13)</option>
-          <option value="TEENS_13_16_DYSTOPIAN">مراهقون (13–16)</option>
-          <option value="OLDER_TEENS_16_18_DRAMA_ROMANCE">شباب (16–18)</option>
-          <option value="ADULTS_18_25_LITERARY">بالغون (18–25)</option>
-          <option value="ADULTS_25_40_UPMARKET">بالغون (25–40)</option>
-          <option value="ADULTS_40_PLUS_HISTORICAL">بالغون (40+)</option>
-        </select>
+        <div className="relative">
+          <select
+            value={audience}
+            onChange={(e) => setAudience(e.target.value)}
+            className="w-full h-12 md:h-14 px-5 md:px-6 rounded-2xl border border-black/5 bg-black/[0.04] text-base md:text-lg font-bold text-black appearance-none transition-all outline-none focus:bg-white focus:border-[#5de3ba]/30 focus:ring-4 focus:ring-[#5de3ba]/5"
+          >
+            <option value="KIDS_8_10_ADVENTURE">أطفال (8–10)</option>
+            <option value="MIDDLE_GRADE_10_13_MYSTERY">ناشئة (10–13)</option>
+            <option value="TEENS_13_16_DYSTOPIAN">مراهقون (13–16)</option>
+            <option value="OLDER_TEENS_16_18_DRAMA_ROMANCE">شباب (16–18)</option>
+            <option value="ADULTS_18_25_LITERARY">بالغون (18–25)</option>
+            <option value="ADULTS_25_40_UPMARKET">بالغون (25–40)</option>
+            <option value="ADULTS_40_PLUS_HISTORICAL">بالغون (40+)</option>
+          </select>
+          <ChevronDown className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-black/20 pointer-events-none" />
+        </div>
       </div>
 
       {/* 🔵 PDF UPLOAD */}
       <div className="flex flex-col gap-2">
-        <label className="font-semibold text-[var(--earth-brown)] text-sm">
-          ملف PDF
+        <label className="block text-sm md:text-base font-black uppercase tracking-[0.2em] text-black/40 mb-4 mr-1">
+          ملف PDF المصدر
         </label>
 
         <label
-          className="
-            w-full h-40 rounded-xl cursor-pointer
-            border-2 border-dashed border-[var(--earth-olive)]/40
-            bg-[var(--earth-cream)]/40
-            flex flex-col items-center justify-center
-            hover:border-[var(--earth-olive)]/60
-            transition
-          "
+          className={`
+            w-full h-44 rounded-[2rem] border-2 border-dashed flex flex-col items-center justify-center text-center cursor-pointer overflow-hidden transition-all duration-300 shadow-sm
+            ${pdf ? "border-[#5de3ba]/30 bg-white shadow-lg shadow-[#5de3ba]/5" : "bg-black/[0.04] border-black/5 hover:border-[#5de3ba]/30 hover:bg-white"}
+          `}
         >
-          <Upload className="w-9 h-9 opacity-60" />
-          <p className="text-sm opacity-70 mt-2">اضغط لاختيار ملف PDF</p>
+          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 transition-all ${pdf ? "bg-[#5de3ba] text-white shadow-lg shadow-[#5de3ba]/20" : "bg-white border border-black/5 text-black/10"}`}>
+             <Upload size={24} strokeWidth={3} />
+          </div>
+          <p className="text-base font-black text-black px-4 truncate w-full leading-tight">
+            {pdf ? pdf.name : "اضغط لاختيار ملف PDF"}
+          </p>
+          <p className="text-[10px] font-bold text-black/20 uppercase tracking-widest mt-2">
+            الحد الأقصى للحجم 10MB
+          </p>
 
           <input
             type="file"
@@ -178,28 +178,15 @@ export default function PdfInputCard({ onGenerate, loading }) {
             onChange={pickPDF}
           />
         </label>
-
-        {pdf && (
-          <p className="text-[var(--earth-olive)] font-semibold text-sm mt-1">
-            ✔ {pdf.name}
-          </p>
-        )}
       </div>
 
       {/* BUTTON */}
       <button
         onClick={handlePress}
         disabled={loading}
-        className={`
-          w-full h-12 rounded-xl text-white font-semibold transition-all
-          ${
-            loading
-              ? "bg-[var(--earth-olive)]/50 cursor-not-allowed"
-              : "bg-[var(--earth-olive)] hover:bg-[var(--earth-olive-dark)]"
-          }
-        `}
+        className="w-full h-14 md:h-16 rounded-[2rem] btn-premium text-white text-sm font-black uppercase tracking-[0.2em] transition-all disabled:opacity-50 shadow-xl shadow-[#5de3ba]/20 active:scale-[0.98]"
       >
-        {loading ? "جاري التوليد..." : "توليد الخلاصة"}
+        {loading ? "جاري التوليد..." : "توليد الخاتمة الذكية"}
       </button>
     </div>
   );

@@ -18,8 +18,7 @@ const DUMMY_DATA = [
   { name: "الفصل الثالث", value: 25 },
 ];
 
-// Earth Palette Hex Codes
-const COLORS = ["#606C38", "#DEC59E", "#5D4037"];
+const COLORS = ["#5de3ba", "#2dd4bf", "#14b8a6", "#0d9488", "#0f766e"];
 
 export default function MostRiddenPieChart({ bookId }) {
   const [data, setData] = useState([]);
@@ -49,52 +48,54 @@ export default function MostRiddenPieChart({ bookId }) {
   }, [bookId]);
 
   return (
-    <Card dir="rtl" className="bg-[#FEFCF8] border-[#D7CCC8] shadow-sm">
+    <Card dir="rtl" className="bg-white border-black/5 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.05)] rounded-[2.5rem] overflow-hidden">
       <CardHeader>
-        <CardTitle className="text-right text-[#3E2723] font-['Cairo']">
+        <CardTitle className="text-right text-black font-black tracking-tight">
           الكتب الأكثر قراءة
         </CardTitle>
       </CardHeader>
 
-      <CardContent>
+      <CardContent className="pt-6">
         {loading ? (
-          <Skeleton className="h-[280px] w-full bg-[#F4EFE9]" />
+          <Skeleton className="h-[280px] w-full bg-black/5" />
         ) : (
-          <ResponsiveContainer width="100%" height={280}>
+          <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
                 data={data}
                 dataKey="value"
                 nameKey="name"
                 cx="50%"
-                cy="45%" /* Lifted slightly to make room for legend */
-                innerRadius={60}
-                outerRadius={85}
-                paddingAngle={5}
-                label={false} /* Disabled overlapping labels */
+                cy="42%"
+                innerRadius={75}
+                outerRadius={105}
+                paddingAngle={10}
+                label={false}
               >
                 {data.map((_, index) => (
                   <Cell
                     key={index}
                     fill={COLORS[index % COLORS.length]}
-                    stroke="#FEFCF8"
-                    strokeWidth={2}
+                    stroke="white"
+                    strokeWidth={4}
                   />
                 ))}
               </Pie>
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "#FEFCF8",
-                  borderColor: "#D7CCC8",
-                  borderRadius: "8px",
-                  textAlign: "right",
+                    backgroundColor: "white",
+                    borderColor: "rgba(0,0,0,0.05)",
+                    borderRadius: "16px",
+                    textAlign: "right",
+                    boxShadow: "0 10px 30px -15px rgba(0,0,0,0.1)",
+                    border: "none"
                 }}
-                itemStyle={{ fontFamily: "Cairo", color: "#3E2723" }}
+                itemStyle={{ color: "black", fontWeight: 700 }}
               />
               <Legend
                 verticalAlign="bottom"
                 align="center"
-                wrapperStyle={{ fontFamily: "Cairo", paddingTop: "10px" }}
+                wrapperStyle={{ paddingTop: "30px", fontWeight: 700, fontSize: "12px", color: "rgba(0,0,0,0.5)" }}
               />
             </PieChart>
           </ResponsiveContainer>

@@ -42,14 +42,15 @@ const PageHeader = ({
         >
           <button
             onClick={onPress}
-            className="
-              h-9 px-6 rounded-xl border-0
-              bg-gradient-to-r from-[#5de3ba] to-[#76debf]
-              text-white
-              hover:opacity-90
-              transition-all duration-300 font-black uppercase tracking-widest text-[10px]
-              whitespace-nowrap shadow-[0_10px_20px_rgba(93,227,186,0.15)]
-            "
+              className="
+                h-10 px-8 rounded-2xl border-0
+                bg-gradient-to-r from-[#5de3ba] to-[#76debf]
+                text-black font-black uppercase tracking-widest text-[11px]
+                hover:shadow-[0_15px_30px_rgba(93,227,186,0.3)]
+                hover:scale-105
+                transition-all duration-500
+                whitespace-nowrap shadow-[0_10px_20px_rgba(93,227,186,0.15)]
+              "
           >
             {buttonTitle}
           </button>

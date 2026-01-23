@@ -15,8 +15,7 @@ export default function FAQ() {
       dir="rtl"
       className="
         w-full py-28
-        bg-[var(--bg-surface)]
-        px-6 md:px-20
+bg-[var(--bg-dark)]        px-6 md:px-20
         text-right
         relative
         overflow-hidden
@@ -25,15 +24,6 @@ export default function FAQ() {
       <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--primary-button)]/10 blur-3xl rounded-full -translate-y-1/2 translate-x-1/2" />
       {/* HEADER SECTION - Unified Design */}
       <div className="text-center mb-16 relative z-10">
-        <motion.span
-          initial={{ opacity: 0, scale: 0.9 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          className="inline-block px-5 py-2 rounded-full border border-[var(--primary-button)]/30 bg-[var(--primary-button)]/10 text-[var(--primary-button)] text-[10px] md:text-xs font-black uppercase tracking-[0.3em] mb-6"
-        >
-          مركز المساعدة
-        </motion.span>
-
         <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight mb-6">
           الأسئلة <span className="text-[var(--primary-button)]">الشائعة</span>
         </h2>

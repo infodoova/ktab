@@ -196,9 +196,7 @@ export default function ForAllAges() {
     >
       {/* HEADER SECTION - Unified Design */}
       <div className="max-w-7xl mx-auto px-6 py-28 md:py-40 text-center relative z-10">
-        <span className="inline-block px-5 py-2 rounded-full border border-[var(--primary-button)]/30 bg-[var(--primary-button)]/5 text-[var(--primary-button)] text-[10px] md:text-xs font-black uppercase tracking-[0.3em] mb-6">
-          لكل قارئ فيك
-        </span>
+    
 
         <h2 className="text-4xl md:text-7xl lg:text-8xl font-black mb-6 leading-tight text-[var(--secondary-text)] tracking-tight">
           مكتبة لكل{" "}

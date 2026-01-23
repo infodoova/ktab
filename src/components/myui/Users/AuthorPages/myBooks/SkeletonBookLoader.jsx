@@ -1,27 +1,14 @@
 export default function SkeletonBookLoader() {
   return (
-    <div className="relative flex flex-col gap-3 cursor-pointer animate-pulse rounded-xl border border-[var(--earth-sand)] bg-[var(--earth-paper)] shadow overflow-hidden">
-      {/* MENU BUTTON SKELETON */}
-      <div className="absolute top-2 left-2 z-20 book-menu-area">
-        <button className="p-1.5 rounded-full bg-white/80 backdrop-blur-md shadow text-[var(--earth-brown)] hover:bg-[var(--earth-cream)]">
-          <div className="w-4 h-4 bg-[var(--earth-sand)] rounded-full"></div>
-        </button>
-      </div>
-
+    <div className="relative flex flex-col gap-3 animate-pulse rounded-[20px] bg-black/5 overflow-hidden">
       {/* COVER IMAGE SKELETON */}
-      <div className="aspect-[1/1] w-full bg-gradient-to-br from-[var(--earth-sand)] to-[var(--earth-sand)]/60"></div>
+      <div className="aspect-[2/3] w-full bg-black/10"></div>
 
       {/* CARD CONTENT SKELETON */}
-      <div className="flex-1 p-4 flex flex-col gap-3">
+      <div className="px-1 mt-2 flex flex-col gap-2">
         {/* TITLE SKELETON */}
-        <div className="h-4 bg-[var(--earth-sand)] rounded w-3/4"></div>
-
-     
-
-        {/* FOOTER SKELETON */}
-        <div className="border-t border-[var(--earth-sand)]/30 pt-2 flex items-center justify-between">
-          <div className="h-3 bg-[var(--earth-sand)] rounded w-12"></div>
-        </div>
+        <div className="h-4 bg-black/10 rounded-full w-3/4"></div>
+        <div className="h-3 bg-black/5 rounded-full w-1/2"></div>
       </div>
     </div>
   );

@@ -142,10 +142,8 @@ export default function ControlBoard({ pageName = "لوحة التحكم" }) {
       RENDER
   ======================== */
   return (
-    <div className="min-h-screen bg-[var(--earth-cream)] rtl">
+    <div className="min-h-screen bg-[#fafffe] rtl">
       <Navbar
-        mobileButtonTitle="رفع كتاب جديد"
-        onMobileButtonPress={handleNewBook}
         pageName={pageName}
         collapsed={collapsed}
         setCollapsed={setCollapsed}

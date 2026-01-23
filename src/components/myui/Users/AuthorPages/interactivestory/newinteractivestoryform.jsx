@@ -462,8 +462,8 @@ function NewInteractiveStoryForm({ pageName = "قصة تفاعلية جديدة"
               <div className="grid md:grid-cols-3 gap-10">
                 <div className="md:col-span-2 space-y-8">
                   <div className="bg-white rounded-[2.5rem] border border-black/5 p-10 shadow-[0_20px_60px_rgba(0,0,0,0.03)] hover:shadow-xl transition-all duration-500 space-y-12">
-                    <div className="space-y-4">
-                      <label className="flex items-center gap-3 text-xs font-black uppercase tracking-[0.2em] text-black/50 px-2">
+                    <div className="space-y-6">
+                      <label className="flex items-center gap-3 text-sm md:text-base font-black uppercase tracking-[0.2em] text-black/40 px-2 leading-tight">
                         <Sparkles className="w-4 h-4 text-[#5de3ba]" />
                         هوية القصة
                         <InfoTooltip content="عنوان القصة الذي سيظهر للقرّاء. يجب أن يكون واضحًا، معبّرًا، وغير فارغ." />
@@ -473,14 +473,14 @@ function NewInteractiveStoryForm({ pageName = "قصة تفاعلية جديدة"
                         value={form.title}
                         onChange={handleChange}
                         placeholder="عنوان القصة الملحمي..."
-                        className="w-full bg-black/[0.04] border border-black/10 rounded-[2rem] px-8 py-6 text-3xl font-black text-black placeholder:text-black/10 focus:bg-white focus:border-[#5de3ba] focus:ring-4 focus:ring-[#5de3ba]/5 outline-none transition-all tracking-tight"
+                        className="w-full bg-black/[0.04] border border-black/10 rounded-[2rem] px-5 md:px-8 py-5 md:py-6 text-xl md:text-5xl font-black text-black placeholder:text-black/10 focus:bg-white focus:border-[#5de3ba] focus:ring-4 focus:ring-[#5de3ba]/5 outline-none transition-all tracking-tight"
                       />
                     </div>
                   </div>
 
                   {/* Genre Grid */}
                   <div className="bg-white rounded-[2.5rem] border border-black/5 p-10 shadow-[0_20px_60px_rgba(0,0,0,0.03)]">
-                    <label className="flex items-center gap-3 text-xs font-black uppercase tracking-[0.2em] text-black/50 mb-10">
+                    <label className="flex items-center gap-3 text-sm md:text-base font-black uppercase tracking-[0.2em] text-black/40 mb-6">
                       <Layers className="w-4 h-4 text-[#5de3ba]" />
                       النوع
                       <InfoTooltip content="تصنيف عام للقصة لمساعدة القارئ على اكتشاف نوع مغامرتك." />
@@ -525,7 +525,7 @@ function NewInteractiveStoryForm({ pageName = "قصة تفاعلية جديدة"
                 {/* Right: Cover Image */}
                 <div className="space-y-8">
                   <div className="bg-white rounded-[2.5rem] border border-black/5 p-8 shadow-[0_20px_60px_rgba(0,0,0,0.03)] flex flex-col items-center">
-                    <label className="w-full flex items-center gap-3 text-xs font-black uppercase tracking-[0.2em] text-black/50 mb-8">
+                    <label className="w-full flex items-center gap-3 text-sm md:text-base font-black uppercase tracking-[0.2em] text-black/40 mb-6">
                       <ImageIcon className="w-4 h-4 text-[#5de3ba]" />
                       الغلاف المرئي (Square 1:1)
                       <InfoTooltip content="الصورة التي ستمثل القصة في المكتبة. يفضل أن تكون عالية الجودة وبنسبة مربعة." />
@@ -538,37 +538,37 @@ function NewInteractiveStoryForm({ pageName = "قصة تفاعلية جديدة"
                       className="hidden"
                       id="cover-upload"
                     />
-                    <label
-                      htmlFor="cover-upload"
-                      className="w-full aspect-square rounded-[2rem] border-2 border-dashed border-black/10 cursor-pointer hover:border-[#5de3ba]/50 hover:bg-[#5de3ba]/5 transition-all duration-500 overflow-hidden relative group"
-                    >
-                      {isProcessingImage ? (
-                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
-                          <Loader2 className="w-12 h-12 text-[#5de3ba] animate-spin" />
-                          <span className="text-[10px] font-black uppercase tracking-widest text-[#5de3ba]">
-                            جاري معالجة الصورة...
-                          </span>
-                        </div>
-                      ) : coverPreview ? (
-                        <img
-                          src={coverPreview}
-                          alt="Cover"
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
-                          <ImageIcon className="w-12 h-12 text-black/20 group-hover:text-[#5de3ba] transition-colors duration-500" />
-                          <span className="text-[10px] font-black uppercase tracking-widest text-black/40">
-                            رفع صورة الغلاف
-                          </span>
-                        </div>
-                      )}
-                    </label>
+                      <label
+                        htmlFor="cover-upload"
+                        className={`w-full aspect-square rounded-[2rem] border-2 border-dashed border-black/5 cursor-pointer transition-all duration-500 overflow-hidden relative group ${coverPreview ? "bg-white shadow-lg shadow-[#5de3ba]/5 border-[#5de3ba]/30" : "bg-black/[0.04] hover:border-[#5de3ba]/50 hover:bg-white"}`}
+                      >
+                        {isProcessingImage ? (
+                          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
+                            <Loader2 className="w-12 h-12 text-[#5de3ba] animate-spin" />
+                            <span className="text-[10px] font-black uppercase tracking-widest text-[#5de3ba]">
+                              جاري معالجة الصورة...
+                            </span>
+                          </div>
+                        ) : coverPreview ? (
+                          <img
+                            src={coverPreview}
+                            alt="Cover"
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
+                            <ImageIcon className="w-12 h-12 text-black/10 group-hover:text-[#5de3ba] transition-colors duration-500" />
+                            <span className="text-[10px] font-black uppercase tracking-widest text-black/20">
+                              رفع صورة الغلاف
+                            </span>
+                          </div>
+                        )}
+                      </label>
                   </div>
 
                   {/* Scene Count */}
                   <div className="bg-white rounded-[2.5rem] border border-black/5 p-8 shadow-[0_20px_60px_rgba(0,0,0,0.03)]">
-                    <label className="flex items-center gap-3 text-xs font-black uppercase tracking-[0.2em] text-black/50 mb-8">
+                    <label className="flex items-center gap-3 text-sm md:text-base font-black uppercase tracking-[0.2em] text-black/40 mb-6">
                       <Calendar className="w-4 h-4 text-[#5de3ba]" />
                       طول الرحلة
                       <InfoTooltip content="عدد المشاهد التي تتكوّن منها القصة. كل مشهد يمثل دورًا واحدًا للقارئ." />
@@ -583,7 +583,7 @@ function NewInteractiveStoryForm({ pageName = "قصة تفاعلية جديدة"
                               target: { name: "sceneCount", value: n },
                             })
                           }
-                          className={`h-12 rounded-xl text-xs font-black transition-all duration-300 ${form.sceneCount == n ? "bg-black text-white shadow-lg scale-110" : "bg-black/5 text-black hover:bg-black/10"}`}
+                          className={`h-11 md:h-12 rounded-xl text-[10px] md:text-xs font-black transition-all duration-300 ${form.sceneCount == n ? "bg-white border-[#5de3ba]/30 text-[#5de3ba] shadow-lg shadow-[#5de3ba]/5 scale-110" : "bg-black/[0.04] border border-black/5 text-black hover:bg-black/10"}`}
                         >
                           {n}
                         </button>
@@ -597,12 +597,12 @@ function NewInteractiveStoryForm({ pageName = "قصة تفاعلية جديدة"
               <div className="bg-white rounded-[3rem] border border-black/5 p-12 shadow-[0_40px_100px_rgba(0,0,0,0.04)]">
                 <div className="flex flex-col items-center text-center mb-16">
                   <div className="flex items-center gap-2 mb-4">
-                    <span className="text-xs font-black uppercase tracking-[0.4em] text-[#5de3ba]">
+                    <span className="text-sm font-black uppercase tracking-[0.4em] text-[#5de3ba]">
                       The Narrative Lens
                     </span>
                     <InfoTooltip content="يحدد نوع العواقب التي تتغير عند الاختيار. POLITICAL: سلطة ونفوذ، PSYCHOLOGICAL: مشاعر، SURVIVAL: بقاء، MORAL: أخلاق." />
                   </div>
-                  <h3 className="text-4xl font-black text-black tracking-tighter">
+                  <h3 className="text-2xl md:text-6xl font-black text-black tracking-tighter">
                     اختر منظور المغامرة
                   </h3>
                 </div>
@@ -619,17 +619,17 @@ function NewInteractiveStoryForm({ pageName = "قصة تفاعلية جديدة"
                             target: { name: "lens", value: lens.value },
                           })
                         }
-                        className={`relative group p-10 rounded-[3rem] transition-all duration-700 ${isActive ? "bg-black text-white shadow-2xl scale-105" : "bg-white border border-black/5 hover:border-[#5de3ba]/30 hover:shadow-xl"}`}
+                         className={`relative group p-6 md:p-10 rounded-[2.5rem] md:rounded-[3rem] transition-all duration-700 bg-white border border-black/5 ${isActive ? "shadow-2xl shadow-[#5de3ba]/10 scale-105 border-[#5de3ba]/30" : "hover:border-[#5de3ba]/30 hover:shadow-xl"}`}
                       >
                         <div
-                          className={`w-16 h-16 rounded-3xl flex items-center justify-center mb-8 mx-auto transition-all duration-700 ${isActive ? "bg-[#5de3ba] rotate-12" : "bg-black/5 group-hover:bg-[#5de3ba]/10"}`}
+                          className={`w-12 h-12 md:w-16 md:h-16 rounded-2xl md:rounded-3xl flex items-center justify-center mb-6 md:mb-8 mx-auto transition-all duration-700 ${isActive ? "bg-[#5de3ba] rotate-12" : "bg-black/[0.04] group-hover:bg-[#5de3ba]/10"}`}
                         >
                           <Icon
-                            className={`w-8 h-8 ${isActive ? "text-black" : "text-black"}`}
+                            className={`w-6 h-6 md:w-8 md:h-8 ${isActive ? "text-white" : "text-black group-hover:text-[#5de3ba]"}`}
                           />
                         </div>
                         <span
-                          className={`block text-lg font-black tracking-tight mb-2 ${isActive ? "text-white" : "text-black"}`}
+                          className={`block text-base md:text-lg font-black tracking-tight mb-2 ${isActive ? "text-[#5de3ba]" : "text-black/40"}`}
                         >
                           {lens.label}
                         </span>
@@ -645,7 +645,7 @@ function NewInteractiveStoryForm({ pageName = "قصة تفاعلية جديدة"
               {/* Constitution - Glass Inputs */}
               <div className="bg-white rounded-[3rem] border border-black/5 p-12 shadow-[0_20px_80px_rgba(0,0,0,0.02)]">
                 <div className="flex items-center gap-4 mb-12">
-                  <div className="w-12 h-12 rounded-2xl bg-black text-[#5de3ba] flex items-center justify-center shadow-lg">
+                  <div className="w-12 h-12 rounded-2xl bg-black/[0.04] text-[#5de3ba] flex items-center justify-center shadow-sm">
                     <Layers className="w-6 h-6" />
                   </div>
                   <div>
@@ -655,7 +655,7 @@ function NewInteractiveStoryForm({ pageName = "قصة تفاعلية جديدة"
                       </h3>
                       <InfoTooltip content="قانون القصة الذي يلتزم به النظام والذكاء الاصطناعي." />
                     </div>
-                    <p className="text-xs font-black uppercase tracking-widest text-black/40">
+                    <p className="text-sm md:text-base font-black uppercase tracking-widest text-black/40">
                       قواعد السرد والقوانين الكونية
                     </p>
                   </div>
@@ -705,7 +705,7 @@ function NewInteractiveStoryForm({ pageName = "قصة تفاعلية جديدة"
                     },
                   ].map((field) => (
                     <div key={field.key} className="space-y-4">
-                      <label className="text-xs font-black uppercase tracking-[0.2em] text-black/60 px-2">
+                      <label className="text-sm md:text-base font-black uppercase tracking-[0.2em] text-black/40 px-2 transition-colors group-focus-within:text-[#5de3ba]">
                         {field.label}
                       </label>
                       <input
@@ -713,7 +713,7 @@ function NewInteractiveStoryForm({ pageName = "قصة تفاعلية جديدة"
                         value={form.constitution[field.key]}
                         onChange={handleChange}
                         placeholder={field.placeholder}
-                        className="w-full bg-black/[0.04] border border-black/10 rounded-2xl px-6 py-4 font-bold text-black placeholder:text-black/30 focus:bg-white focus:border-[#5de3ba] focus:ring-4 focus:ring-[#5de3ba]/5 outline-none transition-all"
+                        className="w-full bg-black/[0.04] border border-black/10 rounded-2xl px-5 md:px-6 py-3.5 md:py-4 text-base font-bold text-black placeholder:text-black/10 focus:bg-white focus:border-[#5de3ba] focus:ring-4 focus:ring-[#5de3ba]/5 outline-none transition-all"
                       />
                     </div>
                   ))}
@@ -722,7 +722,7 @@ function NewInteractiveStoryForm({ pageName = "قصة تفاعلية جديدة"
 
               {/* Art Style - Visual Grid */}
               <div className="bg-white rounded-[3rem] border border-black/5 p-12 shadow-[0_20px_80px_rgba(0,0,0,0.02)]">
-                <label className="flex items-center gap-3 text-xs font-black uppercase tracking-[0.2em] text-black/50 mb-12">
+                <label className="flex items-center gap-3 text-sm md:text-base font-black uppercase tracking-[0.2em] text-black/40 mb-12">
                   <Palette className="w-4 h-4 text-[#5de3ba]" />
                   الهوية البصرية (AI Style)
                   <InfoTooltip content="النمط الفني الذي سيتبعه الذكاء الاصطناعي في توليد صور المشاهد." />
@@ -740,12 +740,12 @@ function NewInteractiveStoryForm({ pageName = "قصة تفاعلية جديدة"
                             target: { name: "artStyle", value: style.value },
                           })
                         }
-                        className={`p-8 rounded-[2.5rem] transition-all duration-500 text-center border ${isActive ? "bg-black text-white shadow-2xl border-black" : "bg-white border-black/5 hover:border-black/20 hover:shadow-lg"}`}
+                        className={`p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] transition-all duration-500 text-center border bg-white ${isActive ? "shadow-2xl shadow-[#5de3ba]/10 border-[#5de3ba]/30 scale-105" : "border-black/5 hover:border-black/20 hover:shadow-lg"}`}
                       >
                         <Icon
-                          className={`w-8 h-8 mx-auto mb-4 ${isActive ? "text-[#5de3ba]" : "text-black/20"}`}
+                          className={`w-7 h-7 md:w-8 md:h-8 mx-auto mb-3 md:mb-4 transition-colors ${isActive ? "text-[#5de3ba]" : "text-black/10"}`}
                         />
-                        <div className="text-xs font-black uppercase tracking-widest">
+                        <div className={`text-[10px] md:text-xs font-black uppercase tracking-widest transition-colors ${isActive ? "text-[#5de3ba]" : "text-black/40"}`}>
                           {style.label}
                         </div>
                       </button>
@@ -754,7 +754,7 @@ function NewInteractiveStoryForm({ pageName = "قصة تفاعلية جديدة"
                 </div>
               </div>
               <div className="space-y-4">
-                <label className="flex items-center gap-3 text-xs font-black uppercase tracking-[0.2em] text-black/50 px-2">
+                <label className="flex items-center gap-3 text-sm md:text-base font-black uppercase tracking-[0.2em] text-black/40 px-2">
                   <Eye className="w-4 h-4 text-[#5de3ba]" />
                   ملاحظات الهوية البصرية
                   <InfoTooltip content="شرح موجز لجوهر القصة لمساعدة الذكاء الاصطناعي في الفهم العام للدراما." />
@@ -764,7 +764,7 @@ function NewInteractiveStoryForm({ pageName = "قصة تفاعلية جديدة"
                   value={form.description}
                   onChange={handleChange}
                   placeholder="اكتب وصفاً يحفز خيال الذكاء الاصطناعي لرسم هذا العالم..."
-                  className="w-full min-h-[200px] bg-black/[0.04] border border-black/10 rounded-[2rem] px-8 py-8 text-black/80 text-xl font-medium leading-relaxed placeholder:text-black/10 focus:bg-white focus:border-[#5de3ba] focus:ring-4 focus:ring-[#5de3ba]/5 outline-none transition-all resize-none"
+                  className="w-full min-h-[160px] md:min-h-[200px] bg-black/[0.04] border border-black/10 rounded-[2rem] px-6 md:px-8 py-6 md:py-8 text-black/80 text-lg md:text-xl font-bold font-arabic leading-relaxed placeholder:text-black/10 focus:bg-white focus:border-[#5de3ba] focus:ring-4 focus:ring-[#5de3ba]/5 outline-none transition-all resize-none"
                 />
               </div>
 

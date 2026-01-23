@@ -26,13 +26,13 @@ export default function DeleteBook({ book, open, onClose, onDeleted }) {
         url: `${import.meta.env.VITE_API_URL}/authors/deleteBook/${book.id}`,
       });
 
-      if (res?.messageStatus !== "SUCCESS") {
+      if (res?.messageStatus === "SUCCESS") {
         AlertToast(res?.message, res?.messageStatus);
         onDeleted(book.id);
         onClose();
-        return;
+      } else {
+        AlertToast(res?.message || "فشل حذف الكتاب", "ERROR");
       }
-      AlertToast(res?.message, res?.messageStatus);
     } catch (err) {
       console.error(err);
       AlertToast(
@@ -52,25 +52,25 @@ export default function DeleteBook({ book, open, onClose, onDeleted }) {
           if (!isOpen) onClose();
         }}
       >
-        <AlertDialogContent className="bg-[var(--earth-cream)] border-[var(--earth-sand)]">
+        <AlertDialogContent className="bg-[#fafffe] border-black/5 rounded-[2rem] shadow-2xl z-[200]">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-[var(--earth-brown)] text-lg">
+            <AlertDialogTitle className="text-black text-xl font-black tracking-tight text-right">
               هل أنت متأكد من حذف الكتاب؟
             </AlertDialogTitle>
           </AlertDialogHeader>
 
-          <AlertDialogDescription className="text-[var(--earth-brown)]/70 text-sm mt-1 text-right">
-            سيتم حذف الكتاب نهائياً من المنصة ومن ملفات S3.
+          <AlertDialogDescription className="text-black/60 text-sm mt-1 text-right font-medium">
+            سيتم حذف الكتاب نهائياً ولا يمكن استعادته مرة أخرى.
           </AlertDialogDescription>
 
-          <AlertDialogFooter className="mt-4">
-            <AlertDialogCancel className="bg-white text-[var(--earth-brown)] border border-[var(--earth-sand)] hover:bg-[var(--earth-cream)]">
+          <AlertDialogFooter className="mt-6 flex gap-3">
+            <AlertDialogCancel className="bg-white text-black border border-black/5 hover:bg-black/5 rounded-xl px-6 h-11 font-black transition-all">
               إلغاء
             </AlertDialogCancel>
 
             <AlertDialogAction
               onClick={handleDelete}
-              className="bg-red-600 hover:bg-red-700 text-white rounded-lg px-6"
+              className="bg-red-600 hover:bg-red-700 text-white rounded-xl px-8 h-11 font-black transition-all shadow-lg shadow-red-600/20"
             >
               {loading ? <Loader2 className="animate-spin h-4 w-4" /> : "حذف"}
             </AlertDialogAction>

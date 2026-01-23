@@ -79,9 +79,7 @@ export default function WhatAbout() {
           viewport={{ once: true }}
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
-          <span className="inline-block px-5 py-2 rounded-full border border-[var(--primary-button)]/30 bg-[var(--primary-button)]/5 text-[var(--primary-button)] text-[10px] md:text-xs font-black uppercase tracking-[0.3em] mb-6 backdrop-blur-sm">
-            اكتشف كُتّاب
-          </span>
+      
 
           <h2 className="text-4xl md:text-6xl lg:text-7xl font-black text-[var(--secondary-text)] tracking-tight">
             كيف تبدو{" "}

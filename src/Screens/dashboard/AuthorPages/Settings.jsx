@@ -4,12 +4,9 @@ import Navbar from "../../../components/myui/Users/AuthorPages/navbar";
 import PageHeader from "../../../components/myui/Users/AuthorPages/sideHeader";
 import { LogOut } from "lucide-react";
 
-function Settings({ pageName = "   الاعدادات " }) {
+function Settings({ pageName = "الإعدادات" }) {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
-
-  const handleButtonPress = () => console.log("Button pressed");
-  const buttonTitleText = "زر";
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -17,60 +14,62 @@ function Settings({ pageName = "   الاعدادات " }) {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--earth-cream)] rtl">
-
+    <div className="min-h-screen bg-[#f8f9fa] text-slate-900 font-arabic rtl" dir="rtl">
       {/* NAVBAR */}
-      <Navbar
-        mobileButtonTitle={buttonTitleText}
-        onMobileButtonPress={handleButtonPress}
-        pageName={pageName}
-        collapsed={collapsed}
-        setCollapsed={setCollapsed}
-      />
+      <div dir="ltr">
+        <Navbar
+          pageName={pageName}
+          collapsed={collapsed}
+          setCollapsed={setCollapsed}
+        />
+      </div>
 
+      {/* LAYOUT */}
       <div
-        className={`flex flex-col md:flex-row-reverse min-h-screen transition-all duration-300
-          ${collapsed ? "md:mr-20" : "md:mr-64"}
-        `}
+        className={`flex flex-col md:flex-row-reverse min-h-screen transition-all duration-300 ${
+          collapsed ? "md:mr-20" : "md:mr-64"
+        }`}
       >
         <main className="flex-1 flex flex-col">
-
+          {/* HEADER */}
           <PageHeader
             mainTitle={pageName}
-            buttonTitle={buttonTitleText}
-            onPress={handleButtonPress}
           />
 
-          {/* CONTENT */}
-          <div className="p-10 flex flex-col items-center gap-10">
+          {/* CONTENT - Centered */}
+          <div className="flex-1 flex items-center justify-center p-6 md:p-10">
+            <div className="w-full max-w-md bg-white rounded-[2.5rem] p-12 border border-black/[0.03] shadow-[0_30px_60px_rgba(0,0,0,0.05)] text-center">
+              {/* ICON/LOGO AREA */}
+              <div className="w-24 h-24 bg-[#5de3ba]/10 rounded-[2rem] flex items-center justify-center mx-auto mb-8">
+                <LogOut size={40} className="text-[#5de3ba]" strokeWidth={2.5} />
+              </div>
 
-            {/* TITLE */}
-            <div className="text-center">
-              <h1 className="text-3xl font-bold text-[var(--earth-brown)] mb-3">
-                Hi this is {pageName}
-              </h1>
-              <p className="text-[var(--earth-brown)]/70 text-lg">
-                مرحباً بك في صفحة {pageName}
+              {/* TEXT */}
+              <h2 className="text-3xl font-black text-slate-900 mb-4 font-arabic">
+                {pageName}
+              </h2>
+              <p className="text-slate-500 font-medium mb-10 leading-relaxed">
+                هل أنت متأكد من رغبتك في تسجيل الخروج من حسابك؟
               </p>
+
+              {/* LOGOUT BUTTON */}
+              <button
+                onClick={handleLogout}
+                className="
+                  w-full
+                  flex items-center justify-center gap-4 
+                  bg-[#0a0a0a] text-white
+                  px-8 py-6 rounded-3xl
+                  hover:bg-[#1a1a1a] active:scale-[0.98] transition-all duration-300
+                  text-sm font-black uppercase tracking-widest
+                  shadow-xl shadow-black/10
+                "
+              >
+                <LogOut size={18} strokeWidth={3} />
+                <span>تسجيل الخروج الآن</span>
+              </button>
             </div>
-
-            <button
-              onClick={handleLogout}
-              className="
-                flex items-center gap-3 
-                bg-[var(--earth-brown)] text-white
-                px-8 py-3 rounded-xl
-                shadow-md hover:shadow-lg 
-                hover:bg-[var(--earth-brown-dark)]
-                active:scale-95 transition-all
-                text-lg font-semibold
-              "
-            >
-              <LogOut size={20} />
-              تسجيل الخروج
-            </button>
           </div>
-
         </main>
       </div>
     </div>

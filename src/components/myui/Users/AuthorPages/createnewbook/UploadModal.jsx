@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import  loader  from "./loader";
+import Loader from "./loader";
 
 export default function UploadModal({ open }) {
   return (
@@ -13,25 +13,24 @@ export default function UploadModal({ open }) {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.8, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 150, damping: 15 }}
-            className="bg-white rounded-2xl shadow-lg p-10 w-[90%] max-w-md text-center"
-          >
-            <div className="flex justify-center mb-6">
-              <loader />
-            </div>
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-[2.5rem] shadow-2xl p-12 w-[90%] max-w-md text-center border border-black/5"
+            >
+              <div className="flex justify-center mb-8">
+                <Loader />
+              </div>
 
-            <h2 className="text-xl font-bold text-[var(--earth-brown-dark)] mb-3">
-              جاري الرفع...
-            </h2>
+              <h2 className="text-2xl font-black text-black tracking-tight mb-2">
+                جاري الرفع...
+              </h2>
 
-            <p className="text-[var(--earth-brown)]/80 text-lg">
-              يرجى عدم إغلاق هذه الصفحة
-            </p>
-          </motion.div>
+              <p className="text-black/30 font-bold text-sm uppercase tracking-widest">
+                يرجى عدم إغلاق هذه الصفحة
+              </p>
+            </motion.div>
         </motion.div>
       )}
     </AnimatePresence>

@@ -58,11 +58,11 @@ const navLinks = [
     icon: Bot,
     href: "../../../Screens/dashboard/AuthorPages/aiTools",
   },
-  {
-    label: "   التقييمات   ",
-    icon: Star,
-    href: "../../../Screens/dashboard/AuthorPages/ratings",
-  },
+  // {
+  //   label: "  التقييمات  ",
+  //   icon: Star,
+  //   href: "../../../Screens/dashboard/AuthorPages/ratings",
+  // },
   {
     label: "   الاعدادات   ",
     icon: Settings,

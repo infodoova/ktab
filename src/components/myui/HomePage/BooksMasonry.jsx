@@ -1,6 +1,5 @@
 /* eslint-disable */
 
-import { motion } from "framer-motion";
 import ResponsiveImageSkeleton from "../imageSkeletonLoaderCP";
 
 const BOOKS = [
@@ -143,14 +142,7 @@ export default function BooksPinterest() {
     >
       {/* HEADER SECTION - Unified Design */}
       <div className="pt-24 pb-12 text-center px-4 relative z-10">
-        <motion.span
-          initial={{ opacity: 0, scale: 0.9 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          className="inline-block px-5 py-2 rounded-full border border-[var(--primary-button)]/30 bg-[var(--primary-button)]/10 text-[var(--primary-button)] text-[10px] md:text-xs font-black uppercase tracking-[0.3em] mb-6"
-        >
-          مكتبة كتاب
-        </motion.span>
+      
 
         <h2 className="text-4xl md:text-6xl lg:text-7xl font-black text-white tracking-tight mb-6">
           معرض <span className="text-[var(--primary-button)]">الكتب</span>
@@ -174,12 +166,8 @@ export default function BooksPinterest() {
         "
         >
           {visibleBooks.map((b, i) => (
-            <motion.div
+            <div
               key={i}
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "120px" }}
-              transition={{ duration: 0.45, ease: "easeOut" }}
             className="
               relative break-inside-avoid
               rounded-3xl overflow-hidden
@@ -249,7 +237,7 @@ export default function BooksPinterest() {
                   </span>
                 </div>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>

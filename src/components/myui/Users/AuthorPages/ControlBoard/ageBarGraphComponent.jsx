@@ -25,6 +25,14 @@ export default function AgeBarGraphComponent({ bookId }) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const fallbackShown = useRef(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -51,54 +59,79 @@ export default function AgeBarGraphComponent({ bookId }) {
   }, [bookId]);
 
   return (
-    <Card dir="rtl" className="bg-[#FEFCF8] border-[#D7CCC8] shadow-sm">
-      <CardHeader>
-        <CardTitle className="text-right text-[#3E2723] font-['Cairo']">
+    <Card dir="rtl" className="bg-white border-black/5 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.05)] rounded-[2.5rem] overflow-hidden">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-right text-black font-black tracking-tighter text-lg md:text-xl">
           الفئات العمرية للمقيمين
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-2 md:px-6">
         {loading ? (
-          <Skeleton className="h-[280px] w-full bg-[#F4EFE9]" />
+          <Skeleton className="h-[280px] w-full bg-black/5 rounded-2xl" />
         ) : (
-          <ResponsiveContainer width="100%" height={280}>
-            {/* layout="horizontal" makes bars vertical (standing up) */}
-            <BarChart
-              data={data}
-              layout="horizontal"
-              margin={{ top: 20, right: 30, left: 0, bottom: 20 }}
-            >
-              <CartesianGrid
-                strokeDasharray="3 3"
-                stroke="#D7CCC8"
-                vertical={false}
-              />
-              <XAxis
-                dataKey="age"
-                tick={{ fill: "#3E2723", fontSize: 12, fontFamily: "Cairo" }}
-                axisLine={{ stroke: "#5D4037" }}
-              />
-              <YAxis
-                textAlign="right"
-                tick={{ fill: "#3E2723", fontSize: 12 }}
-                axisLine={{ stroke: "#5D4037" }}
-              />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "#FEFCF8",
-                  borderColor: "#5D4037",
-                  borderRadius: "8px",
-                  textAlign: "right",
+          <div className="w-full h-[280px] md:h-[320px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={data}
+                layout="horizontal"
+                margin={{ 
+                  top: 20, 
+                  right: isMobile ? 10 : 20, 
+                  left: isMobile ? 0 : 10, 
+                  bottom: isMobile ? 10 : 20 
                 }}
-              />
-              <Bar
-                dataKey="count"
-                fill="#606C38" /* Earth Olive */
-                radius={[4, 4, 0, 0]}
-                barSize={40}
-              />
-            </BarChart>
-          </ResponsiveContainer>
+              >
+                <CartesianGrid
+                  strokeDasharray="4 4"
+                  stroke="rgba(0,0,0,0.03)"
+                  vertical={false}
+                />
+                <XAxis
+                  dataKey="age"
+                  tick={{ 
+                    fill: "rgba(0,0,0,0.5)", 
+                    fontSize: isMobile ? 10 : 12, 
+                    fontWeight: 800 
+                  }}
+                  tickMargin={isMobile ? 8 : 15}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis
+                  textAlign="right"
+                  tick={{ 
+                    fill: "rgba(0,0,0,0.5)", 
+                    fontSize: isMobile ? 10 : 12, 
+                    fontWeight: 800 
+                  }}
+                  tickMargin={isMobile ? 8 : 15}
+                  axisLine={false}
+                  tickLine={false}
+                  width={isMobile ? 30 : 40}
+                />
+                <Tooltip
+                  cursor={{ fill: "rgba(93, 227, 186, 0.05)" }}
+                  contentStyle={{
+                    backgroundColor: "white",
+                    borderColor: "rgba(0,0,0,0.05)",
+                    borderRadius: "20px",
+                    textAlign: "right",
+                    boxShadow: "0 20px 40px -15px rgba(0,0,0,0.15)",
+                    border: "none",
+                    padding: "12px 16px"
+                  }}
+                  itemStyle={{ color: "black", fontWeight: 900 }}
+                />
+                <Bar
+                  dataKey="count"
+                  fill="#5de3ba"
+                  radius={[12, 12, 0, 0]}
+                  barSize={isMobile ? 24 : 40}
+                  animationDuration={1500}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         )}
       </CardContent>
     </Card>

@@ -4,22 +4,21 @@ import { Bot } from "lucide-react";
 export default function AiGeneratingScreen() {
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center 
-                    backdrop-blur-sm bg-gradient-to-b 
-                    from-[var(--earth-paper)]/90 to-[var(--earth-cream)]/95
-                    overflow-hidden">
+                    backdrop-blur-xl bg-white/70 
+                    overflow-hidden z-[100]">
 
       {/* Animated Box */}
-      <div className="relative w-40 h-40 rounded-xl overflow-hidden shadow-xl
-                      border border-[var(--earth-sand)]/40 bg-[var(--earth-cream)]">
+      <div className="relative w-48 h-48 rounded-[3rem] overflow-hidden shadow-[0_30px_100px_rgba(0,0,0,0.1)]
+                      border border-black/5 bg-white">
 
         {/* Diagonal Filling Wave */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="
             absolute w-[200%] h-[200%]
             bg-gradient-to-br
-            from-[var(--earth-olive)]/45 
-            via-[var(--earth-sand)]/45 
-            to-[var(--earth-brown)]/45
+            from-[#5de3ba]/10 
+            via-[#5de3ba]/30 
+            to-[#5de3ba]/5
             animate-waveFill
             "
           />
@@ -32,31 +31,35 @@ export default function AiGeneratingScreen() {
             {/* Glow behind icon */}
             <div className="
               absolute inset-0 rounded-full 
-              bg-[var(--earth-olive)]/40 blur-2xl
+              bg-[#5de3ba]/20 blur-3xl
               animate-pulse
             " />
 
             <Bot
-              size={72}
-              className="relative text-[var(--earth-brown)] drop-shadow-lg opacity-90"
+              size={80}
+              className="relative text-black drop-shadow-2xl opacity-90"
             />
           </div>
         </div>
       </div>
 
       {/* Text */}
-      <div className="mt-6 text-center fade-up">
-        <p className="text-[var(--earth-brown-dark)] text-xl font-bold tracking-wide">
-          جاري توليد الخلاصة
+      <div className="mt-10 text-center animate-fadeIn">
+        <p className="text-black text-2xl md:text-3xl font-black tracking-tight">
+          جاري توليد الخاتمة الذكية
         </p>
-        <p className="text-[var(--earth-brown)]/70 text-sm mt-1">
-          يُرجى الانتظار...
+        <div className="flex items-center justify-center gap-2 mt-4">
+           <div className="w-1.5 h-1.5 rounded-full bg-[#5de3ba] animate-bounce" style={{ animationDelay: '0ms' }} />
+           <div className="w-1.5 h-1.5 rounded-full bg-[#5de3ba] animate-bounce" style={{ animationDelay: '200ms' }} />
+           <div className="w-1.5 h-1.5 rounded-full bg-[#5de3ba] animate-bounce" style={{ animationDelay: '400ms' }} />
+        </div>
+        <p className="text-black/40 text-sm font-bold mt-4 uppercase tracking-widest">
+          يُرجى الانتظار، نحن نقرأ كتابك بعناية...
         </p>
       </div>
 
       {/* Animations */}
-      <style jsx>{`
-        /* Diagonal fill wave moving up-right */
+      <style>{`
         @keyframes waveFill {
           0% {
             transform: translate(-80%, 80%) rotate(12deg);
@@ -67,7 +70,7 @@ export default function AiGeneratingScreen() {
         }
 
         .animate-waveFill {
-          animation: waveFill 2.5s ease-in-out infinite alternate;
+          animation: waveFill 3s ease-in-out infinite alternate;
         }
       `}</style>
     </div>
