@@ -129,7 +129,7 @@ const fetchReviews = useCallback(async () => {
         {reviews.length > 0 && (
           <button
             onClick={() => setShowAll(true)}
-            className="flex items-center gap-2 md:gap-3 text-sm md:text-lg font-black text-white/40 hover:text-[var(--primary-button)] transition-all group"
+            className="flex items-center gap-2 md:gap-3 text-sm md:text-lg font-black text-white hover:text-[var(--primary-button)] transition-all group"
           >
             <span className="hidden sm:block uppercase tracking-[0.1em] md:tracking-[0.2em]">استكشف الكل</span>
             <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-[var(--primary-button)] group-hover:text-black group-hover:border-transparent transition-all">
@@ -145,7 +145,7 @@ const fetchReviews = useCallback(async () => {
         </div>
       ) : reviews.length === 0 ? (
         <div className="text-center py-20 bg-white/5 rounded-[3rem] border border-[var(--primary-button)]/20">
-          <p className="text-white/20 font-bold uppercase tracking-widest">
+          <p className="text-white font-bold uppercase tracking-widest">
             لا توجد تقييمات حتى الآن. كن أول من يشارك رأيه!
           </p>
         </div>
@@ -165,7 +165,7 @@ const fetchReviews = useCallback(async () => {
                     <h4 className="font-bold text-white tracking-tight text-base md:text-lg truncate">
                       {r.userName || "قارئ مجهول"}
                     </h4>
-                    <span className="text-[9px] md:text-[10px] text-white/20 font-bold uppercase tracking-widest">
+                    <span className="text-[9px] md:text-[10px] text-white font-bold uppercase tracking-widest">
                       {r.createdAt
                         ? new Date(r.createdAt).toLocaleDateString("ar-EG")
                         : ""}
@@ -190,7 +190,7 @@ const fetchReviews = useCallback(async () => {
               </div>
 
               <div className="relative">
-                <p className="text-white/60 text-base md:text-lg leading-relaxed font-semibold tracking-tight line-clamp-4 italic">
+                <p className="text-white text-base md:text-lg leading-relaxed font-semibold tracking-tight line-clamp-4 italic">
                   "{r.comment || "تجربة قراءة فريدة ومتميزة..."}"
                 </p>
               </div>

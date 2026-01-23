@@ -372,17 +372,16 @@ export default function BookDataComponent({ bookId, navigate }) {
         <div className="absolute -top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-[var(--primary-button)] opacity-[0.03] blur-[150px] rounded-full" />
       </div>
 
-      {/* ========== MOBILE HERO COVER (Top of page, mobile only) ========== */}
-      {/* Starting from the absolute top of the screen by cancelling out parent padding and navigation offsets */}
-      <div className="absolute -top-[176px] sm:-top-[176px] left-1/2 -translate-x-1/2 w-screen h-[550px] md:hidden overflow-hidden -z-10">
+      {/* ========== HERO BACKGROUND COVER (Cinematic Backdrop) ========== */}
+      <div className="absolute -top-[176px] md:-top-[220px] left-1/2 -translate-x-1/2 w-screen h-[550px] md:h-[850px] overflow-hidden -z-10">
         <img
           src={bookData.coverImageUrl}
           alt={bookData.title}
-          className="w-full h-full object-cover scale-110 opacity-70"
+          className="w-full h-full object-cover scale-110 opacity-70 md:opacity-40"
         />
         {/* Stronger Bottom & Top Shadow Gradient for contrast */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black" />
-        <div className="absolute inset-x-0 bottom-0 h-[380px] bg-gradient-to-t from-black via-black/95 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black" />
+        <div className="absolute inset-x-0 bottom-0 h-[380px] md:h-[600px] bg-gradient-to-t from-black via-black/90 to-transparent" />
       </div>
 
       {/* ========== MAIN CONTENT ========== */}
@@ -441,7 +440,7 @@ export default function BookDataComponent({ bookId, navigate }) {
                   />
                 ))}
               </div>
-              <span className="text-[10px] text-white/60 font-bold">({bookData.totalReviews})</span>
+              <span className="text-[10px] text-white font-bold">({bookData.totalReviews})</span>
             </div>
           </div>
         </div>
@@ -471,7 +470,7 @@ export default function BookDataComponent({ bookId, navigate }) {
               {bookData.genre || "أدب"}
             </span>
             {bookData.subgenre && (
-              <span className="bg-white/10 text-white/70 px-5 py-2 rounded-full text-xs font-semibold border border-white/20 transition-colors hover:border-[var(--primary-button)]/30">
+              <span className="bg-white/10 text-white px-5 py-2 rounded-full text-xs font-semibold border border-white/20 transition-colors hover:border-[var(--primary-button)]/30">
                 {bookData.subgenre}
               </span>
             )}
@@ -488,21 +487,21 @@ export default function BookDataComponent({ bookId, navigate }) {
           </h1>
 
           {/* Metadata Row (Desktop Style) */}
-          <div className="hidden md:flex flex-wrap items-center justify-start gap-6 text-white/70">
+          <div className="hidden md:flex flex-wrap items-center justify-start gap-6 text-white">
             {/* Rating */}
-            <div className="flex items-center gap-3 bg-white/[0.07] px-5 py-3 rounded-2xl border border-white/10 shadow-lg backdrop-blur-sm">
+            <div className="flex items-center gap-3 bg-white/[0.07] px-5 py-3 rounded-2xl border border-[#5de3ba]/30 shadow-lg backdrop-blur-sm">
               <div className="flex gap-0.5">
                 {[1, 2, 3, 4, 5].map((i) => (
                   <Star
                     key={i}
                     size={14}
-                    strokeWidth={0}
-                    className={i <= filledStars ? "text-[var(--primary-button)] fill-[var(--primary-button)]" : "text-white/10"}
+                    strokeWidth={1}
+                    className={i <= filledStars ? "text-white fill-[#5de3ba]" : "text-white"}
                   />
                 ))}
               </div>
               <span className="text-xl font-black text-white">{bookData.averageRating}</span>
-              <span className="text-xs text-white/30 font-bold">({bookData.totalReviews} مراجعة)</span>
+              <span className="text-xs text-white/50 font-bold">({bookData.totalReviews} مراجعة)</span>
             </div>
 
             <div className="w-px h-5 bg-white/10" />
@@ -510,14 +509,14 @@ export default function BookDataComponent({ bookId, navigate }) {
             {/* Page Count */}
             <div className="flex items-center gap-1.5">
               <span className="text-lg font-bold text-white">{bookData.pageCount || "—"}</span>
-              <span className="text-xs text-white/40 uppercase tracking-wider">صفحة</span>
+              <span className="text-xs text-white font-bold uppercase tracking-wider">صفحة</span>
             </div>
 
             <div className="w-px h-5 bg-white/10" />
 
             {/* Age */}
             <div className="flex items-center gap-1.5">
-              <span className="text-xs text-white/40 uppercase tracking-wider">الفئة</span>
+              <span className="text-xs text-white font-bold uppercase tracking-wider">الفئة</span>
               <span className="text-lg font-bold text-white">+{bookData.ageRangeMin || "10"}</span>
             </div>
           </div>
@@ -526,21 +525,27 @@ export default function BookDataComponent({ bookId, navigate }) {
           <div className="space-y-4 md:space-y-6 w-full">
             <div className="flex items-center justify-center md:justify-start gap-4 md:hidden">
                <div className="h-px flex-1 bg-white/10" />
-               <span className="text-[10px] text-white/40 font-black uppercase tracking-[0.4em]">عن الكتاب</span>
+               <span className="text-[10px] text-white font-black uppercase tracking-[0.4em]">عن الكتاب</span>
                <div className="h-px flex-1 bg-white/10" />
             </div>
             <div 
               onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
               className="relative group md:bg-transparent bg-white/[0.03] backdrop-blur-sm border border-transparent md:border-none md:p-0 p-5 rounded-3xl transition-all duration-300 cursor-pointer"
             >
-              <p className={`text-base md:text-lg lg:text-xl text-white/70 md:text-white/50 leading-relaxed max-w-3xl group-hover:text-white transition-colors duration-300 ${isDescriptionExpanded ? "" : "line-clamp-6 md:line-clamp-5"}`}>
+              <p className={`text-base md:text-lg lg:text-xl text-white leading-relaxed max-w-3xl group-hover:text-white transition-colors duration-300 ${isDescriptionExpanded ? "" : "line-clamp-6 md:line-clamp-5"}`}>
                 {bookData.description || "استكشف هذا العمل الأدبي الفريد الذي يجمع بين الخيال والواقع في رحلة سردية مذهلة."}
               </p>
             </div>
           </div>
 
-          {/* ===== DESKTOP ACTIONS ===== */}
           <div className="hidden md:flex items-center gap-6 pt-8">
+            <button
+              onClick={() => navigate(`/reader/display/${bookId}`)}
+              className="h-16 lg:h-[76px] px-10 rounded-2xl bg-[var(--primary-button)] text-black flex items-center justify-center gap-4 transition-all duration-300 hover:scale-[1.03] active:scale-95 shadow-xl shadow-[var(--primary-button)]/20 group"
+            >
+              <BookOpen size={24} strokeWidth={3} className="group-hover:rotate-12 transition-transform" />
+              <span className="font-black text-sm uppercase tracking-[0.2em]">قراءة الكتاب</span>
+            </button>
 
             <button
               onClick={() => setIsRatingModalOpen(true)}
@@ -576,8 +581,13 @@ export default function BookDataComponent({ bookId, navigate }) {
         <div className="bg-black/95 backdrop-blur-lg border-t border-white/5 px-3 py-3">
           <div className="flex items-center gap-2">
             {/* Read Button */}
-
-            {/* Rate Button */}
+            <button
+              onClick={() => navigate(`/reader/display/${bookId}`)}
+              className="flex-1 h-12 bg-[var(--primary-button)] text-black rounded-xl flex items-center justify-center gap-3 transition-all active:scale-95 shadow-lg shadow-[var(--primary-button)]/10"
+            >
+              <BookOpen size={18} strokeWidth={3} />
+              <span className="font-black text-[10px] uppercase tracking-wider">ابدأ القراءة</span>
+            </button>
             <button
               onClick={() => setIsRatingModalOpen(true)}
               className={`w-12 h-12 rounded-xl border-2 flex items-center justify-center transition-all active:scale-90 shrink-0
@@ -609,7 +619,7 @@ export default function BookDataComponent({ bookId, navigate }) {
       {/* ========== RATING MODAL ========== */}
       {isRatingModalOpen && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-          <div className="bg-[#0a0a0a] w-full max-w-sm rounded-3xl border border-white/10 shadow-2xl overflow-hidden">
+          <div className="bg-[#0a0a0a] w-full max-w-sm rounded-3xl border border-[#5de3ba]/20 shadow-2xl overflow-hidden">
             {/* Top Accent */}
             <div className="h-1 bg-gradient-to-r from-transparent via-[var(--primary-button)] to-transparent" />
 
@@ -636,14 +646,14 @@ export default function BookDataComponent({ bookId, navigate }) {
                     <button
                       key={i}
                       onClick={() => setUserRating(i)}
-                      className="transition-transform duration-200 hover:scale-110 active:scale-90"
+                      className="transition-transform duration-200 active:scale-90"
                     >
                       <Star
                         size={28}
                         className={`transition-colors ${
                           i <= userRating
-                            ? "text-[var(--primary-button)] fill-[var(--primary-button)]"
-                            : "text-white/10 hover:text-white/20"
+                            ? "text-white fill-[#5de3ba]"
+                            : "text-white/20"
                         }`}
                         strokeWidth={1.5}
                       />
@@ -653,7 +663,7 @@ export default function BookDataComponent({ bookId, navigate }) {
 
                 {/* Comment */}
                 <textarea
-                  className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[var(--primary-button)]/40 transition-all h-24 resize-none text-right mb-6"
+                  className="w-full bg-white/5 border border-[#5de3ba]/30 rounded-xl p-4 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#5de3ba] transition-all h-24 resize-none text-right mb-6"
                   placeholder="شارك رأيك..."
                   value={userReview}
                   onChange={(e) => setUserReview(e.target.value)}
@@ -670,7 +680,7 @@ export default function BookDataComponent({ bookId, navigate }) {
                 {isReviewed && (
                   <button
                     onClick={handleDeleteReview}
-                    className="mt-4 text-[10px] font-bold text-red-500/50 hover:text-red-500 uppercase tracking-widest transition-colors"
+                    className="w-full mt-3 h-11 rounded-xl border border-red-500/20 bg-red-500/5 text-red-500 text-[10px] font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all duration-300 active:scale-95"
                   >
                     حذف المراجعة
                   </button>

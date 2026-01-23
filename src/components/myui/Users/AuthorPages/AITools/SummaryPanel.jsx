@@ -9,36 +9,31 @@ export default function SummaryPanel({ loading, summary, hasStarted }) {
   const [shared, setShared] = useState(false);
   const contentRef = useRef(null);
 
-const cleanMarkdown = (text) => {
-  if (!text) return "";
+  const cleanMarkdown = (text) => {
+    if (!text) return "";
 
-  let out = text;
+    let out = text;
 
-  out = out.replace(/\.{2,}/g, ".");
-  out = out.replace(/-{2,}/g, "-");
+    out = out.replace(/\.{2,}/g, ".");
+    out = out.replace(/-{2,}/g, "-");
 
-  out = out.replace(/(\d+)\s*-\s*/g, "$1. ");
+    out = out.replace(/(\d+)\s*-\s*/g, "$1. ");
 
-  out = out.replace(/([^\n])(\d+\.)/g, "$1\n$2");
+    out = out.replace(/([^\n])(\d+\.)/g, "$1\n$2");
 
-  out = out.replace(/([^\n])(-\s)/g, "$1\n$2");
+    out = out.replace(/([^\n])(-\s)/g, "$1\n$2");
 
-  out = out.replace(
-    /\b([\u0600-\u06FF])\s+([\u0600-\u06FF]{2,})\b/g,
-    "$1$2"
-  );
+    out = out.replace(/\b([\u0600-\u06FF])\s+([\u0600-\u06FF]{2,})\b/g, "$1$2");
 
-  out = out.replace(/\b([A-Za-z])\s+([A-Za-z]{2,})\b/g, "$1$2");
+    out = out.replace(/\b([A-Za-z])\s+([A-Za-z]{2,})\b/g, "$1$2");
 
-  out = out.replace(/\s+(?=[،.:؛؟!])/g, "");
+    out = out.replace(/\s+(?=[،.:؛؟!])/g, "");
 
-  out = out.replace(/\n{3,}/g, "\n\n");
+    out = out.replace(/\n{3,}/g, "\n\n");
 
-  return out.trim();
-};
+    return out.trim();
+  };
 
-
- 
   const renderMarkdown = (text) => {
     const cleaned = cleanMarkdown(text);
 
@@ -51,7 +46,6 @@ const cleanMarkdown = (text) => {
     return DOMPurify.sanitize(html);
   };
 
- 
   const handleCopy = () => {
     if (!contentRef.current) return;
 
@@ -63,7 +57,6 @@ const cleanMarkdown = (text) => {
     setTimeout(() => setCopied(false), 1200);
   };
 
- 
   const handleShare = async () => {
     if (!contentRef.current) return;
 
@@ -90,7 +83,6 @@ const cleanMarkdown = (text) => {
     }
   };
 
- 
   return (
     <div
       className="
@@ -140,7 +132,7 @@ const cleanMarkdown = (text) => {
       {summary && (
         <div className="h-full overflow-y-auto relative z-10 px-2 mt-2 custom-scrollbar">
           <h2 className="text-2xl md:text-4xl font-black text-center text-black mb-10 tracking-tight">
-            الخلاصة المولدة
+            الخاتمة المولدة
           </h2>
 
           <div

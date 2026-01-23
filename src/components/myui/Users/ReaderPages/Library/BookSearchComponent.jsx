@@ -6,10 +6,8 @@ export default function BookSearchModal({ isOpen, onClose, onApply }) {
   // Local state for the form
   const [query, setQuery] = useState("");
   const [selectedRating, setSelectedRating] = useState(0);
-  const [selectedAge, setSelectedAge] = useState();
+  const [selectedAge, setSelectedAge] = useState("");
   const [genres, setGenres] = useState([]);
-  const [loadingGenres, setLoadingGenres] = useState(false);
-
   const [selectedMainGenres, setSelectedMainGenres] = useState([]);
   const [selectedSubGenres, setSelectedSubGenres] = useState([]);
   const [expandedGenre, setExpandedGenre] = useState(null);
@@ -20,7 +18,6 @@ export default function BookSearchModal({ isOpen, onClose, onApply }) {
     if (!isOpen) return;
 
     const fetchGenres = async () => {
-      setLoadingGenres(true);
       try {
         const res = await getHelper({
           url: `${import.meta.env.VITE_API_URL}/genres/getAllGenres`,
@@ -28,16 +25,11 @@ export default function BookSearchModal({ isOpen, onClose, onApply }) {
 
         if (Array.isArray(res?.content) && res.content.length > 0) {
           setGenres(res.content);
-        } else {
-          if (res.messageStatus !== "SUCCESS") {
-            AlertToast(res.message, res.messageStatus);
-            return;
-          }
+        } else if (res.messageStatus !== "SUCCESS") {
+          AlertToast(res.message, res.messageStatus);
         }
       } catch (error) {
-        console.error("Failed to load genres, using fallback", error);
-      } finally {
-        setLoadingGenres(false);
+        console.error("Failed to load genres", error);
       }
     };
 
@@ -59,22 +51,24 @@ export default function BookSearchModal({ isOpen, onClose, onApply }) {
         ? prevSelected.filter((id) => id !== genreId)
         : [...prevSelected, genreId];
 
+      // If we deselect a main genre, we should remove its sub-genres too
+      if (isCurrentlySelected) {
+        setSelectedSubGenres((prevSub) =>
+          prevSub.filter((subId) => {
+            const parent = genres.find((g) =>
+              g.subGenres?.some((s) => s.id === subId)
+            );
+            return !(parent && parent.id === genreId);
+          })
+        );
+      }
+
       setExpandedGenre((prevExpanded) => {
         if (isCurrentlySelected) {
           return prevExpanded === genreId ? null : prevExpanded;
         }
         return genreId;
       });
-
-      // Keep only subgenres that belong to still-selected main genres
-      setSelectedSubGenres((prevSub) =>
-        prevSub.filter((subId) => {
-          const parent = genres.find((g) =>
-            g.subGenres?.some((s) => s.id === subId),
-          );
-          return parent && newSelected.includes(parent.id);
-        }),
-      );
 
       return newSelected;
     });
@@ -84,12 +78,21 @@ export default function BookSearchModal({ isOpen, onClose, onApply }) {
     setExpandedGenre((prev) => (prev === genreId ? null : genreId));
   };
 
-  const toggleSubGenre = (subId) => {
-    setSelectedSubGenres((prev) =>
-      prev.includes(subId)
+  const toggleSubGenre = (subId, parentGenreId) => {
+    setSelectedSubGenres((prev) => {
+      const isSelected = prev.includes(subId);
+      
+      // If adding a subgenre, ensure its parent is also selected
+      if (!isSelected && parentGenreId) {
+        setSelectedMainGenres(prevMain => 
+          prevMain.includes(parentGenreId) ? prevMain : [...prevMain, parentGenreId]
+        );
+      }
+      
+      return isSelected
         ? prev.filter((id) => id !== subId)
-        : [...prev, subId],
-    );
+        : [...prev, subId];
+    });
   };
 
   const handleApply = () => {
@@ -100,7 +103,7 @@ export default function BookSearchModal({ isOpen, onClose, onApply }) {
       age: selectedAge ? Number(selectedAge) : null,
       minAverageRating: selectedRating,
       page: 0,
-      size: 10,
+      size: 8,
     });
 
     onClose();
@@ -110,7 +113,7 @@ export default function BookSearchModal({ isOpen, onClose, onApply }) {
     setQuery("");
     setSelectedMainGenres([]);
     setSelectedSubGenres([]);
-    setSelectedRating(1);
+    setSelectedRating(0);
     setSelectedAge("");
   };
 
@@ -179,19 +182,57 @@ export default function BookSearchModal({ isOpen, onClose, onApply }) {
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 md:gap-3">
               {genres.map((g) => {
                 const active = selectedMainGenres.includes(g.id);
+                const isExpanded = expandedGenre === g.id;
+                const hasSubGenres = g.subGenres && g.subGenres.length > 0;
+
                 return (
-                  <button
-                    key={g.id}
-                    onClick={() => toggleMainGenre(g.id)}
-                    className={`
-                      text-[11px] md:text-sm px-4 md:px-5 py-3 md:py-4 rounded-xl md:rounded-2xl border transition-all duration-300 flex items-center justify-center text-center font-bold tracking-tight
-                      ${active
+                  <div key={g.id} className="flex flex-col gap-2">
+                    <button
+                      onClick={() => toggleMainGenre(g.id)}
+                      className={`
+                        w-full text-[11px] md:text-sm px-4 md:px-5 py-3 md:py-4 rounded-xl md:rounded-2xl border transition-all duration-300 flex items-center justify-between font-bold tracking-tight
+                        ${active
                           ? "bg-gradient-to-r from-[#5de3ba] to-[#76debf] text-white border-transparent shadow-md"
                           : "bg-white/60 text-black/60 border-black/5 hover:border-[var(--primary-button)]/30"}
-                    `}
-                  >
-                    {g.nameAr}
-                  </button>
+                      `}
+                    >
+                      <span className="truncate">{g.nameAr}</span>
+                      {hasSubGenres && (
+                        <div 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleExpandGenre(g.id);
+                          }}
+                          className={`p-1 rounded-lg transition-colors ${active ? "hover:bg-white/20" : "hover:bg-black/5"}`}
+                        >
+                          {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                        </div>
+                      )}
+                    </button>
+
+                    {/* SUB-GENRES (inline expand) */}
+                    {isExpanded && hasSubGenres && (
+                      <div className="grid grid-cols-1 gap-1.5 mt-1 pr-2 animate-in slide-in-from-top-2 duration-300">
+                        {g.subGenres.map((sub) => {
+                          const subActive = selectedSubGenres.includes(sub.id);
+                          return (
+                            <button
+                              key={sub.id}
+                              onClick={() => toggleSubGenre(sub.id, g.id)}
+                              className={`
+                                text-[10px] md:text-[11px] text-right px-4 py-2.5 rounded-xl border transition-all font-bold
+                                ${subActive
+                                  ? "bg-[#5de3ba]/10 text-[#2db38a] border-[#5de3ba]/30 shadow-sm"
+                                  : "bg-black/5 text-black/40 border-transparent hover:bg-black/10"}
+                              `}
+                            >
+                              • {sub.nameAr}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
                 );
               })}
             </div>
@@ -239,11 +280,11 @@ export default function BookSearchModal({ isOpen, onClose, onApply }) {
             onClick={handleClear}
             className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-black/40 hover:text-red-500 px-4 md:px-6 py-4 transition-all"
           >
-            تصفير
+            اعادة التعيين 
           </button>
           <button
             onClick={handleApply}
-            className="flex-1 bg-black text-white h-14 md:h-16 rounded-xl md:rounded-[1.75rem] font-bold uppercase tracking-widest text-[11px] md:text-sm active:scale-[0.98] transition-all shadow-xl flex items-center justify-center gap-3"
+            className="flex-1 btn-premium h-14 md:h-16 rounded-xl md:rounded-[1.75rem] flex items-center justify-center gap-3 active:scale-[0.98]"
           >
             <Search size={18} strokeWidth={2.5} />
             تطبيق الفلاتر

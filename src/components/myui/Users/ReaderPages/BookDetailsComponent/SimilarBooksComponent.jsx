@@ -98,11 +98,11 @@ export default function SimilarBooksComponent({ bookId, navigate }) {
               </h3>
 
               <div className="flex items-center gap-2 mt-1 md:mt-2">
-                <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-[var(--primary-button)]/80">
+                <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-[var(--primary-button)]">
                   {simBook.mainGenreName || "دراما"}
                 </span>
-                <span className="w-1 h-1 rounded-full bg-white/10" />
-                <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-white/20">
+                <span className="w-1 h-1 rounded-full bg-white/30" />
+                <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-white">
                    +16
                 </span>
               </div>

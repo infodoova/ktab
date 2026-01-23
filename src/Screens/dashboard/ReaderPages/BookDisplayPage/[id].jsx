@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import rainFile from "../../../../assets/audio/rain.mp3";
 import windFile from "../../../../assets/audio/wind.mp3";
-
+import naturefile from "../../../../assets/audio/nature.mp3";
 import ReaderHeader from "../../../../components/myui/Users/ReaderPages/BookDisplayComponent/HeaderBarComponent";
 import ReaderFooter from "../../../../components/myui/Users/ReaderPages/BookDisplayComponent/FooterBarComponent";
 import FlipBookViewer from "../../../../components/myui/Users/ReaderPages/BookDisplayComponent/FlipBookViewerComponent";
@@ -79,6 +79,7 @@ export default function BookDisplay() {
     urls: {
       rain: rainFile,
       wind: windFile,
+      nature: naturefile,
     },
   });
 
@@ -93,7 +94,7 @@ export default function BookDisplay() {
         if (!mounted) return;
 
         const text =
-          typeof resp?.data === "string" ? resp.data : resp?.data?.text ?? "";
+          typeof resp?.data === "string" ? resp.data : (resp?.data?.text ?? "");
 
         setBookText(text || "محتوى الكتاب غير متوفر حالياً.");
       } catch (err) {
@@ -120,7 +121,7 @@ export default function BookDisplay() {
           const ctx = createAudioContextSafe();
           if (!ctx) {
             console.warn(
-              "AudioContext creation failed. Ambient sounds disabled."
+              "AudioContext creation failed. Ambient sounds disabled.",
             );
             return;
           }
@@ -146,7 +147,7 @@ export default function BookDisplay() {
             } catch (err) {
               console.error(`Failed to load/decode ambient sound: ${k}`, err);
             }
-          })
+          }),
         );
       } catch (err) {
         console.error("Critical error in ambient audio init:", err);
@@ -217,7 +218,7 @@ export default function BookDisplay() {
       ctx.resume().catch((err) => {
         console.warn(
           "Failed to resume audio context (likely requires user interaction):",
-          err
+          err,
         );
       });
     }
@@ -346,7 +347,7 @@ export default function BookDisplay() {
 
       setVoice(newVoice);
     },
-    [ttsPlaying, isStreaming, cancelStream, setVoice]
+    [ttsPlaying, isStreaming, cancelStream, setVoice],
   );
 
   const sendPage = useCallback(
@@ -369,7 +370,7 @@ export default function BookDisplay() {
           "-",
           range.endWord,
           "isLastPage:",
-          isLastPage
+          isLastPage,
         );
         currentPageRef.current = pageNumber;
 
@@ -383,14 +384,14 @@ export default function BookDisplay() {
             token: gettoken,
             isLastPage,
           },
-          range.startChar
+          range.startChar,
         );
       } catch (err) {
         console.error("Error in sendPage:", err);
         AlertToast("فشل إرسال طلب تحويل النص إلى صوت.", "ERROR");
       }
     },
-    [id, voice, gettoken, startPageStream]
+    [id, voice, gettoken, startPageStream],
   );
 
   // Prefetch next page's audio while current page is still playing
@@ -414,7 +415,7 @@ export default function BookDisplay() {
           "-",
           range.endWord,
           "isLastPage:",
-          isLastPage
+          isLastPage,
         );
 
         await startPageStream(
@@ -428,14 +429,14 @@ export default function BookDisplay() {
             isLastPage,
           },
           range.startChar,
-          { prefetch: true } // Prefetch mode - don't cancel current stream
+          { prefetch: true }, // Prefetch mode - don't cancel current stream
         );
       } catch (err) {
         console.error("Error in prefetchPage:", err);
         // We don't necessarily need to toast for prefetch failures
       }
     },
-    [id, voice, gettoken, startPageStream]
+    [id, voice, gettoken, startPageStream],
   );
 
   sendPageRef.current = sendPage;
@@ -456,8 +457,8 @@ export default function BookDisplay() {
             ttsStartedRef.current && currentPageRef.current > 0
               ? currentPageRef.current
               : visiblePage < 1
-              ? 1
-              : visiblePage;
+                ? 1
+                : visiblePage;
 
           // If we are already streaming (audio buffered/buffering) and on the same page,
           // we just RESUME. Else, we start fresh.
@@ -513,7 +514,7 @@ export default function BookDisplay() {
         }
       }
     },
-    [ttsPlaying, cancelStream, isStreaming]
+    [ttsPlaying, cancelStream, isStreaming],
   );
 
   // Reset when book changes

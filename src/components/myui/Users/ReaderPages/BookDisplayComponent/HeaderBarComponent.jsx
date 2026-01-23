@@ -10,6 +10,7 @@ import {
   CloudRain,
   Wind,
   MoreVertical,
+  TreePalm,
   Check,
   X,
 } from "lucide-react";
@@ -33,7 +34,6 @@ export default function ReaderHeader({
   onSelectVoice,
   isMuted = false,
   onCycleVolume,
-  readOnly = false,
 }) {
   const [pageInput, setPageInput] = React.useState("");
 
@@ -87,7 +87,9 @@ export default function ReaderHeader({
               dir="rtl"
               className="w-64 rounded-[2rem] border border-black/10 bg-white/95 backdrop-blur-xl p-4 shadow-2xl z-[1000]"
             >
-              <DropdownMenuLabel className="text-black/30 font-black uppercase text-[10px] px-2 mb-2">إعدادات القراءة</DropdownMenuLabel>
+              <DropdownMenuLabel className="text-black/30 font-black uppercase text-[10px] px-2 mb-2">
+                إعدادات القراءة
+              </DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-black/5" />
               <div className="space-y-1 mt-2">
                 <DropdownMenuItem
@@ -97,7 +99,7 @@ export default function ReaderHeader({
                   <MoreVertical size={16} className="rotate-90 opacity-40" />
                   <span className="text-xs font-bold">الذهاب إلى صفحة...</span>
                 </DropdownMenuItem>
-                
+
                 {/* Note: Redundant 'Close Book' removed as requested */}
               </div>
             </DropdownMenuContent>
@@ -110,25 +112,63 @@ export default function ReaderHeader({
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="p-2 sm:p-3 text-black/40 hover:text-black hover:bg-white/50 rounded-full transition-all active:scale-90">
-                <UserRound size={20} className={voice === "none" ? "text-red-500" : ""} strokeWidth={2.5} />
+                <UserRound
+                  size={20}
+                  className={voice === "none" ? "text-red-500" : ""}
+                  strokeWidth={2.5}
+                />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
               dir="rtl"
               className="w-72 sm:w-80 rounded-[2rem] border border-black/10 bg-white/95 backdrop-blur-xl p-4 shadow-2xl z-[1000]"
             >
-              <DropdownMenuLabel className="text-black/30 font-black uppercase text-[10px] px-2 mb-2">اختر قارئك</DropdownMenuLabel>
+              <DropdownMenuLabel className="text-black/30 font-black uppercase text-[10px] px-2 mb-2">
+                اختر قارئك
+              </DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-black/5" />
               <div className="max-h-[350px] overflow-y-auto space-y-1 mt-2 custom-scrollbar">
                 {[
-                  { id: "IES4nrmZdUBHByLBde0P", label: "هيثم", desc: "صوت دافئ ونشيط" },
-                  { id: "aCChyB4P5WEomwRsOKRh", label: "سلمى", desc: "صوت تعبيري أنثوي" },
-                  { id: "rFDdsCQRZCUL8cPOWtnP", label: "غيداء", desc: "صوت سوري سردي" },
-                  { id: "u0TsaWvt0v8migutHM3M", label: "غزلان", desc: "صوت هادئ ومتوازن" },
-                  { id: "mRdG9GYEjJmIzqbYTidv", label: "سنا", desc: "صوت ناعم وحيوي" },
-                  { id: "R6nda3uM038xEEKi7GFl", label: "أنس", desc: "صوت رجل هادئ" },
-                  { id: "ocqVw6LVSdCxCra4XhMH", label: "عبدالله", desc: "صوت مصري دافئ" },
-                  { id: "s83SAGdFTflAwJcAV81K", label: "أديب", desc: "صوت سردي احترافي" }
+                  {
+                    id: "IES4nrmZdUBHByLBde0P",
+                    label: "هيثم",
+                    desc: "صوت دافئ ونشيط",
+                  },
+                  {
+                    id: "aCChyB4P5WEomwRsOKRh",
+                    label: "سلمى",
+                    desc: "صوت تعبيري أنثوي",
+                  },
+                  {
+                    id: "rFDdsCQRZCUL8cPOWtnP",
+                    label: "غيداء",
+                    desc: "صوت سوري سردي",
+                  },
+                  {
+                    id: "u0TsaWvt0v8migutHM3M",
+                    label: "غزلان",
+                    desc: "صوت هادئ ومتوازن",
+                  },
+                  {
+                    id: "mRdG9GYEjJmIzqbYTidv",
+                    label: "سنا",
+                    desc: "صوت ناعم وحيوي",
+                  },
+                  {
+                    id: "R6nda3uM038xEEKi7GFl",
+                    label: "أنس",
+                    desc: "صوت رجل هادئ",
+                  },
+                  {
+                    id: "ocqVw6LVSdCxCra4XhMH",
+                    label: "عبدالله",
+                    desc: "صوت مصري دافئ",
+                  },
+                  {
+                    id: "s83SAGdFTflAwJcAV81K",
+                    label: "أديب",
+                    desc: "صوت سردي احترافي",
+                  },
                 ].map((v) => (
                   <DropdownMenuItem
                     key={v.id}
@@ -136,10 +176,20 @@ export default function ReaderHeader({
                     className="flex items-center justify-between cursor-pointer rounded-2xl py-3 px-4 transition-all hover:bg-black/5"
                   >
                     <div className="flex flex-col text-right">
-                      <span className="text-sm sm:text-base font-bold">{v.label}</span>
-                      <span className="text-[11px] sm:text-[13px] opacity-40 font-medium text-black">{v.desc}</span>
+                      <span className="text-sm sm:text-base font-bold">
+                        {v.label}
+                      </span>
+                      <span className="text-[11px] sm:text-[13px] opacity-40 font-medium text-black">
+                        {v.desc}
+                      </span>
                     </div>
-                    {voice === v.id && <Check size={16} className="text-[var(--primary-text)]" strokeWidth={3} />}
+                    {voice === v.id && (
+                      <Check
+                        size={16}
+                        className="text-[var(--primary-text)]"
+                        strokeWidth={3}
+                      />
+                    )}
                   </DropdownMenuItem>
                 ))}
               </div>
@@ -152,21 +202,37 @@ export default function ReaderHeader({
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="p-2 sm:p-3 text-black/40 hover:text-black hover:bg-white/50 rounded-full transition-all active:scale-90">
-                <Music4 size={20} className={effect === "none" ? "" : "text-[var(--primary-text)]"} strokeWidth={2.5} />
+                <Music4
+                  size={20}
+                  className={
+                    effect === "none" ? "" : "text-[var(--primary-text)]"
+                  }
+                  strokeWidth={2.5}
+                />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
               dir="rtl"
               className="w-56 rounded-[2rem] border border-black/10 bg-white/95 backdrop-blur-xl p-4 shadow-2xl z-[1000]"
             >
-              <DropdownMenuLabel className="text-black/30 font-black uppercase text-[10px] px-2 mb-2">الأجواء الصوتية</DropdownMenuLabel>
+              <DropdownMenuLabel className="text-black/30 font-black uppercase text-[10px] px-2 mb-2">
+                الأجواء الصوتية
+              </DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-black/5" />
               <div className="space-y-1 mt-2">
                 {[
                   { id: "none", label: "بدون مؤثرات", icon: <X size={14} /> },
-                  { id: "rain", label: "صوت المطر", icon: <CloudRain size={16} /> },
+                  {
+                    id: "rain",
+                    label: "صوت المطر",
+                    icon: <CloudRain size={16} />,
+                  },
                   { id: "wind", label: "صوت الرياح", icon: <Wind size={16} /> },
-                  { id: "running", label: "صوت الركض", icon: <Waves size={16} /> }
+                  {
+                    id: "nature",
+                    label: "صوت الطبيعة",
+                    icon: <TreePalm size={16} />,
+                  },
                 ].map((eff) => (
                   <DropdownMenuItem
                     key={eff.id}
@@ -177,7 +243,13 @@ export default function ReaderHeader({
                       <span className="text-black/20">{eff.icon}</span>
                       <span className="text-xs font-bold">{eff.label}</span>
                     </div>
-                    {effect === eff.id && <Check size={16} className="text-[var(--primary-text)]" strokeWidth={3} />}
+                    {effect === eff.id && (
+                      <Check
+                        size={16}
+                        className="text-[var(--primary-text)]"
+                        strokeWidth={3}
+                      />
+                    )}
                   </DropdownMenuItem>
                 ))}
               </div>
@@ -207,8 +279,14 @@ export default function ReaderHeader({
             onClick={onBack}
             className="flex items-center gap-2 px-4 py-2 sm:px-6 sm:py-3 bg-black text-white rounded-xl sm:rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg group shrink-0"
           >
-            <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" strokeWidth={2.5} />
-            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest hidden sm:block">العودة</span>
+            <ArrowRight
+              size={18}
+              className="transition-transform group-hover:translate-x-1"
+              strokeWidth={2.5}
+            />
+            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest hidden sm:block">
+              العودة
+            </span>
           </button>
         </div>
       </header>
@@ -275,9 +353,10 @@ export default function ReaderHeader({
                 key={e.id}
                 className={`
                   w-full py-4 px-6 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all
-                  ${effect === e.id
-                    ? "bg-black text-white shadow-lg"
-                    : "bg-white text-black/40 border border-black/5 hover:bg-black/5 hover:text-black"
+                  ${
+                    effect === e.id
+                      ? "bg-black text-white shadow-lg"
+                      : "bg-white text-black/40 border border-black/5 hover:bg-black/5 hover:text-black"
                   }
                 `}
                 onClick={() => {
@@ -295,24 +374,29 @@ export default function ReaderHeader({
   );
 }
 
-
 /* --- MODAL COMPONENT --- */
 function Modal({ title, children, onClose }) {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300" onClick={onClose} />
- 
+      <div
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300"
+        onClick={onClose}
+      />
+
       <div className="relative bg-white/95 backdrop-blur-[40px] rounded-[3rem] shadow-[0_40px_100px_rgba(0,0,0,0.2)] w-full max-w-md p-10 z-10 border border-black/10 text-center">
         <div className="flex justify-center items-center mb-8">
-          <h3 className="text-2xl font-black text-[var(--primary-text)] tracking-tight">{title}</h3>
-          <button onClick={onClose} className="absolute top-8 left-8 text-black/20 hover:text-red-500 transition-colors">
+          <h3 className="text-2xl font-black text-[var(--primary-text)] tracking-tight">
+            {title}
+          </h3>
+          <button
+            onClick={onClose}
+            className="absolute top-8 left-8 text-black/20 hover:text-red-500 transition-colors"
+          >
             <X className="w-6 h-6" strokeWidth={3} />
           </button>
         </div>
- 
-        <div className="relative">
-           {children}
-        </div>
+
+        <div className="relative">{children}</div>
       </div>
     </div>
   );
