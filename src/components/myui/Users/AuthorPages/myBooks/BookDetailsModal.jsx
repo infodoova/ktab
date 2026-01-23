@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   X,
   Star,
@@ -6,9 +7,12 @@ import {
   Headphones,
   Globe,
   Smile,
+  ArrowLeft,
 } from "lucide-react";
 
 export default function BookDetailsModal({ book, onClose }) {
+  const navigate = useNavigate();
+
   // Prevent background scrolling when modal is open
   useEffect(() => {
     if (book) {
@@ -198,6 +202,34 @@ export default function BookDetailsModal({ book, onClose }) {
             <p className="text-black/60 leading-relaxed text-sm md:text-base text-justify whitespace-pre-line font-medium">
               {book.description || "لا يتوفر وصف لهذا الكتاب حالياً."}
             </p>
+          </div>
+
+          <div className="pt-8 border-t border-black/5 mt-auto">
+            <button
+              onClick={() => {
+                if (book.pdfDownloadUrl) {
+                  window.open(book.pdfDownloadUrl, "_blank", "noopener,noreferrer");
+                } else {
+                   // Fallback navigation or alert if needed
+                   console.warn("No PDF download URL available for this book.");
+                }
+              }}
+              className="
+                w-full h-16 rounded-[2rem] 
+                bg-[#0a0a0a] text-white
+                flex items-center justify-center gap-4
+                hover:bg-[#5de3ba] hover:text-black 
+                hover:shadow-[0_20px_50px_rgba(93,227,186,0.25)]
+                active:scale-[0.98] transition-all duration-500
+                group relative overflow-hidden
+              "
+            >
+              {/* Subtle Shimmer */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+              
+              <BookOpen size={22} strokeWidth={2.5} className="transition-transform group-hover:-rotate-12" />
+              <span className="text-sm font-black uppercase tracking-[0.25em]">عرض الكتاب</span>
+            </button>
           </div>
 
         </div>

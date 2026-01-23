@@ -57,8 +57,8 @@ export default function SimilarBooksComponent({ bookId, navigate }) {
           <BookPlus className="w-8 h-8 text-white" />
         </div>
         <div>
-          <h2 className="text-4xl font-bold text-white tracking-tight">قد يعجبك أيضاً</h2>
-        
+   <h2 className="text-2xl md:text-4xl font-bold text-white tracking-tight">قد يعجبك أيضاً</h2>
+
         </div>
       </div>
 

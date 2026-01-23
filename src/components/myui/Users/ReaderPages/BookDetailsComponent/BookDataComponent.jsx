@@ -5,6 +5,7 @@ import {
   Headphones,
   X,
   BookPlus,
+  User,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -62,6 +63,7 @@ export default function BookDataComponent({ bookId, navigate }) {
         totalReviews: b.totalReviews ?? 0,
         coverImageUrl: b.coverImageUrl ?? "",
         pdfDownloadUrl: b.pdfDownloadUrl ?? null,
+        authorName: b.authorName ?? null,
       });
       if (res?.messageStatus !== "SUCCESS") {
         AlertToast(res?.message, res?.messageStatus);
@@ -388,7 +390,7 @@ export default function BookDataComponent({ bookId, navigate }) {
       <div className="relative z-10 flex flex-col md:flex-row gap-8 md:gap-12 lg:gap-20 items-stretch md:items-start w-full py-6 md:py-12">
         
         {/* Top Header Wrapper (Row on mobile, contents on desktop) */}
-        <div className="flex flex-row md:contents gap-4 sm:gap-8 items-start" dir="ltr">
+        <div className="flex flex-row md:contents gap-4 sm:gap-8 items-start" dir="rtl">
           
           {/* ===== COVER IMAGE ===== */}
           <div className="relative w-[120px] sm:w-[160px] md:w-[260px] lg:w-[340px] xl:w-[380px] shrink-0 group">
@@ -407,16 +409,15 @@ export default function BookDataComponent({ bookId, navigate }) {
             </div>
           </div>
 
-          {/* ===== MOBILE INFO (Right of cover) ===== */}
-          <div className="flex-1 flex flex-col md:hidden gap-3 justify-between" dir="rtl">
+          {/* ===== MOBILE INFO (Now on the Left of cover) ===== */}
+          <div className="flex-1 flex flex-col md:hidden gap-3 justify-between mt-1.5" dir="rtl">
             {/* Title */}
             <div className="space-y-2">
-              <h1 className="text-xl sm:text-2xl font-black text-white leading-[1.2] tracking-tight text-left drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]" dir="ltr">
+              <h1 className="text-xl sm:text-2xl font-black text-white leading-[1.2] tracking-tight text-right drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]" dir="rtl">
                 {bookData.title}
               </h1>
-              
               {/* Genre Tags */}
-              <div className="flex flex-wrap gap-2 justify-end">
+              <div className="flex flex-wrap gap-2 justify-start">
                 <span className="bg-[var(--primary-button)] text-black px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wide shadow-md">
                   {bookData.genre || "أدب"}
                 </span>
@@ -428,19 +429,28 @@ export default function BookDataComponent({ bookId, navigate }) {
               </div>
             </div>
 
-            {/* Rating */}
-            <div className="flex items-center justify-end gap-2.5 bg-black/60 px-3 py-2 rounded-xl border border-[var(--primary-button)]/40 backdrop-blur-md w-fit mr-auto shadow-2xl">
-              <span className="text-base font-black text-[var(--primary-button)] drop-shadow-md">{bookData.averageRating}</span>
-              <div className="flex gap-0.5">
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <Star
-                    key={i}
-                    size={12}
-                    className={i <= filledStars ? "text-[var(--primary-button)] fill-[var(--primary-button)]" : "text-white/20"}
-                  />
-                ))}
+            <div className="flex flex-col gap-2 items-start">
+              {/* Rating */}
+              <div className="flex items-center justify-start gap-2.5 bg-black/60 px-3 py-2 rounded-xl border border-[var(--primary-button)]/40 backdrop-blur-md w-fit shadow-2xl">
+                <span className="text-base font-black text-[var(--primary-button)] drop-shadow-md">{bookData.averageRating}</span>
+                <div className="flex gap-0.5">
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <Star
+                      key={i}
+                      size={12}
+                      className={i <= filledStars ? "text-[var(--primary-button)] fill-[var(--primary-button)]" : "text-white/20"}
+                    />
+                  ))}
+                </div>
+                <span className="text-[10px] text-white font-bold">({bookData.totalReviews})</span>
               </div>
-              <span className="text-[10px] text-white font-bold">({bookData.totalReviews})</span>
+
+              {bookData.authorName && (
+                <div className="flex items-center gap-2 text-white/80 font-bold text-xs justify-start px-1">
+                  <User size={14} className="text-[#5de3ba]" />
+                  <span className="truncate">بواسطة: {bookData.authorName}</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -485,6 +495,13 @@ export default function BookDataComponent({ bookId, navigate }) {
           <h1 className="hidden md:block text-4xl lg:text-5xl xl:text-7xl font-black text-white leading-[1.15] tracking-tight">
             {bookData.title}
           </h1>
+
+          {bookData.authorName && (
+            <div className="hidden md:flex items-center gap-3 text-white/80 font-black text-lg lg:text-xl uppercase tracking-widest mt-[-1rem]">
+              <User size={20} className="text-[#5de3ba]" />
+              <span>بواسطة: {bookData.authorName}</span>
+            </div>
+          )}
 
           {/* Metadata Row (Desktop Style) */}
           <div className="hidden md:flex flex-wrap items-center justify-start gap-6 text-white">

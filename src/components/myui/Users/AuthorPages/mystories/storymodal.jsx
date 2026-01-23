@@ -7,19 +7,20 @@ import {
   Info,
   Calendar,
   Palette,
+  User,
 } from "lucide-react";
 import ResponsiveImageSkeleton from "../../../imageSkeletonLoaderCP";
 /* eslint-disable  */
 const DetailRow = ({ label, value, icon: Icon }) => (
-  <div className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-black/[0.03] hover:border-[#5de3ba]/30 transition-colors text-right">
-    <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-[#5de3ba] shrink-0 shadow-sm border border-black/[0.05]">
-      <Icon size={18} />
+  <div className="group flex items-start gap-4 p-5 rounded-2xl bg-slate-50 border border-black/[0.03] hover:border-[#5de3ba]/30 transition-all text-right cursor-default hover:bg-white hover:shadow-xl hover:shadow-[#5de3ba]/5">
+    <div className="w-11 h-11 rounded-xl bg-white flex items-center justify-center text-[#5de3ba] shrink-0 shadow-sm border border-black/[0.05] group-hover:scale-110 group-hover:bg-[#5de3ba] group-hover:text-white transition-all shadow-xl shadow-transparent group-hover:shadow-[#5de3ba]/20">
+      <Icon size={20} />
     </div>
     <div className="min-w-0 flex-1">
-      <p className="text-[9px] font-black uppercase tracking-[0.15em] text-black/30 mb-0.5">
+      <p className="text-[9px] font-black uppercase tracking-[0.2em] text-black/30 mb-0.5 group-hover:text-[#5de3ba]/60 transition-colors">
         {label}
       </p>
-      <p className="text-sm font-bold text-black/80 truncate">
+      <p className="text-[13px] md:text-sm font-bold text-black/80 truncate group-hover:whitespace-normal group-hover:overflow-visible transition-all duration-300">
         {value || "غير محدد"}
       </p>
     </div>
@@ -71,9 +72,15 @@ export default function StoryModal({ story, onClose }) {
                 {story.lens}
               </span>
             </div>
-            <h2 className="text-3xl md:text-5xl font-black text-white leading-tight">
+            <h2 className="text-3xl md:text-5xl font-black text-white leading-tight mb-2">
               {story.title}
             </h2>
+            {story.authorName && (
+              <div className="flex items-center gap-2 text-white/60 font-black text-[10px] md:text-xs uppercase tracking-[0.2em]">
+                <User size={14} className="text-[#5de3ba]" />
+                بواسطة: {story.authorName}
+              </div>
+            )}
           </div>
         </div>
 
@@ -88,13 +95,19 @@ export default function StoryModal({ story, onClose }) {
                 <Sparkles size={16} />
                 نظرة عامة
               </div>
+              <div className="group relative">
+                 <p className="text-lg md:text-xl font-bold text-black/60 leading-relaxed text-right line-clamp-3 group-hover:line-clamp-none transition-all duration-500">
+                   {story.description || story.prompt || "هذه مغامرة تفاعلية فريدة من نوعها تبدأ بملحمة من الاختيارات، حيث تشكل قراراتك ملامح العالم وتاريخه."}
+                 </p>
+                 <div className="h-0.5 w-12 bg-[#5de3ba]/20 mt-4 group-hover:w-24 transition-all duration-500" />
+              </div>
             </section>
 
             {/* Constitution Grid - 2 Columns (not stacked) */}
             <section className="space-y-6">
               <div className="flex items-center gap-3 text-[11px] font-black uppercase tracking-[0.3em] text-black/20">
                 <Layers size={16} />
-                دستور العالم
+                دستور المغامرة
               </div>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <DetailRow
@@ -136,13 +149,13 @@ export default function StoryModal({ story, onClose }) {
                 <Palette size={16} />
                 الهوية البصرية
               </div>
-              <div className="group p-8 rounded-[2rem] bg-slate-50 border border-black/[0.03] transition-all hover:bg-[#5de3ba]/5">
+              <div className="group p-8 rounded-[2rem] bg-slate-50 border border-black/[0.03] transition-all hover:bg-white hover:shadow-xl hover:shadow-[#5de3ba]/5 hover:border-[#5de3ba]/30">
                 <p className="text-2xl font-black text-black mb-3 group-hover:text-[#5de3ba] transition-colors">
                   {story.visualStyle || "سينمائي"}
                 </p>
-                <p className="text-base font-bold text-black/40 leading-relaxed">
+                <p className="text-base font-bold text-black/40 leading-relaxed line-clamp-2 group-hover:line-clamp-none transition-all duration-500">
                   {story.visualStyleNotes ||
-                    "نمط بصري متناغم يعزز تجربة القراءة والتفاعل."}
+                    "نمط بصري متناغم يعزز تجربة القراءة والتفاعل ويضيف لمسة من العمق الفني لكل مشهد."}
                 </p>
               </div>
             </section>

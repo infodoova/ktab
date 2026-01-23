@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Layers, Eye, Play, X, Sparkles, Clock } from "lucide-react";
+import { Layers, Eye, Play, X, Sparkles, Clock, User } from "lucide-react";
 
 // --- Configuration & Helpers ---
 const LENS_LABELS = {
@@ -105,12 +105,12 @@ function DetailsModal({ open, onOpenChange, story, loading = false, onStart }) {
         showCloseButton={false}
         className="
           font-arabic
-          fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[200]
+          fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[1000]
           w-[95vw] sm:w-[92vw] 
           sm:max-w-[550px] md:max-w-[85vw] lg:max-w-[1000px] xl:max-w-[1100px]
           p-0 gap-0 
           bg-[#0a0a0a]/95 backdrop-blur-[40px]
-          border border-white/5 shadow-[0_40px_100px_rgba(0,0,0,0.5)]
+          border border-[#5de3ba]/30 shadow-[0_40px_100px_rgba(0,0,0,0.5)]
           rounded-[2rem] md:rounded-[3rem] overflow-hidden 
           flex flex-col h-auto max-h-[95vh] md:max-h-[90vh]
           focus:outline-none outline-none ring-0
@@ -141,11 +141,17 @@ function DetailsModal({ open, onOpenChange, story, loading = false, onStart }) {
               <div className="p-5 sm:p-8 md:p-10 lg:p-14 flex flex-col h-full">
                 {/* Header */}
                 <DialogHeader className="space-y-4 md:space-y-6 mb-4 md:mb-8 text-right items-start">
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-wrap items-center gap-3">
                     <span className="flex items-center gap-2 text-[10px] md:text-[11px] font-black uppercase tracking-widest text-white/40 bg-white/5 px-4 py-2 rounded-full border border-white/5 shadow-sm">
                       <Sparkles className="w-3 h-3 text-[var(--primary-button)]" />
                       رواية تفاعلية
                     </span>
+                    {currentStory?.authorName && (
+                      <span className="flex items-center gap-2 text-[10px] md:text-[11px] font-black uppercase tracking-widest text-white/60 bg-white/5 px-4 py-2 rounded-full border border-white/5 shadow-sm">
+                        <User className="w-3 h-3 text-[#5de3ba]" />
+                        بواسطة: {currentStory.authorName}
+                      </span>
+                    )}
                   </div>
 
                   <DialogTitle className="text-xl sm:text-2xl md:text-4xl lg:text-5xl font-black text-white leading-tight text-right w-full tracking-tight">
