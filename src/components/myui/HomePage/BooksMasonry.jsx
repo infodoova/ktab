@@ -1,51 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ResponsiveImageSkeleton from "../imageSkeletonLoaderCP";
 
-const BOOKS = [
-  {
-    title: "العبور إلى الحقيقة",
-    img: "https://amzn-s3-ktab-bucket.s3.eu-north-1.amazonaws.com/books/cover/5/95b90bc3-8dbc-4602-aa73-e7505e6a9c99.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20260123T134710Z&X-Amz-SignedHeaders=host&X-Amz-Expires=36000&X-Amz-Credential=AKIARFFK6IRAXVXITXXC%2F20260123%2Feu-north-1%2Fs3%2Faws4_request&X-Amz-Signature=23fd532d8fdeb08cc0067d3eb7379fca00657ab49c0e73de0524020b1e4fc590",
-  },
-  {
-    title: "أحلام البحر القديمة",
-    img: "https://amzn-s3-ktab-bucket.s3.eu-north-1.amazonaws.com/books/cover/5/6495af96-2366-447d-a05e-9ab9829209a9.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20260123T134710Z&X-Amz-SignedHeaders=host&X-Amz-Expires=36000&X-Amz-Credential=AKIARFFK6IRAXVXITXXC%2F20260123%2Feu-north-1%2Fs3%2Faws4_request&X-Amz-Signature=21a2fd98113e4f80b9b43ab8313127fa6507b72d723ec31d849ad327046d9d3d",
-  },
-  {
-    title: "بائع الجرائد",
-    img: "https://amzn-s3-ktab-bucket.s3.eu-north-1.amazonaws.com/books/cover/5/8f46bdaf-7259-47cc-98ec-b7d3965ab07f.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20260123T134710Z&X-Amz-SignedHeaders=host&X-Amz-Expires=36000&X-Amz-Credential=AKIARFFK6IRAXVXITXXC%2F20260123%2Feu-north-1%2Fs3%2Faws4_request&X-Amz-Signature=e07a58690800333eedd25ddbf64e8664871242515cf6907e7ecf112c12f87432",
-  },
-  {
-    title: "رواية حب على متن القطرية",
-    img: "https://amzn-s3-ktab-bucket.s3.eu-north-1.amazonaws.com/books/cover/5/73d91241-05af-491f-964a-64dc06f52898.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20260123T134710Z&X-Amz-SignedHeaders=host&X-Amz-Expires=36000&X-Amz-Credential=AKIARFFK6IRAXVXITXXC%2F20260123%2Feu-north-1%2Fs3%2Faws4_request&X-Amz-Signature=dee56078fd9a7aee73991df41e7affa5f080f8aa39461c683799b2d6b2c79e2f",
-  },
-  {
-    title: "حديث عيسى بن هشام",
-    img: "https://amzn-s3-ktab-bucket.s3.eu-north-1.amazonaws.com/books/cover/5/4070075b-8916-496f-ac91-78804ed7764c.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20260123T134710Z&X-Amz-SignedHeaders=host&X-Amz-Expires=36000&X-Amz-Credential=AKIARFFK6IRAXVXITXXC%2F20260123%2Feu-north-1%2Fs3%2Faws4_request&X-Amz-Signature=4cf20937e903e99f87b5acf8ebc4c3c0cc0a9033392e7f674c213711f15637fc",
-  },
-  {
-    title: "سقوط غرناطة",
-    img: "https://amzn-s3-ktab-bucket.s3.eu-north-1.amazonaws.com/books/cover/5/75d7614f-3095-42e6-963b-2ecda305f3ce.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20260123T134710Z&X-Amz-SignedHeaders=host&X-Amz-Expires=36000&X-Amz-Credential=AKIARFFK6IRAXVXITXXC%2F20260123%2Feu-north-1%2Fs3%2Faws4_request&X-Amz-Signature=298638264a3c47dba73de670802e28c5afdf8dfafe8819b3cb49265ef94732c8",
-  },
-  {
-    title: "دعاء الكروان",
-    img: "https://amzn-s3-ktab-bucket.s3.eu-north-1.amazonaws.com/books/cover/5/d30dfea2-7bfd-466b-92aa-45a3832600d6.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20260123T134710Z&X-Amz-SignedHeaders=host&X-Amz-Expires=36000&X-Amz-Credential=AKIARFFK6IRAXVXITXXC%2F20260123%2Feu-north-1%2Fs3%2Faws4_request&X-Amz-Signature=7fbcb384bc1900c1621cdefc27c62df7e9ad089f0fcf691640766bd3eff13bf4",
-  },
-  {
-    title: "الأرض",
-    img: "https://amzn-s3-ktab-bucket.s3.eu-north-1.amazonaws.com/books/cover/5/994fbd09-ee04-430a-bfc6-ae99ab0807f0.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20260123T134710Z&X-Amz-SignedHeaders=host&X-Amz-Expires=36000&X-Amz-Credential=AKIARFFK6IRAXVXITXXC%2F20260123%2Feu-north-1%2Fs3%2Faws4_request&X-Amz-Signature=c40402432f11955ec8ab15a59dd70b503a3e756e86dd817c9372ce447a3f54c1",
-  },
-  {
-    title: "قضية فندق سميراميس",
-    img: "https://amzn-s3-ktab-bucket.s3.eu-north-1.amazonaws.com/books/cover/5/fb4f8445-b239-4dc0-a825-e327a4e1364d.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20260123T134742Z&X-Amz-SignedHeaders=host&X-Amz-Expires=36000&X-Amz-Credential=AKIARFFK6IRAXVXITXXC%2F20260123%2Feu-north-1%2Fs3%2Faws4_request&X-Amz-Signature=55cac2b4f8879741d06b186e9792848c9163b5026d8598b1750172fa07cec65b",
-  },
-  {
-    title: "بيروت مدينة العالم",
-    img: "https://amzn-s3-ktab-bucket.s3.eu-north-1.amazonaws.com/books/cover/5/1c930418-1081-4c76-8666-9a833f4d84bf.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20260123T134742Z&X-Amz-SignedHeaders=host&X-Amz-Expires=36000&X-Amz-Credential=AKIARFFK6IRAXVXITXXC%2F20260123%2Feu-north-1%2Fs3%2Faws4_request&X-Amz-Signature=70864e7ffa1fd662f48b5797505430c921154dc845a5939d0c019b5aadcc4823",
-  },
-  {
-    title: "الرسائل المصرية",
-    img: "https://amzn-s3-ktab-bucket.s3.eu-north-1.amazonaws.com/books/cover/5/11da226c-221c-4ac7-8f5f-44965db763b8.PNG?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20260123T134742Z&X-Amz-SignedHeaders=host&X-Amz-Expires=35999&X-Amz-Credential=AKIARFFK6IRAXVXITXXC%2F20260123%2Feu-north-1%2Fs3%2Faws4_request&X-Amz-Signature=94abefa1e134eddb86742ea8fe471eb56cf51a30f56fa7113dcf62be2a6516e9",
-  },
+const STATIC_BOOKS = [
   {
     title: "أخلاقيات الرأسمالية: ما لن يخبرك به أستاذك",
     img: "https://www.baytalhikma2.org/_next/image/?url=https%3A%2F%2Fapi.baytalhikma2.org%2Fapi%2Fv1%2Fstorages%2F66c78394c28c2.png&w=1080&q=75",
@@ -77,10 +33,46 @@ const BOOKS = [
 ];
 
 export default function BooksPinterest() {
-  // State for the modal (Lightbox)
   const [selectedBook, setSelectedBook] = useState(null);
+    const [allBooks, setAllBooks] = useState(STATIC_BOOKS);
 
-  const visibleBooks = BOOKS;
+  useEffect(() => {
+    const fetchBooks = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/reader/covers?page=0&size=18`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'ngrok-skip-browser-warning': 'true' 
+          }
+        });
+
+        if (!response.ok) throw new Error("Network response was not ok");
+        
+        const json = await response.json();
+     
+        if (json.messageStatus !== "SUCCESS") {
+          console.log("API returned non-success status:", json.messageStatus);
+          return;
+        }
+
+        if (json.success && json.data && Array.isArray(json.data.content)) {
+          const apiBooks = json.data.content.map((item) => ({
+            title: item.title,
+            img: item.coverImageUrl,
+          }));
+
+          // Merge static and API data
+          setAllBooks([...STATIC_BOOKS, ...apiBooks]);
+        }
+      } catch (error) {
+        console.error("Error fetching books:", error);
+      }
+    };
+
+    fetchBooks();
+  }, []);
+
   const aspectRatios = [
     "aspect-[2/3]",
     "aspect-[3/5]",
@@ -126,7 +118,8 @@ export default function BooksPinterest() {
             gap-4 space-y-4
           "
         >
-          {visibleBooks.map((b, i) => {
+          {/* 4. Use 'allBooks' state instead of static variable */}
+          {allBooks.map((b, i) => {
             const ratioClass = aspectRatios[i % aspectRatios.length];
 
             return (
@@ -270,7 +263,7 @@ export default function BooksPinterest() {
             onClick={(e) => e.stopPropagation()}
           >
             {/* The "Fixed Size" Image Card */}
-            <div 
+            <div
               className="
                 relative w-full max-w-[260px] md:max-w-[320px] 
                 aspect-[2/3] overflow-hidden rounded-[2rem] 
@@ -286,7 +279,7 @@ export default function BooksPinterest() {
                 imgClassName="w-full h-full object-cover"
                 rounded="rounded-none"
               />
-              
+
               {/* Decorative inner glow */}
               <div className="absolute inset-0 pointer-events-none rounded-[1.8rem] border border-white/10" />
             </div>

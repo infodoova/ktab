@@ -402,7 +402,7 @@ function InteractiveDashboard() {
               )}
             </div>
 
-            {/* Right side: Restart Button */}
+            {/* Right side: Restart Button
             <div className="flex-1 flex justify-end">
               <button
                 onClick={handleRestart}
@@ -420,7 +420,7 @@ function InteractiveDashboard() {
                   </svg>
                 </div>
               </button>
-            </div>
+            </div> */}
           </div>
 
           {/* Main Content Area */}
