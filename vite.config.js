@@ -24,30 +24,10 @@ export default defineConfig({
         background_color: "#0c0c0c",
         orientation: "portrait",
         icons: [
-          {
-            src: "/192logo.png",
-            sizes: "192x192",
-            type: "image/png",
-            purpose: "any",
-          },
-          {
-            src: "/192logo.png",
-            sizes: "192x192",
-            type: "image/png",
-            purpose: "maskable",
-          },
-          {
-            src: "/512logo.png",
-            sizes: "512x512",
-            type: "image/png",
-            purpose: "any",
-          },
-          {
-            src: "/512logo.png",
-            sizes: "512x512",
-            type: "image/png",
-            purpose: "maskable",
-          },
+          { src: "/192logo.png", sizes: "192x192", type: "image/png", purpose: "any" },
+          { src: "/192logo.png", sizes: "192x192", type: "image/png", purpose: "maskable" },
+          { src: "/512logo.png", sizes: "512x512", type: "image/png", purpose: "any" },
+          { src: "/512logo.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
         ],
       },
       workbox: {
@@ -63,7 +43,6 @@ export default defineConfig({
 
   resolve: {
     alias: {
-      // eslint-disable-next-line no-undef
       "@": path.resolve(__dirname, "./src"),
     },
   },
@@ -71,8 +50,22 @@ export default defineConfig({
   server: {
     host: "0.0.0.0",
     allowedHosts: [
-      "melisa-balsamiferous-aubrie.ngrok-free.dev",
+      "ktab.app",
+      ".ktab.app",
       ".ngrok-free.dev",
+      "localhost",
+      "127.0.0.1"
+    ],
+  },
+  
+  preview: {
+    host: "0.0.0.0",
+    port: 4173,
+    allowedHosts: [
+      "ktab.app",
+      ".ktab.app",
+      "localhost",
+      "127.0.0.1"
     ],
   },
 
