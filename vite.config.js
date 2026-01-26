@@ -11,36 +11,52 @@ export default defineConfig({
 
     VitePWA({
       registerType: "autoUpdate",
-
+      injectRegister: "auto",
+      includeAssets: ["192logo.png", "512logo.png", "vite.svg"],
       manifest: {
-        name: "ktab",
-        short_name: "ktab",
+        name: "Ktab | كتاب",
+        short_name: "Ktab",
+        description: "منصة كتاب للقراءة الإلكترونية",
         start_url: "/",
         scope: "/",
         display: "standalone",
-        theme_color: "#6B4F3F", 
-        background_color: "#FFFFFF", 
-
+        theme_color: "#5de3ba",
+        background_color: "#0c0c0c",
+        orientation: "portrait",
         icons: [
           {
-            src: "192logo.png",
+            src: "/192logo.png",
             sizes: "192x192",
             type: "image/png",
+            purpose: "any",
           },
           {
-            src: "512logo.png",
+            src: "/192logo.png",
+            sizes: "192x192",
+            type: "image/png",
+            purpose: "maskable",
+          },
+          {
+            src: "/512logo.png",
             sizes: "512x512",
             type: "image/png",
+            purpose: "any",
+          },
+          {
+            src: "/512logo.png",
+            sizes: "512x512",
+            type: "image/png",
+            purpose: "maskable",
           },
         ],
       },
-
       workbox: {
         navigateFallback: "/index.html",
+        globPatterns: ["**/*.{js,css,html,ico,png,svg}"],
+        maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
       },
-
       devOptions: {
-        enabled: true, // important for ngrok testing
+        enabled: true,
       },
     }),
   ],

@@ -1,6 +1,4 @@
-/* eslint-disable */
 import React, { useState } from "react";
-// Make sure this path matches your project structure
 import ResponsiveImageSkeleton from "../imageSkeletonLoaderCP";
 
 const BOOKS = [
@@ -242,21 +240,21 @@ export default function BooksPinterest() {
       {/* --- PREVIEW MODAL (LIGHTBOX) --- */}
       {selectedBook && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm transition-all duration-300 animate-in fade-in"
+          className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/95 backdrop-blur-md transition-all duration-500 animate-in fade-in"
           onClick={() => setSelectedBook(null)}
         >
-          {/* Close Button */}
+          {/* Enhanced Close Button */}
           <button
             onClick={() => setSelectedBook(null)}
-            className="absolute top-6 right-6 text-white/70 hover:text-white transition-colors bg-white/10 hover:bg-white/20 rounded-full p-2"
+            className="absolute top-6 right-6 md:top-10 md:right-10 text-white/40 hover:text-white transition-all duration-300 bg-white/5 hover:bg-white/10 hover:rotate-90 rounded-full p-4 border border-white/10 group z-[110]"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
-              strokeWidth={2.5}
+              strokeWidth={2}
               stroke="currentColor"
-              className="w-6 h-6"
+              className="w-6 h-6 md:w-8 md:h-8"
             >
               <path
                 strokeLinecap="round"
@@ -266,19 +264,39 @@ export default function BooksPinterest() {
             </svg>
           </button>
 
-          {/* Modal Content */}
+          {/* Modal Content Container */}
           <div
-            className="relative max-w-5xl w-full max-h-[90vh] flex flex-col items-center justify-center"
-            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking content
+            className="relative flex flex-col items-center max-w-full w-full animate-in zoom-in-95 duration-500"
+            onClick={(e) => e.stopPropagation()}
           >
-            <img
-              src={selectedBook.img}
-              alt={selectedBook.title}
-              className="max-h-[85vh] w-auto object-contain rounded-lg shadow-[0_0_50px_rgba(0,0,0,0.5)]"
-            />
-            <h3 className="mt-4 text-2xl text-white font-bold tracking-wide drop-shadow-lg">
-              {selectedBook.title}
-            </h3>
+            {/* The "Fixed Size" Image Card */}
+            <div 
+              className="
+                relative w-full max-w-[260px] md:max-w-[320px] 
+                aspect-[2/3] overflow-hidden rounded-[2rem] 
+                shadow-[0_20px_60px_-15px_rgba(0,0,0,0.7)] 
+                border-4 border-white/5 bg-[var(--bg-card)]
+                transition-transform duration-500 hover:scale-[1.02]
+              "
+            >
+              <ResponsiveImageSkeleton
+                src={selectedBook.img}
+                alt={selectedBook.title}
+                className="w-full h-full block"
+                imgClassName="w-full h-full object-cover"
+                rounded="rounded-none"
+              />
+              
+              {/* Decorative inner glow */}
+              <div className="absolute inset-0 pointer-events-none rounded-[1.8rem] border border-white/10" />
+            </div>
+
+            {/* Content Section */}
+            <div className="mt-6 text-center max-w-2xl px-6">
+              <h3 className="text-2xl md:text-4xl text-white font-black tracking-tight leading-tight drop-shadow-2xl">
+                {selectedBook.title}
+              </h3>
+            </div>
           </div>
         </div>
       )}

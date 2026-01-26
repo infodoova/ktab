@@ -234,26 +234,74 @@ function InteractiveDashboard() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[var(--earth-cream)] via-white to-[var(--earth-paper)] flex items-center justify-center p-4">
-        <div className="glass rounded-2xl p-8 max-w-md w-full text-center border border-[var(--earth-sand)]">
-          <div className="text-6xl mb-4">⚠️</div>
-          <h2 className="text-2xl font-bold text-[var(--earth-brown-dark)] mb-2">
-            حدث خطأ
-          </h2>
-          <p className="text-[var(--earth-brown)] mb-6">{error}</p>
-          <button
-            onClick={handleConfirmExit}
-            className="px-6 py-3 bg-[var(--earth-olive)] hover:bg-[var(--earth-olive-dark)] rounded-xl text-white font-medium transition-all"
-          >
-            العودة
-          </button>
+      <div className={`min-h-[100dvh] w-full flex items-center justify-center p-6 transition-colors duration-700 ${isDarkMode ? "bg-[#0c0c0c]" : "bg-[#F8F5F2]"}`}>
+        <div className="relative z-10 w-full max-w-xl animate-in fade-in duration-500">
+          <div className={`
+            relative overflow-hidden rounded-[2.5rem] md:rounded-[3.5rem] p-8 md:p-14 
+            backdrop-blur-xl border
+            ${isDarkMode 
+              ? "bg-white/[0.02] border-white/10 shadow-2xl" 
+              : "bg-white border-black/5 shadow-lg"}
+          `}>
+            {/* Simple Graphic */}
+            <div className="flex flex-col items-center">
+              <div className={`
+                w-16 h-16 md:w-24 md:h-24 rounded-2xl md:rounded-3xl flex items-center justify-center mb-8
+                ${isDarkMode ? "bg-red-500/10" : "bg-red-50"}
+              `}>
+                <svg className="w-8 h-8 md:w-12 md:h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+
+              {/* Text Content */}
+              <div className="text-center space-y-3 md:space-y-4 mb-10 md:mb-14" dir="rtl">
+                <h2 className={`text-3xl md:text-5xl font-black ${isDarkMode ? "text-white" : "text-slate-900"}`}>
+                  عذراً، حدث خطأ
+                </h2>
+                <p className={`text-base md:text-xl font-medium opacity-60 leading-relaxed max-w-sm ${isDarkMode ? "text-white" : "text-slate-600"}`}>
+                  {error}
+                </p>
+              </div>
+
+              {/* Actions */}
+              <div className="flex flex-col sm:flex-row-reverse gap-3 w-full justify-center">
+                <button
+                  onClick={fetchInitialScene}
+                  className="
+                    flex-1 sm:flex-none sm:min-w-[180px] px-8 py-4 rounded-xl md:rounded-2xl
+                    bg-[#5de3ba] text-black font-black text-lg
+                    hover:bg-[#4dd3aa] active:scale-[0.98] transition-all
+                    flex items-center justify-center gap-2
+                  "
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  إعادة المحاولة
+                </button>
+
+                <button
+                  onClick={handleConfirmExit}
+                  className={`
+                    flex-1 sm:flex-none sm:min-w-[160px] px-8 py-4 rounded-xl md:rounded-2xl font-black text-lg transition-all
+                    ${isDarkMode 
+                      ? "bg-white/5 hover:bg-white/10 text-white/50 hover:text-white" 
+                      : "bg-black/5 hover:bg-black/10 text-slate-500 hover:text-slate-900"}
+                  `}
+                >
+                  العودة للمكتبة
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={`h-screen h-[100dvh] relative flex flex-col lg:overflow-hidden transition-colors duration-700 ${isDarkMode ? "bg-[#0c0c0c] text-white/90" : "bg-[#F8F5F2] text-[var(--earth-brown-dark)]"}`}>
+    <div className={`min-h-screen relative flex flex-col transition-colors duration-700 ${isDarkMode ? "bg-[#0c0c0c] text-white/90" : "bg-[#F8F5F2] text-[var(--earth-brown-dark)]"}`}>
       {/* Background decorative elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
         {isDarkMode ? (
@@ -302,9 +350,11 @@ function InteractiveDashboard() {
       `}} />
 
       {loading ? (
-        <Loaders type="initial" isDarkMode={isDarkMode} />
+        <div className="flex-1 flex items-center justify-center py-20">
+          <Loaders type="initial" isDarkMode={isDarkMode} />
+        </div>
       ) : (
-        <div className="relative z-10 flex flex-col h-full overflow-y-auto lg:overflow-hidden">
+        <div className="relative z-10 flex flex-col flex-1 min-h-0">
           {/* Header - Seamless with Screen */}
           <div className={`flex items-center px-4 md:px-8 py-3 md:py-4 transition-all duration-500 bg-transparent flex-shrink-0 relative z-50`}>
             
@@ -374,12 +424,12 @@ function InteractiveDashboard() {
           </div>
 
           {/* Main Content Area */}
-          <div className="flex-1 w-full overflow-y-auto lg:overflow-hidden py-4 md:py-10 px-4 md:px-16">
-            <div className="max-w-[1600px] mx-auto h-full">
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-16 h-full items-stretch">
+          <div className="flex-1 w-full py-4 md:py-10 px-4 md:px-16 overflow-y-auto">
+            <div className="max-w-[1600px] mx-auto min-h-0">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-16 items-start">
                 
                 {/* Left/Top: Visual Context */}
-                <div className="lg:col-span-5 flex flex-col gap-6 lg:gap-10 min-h-0 order-first">
+                <div className="lg:col-span-5 flex flex-col gap-6 lg:gap-10 sm:sticky sm:top-0">
                   {/* Scene Navigation - Mobile Only (Above Image) */}
                   <SceneNavigator
                     type="mobile"
@@ -394,7 +444,7 @@ function InteractiveDashboard() {
                     <div className="w-full aspect-video min-h-0 rounded-2xl lg:rounded-[2.5rem] overflow-hidden">
                       <ImageScenes
                         image={currentScene.sceneImage}
-                        onImageClick={(img) => setPreviewImage(img)}
+                        onImageClick={() => setPreviewImage(currentScene)}
                         isGenerating={currentScene.isPending}
                         isDarkMode={isDarkMode}
                       />
@@ -419,12 +469,12 @@ function InteractiveDashboard() {
                 </div>
 
                 {/* Right/Bottom: Narrative & Choices */}
-                <div className="lg:col-span-7 flex flex-col gap-6 lg:gap-12 min-h-0">
-                  <div className="lg:flex-1 min-h-[300px] lg:min-h-0 glass-panel rounded-2xl lg:rounded-[3rem] p-6 lg:p-16 flex flex-col relative overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.3)] lg:shadow-[0_40px_80px_rgba(0,0,0,0.6)] border border-white/10">
+                <div className="lg:col-span-7 flex flex-col gap-6 lg:gap-12 pb-10">
+                  <div className="glass-panel rounded-2xl lg:rounded-[3rem] p-6 lg:p-16 flex flex-col relative overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.3)] lg:shadow-[0_40px_80px_rgba(0,0,0,0.6)] border border-white/10">
                     {currentScene.isPending ? (
                       <div className="p-4 lg:p-0"><Loaders type="text" isDarkMode={isDarkMode} /></div>
                     ) : (
-                      <div className="flex-1 flex flex-col justify-center">
+                      <div className="flex flex-col justify-center">
                          <SceneText
                           text={currentScene.sceneText}
                           sceneNumber={currentScene.sceneNumber}
@@ -434,13 +484,13 @@ function InteractiveDashboard() {
                     )}
                   </div>
 
-                  <div className="lg:flex-1 min-h-0 flex flex-col mt-8 md:mt-12">
+                  <div className="min-h-0 flex flex-col mt-8 md:mt-12">
                     {currentScene.isPending ? (
-                      <div className="glass-panel rounded-2xl lg:rounded-[2.5rem] p-6 lg:p-10 flex-1 border border-white/10">
+                      <div className="glass-panel rounded-2xl lg:rounded-[2.5rem] p-6 lg:p-10 border border-white/10">
                         <Loaders type="generating" isDarkMode={isDarkMode} />
                       </div>
                     ) : (
-                      <div className="flex-1 lg:overflow-hidden pb-20 lg:pb-6 px-1 lg:px-2">
+                      <div className="pb-20 lg:pb-6 px-1 lg:px-2">
                         {(() => {
                           const currentIndex = sceneHistory.findIndex(
                             (s) => s.sceneId === currentScene?.sceneId,
@@ -470,43 +520,45 @@ function InteractiveDashboard() {
 
       {/* Image Preview Modal */}
       <ImagePreviewModal 
-        isOpen={!!previewImage}
-        image={previewImage}
-        sceneNumber={currentScene?.sceneNumber || 0}
+        isOpen={previewImage !== null}
+        scenes={sceneHistory}
+        initialIndex={sceneHistory.findIndex(s => s.sceneId === previewImage?.sceneId)}
         onClose={() => setPreviewImage(null)}
       />
 
       {/* Exit Confirmation Dialog - Simplified */}
       {showExitConfirm && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/30 transition-opacity duration-300 animate-in fade-in">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-opacity duration-300 animate-in fade-in">
           <div className={cn(
-            "w-full max-w-[320px] rounded-[2rem] p-8 border shadow-xl animate-in zoom-in-95 duration-200",
+            "w-full max-w-[420px] rounded-[3rem] p-10 md:p-14 border shadow-2xl animate-in zoom-in-95 duration-200",
             isDarkMode ? "bg-[#111] border-white/10 text-white" : "bg-white border-black/5 text-slate-900"
           )}>
             <div className="text-center">
-              <h3 className="text-xl font-black mb-1 font-tajawal">هل تريد الخروج؟</h3>
+              <h3 className="text-2xl font-black mb-2 font-tajawal">هل تريد الخروج؟</h3>
               <p className={cn(
-                "text-[13px] font-medium mb-6 opacity-60 leading-relaxed",
+                "text-base font-medium mb-8 opacity-60 leading-relaxed",
                 isDarkMode ? "text-white" : "text-slate-900"
               )}>
-                سيتم حفظ تقدمك تلقائياً.
+                سيتم حفظ تقدمك تلقائياً. يمكنك العودة في أي وقت.
               </p>
 
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-3">
                 <button
                   onClick={handleConfirmExit}
-                  className="w-full h-12 bg-[#5de3ba] text-black rounded-xl font-black text-[11px] uppercase tracking-widest transition-all active:scale-95"
+                  className="w-full h-14 bg-[#5de3ba] text-black rounded-2xl font-black text-sm uppercase tracking-widest transition-all active:scale-95 shadow-lg shadow-[#5de3ba]/20"
                 >
                   تأكيد الخروج
                 </button>
                 <button
                   onClick={handleCancelExit}
                   className={cn(
-                    "w-full h-10 rounded-xl text-[11px] font-black uppercase tracking-widest opacity-40 hover:opacity-100 transition-opacity",
-                    isDarkMode ? "text-white" : "text-slate-900"
+                    "w-full h-14 rounded-2xl text-sm font-black uppercase tracking-widest transition-all border shadow-sm",
+                    isDarkMode 
+                      ? "bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white" 
+                      : "bg-black/5 border-black/10 text-slate-700 hover:bg-black/10 hover:text-black"
                   )}
                 >
-                  البقاء
+                  البقاء والمواصلة
                 </button>
               </div>
             </div>
@@ -516,35 +568,37 @@ function InteractiveDashboard() {
 
       {/* Restart Confirmation Dialog - Simplified */}
       {showRestartConfirm && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/30 transition-opacity duration-300 animate-in fade-in">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-opacity duration-300 animate-in fade-in">
           <div className={cn(
-            "w-full max-w-[320px] rounded-[2rem] p-8 border shadow-xl animate-in zoom-in-95 duration-200",
+            "w-full max-w-[420px] rounded-[3rem] p-10 md:p-14 border shadow-2xl animate-in zoom-in-95 duration-200",
             isDarkMode ? "bg-[#111] border-white/10 text-white" : "bg-white border-black/5 text-slate-900"
           )}>
             <div className="text-center">
-              <h3 className="text-xl font-black mb-1 font-tajawal">بدء من جديد؟</h3>
+              <h3 className="text-2xl font-black mb-2 font-tajawal">بدء من جديد؟</h3>
               <p className={cn(
-                "text-[13px] font-medium mb-6 opacity-60 leading-relaxed",
+                "text-base font-medium mb-8 opacity-60 leading-relaxed",
                 isDarkMode ? "text-white" : "text-slate-900"
               )}>
-                ستفقد تقدمك في المشهد الحالي.
+                ستفقد تقدمك في المشهد الحالي. هل أنت متأكد من رغبتك في البدء من جديد؟
               </p>
 
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-3">
                 <button
                   onClick={handleConfirmRestart}
-                  className="w-full h-12 bg-red-500 text-white rounded-xl font-black text-[11px] uppercase tracking-widest transition-all active:scale-95"
+                  className="w-full h-14 bg-red-500 text-white rounded-2xl font-black text-sm uppercase tracking-widest transition-all active:scale-95 shadow-lg shadow-red-500/20"
                 >
                   تأكيد الإعادة
                 </button>
                 <button
                   onClick={handleCancelRestart}
                   className={cn(
-                    "w-full h-10 rounded-xl text-[11px] font-black uppercase tracking-widest opacity-40 hover:opacity-100 transition-opacity",
-                    isDarkMode ? "text-white" : "text-slate-900"
+                    "w-full h-14 rounded-2xl text-sm font-black uppercase tracking-widest transition-all border shadow-sm",
+                    isDarkMode 
+                      ? "bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white" 
+                      : "bg-black/5 border-black/10 text-slate-700 hover:bg-black/10 hover:text-black"
                   )}
                 >
-                  إلغاء
+                  إلغاء والتكملة
                 </button>
               </div>
             </div>
