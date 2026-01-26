@@ -1,84 +1,92 @@
-<!DOCTYPE html>
-<html lang="ar">
+<!doctype html>
+<html lang="ar" dir="rtl">
   <head>
-    <!-- Charset & viewport -->
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=5.0"
+    />
 
-    <!-- Language & Region -->
+    <link rel="canonical" href="https://ktab.app/" />
+
+    <title>كتاب | منصة القراءة والكتب العربية</title>
+    <meta
+      name="description"
+      content="كتاب (Ktab) هي المنصة العربية الأولى للقراءة الإلكترونية. اكتشف آلاف الروايات، الكتب الفكرية، وكتب الأطفال. تجربة قراءة ذكية ومكتبة رقمية شاملة في جيبك."
+    />
+    <meta
+      name="keywords"
+      content="كتاب, ktab, قراءة, كتب عربية, روايات, مكتبة رقمية, كتب pdf, قراءة اونلاين, تلخيص كتب, ثقافة, أدب عربي"
+    />
+    <meta name="author" content="Ktab Platform" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+
     <meta name="language" content="Arabic" />
     <meta property="og:locale" content="ar_AR" />
     <meta property="og:locale:alternate" content="ar_LB" />
 
-    <!--pwac-->
-    <meta name="theme-color" content="#5de3ba" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-
-    <!-- Primary SEO -->
-    <title>كتاب | منصة قراءة وكتب عربية</title>
-    <meta
-      name="description"
-      content="كتاب هي منصة عربية متكاملة للقراءة الإلكترونية، تجمع آلاف الكتب العربية في مكان واحد. اقرأ الروايات، الكتب الفكرية، الأدب العربي، التاريخ، الفلسفة وكتب الأطفال، قيّم الكتب، اكتب مراجعات، وتابع مؤلفيك المفضلين. تجربة قراءة رقمية سهلة، ذكية، ومخصصة لعشاق القراءة في العالم العربي."
-    />
-    <meta
-      name="keywords"
-      content="كتاب, منصة كتب عربية, قراءة إلكترونية, كتب عربية, مكتبة رقمية عربية, روايات عربية, كتب أدبية, أدب عربي, كتب فكرية, كتب فلسفة, كتب تاريخ, كتب أطفال, قراءة أونلاين, تقييم الكتب, مراجعات كتب, مؤلفين عرب, كتب رقمية, تطبيق قراءة عربي"
-    />
-    <meta name="author" content="Ktab Platform" />
-    <meta name="robots" content="index, follow" />
-
-    <!-- App / Branding -->
-    <meta name="application-name" content="Ktab | كتاب" />
-    <meta name="generator" content="Ktab Digital Reading Platform" />
-
-    <!-- Mobile / PWA -->
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-
-    <!-- Open Graph (Facebook / WhatsApp) -->
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="كتاب - Ktab" />
-    <meta property="og:title" content="كتاب | منصة قراءة وكتب عربية" />
+    <meta property="og:url" content="https://ktab.app/" />
+    <meta property="og:site_name" content="Ktab - كتاب" />
+    <meta property="og:title" content="كتاب | منصة القراءة والكتب العربية" />
     <meta
       property="og:description"
-      content="منصة عربية ذكية للقراءة الإلكترونية واكتشاف الكتب والمؤلفين."
+      content="مكتبتك العربية المتكاملة. اقرأ وناقش وقيّم آلاف الكتب العربية في مكان واحد."
     />
-    <meta property="og:image" content="/512logo.png" />
+    <meta property="og:image" content="https://ktab.app/512logo.png" />
+    <meta property="og:image:alt" content="شعار منصة كتاب" />
 
-    <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="كتاب | منصة قراءة وكتب عربية" />
+    <meta name="twitter:url" content="https://ktab.app/" />
+    <meta name="twitter:title" content="كتاب | مكتبتك الرقمية العربية" />
     <meta
       name="twitter:description"
-      content="اكتشف عالم القراءة الرقمية باللغة العربية."
+      content="عالم من الكتب العربية بين يديك. تجربة قراءة فريدة تناسب ذوقك."
     />
-    <meta name="twitter:image" content="/512logo.png" />
+    <meta name="twitter:image" content="https://ktab.app/512logo.png" />
 
-    <!-- Icons -->
-   <link rel="icon" href="/192logo.png" />
-<link rel="apple-touch-icon" href="/512logo.png" />
+    <meta name="theme-color" content="#5de3ba" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="Ktab" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Ktab" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
 
-    <!-- Structured Data -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/192logo.png" />
+    <link rel="apple-touch-icon" href="/512logo.png" />
+
     <script type="application/ld+json">
       {
+        "@context": "https://schema.org",
         "@type": "WebSite",
         "name": "كتاب",
-        "alternateName": "Ktab",
+        "alternateName": ["Ktab", "Ktab App"],
         "url": "https://ktab.app",
         "description": "منصة عربية للقراءة الإلكترونية تجمع آلاف الكتب العربية وتوفر تجربة قراءة رقمية ذكية.",
         "inLanguage": "ar",
         "publisher": {
           "@type": "Organization",
-          "name": "Ktab Platform"
+          "name": "Ktab Platform",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://ktab.app/512logo.png"
+          }
+        },
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://ktab.app/search?q={search_term_string}",
+          "query-input": "required name=search_term_string"
         }
       }
     </script>
   </head>
 
   <body>
+    <noscript>يجب تفعيل JavaScript لتشغيل منصة كتاب بشكل صحيح.</noscript>
     <div id="root"></div>
-
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

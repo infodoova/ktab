@@ -12,7 +12,7 @@ export default defineConfig({
     VitePWA({
       registerType: "autoUpdate",
       injectRegister: "auto",
-      includeAssets: ["192logo.png", "512logo.png", "vite.svg"],
+      includeAssets: ["192logo.png", "512logo.png"],
       manifest: {
         name: "Ktab | كتاب",
         short_name: "Ktab",
