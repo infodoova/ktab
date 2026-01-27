@@ -8,8 +8,9 @@
 @import "tw-animate-css";
 
 :root {
-  --font-arabic: "Tajawal", sans-serif;
-  --font-english: "Montserrat", sans-serif;
+  /* 1. Define Font Names (Without 'sans-serif' here) */
+  --font-english: "Montserrat";
+  --font-arabic: "Tajawal";
 
   /* TEXT */
   --primary-text: #1a1a1a;
@@ -32,6 +33,23 @@
   --bg-dark: #0a0a0a;
   --bg-mint-soft: #fafffe;
 }
+
+/* 2. iOS/iPhone Specific Override */
+@supports (-webkit-touch-callout: none) {
+  :root {
+    /* On iPhone, replace Tajawal with the native 'Geeza Pro' for better Arabic rendering */
+    --font-arabic: -apple-system, "Geeza Pro";
+  }
+}
+
+/* 3. Apply Fonts Correctly */
+* {
+  /* Logic: Try Montserrat first (for English). If the character is Arabic,
+     Montserrat won't have it, so it drops down to var(--font-arabic).
+     Finally, if neither works, use system sans-serif. */
+  font-family: var(--font-english), var(--font-arabic), sans-serif !important;
+}
+
 .font-arabic {
   font-family: var(--font-arabic);
 }
@@ -39,9 +57,6 @@
   font-family: var(--font-english);
 }
 
-* {
-  font-family: var(--font-arabic), var(--font-english) !important;
-}
 
 html, body {
   margin: 0;
