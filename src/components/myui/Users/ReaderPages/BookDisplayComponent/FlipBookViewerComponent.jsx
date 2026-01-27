@@ -347,18 +347,15 @@ export default function FlipBookViewer({
         .tts-active-word {
           background: #fff176 !important;
           color: #000 !important;
-          border-radius: 4px;
-          padding: 0 4px;
-          box-shadow: 0 2px 10px rgba(255, 241, 118, 0.4);
-          display: inline-block;
+          border-radius: 2px;
+          display: inline;
           position: relative;
-          z-index: 10;
-          font-weight: 700;
-          animation: highlight-pulse 0.4s ease-out;
-        }
-        @keyframes highlight-pulse {
-          0% { transform: scale(1.02); }
-          100% { transform: scale(1); }
+          z-index: 1;
+          /* Use box-shadow to create a visual highlight area without changing element width/height */
+          box-shadow: 0 0 0 2px #fff176;
+          /* Inline-box-decoration ensures the background/shadow wraps correctly if the word splits (unlikely for single words but good practice) */
+          box-decoration-break: clone;
+          -webkit-box-decoration-break: clone;
         }
         
         /* Page Splitter Styling */

@@ -34,6 +34,8 @@ export default function ReaderHeader({
   onSelectVoice,
   isMuted = false,
   onCycleVolume,
+  isLoading = false,
+  readOnly = false,
 }) {
   const [pageInput, setPageInput] = React.useState("");
 
@@ -63,6 +65,8 @@ export default function ReaderHeader({
     onGoToPage?.(num);
   };
 
+  const isDisabled = isLoading || readOnly;
+
   return (
     <>
       <header
@@ -79,7 +83,14 @@ export default function ReaderHeader({
           {/* MORE OPTIONS */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="p-2 sm:p-3 text-black/40 hover:text-black hover:bg-black/5 rounded-full transition-all active:scale-90 border border-black/[0.03] shrink-0">
+              <button
+                disabled={isDisabled}
+                className={`p-2 sm:p-3 rounded-full transition-all border border-black/[0.03] shrink-0 ${
+                  isDisabled
+                    ? "text-black/10 cursor-not-allowed pointer-events-none"
+                    : "text-black/40 hover:text-black hover:bg-black/5 active:scale-90"
+                }`}
+              >
                 <MoreVertical size={20} strokeWidth={2.5} />
               </button>
             </DropdownMenuTrigger>
@@ -111,7 +122,14 @@ export default function ReaderHeader({
           {/* VOICE */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="p-2 sm:p-3 text-black/40 hover:text-black hover:bg-white/50 rounded-full transition-all active:scale-90">
+              <button
+                disabled={isDisabled}
+                className={`p-2 sm:p-3 rounded-full transition-all ${
+                  isDisabled
+                    ? "text-black/10 cursor-not-allowed pointer-events-none"
+                    : "text-black/40 hover:text-black hover:bg-white/50 active:scale-90"
+                }`}
+              >
                 <UserRound
                   size={20}
                   className={voice === "none" ? "text-red-500" : ""}

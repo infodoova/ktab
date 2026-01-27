@@ -1,12 +1,12 @@
 export function getWsUrl() {
   try {
     if (import.meta.env.VITE_API_URL) {
-      return `wss://kristan-prickliest-ezekiel.ngrok-free.dev/ws/reader/tts`;
+      return `wss://api.ktab.app/Ktab-0.0.1-SNAPSHOT/ws/reader/tts`;
     }
   } catch (err) {
     void err;
   }
-  return `wss://kristan-prickliest-ezekiel.ngrok-free.dev/ws/reader/tts`;
+  return `wss://api.ktab.app/Ktab-0.0.1-SNAPSHOT/ws/reader/tts`;
 }
 
 export function createAudioContextSafe() {

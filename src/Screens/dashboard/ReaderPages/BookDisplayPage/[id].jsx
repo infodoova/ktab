@@ -281,6 +281,7 @@ export default function BookDisplay() {
   const {
     isPlaying: ttsPlaying,
     isStreaming,
+    isLoading,
     togglePlay,
     startPageStream,
     cancelStream,
@@ -329,8 +330,8 @@ export default function BookDisplay() {
   // Prevent voice change while playing; if paused, clear current stream so next play restarts this page with the new voice.
   const handleVoiceSelect = useCallback(
     (newVoice) => {
-      if (ttsPlaying) {
-        AlertToast("أوقف القراءة لتغيير الصوت.", "INFO");
+      if (ttsPlaying || isLoading) {
+        AlertToast("يرجى الانتظار حتى اكتمال التحميل.", "INFO");
         return;
       }
 
@@ -347,7 +348,7 @@ export default function BookDisplay() {
 
       setVoice(newVoice);
     },
-    [ttsPlaying, isStreaming, cancelStream, setVoice],
+    [ttsPlaying, isLoading, isStreaming, cancelStream, setVoice],
   );
 
   const sendPage = useCallback(
@@ -517,6 +518,14 @@ export default function BookDisplay() {
     [ttsPlaying, cancelStream, isStreaming],
   );
 
+  // Lock body scroll when reader is open
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, []);
+
   // Reset when book changes
   useEffect(() => {
     currentPageRef.current = 1;
@@ -524,7 +533,7 @@ export default function BookDisplay() {
   }, [id]);
 
   return (
-    <div className="w-full bg-[#fcfcfc] flex flex-col h-screen">
+    <div className="w-full bg-[#fcfcfc] flex flex-col h-screen overflow-hidden fixed inset-0">
       <ReaderHeader
         onBack={() => navigate(-1)}
         onGoToPage={(p) => bookRef.current?.goToPage?.(p)}
@@ -535,7 +544,8 @@ export default function BookDisplay() {
         volume={volume}
         isMuted={isMuted}
         onCycleVolume={cycleVolume}
-        readOnly={ttsPlaying}
+        readOnly={ttsPlaying || isLoading}
+        isLoading={isLoading}
       />
 
       <main className="flex-1 flex items-center justify-center overflow-hidden pt-24 pb-28 sm:pt-20 sm:pb-32">
@@ -546,7 +556,7 @@ export default function BookDisplay() {
           fontSize={fontSize}
           wordsPerPage={wordsPerPage}
           onPageChange={onPageChange}
-          readOnly={ttsPlaying}
+          readOnly={ttsPlaying || isLoading}
         />
       </main>
 
@@ -554,6 +564,7 @@ export default function BookDisplay() {
         onNext={() => bookRef.current?.pageFlip?.()?.flipNext?.()}
         onPrev={() => bookRef.current?.pageFlip?.()?.flipPrev?.()}
         isPlaying={ttsPlaying}
+        isLoading={isLoading}
         onTogglePlay={onTogglePlay}
         fontSize={fontSize}
         onFontSizeChange={handleFontSizeChange}

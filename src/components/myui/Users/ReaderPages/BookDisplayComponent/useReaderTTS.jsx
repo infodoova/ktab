@@ -7,6 +7,7 @@ const PREFETCH_RATIO = 0.4;
 export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const audioCtxRef = useRef(null);
   const wsRef = useRef(null);
@@ -247,7 +248,6 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
     allAlignmentsRef.current.sort((a, b) => a.seq - b.seq);
 
     let timeOffset = 0;
-    let charOffsetFix = 0;
     if (allAlignmentsRef.current.length > 0) {
       const firstAlign = allAlignmentsRef.current[0];
       if (firstAlign.words && firstAlign.words.length > 0) {
@@ -256,14 +256,30 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
           timeOffset = firstAlign.words[0].startSec;
           console.log(`TTS: Detected absolute timings, offset = ${timeOffset}s`);
         }
-        // If the first word's char offset is >= our page start, assume absolute char offsets
+      }
+    }
+
+    // Determine if backend sends absolute character positions (relative to full book)
+    // or relative positions (starting from 0 for the requested slice)
+    let backendUsesAbsoluteChars = false;
+    if (allAlignmentsRef.current.length > 0) {
+      const firstAlign = allAlignmentsRef.current[0];
+      if (firstAlign.words && firstAlign.words.length > 0) {
+        const firstWordStartChar = firstAlign.words[0].startChar;
+        // If backend's first word char position is close to our page's char offset,
+        // it means backend is using absolute positions
+        // Use a tolerance of 50 chars to account for minor normalization differences
         if (
           charOffsetRef.current > 0 &&
-          firstAlign.words[0].startChar >= charOffsetRef.current
+          Math.abs(firstWordStartChar - charOffsetRef.current) < 50
         ) {
-          charOffsetFix = charOffsetRef.current;
+          backendUsesAbsoluteChars = true;
           console.log(
-            `TTS: Detected absolute character offsets, fix = ${charOffsetFix}`
+            `TTS: Detected absolute character offsets from backend (first word at ${firstWordStartChar}, page starts at ${charOffsetRef.current})`
+          );
+        } else {
+          console.log(
+            `TTS: Using relative character offsets (first word at ${firstWordStartChar}, adding page offset ${charOffsetRef.current})`
           );
         }
       }
@@ -281,12 +297,21 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
       const baseTime = timeOffset > 0 ? 0 : cumulativeOffset;
 
       for (const w of alignment.words) {
+        // If backend uses absolute chars, use them directly
+        // Otherwise, add our page's char offset to convert relative -> absolute
+        const finalStartChar = backendUsesAbsoluteChars
+          ? w.startChar
+          : charOffsetRef.current + w.startChar;
+        const finalEndChar = backendUsesAbsoluteChars
+          ? w.endChar
+          : charOffsetRef.current + w.endChar;
+
         allWords.push({
           word: w.word,
           startSec: baseTime + (w.startSec - timeOffset),
           endSec: baseTime + (w.endSec - timeOffset),
-          startChar: charOffsetRef.current + w.startChar - charOffsetFix,
-          endChar: charOffsetRef.current + w.endChar - charOffsetFix,
+          startChar: finalStartChar,
+          endChar: finalEndChar,
         });
       }
 
@@ -353,6 +378,7 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
       src.start(startAt);
 
       scheduledSourceRef.current = src;
+      setIsLoading(false);
 
       console.log(
         `Playing ${allWords.length} words over ${expectedDuration.toFixed(
@@ -361,6 +387,7 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
       );
     } catch (err) {
       console.error("Audio decode failed:", err);
+      setIsLoading(false);
     }
   }, []);
 
@@ -400,6 +427,7 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
     prefetchIsLastPageRef.current = false;
 
     setIsStreaming(false);
+    setIsLoading(false);
     clearHighlight();
   }, [clearHighlight]);
 
@@ -434,7 +462,6 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
     prefetchAlignmentsRef.current.sort((a, b) => a.seq - b.seq);
 
     let timeOffset = 0;
-    let charOffsetFix = 0;
     if (prefetchAlignmentsRef.current.length > 0) {
       const firstAlign = prefetchAlignmentsRef.current[0];
       if (firstAlign.words && firstAlign.words.length > 0) {
@@ -444,13 +471,30 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
             `TTS Prefetch: Detected absolute timings, offset = ${timeOffset}s`
           );
         }
+      }
+    }
+
+    // Determine if backend sends absolute character positions (relative to full book)
+    // or relative positions (starting from 0 for the requested slice)
+    let backendUsesAbsoluteChars = false;
+    if (prefetchAlignmentsRef.current.length > 0) {
+      const firstAlign = prefetchAlignmentsRef.current[0];
+      if (firstAlign.words && firstAlign.words.length > 0) {
+        const firstWordStartChar = firstAlign.words[0].startChar;
+        // If backend's first word char position is close to our page's char offset,
+        // it means backend is using absolute positions
+        // Use a tolerance of 50 chars to account for minor normalization differences
         if (
           prefetchCharOffsetRef.current > 0 &&
-          firstAlign.words[0].startChar >= prefetchCharOffsetRef.current
+          Math.abs(firstWordStartChar - prefetchCharOffsetRef.current) < 50
         ) {
-          charOffsetFix = prefetchCharOffsetRef.current;
+          backendUsesAbsoluteChars = true;
           console.log(
-            `TTS Prefetch: Detected absolute character offsets, fix = ${charOffsetFix}`
+            `TTS Prefetch: Detected absolute character offsets from backend (first word at ${firstWordStartChar}, page starts at ${prefetchCharOffsetRef.current})`
+          );
+        } else {
+          console.log(
+            `TTS Prefetch: Using relative character offsets (first word at ${firstWordStartChar}, adding page offset ${prefetchCharOffsetRef.current})`
           );
         }
       }
@@ -465,12 +509,21 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
       const baseTime = timeOffset > 0 ? 0 : cumulativeOffset;
 
       for (const w of alignment.words) {
+        // If backend uses absolute chars, use them directly
+        // Otherwise, add our page's char offset to convert relative -> absolute
+        const finalStartChar = backendUsesAbsoluteChars
+          ? w.startChar
+          : prefetchCharOffsetRef.current + w.startChar;
+        const finalEndChar = backendUsesAbsoluteChars
+          ? w.endChar
+          : prefetchCharOffsetRef.current + w.endChar;
+
         allWords.push({
           word: w.word,
           startSec: baseTime + (w.startSec - timeOffset),
           endSec: baseTime + (w.endSec - timeOffset),
-          startChar: prefetchCharOffsetRef.current + w.startChar - charOffsetFix,
-          endChar: prefetchCharOffsetRef.current + w.endChar - charOffsetFix,
+          startChar: finalStartChar,
+          endChar: finalEndChar,
         });
       }
 
@@ -721,6 +774,7 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
 
     scheduledSourceRef.current = src;
     setIsStreaming(true);
+    setIsLoading(false);
 
     console.log(
       `Playing prefetched: ${
@@ -801,6 +855,7 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
           streamIdRef.current = prefetchStreamIdRef.current;
 
           setIsStreaming(true);
+          setIsLoading(true);
           gotCompleteRef.current = false;
           pageEndedFiredRef.current = false;
           prefetchTriggeredRef.current = false;
@@ -844,12 +899,16 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
         prefetchTriggeredRef.current = false;
 
         setIsStreaming(true);
+        setIsLoading(true);
         clearHighlight();
       }
 
       const ws = wsRef.current;
       if (!ws || ws.readyState !== WebSocket.OPEN) {
-        if (!prefetch) setIsStreaming(false);
+        if (!prefetch) {
+          setIsStreaming(false);
+          setIsLoading(false);
+        }
         throw new Error("WebSocket not ready");
       }
 
@@ -862,6 +921,7 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
   return {
     isPlaying,
     isStreaming,
+    isLoading,
     togglePlay,
     startPageStream,
     cancelStream,

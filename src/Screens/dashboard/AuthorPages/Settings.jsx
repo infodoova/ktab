@@ -14,7 +14,10 @@ function Settings({ pageName = "الإعدادات" }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8f9fa] text-slate-900 font-arabic rtl" dir="rtl">
+    <div
+      className="min-h-screen bg-white text-slate-900 font-arabic rtl"
+      dir="rtl"
+    >
       {/* NAVBAR */}
       <div dir="ltr">
         <Navbar
@@ -32,16 +35,18 @@ function Settings({ pageName = "الإعدادات" }) {
       >
         <main className="flex-1 flex flex-col">
           {/* HEADER */}
-          <PageHeader
-            mainTitle={pageName}
-          />
+          <PageHeader mainTitle={pageName} />
 
           {/* CONTENT - Centered */}
           <div className="flex-1 flex items-center justify-center p-6 md:p-10">
             <div className="w-full max-w-md bg-white rounded-[2.5rem] p-12 border border-black/[0.03] shadow-[0_30px_60px_rgba(0,0,0,0.05)] text-center">
               {/* ICON/LOGO AREA */}
               <div className="w-24 h-24 bg-[#5de3ba]/10 rounded-[2rem] flex items-center justify-center mx-auto mb-8">
-                <LogOut size={40} className="text-[#5de3ba]" strokeWidth={2.5} />
+                <LogOut
+                  size={40}
+                  className="text-[#5de3ba]"
+                  strokeWidth={2.5}
+                />
               </div>
 
               {/* TEXT */}

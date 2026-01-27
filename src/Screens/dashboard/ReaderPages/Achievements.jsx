@@ -17,7 +17,7 @@ function Achievements({ pageName = "الإنجازات و الشارات" }) {
   const buttonTitleText = "زر";
 
   return (
-    <div className="min-h-screen bg-[#f8f9fa] text-slate-900 font-tajawal rtl" dir="rtl">
+    <div className="min-h-screen bg-white text-slate-900 font-tajawal rtl" dir="rtl">
       {/* NAVBAR */}
       <div dir="ltr">
         <Navbar
