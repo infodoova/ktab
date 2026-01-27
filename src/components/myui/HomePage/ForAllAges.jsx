@@ -3,18 +3,11 @@ import { useRef, useState, useEffect, memo } from "react";
 import { useScroll, useTransform, motion } from "framer-motion";
 import { BookOpen, Sparkles, Coffee, Globe } from "lucide-react";
 import ResponsiveImageSkeleton from "../imageSkeletonLoaderCP";
-import babyage from "../../../assets/images/babyage.png";
-import teenage from "../../../assets/images/teenage.png";
-import adultage from "../../../assets/images/adultage.png";
 import oldage from "../../../assets/images/oldage.png";
-
-import babyageDesktop from "../../../assets/images/babyageDesktop.png";
-import teenageDesktop from "../../../assets/images/teenageDesktop.png";
-import adultageDesktop from "../../../assets/images/adultageDesktop.png";
 import oldageDesktop from "../../../assets/images/oldageDesktop.png";
-import a1 from "../../../assets/images/a1.png";
-import a2 from "../../../assets/images/a2.png";
-import a3 from "../../../assets/images/a3.png";
+import a1 from "../../../assets/images/a1.jpeg";
+import a2 from "../../../assets/images/a2.jpeg";
+import a3 from "../../../assets/images/a3.jpeg";
 /* ───────────────────────────────
    CARD DATA
 ─────────────────────────────────── */
@@ -196,8 +189,6 @@ export default function ForAllAges() {
     >
       {/* HEADER SECTION - Unified Design */}
       <div className="max-w-7xl mx-auto px-6 py-28 md:py-40 text-center relative z-10">
-    
-
         <h2 className="text-4xl md:text-7xl lg:text-8xl font-black mb-6 leading-tight text-[var(--secondary-text)] tracking-tight">
           مكتبة لكل{" "}
           <span className="text-[var(--primary-button)]">الأعمار</span>

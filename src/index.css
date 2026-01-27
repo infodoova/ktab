@@ -43,10 +43,15 @@
   font-family: var(--font-arabic), var(--font-english) !important;
 }
 
-/* body {
-  background-color: var(--earth-cream);
-  color: var(--earth-brown-dark);
-} */
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-dark);
+}
+
+body {
+  overflow-x: hidden;
+}
 
 /* Glass utility */
 .glass {

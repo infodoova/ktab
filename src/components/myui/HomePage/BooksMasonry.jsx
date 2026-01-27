@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import ResponsiveImageSkeleton from "../imageSkeletonLoaderCP";
 
 const STATIC_BOOKS = [
@@ -33,8 +34,9 @@ const STATIC_BOOKS = [
 ];
 
 export default function BooksPinterest() {
+  const navigate = useNavigate();
   const [selectedBook, setSelectedBook] = useState(null);
-    const [allBooks, setAllBooks] = useState(STATIC_BOOKS);
+  const [allBooks, setAllBooks] = useState(STATIC_BOOKS);
 
   useEffect(() => {
     const fetchBooks = async () => {
@@ -58,8 +60,9 @@ export default function BooksPinterest() {
 
         if (json.success && json.data && Array.isArray(json.data.content)) {
           const apiBooks = json.data.content.map((item) => ({
-            title: item.title,
+            ...item,
             img: item.coverImageUrl,
+            fromApi: true,
           }));
 
           // Merge static and API data
@@ -72,6 +75,19 @@ export default function BooksPinterest() {
 
     fetchBooks();
   }, []);
+
+  // Block/unblock body scroll when modal is open
+  useEffect(() => {
+    if (selectedBook) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    // Cleanup on unmount
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [selectedBook]);
 
   const aspectRatios = [
     "aspect-[2/3]",
@@ -86,6 +102,12 @@ export default function BooksPinterest() {
     e.preventDefault();
     e.stopPropagation();
     setSelectedBook(book);
+  };
+
+  const handleDetails = (e, book) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigate(`/reader/BookDetails/${book.id}`);
   };
 
   return (
@@ -175,8 +197,8 @@ export default function BooksPinterest() {
                     z-20
                   "
                 >
-                  {/* TOP: PREVIEW BUTTON */}
-                  <div className="flex justify-end translate-y-[-8px] group-hover:translate-y-0 transition-transform duration-300">
+                  {/* TOP: BUTTONS */}
+                  <div className="flex flex-col gap-2 items-end translate-y-[-8px] group-hover:translate-y-0 transition-transform duration-300">
                     <button
                       className="
                         backdrop-blur-xl
@@ -186,6 +208,7 @@ export default function BooksPinterest() {
                         shadow-lg transition-all duration-300
                         hover:scale-105 active:scale-95
                         flex items-center gap-2
+                        w-fit
                       "
                       style={{
                         background:
@@ -193,7 +216,6 @@ export default function BooksPinterest() {
                       }}
                       onClick={(e) => handlePreview(e, b)}
                     >
-                      {/* Optional Eye Icon */}
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
@@ -219,6 +241,11 @@ export default function BooksPinterest() {
 
                   {/* BOTTOM: TITLE */}
                   <div className="translate-y-[8px] group-hover:translate-y-0 transition-transform duration-300">
+                    {b.fromApi && b.mainGenre && (
+                      <span className="inline-block bg-[var(--primary-button)] text-black text-[10px] font-bold px-2 py-0.5 rounded-full mb-2">
+                        {b.mainGenre}
+                      </span>
+                    )}
                     <span className="block text-white font-bold text-lg drop-shadow-md leading-tight">
                       {b.title}
                     </span>
@@ -233,13 +260,13 @@ export default function BooksPinterest() {
       {/* --- PREVIEW MODAL (LIGHTBOX) --- */}
       {selectedBook && (
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/95 backdrop-blur-md transition-all duration-500 animate-in fade-in"
+          className="fixed inset-0 z-[100] flex items-center justify-center p-0 md:p-6 bg-black/95 md:backdrop-blur-md md:animate-in md:fade-in md:duration-300"
           onClick={() => setSelectedBook(null)}
         >
           {/* Enhanced Close Button */}
           <button
             onClick={() => setSelectedBook(null)}
-            className="absolute top-6 right-6 md:top-10 md:right-10 text-white/40 hover:text-white transition-all duration-300 bg-white/5 hover:bg-white/10 hover:rotate-90 rounded-full p-4 border border-white/10 group z-[110]"
+            className="absolute top-4 right-4 md:top-10 md:right-10 text-white/40 hover:text-white transition-all duration-300 bg-white/5 hover:bg-white/10 hover:rotate-90 rounded-full p-3 md:p-4 border border-white/10 group z-[110]"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -247,7 +274,7 @@ export default function BooksPinterest() {
               viewBox="0 0 24 24"
               strokeWidth={2}
               stroke="currentColor"
-              className="w-6 h-6 md:w-8 md:h-8"
+              className="w-5 h-5 md:w-8 md:h-8"
             >
               <path
                 strokeLinecap="round"
@@ -259,14 +286,14 @@ export default function BooksPinterest() {
 
           {/* Modal Content Container */}
           <div
-            className="relative flex flex-col items-center max-w-full w-full animate-in zoom-in-95 duration-500"
+            className="relative flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-8 max-w-5xl w-full h-full md:h-auto md:max-h-[90vh] md:animate-in md:zoom-in-95 md:duration-300 bg-[var(--bg-card)] p-8 md:p-12 rounded-none md:rounded-[3rem] border-0 md:border border-white/10 shadow-none md:shadow-2xl overflow-y-auto custom-scrollbar"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* The "Fixed Size" Image Card */}
+            {/* Left: The "Fixed Size" Image Card */}
             <div
               className="
-                relative w-full max-w-[260px] md:max-w-[320px] 
-                aspect-[2/3] overflow-hidden rounded-[2rem] 
+                relative w-full max-w-[220px] md:max-w-[320px] shrink-0
+                aspect-[2/3] overflow-hidden rounded-[1.5rem] md:rounded-[2rem] 
                 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.7)] 
                 border-4 border-white/5 bg-[var(--bg-card)]
                 transition-transform duration-500 hover:scale-[1.02]
@@ -284,11 +311,75 @@ export default function BooksPinterest() {
               <div className="absolute inset-0 pointer-events-none rounded-[1.8rem] border border-white/10" />
             </div>
 
-            {/* Content Section */}
-            <div className="mt-6 text-center max-w-2xl px-6">
-              <h3 className="text-2xl md:text-4xl text-white font-black tracking-tight leading-tight drop-shadow-2xl">
+            {/* Right: Content Section */}
+            <div className="flex-1 text-center md:text-right w-full">
+              <div className="flex flex-wrap justify-center md:justify-start gap-2 mb-4">
+                 {selectedBook.fromApi && (
+                   <>
+                    <span className="bg-[var(--primary-button)]/20 text-[var(--primary-button)] px-3 py-1 rounded-full text-sm font-bold border border-[var(--primary-button)]/30">
+                      {selectedBook.mainGenre}
+                    </span>
+                    <span className="bg-white/5 text-white/60 px-3 py-1 rounded-full text-sm font-medium border border-white/10">
+                      {selectedBook.language === 'arabic' ? 'العربية' : selectedBook.language}
+                    </span>
+                    <span className="bg-white/5 text-white/60 px-3 py-1 rounded-full text-sm font-medium border border-white/10">
+                       {selectedBook.pageCount} صفحة
+                    </span>
+                   </>
+                 )}
+              </div>
+
+              <h3 className="text-3xl md:text-5xl text-white font-black tracking-tight leading-tight mb-6">
                 {selectedBook.title}
               </h3>
+
+              {selectedBook.fromApi ? (
+                <div className="space-y-6">
+                  <p className="text-white/70 text-lg leading-relaxed line-clamp-6 md:line-clamp-none">
+                    {selectedBook.description}
+                  </p>
+                  
+                  <div className="grid grid-cols-2 gap-4 py-6 border-y border-white/10">
+                    <div>
+                      <p className="text-white/40 text-xs uppercase mb-1">الفئة العمرية</p>
+                      <p className="text-white font-bold">{selectedBook.ageRangeMin} - {selectedBook.ageRangeMax} سنة</p>
+                    </div>
+                    <div>
+                      <p className="text-white/40 text-xs uppercase mb-1">النوع الفرعي</p>
+                      <p className="text-white font-bold">{selectedBook.subGenre}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-4 pt-4">
+                    <button
+                      className="
+                        w-full md:w-auto
+                        bg-[var(--primary-button)] text-black
+                        font-black text-base md:text-lg
+                        px-8 py-4 rounded-2xl
+                        shadow-xl transition-all duration-300
+                        hover:scale-105 active:scale-95
+                        flex items-center justify-center gap-3
+                      "
+                      onClick={(e) => handleDetails(e, selectedBook)}
+                    >
+                      عرض التفاصيل الكاملة
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={2.5}
+                        stroke="currentColor"
+                        className="w-5 h-5"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-white/60 text-lg">هذا الكتاب جزء من مجموعتنا المختارة. قريباً ستتوفر تفاصيل إضافية عنه.</p>
+              )}
             </div>
           </div>
         </div>

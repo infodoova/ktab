@@ -1,6 +1,7 @@
 /* eslint-disable */
 import React from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import imgAI from "../../../assets/images/ai.png";
 import imgListen from "../../../assets/images/listen.png";
 import imgInteractive from "../../../assets/images/interactive.png";
@@ -13,28 +14,45 @@ const FEATURES = [
     title: "مساعد ذكي لتبسيط المعرفة",
     desc: "القارئ لم يعد مضطرًا للبحث خارج الكتاب عن تفسير أو شرح أو تلخيص. مساعد كُتّاب الذكي يتفاعل معك داخل التجربة نفسها—يفهم الفقرة التي تقرأها، يبسّط المعاني الصعبة، يقدّم أمثلة توضيحية، ويولّد أسئلة اختبار لفهمك. ليس مجرد روبوت؛ بل مدرس خاص يعمل بالذكاء الاصطناعي، حاضر معك في كل صفحة، يصنع لك تجربة تعلم سلسة، شخصية، وسريعة.",
     image: imgAI,
+    cta: {
+      label: "جرب المساعد الذكي",
+      path: "/reader/home",
+    },
   },
   {
     id: "interactive",
     title: "مسارات قصصية تفاعلية",
     desc: "القراءة هنا ليست مجرد تقليب صفحات… بل مغامرة تتغيّر وفق قراراتك. اختر مسارك، واجه المواقف، واتخذ الخيارات التي تغيّر النهاية كليًا. كل قصة تحتوي على نقاط تفرّع تجعل كل إعادة قراءة مختلفة عن السابقة، مما يخلق تجربة غامرة تشبه اللعب، ويحوّل القارئ من متلقٍ سلبي إلى مشارك أساسي في بناء الأحداث.",
     image: imgInteractive,
+    cta: {
+      label: "تصفح القصص التفاعلية",
+      path: "/reader/interactive-stories",
+    },
   },
   {
     id: "audio",
     title: "استماع غامر أثناء التنقل",
     desc: "لا حاجة للتوقّف عن القراءة بسبب الانشغال. اضغط زرًا واحدًا، وسيتحوّل أي كتاب إلى تجربة صوتية طبيعية بفضل محرّك القراءة البشرية. يمكنك متابعة رحلتك المعرفية في السيارة، في النادي، أو أثناء ترتيب المنزل—بجودة صوت نقية ووتيرة تراعي راحتك. صُمّم هذا الأسلوب ليجعل المعرفة مرافقة لك طوال اليوم دون أي مجهود بصري.",
     image: imgListen,
+    cta: {
+      label: "ابدأ الاستماع الآن",
+      path: "/reader/library",
+    },
   },
   {
     id: "progress",
     title: "لوحة إنجازات متطورة",
     desc: "لكل قارئ رحلة، ولكل رحلة إنجازات. كُتّاب يقدم لوحة متابعة ذكية تعرض تقدّمك بأسلوب بصري جميل—الصفحات التي قرأتها، الساعات التي قضيتها، الكتب التي أنهيتها، والمستويات التي حققتها. تتلقى شارات تحفيزية، تحديات أسبوعية، وتنبيهات ذكية تساعدك على بناء عادة قراءة مستمرة. هنا، لا تحفظ المعلومات فقط… بل ترى أثرها ينبض أمامك.",
     image: imgProgress,
+    cta: {
+      label: "عرض لوحة الإنجازات",
+      path: "/reader/Achievements",
+    },
   },
 ];
 
 export default function WhatAbout() {
+  const navigate = useNavigate();
   return (
     <section
       id="what-about"
@@ -79,8 +97,6 @@ export default function WhatAbout() {
           viewport={{ once: true }}
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
-      
-
           <h2 className="text-4xl md:text-6xl lg:text-7xl font-black text-[var(--secondary-text)] tracking-tight">
             كيف تبدو{" "}
             <span className=" bg-clip-text text-[var(--primary-button)]">
@@ -179,9 +195,40 @@ export default function WhatAbout() {
                   {f.title}
                 </h3>
 
-                <p className="text-lg leading-relaxed text-[var(--secondary-text)]/70 relative z-10">
+                <p className="text-lg leading-relaxed text-[var(--secondary-text)]/70 relative z-10 mb-8">
                   {f.desc}
                 </p>
+
+                <div className="flex justify-center md:justify-start">
+                  <button
+                    onClick={() => navigate(f.cta.path)}
+                    className="
+                      group/btn flex items-center gap-3 
+                      bg-[var(--primary-button)] text-black 
+                      px-8 py-3.5 rounded-2xl
+                      font-black text-sm uppercase tracking-wider
+                      transition-all duration-300
+                      hover:scale-105 hover:shadow-[0_0_30px_-5px_var(--primary-button)]
+                      active:scale-95
+                    "
+                  >
+                    <span>{f.cta.label}</span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={2.5}
+                      stroke="currentColor"
+                      className="w-5 h-5 transition-transform duration-300 group-hover/btn:-translate-x-1"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
+                      />
+                    </svg>
+                  </button>
+                </div>
               </motion.div>
             </div>
           );
