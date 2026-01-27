@@ -167,6 +167,12 @@ const Navbar = ({
 }) => {
   const [isSheetOpen, setSheetOpen] = useState(false);
 
+  // Sync body background color to white for author pages
+  React.useEffect(() => {
+    document.body.style.backgroundColor = "#ffffff";
+    document.documentElement.style.backgroundColor = "#ffffff";
+  }, []);
+
   return (
     <>
       {/* MOBILE HEADER */}

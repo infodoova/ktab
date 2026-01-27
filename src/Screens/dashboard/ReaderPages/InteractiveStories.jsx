@@ -138,11 +138,11 @@ function InteractiveStories({ pageName = "قصص تفاعلية" }) {
   }, [stories, search, genre]);
 
   const featuredStories = useMemo(() => {
-    return filteredStories.slice(0, 4);
+    return filteredStories.slice(0, 3);
   }, [filteredStories]);
 
   const remainingStories = useMemo(() => {
-    return filteredStories.slice(4);
+    return filteredStories.slice(3);
   }, [filteredStories]);
 
   // When filters/search change, reset and refetch first page (keeps API pagination correct)

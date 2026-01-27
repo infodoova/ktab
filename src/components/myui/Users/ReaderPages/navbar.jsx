@@ -192,6 +192,13 @@ const Navbar = ({
 }) => {
   const [isSheetOpen, setSheetOpen] = useState(false);
 
+  // Sync body background color with page theme to hide any animation scroll gaps
+  React.useEffect(() => {
+    const bgColor = isDark ? "#0a0a0a" : "#ffffff";
+    document.body.style.backgroundColor = bgColor;
+    document.documentElement.style.backgroundColor = bgColor;
+  }, [isDark]);
+
   return (
     <>
       {/* MOBILE HEADER */}

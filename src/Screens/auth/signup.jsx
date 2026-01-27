@@ -22,6 +22,16 @@ import owlSignup from "../../assets/character/owl5.png";
 export default function SignupPage() {
   const [verifyOpen, setVerifyOpen] = useState(false);
 
+  // Prevent scroll gap on signup page
+  useState(() => {
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
+    };
+  });
+
   const [form, setForm] = useState({
     firstName: "",
     middleName: "",
@@ -115,10 +125,10 @@ const handleSubmit = async (e) => {
 return (
   <div
     dir="rtl"
-    className="h-screen w-full flex bg-white overflow-hidden"
+    className="fixed inset-0 w-full flex bg-white overflow-hidden"
   >
     {/* LEFT — SIGNUP FORM */}
-    <div className="flex-1 md:basis-1/2 flex flex-col items-center justify-center px-6 py-10 md:px-12 bg-white relative overflow-y-auto custom-scrollbar">
+    <div className="flex-1 md:basis-1/2 flex flex-col items-center md:justify-center px-6 py-12 md:px-12 bg-white relative overflow-y-auto custom-scrollbar">
       {/* Ambient blurs for the left side - Refined for New Palette */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute -top-24 -left-24 w-64 h-64 bg-[var(--primary-button)]/10 blur-[80px] rounded-full" />
@@ -138,7 +148,7 @@ return (
           </div>
 
           <div className="relative">
-            <h1 className="text-4xl md:text-5xl font-black text-[var(--primary-text)] tracking-tight">
+            <h1 className="text-2xl sm:text-3xl md:text-5xl font-black text-[var(--primary-text)] leading-tight">
               إنشاء <span className="text-[var(--primary-button)] drop-shadow-sm">حساب جديد</span>
             </h1>
             {/* Floating aesthetic dot */}

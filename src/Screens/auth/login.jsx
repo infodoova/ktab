@@ -14,6 +14,16 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const [resetOpen, setResetOpen] = useState(false);
 
+  // Prevent scroll gap on login page
+  useState(() => {
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
+    };
+  });
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({ email, password });
@@ -87,14 +97,14 @@ export default function LoginPage() {
   };
 
   return (
-    <div dir="rtl" className="h-screen w-full bg-black flex overflow-hidden">
+    <div dir="rtl" className="fixed inset-0 w-full bg-black flex overflow-hidden">
       {/* LEFT — FORM PANEL */}
       <div
         className="
       relative z-10
       w-full md:w-[48%]
       bg-white
-      flex items-center justify-center
+      flex items-center md:justify-center
       px-6 sm:px-10 md:px-14
       overflow-y-auto
       custom-scrollbar
@@ -131,7 +141,7 @@ export default function LoginPage() {
 
             {/* Main Title with Decorative Element */}
             <div className="relative">
-              <h1 className="text-4xl md:text-5xl font-black text-[var(--primary-text)] tracking-tight">
+              <h1 className="text-2xl sm:text-3xl md:text-5xl font-black text-[var(--primary-text)] leading-tight">
                 أهلاً{" "}
                 <span className="text-[var(--primary-button)] ">بعودتك</span>
               </h1>
