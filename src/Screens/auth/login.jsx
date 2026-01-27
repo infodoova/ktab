@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import ResetPassword from "../../components/myui/ResetPassword";
@@ -14,15 +14,15 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const [resetOpen, setResetOpen] = useState(false);
 
-  // Prevent scroll gap on login page
-  useState(() => {
+  // Prevent scroll gap on login page - Using useEffect for proper cleanup on navigation
+  useEffect(() => {
     document.documentElement.style.overflow = "hidden";
     document.body.style.overflow = "hidden";
     return () => {
-      document.documentElement.style.overflow = "";
-      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "auto";
+      document.body.style.overflow = "auto";
     };
-  });
+  }, []);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

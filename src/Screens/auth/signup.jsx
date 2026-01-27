@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 
@@ -22,15 +22,15 @@ import owlSignup from "../../assets/character/owl5.png";
 export default function SignupPage() {
   const [verifyOpen, setVerifyOpen] = useState(false);
 
-  // Prevent scroll gap on signup page
-  useState(() => {
+  // Prevent scroll gap on signup page - Using useEffect for proper cleanup on navigation
+  useEffect(() => {
     document.documentElement.style.overflow = "hidden";
     document.body.style.overflow = "hidden";
     return () => {
-      document.documentElement.style.overflow = "";
-      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "auto";
+      document.body.style.overflow = "auto";
     };
-  });
+  }, []);
 
   const [form, setForm] = useState({
     firstName: "",
