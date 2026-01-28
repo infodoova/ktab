@@ -16,14 +16,51 @@ export default function RecommendedBooksCP() {
     return () => document.removeEventListener("click", close);
   }, []);
 
-  const books = [
-    { id: "rec1", title: "كتاب المعجزة", coverImageUrl: "https://images.pexels.com/photos/1029141/pexels-photo-1029141.jpeg" },
-    { id: "rec2", title: "الذكي الفقير", coverImageUrl: "https://images.pexels.com/photos/8078549/pexels-photo-8078549.jpeg" },
-    { id: "rec3", title: "رحلة النجاح", coverImageUrl: "https://images.pexels.com/photos/14750508/pexels-photo-14750508.jpeg" },
-    { id: "rec4", title: "نور الحكمة", coverImageUrl: "https://images.pexels.com/photos/590493/pexels-photo-590493.jpeg" },
-    { id: "rec5", title: "مملكة المعرفة", coverImageUrl: "https://images.pexels.com/photos/46274/pexels-photo-46274.jpeg" },
-    { id: "rec6", title: "المعرفة", coverImageUrl: "https://images.pexels.com/photos/46274/pexels-photo-46274.jpeg" },
-  ];
+const books = [
+  {
+    id: "rec1",
+    title: "ألف ليلة وليلة",
+    coverImageUrl:
+      "https://upload.wikimedia.org/wikipedia/commons/5/59/%D8%BA%D9%84%D8%A7%D9%81_%D8%A3%D9%84%D9%81_%D9%84%D9%8A%D9%84%D8%A9_%D9%88%D9%84%D9%8A%D9%84%D8%A9_%28%D8%A7%D9%84%D8%AC%D8%B2%D8%A1_%D8%A7%D9%84%D8%A3%D9%88%D9%84%29.jpg",
+  },
+  {
+    id: "rec2",
+    title: "الفيل الأزرق",
+    coverImageUrl: "https://upload.wikimedia.org/wikipedia/ar/f/f3/Al-Feel_al-Azraq.jpg",
+  },
+  {
+    id: "rec3",
+    title: "عزازيل",
+    coverImageUrl: "https://upload.wikimedia.org/wikipedia/ar/a/aa/Azazel_novel_cover.jpg",
+  },
+  {
+    id: "rec4",
+    title: "رجال في الشمس",
+    coverImageUrl:
+      "https://upload.wikimedia.org/wikipedia/ar/4/40/%D8%B5%D9%88%D8%B1%D8%A9_%D8%BA%D9%84%D8%A7%D9%81_%D8%B1%D9%88%D8%A7%D9%8A%D8%A9_%D8%B1%D8%AC%D8%A7%D9%84_%D9%81%D9%8A_%D8%A7%D9%84%D8%B4%D9%85%D8%B3.jpg",
+  },
+  {
+    id: "rec5",
+    title: "زقاق المدق",
+    coverImageUrl:
+      "https://upload.wikimedia.org/wikipedia/ar/9/95/%D8%BA%D9%84%D8%A7%D9%81_%D8%B1%D9%88%D8%A7%D9%8A%D8%A9_%D8%B2%D9%82%D8%A7%D9%82_%D8%A7%D9%84%D9%85%D8%AF%D9%82.jpeg",
+  },
+  {
+    id: "rec6",
+    title: "الثلاثية",
+    coverImageUrl:
+      "https://upload.wikimedia.org/wikipedia/ar/2/2c/%D8%A8%D9%8A%D9%86_%D8%A7%D9%84%D9%82%D8%B5%D8%B1%D9%8A%D9%86.jpg",
+  },
+
+  {
+    id: "rec8",
+    title: "الخبز الحافي",
+    coverImageUrl:
+      "https://upload.wikimedia.org/wikipedia/ar/e/ec/%D8%BA%D9%84%D8%A7%D9%81_%D8%A7%D9%84%D8%AE%D8%A8%D8%B2_%D8%A7%D9%84%D8%AD%D8%A7%D9%81%D9%8A.jpg",
+  },
+];
+
+
 
   return (
     <section dir="rtl" className="w-full max-w-full py-6 overflow-hidden">
