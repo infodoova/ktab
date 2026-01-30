@@ -6,6 +6,9 @@
 /* Dark Theme Variables - Scoped to HomePage */
 /* These override the root variables ONLY within .homepage-dark */
 .homepage-dark {
+  /* Ensure full viewport coverage */
+  min-height: 100vh;
+  
   /* Override root variables for dark theme */
   --primary-text: #ffffff;
   --secondary-text: #e5e5e5;
@@ -227,4 +230,9 @@
 
 .homepage-dark::-webkit-scrollbar-thumb:hover {
   background: var(--hp-accent);
+}
+
+/* Ensure body background matches when on homepage */
+body:has(.homepage-dark) {
+  background-color: #0a0a0a;
 }

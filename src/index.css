@@ -46,9 +46,7 @@
 
 /* 3. Apply Fonts Correctly */
 * {
-  /* Logic: Try Montserrat first (for English). If the character is Arabic,
-     Montserrat won't have it, so it drops down to var(--font-arabic).
-     Finally, if neither works, use system sans-serif. */
+
   font-family: var(--font-english), var(--font-arabic), sans-serif !important;
   
   /* Fix iOS font rendering and character splitting */
@@ -80,12 +78,16 @@
 html, body {
   margin: 0;
   padding: 0;
-  background-color: var(--bg-dark);
+  min-height: 100%;
 }
 
 body {
   overflow-x: hidden;
   transition: background-color 0.3s ease;
+}
+
+#root {
+  min-height: 100vh;
 }
 
 /* Glass utility */
