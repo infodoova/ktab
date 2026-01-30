@@ -13,6 +13,7 @@ import {
   createAudioContextSafe,
   fetchAndDecode,
   createGainNode,
+  isIOSDevice,
 } from "../../../../components/myui/Users/ReaderPages/BookDisplayComponent/utils";
 
 import { getHelper } from "../../../../../apis/apiHelpers";
@@ -28,7 +29,7 @@ export default function BookDisplay() {
 
   const [bookText, setBookText] = useState("");
   const [loadingText, setLoadingText] = useState(true);
-  const [wordsPerPage] = useState(100);
+  const [wordsPerPage] = useState(30);
 
   const [voice, setVoice] = useState("IES4nrmZdUBHByLBde0P");
   const [effect, setEffect] = useState("none");
@@ -67,6 +68,11 @@ export default function BookDisplay() {
   const currentPageRef = useRef(1);
   // track if TTS was started (not just paused)
   const ttsStartedRef = useRef(false);
+
+  // iOS: Hidden audio element ref for bypassing physical mute switch
+  // The physical mute switch on iOS mutes Web Audio API but not HTML5 <audio> tags
+  // By playing a silent audio loop, we route ALL audio through the "Media" channel
+  const iosSilentAudioRef = useRef(null);
 
   /* ===============================
      AMBIENT AUDIO (same as your setup)
@@ -448,12 +454,28 @@ export default function BookDisplay() {
   // - If starting fresh → send current page then play
   const onTogglePlay = useCallback(async () => {
     try {
-      if (!ttsPlaying) {
-        // Starting playback
+      const isStarting = !ttsPlaying;
+
+      // 1. PRIME IMMEDIATE (Sync) - Must be in the same tick as the click
+      if (isIOSDevice()) {
+        if (iosSilentAudioRef.current) {
+          if (isStarting) {
+            iosSilentAudioRef.current.play().catch((e) => console.warn("Silent audio play failed", e));
+          } else {
+            iosSilentAudioRef.current.pause();
+          }
+        }
+      }
+
+      // 2. TOGGLE HOOK - This handles context resume and unlock
+      // It must be called before any awaits to honor user gesture context
+      await togglePlay();
+
+      // 3. START DATA FETCH IF NEEDED
+      if (isStarting) {
         if (!loadingText && bookRef.current) {
-          // Get current visible page (1-indexed)
+          // Get current visible page
           const visiblePage = bookRef.current.getCurrentPageNumber?.() ?? 1;
-          // If we've already started before, resume from tracked page; otherwise use visible page
           const startPage =
             ttsStartedRef.current && currentPageRef.current > 0
               ? currentPageRef.current
@@ -461,27 +483,14 @@ export default function BookDisplay() {
                 ? 1
                 : visiblePage;
 
-          // If we are already streaming (audio buffered/buffering) and on the same page,
-          // we just RESUME. Else, we start fresh.
-          const isSamePage = startPage === currentPageRef.current;
-
-          if (isStreaming && isSamePage) {
-            console.log("Resuming existing stream for page", startPage);
-            // No need to sendPage.
-          } else {
+          // If we are starting from a new page, send it
+          if (!(isStreaming && startPage === currentPageRef.current)) {
             console.log("Starting TTS from page:", startPage);
-            // Mark TTS as started
             ttsStartedRef.current = true;
-            // Send page data to backend
             await sendPage(startPage);
           }
         }
-      } else {
-        // Pausing - keep highlights so user knows where they stopped
-        // bookRef.current?.clearAllHighlights?.();
       }
-
-      await togglePlay();
     } catch (err) {
       console.error("Error in onTogglePlay:", err);
       AlertToast("حدث خطأ أثناء محاولة تشغيل الصوت.", "ERROR");
@@ -533,7 +542,7 @@ export default function BookDisplay() {
   }, [id]);
 
   return (
-    <div className="w-full bg-[#fcfcfc] flex flex-col h-screen overflow-hidden fixed inset-0">
+    <div className="w-full bg-white flex flex-col h-screen overflow-hidden fixed inset-0">
       <ReaderHeader
         onBack={() => navigate(-1)}
         onGoToPage={(p) => bookRef.current?.goToPage?.(p)}
@@ -569,6 +578,19 @@ export default function BookDisplay() {
         fontSize={fontSize}
         onFontSizeChange={handleFontSizeChange}
       />
+
+      {/* iOS: Hidden silent audio to bypass physical mute switch */}
+      {/* This 1-second silent audio loop routes all audio through "Media" channel */}
+      {isIOSDevice() && (
+        <audio
+          ref={iosSilentAudioRef}
+          loop
+          playsInline
+          style={{ display: "none" }}
+          // Base64-encoded 1-second silent WAV file
+          src="data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA"
+        />
+      )}
     </div>
   );
 }

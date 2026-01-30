@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap");
 
 /* Arabic */
 
@@ -8,6 +8,8 @@
 @import "tw-animate-css";
 
 :root {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
   /* 1. Define Font Names (Without 'sans-serif' here) */
   --font-english: "Montserrat";
   --font-arabic: "Tajawal";
@@ -37,8 +39,8 @@
 /* 2. iOS/iPhone Specific Override */
 @supports (-webkit-touch-callout: none) {
   :root {
-    /* On iPhone, replace Tajawal with the native 'Geeza Pro' for better Arabic rendering */
-    --font-arabic: -apple-system, "Geeza Pro";
+    /* On iPhone, use 'Geeza Pro' first for better Arabic rendering, then system fallbacks */
+    --font-arabic: "Geeza Pro", -apple-system, sans-serif;
   }
 }
 
@@ -48,6 +50,23 @@
      Montserrat won't have it, so it drops down to var(--font-arabic).
      Finally, if neither works, use system sans-serif. */
   font-family: var(--font-english), var(--font-arabic), sans-serif !important;
+  
+  /* Fix iOS font rendering and character splitting */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+.font-arabic,
+[dir="rtl"],
+[dir="rtl"] * {
+  /* Critical: Arabic must NOT have letter-spacing or it splits */
+  letter-spacing: 0 !important;
+  /* Force ligatures to ensure characters connect */
+  font-variant-ligatures: common-ligatures !important;
+  font-feature-settings: "rlig" 1, "calt" 1;
+  /* Ensure text doesn't arbitrarily resize on iOS */
+  -webkit-text-size-adjust: 100%;
 }
 
 .font-arabic {

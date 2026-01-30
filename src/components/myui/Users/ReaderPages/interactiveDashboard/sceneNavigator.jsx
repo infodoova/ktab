@@ -14,53 +14,24 @@ const SceneNavigator = ({
   const [scrollProgress, setScrollProgress] = React.useState(0);
   const [showIndicator, setShowIndicator] = React.useState(false);
 
-  const updateProgress = () => {
-    const el = activeRef?.current;
-    if (el) {
-      const { scrollLeft, scrollWidth, clientWidth } = el;
-      const total = scrollWidth - clientWidth;
-      setShowIndicator(total > 10);
-      if (total > 0) {
-        // Handle RTL: scrollLeft is usually negative or 0
-        const progress = (Math.abs(scrollLeft) / total) * 100;
-        setScrollProgress(progress);
-      }
-    }
-  };
 
   React.useEffect(() => {
-    const el = activeRef?.current;
-    if (el) {
-      el.addEventListener("scroll", updateProgress);
-      // Initial check
-      updateProgress();
-      // Also check on resize
-      window.addEventListener("resize", updateProgress);
-      return () => {
-        el.removeEventListener("scroll", updateProgress);
-        window.removeEventListener("resize", updateProgress);
-      };
-    }
-  }, [sceneHistory.length, isMobile]);
-
-  // Re-check when scenes are added
-  React.useEffect(() => {
-    setTimeout(updateProgress, 100);
-  }, [sceneHistory.length]);
-
-  const handleWheel = (e) => {
     const el = activeRef?.current;
     if (!el) return;
 
-    if (e.deltaY !== 0) {
-      // Prevent page scroll
-      e.preventDefault();
-      // Adjust scroll speed and direction for RTL
-      // deltaY > 0 (down) -> should scroll left (more negative in RTL)
-      // deltaY < 0 (up) -> should scroll right (towards 0 in RTL)
-      el.scrollLeft += e.deltaY;
-    }
-  };
+    const handleWheelListener = (e) => {
+      if (e.deltaY !== 0) {
+        // Prevent default vertical scroll to handle horizontal scroll manually
+        e.preventDefault();
+        el.scrollLeft += e.deltaY;
+      }
+    };
+
+    el.addEventListener("wheel", handleWheelListener, { passive: false });
+    return () => el.removeEventListener("wheel", handleWheelListener);
+  }, [activeRef, sceneHistory.length]);
+
+
 
   if (isMobile) {
     return (
@@ -79,8 +50,7 @@ const SceneNavigator = ({
         </div>
         <div
           ref={sceneSelectorRef}
-          onWheel={handleWheel}
-          className="flex items-center gap-2 overflow-x-auto no-scrollbar scroll-smooth snap-x py-1"
+          className="flex items-center gap-2 overflow-x-auto custom-scene-scrollbar scroll-smooth snap-x py-2 pb-4"
           dir="rtl"
         >
           {sceneHistory.map((scene, index) => (
@@ -135,8 +105,7 @@ const SceneNavigator = ({
       </div>
       <div
         ref={internalDesktopRef}
-        onWheel={handleWheel}
-        className="flex items-center gap-4 overflow-x-auto no-scrollbar scroll-smooth snap-x py-2"
+        className="flex items-center gap-4 overflow-x-auto custom-scene-scrollbar scroll-smooth snap-x py-2 pb-6"
         dir="rtl"
       >
         {sceneHistory.map((scene, index) => (
@@ -181,4 +150,33 @@ const SceneNavigator = ({
   );
 };
 
-export default SceneNavigator;
+export default function WrappedSceneNavigator(props) {
+  const scrollbarCss = `
+    .custom-scene-scrollbar::-webkit-scrollbar {
+      height: 6px;
+    }
+    .custom-scene-scrollbar::-webkit-scrollbar-track {
+      background: ${props.isDarkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)'};
+      border-radius: 10px;
+    }
+    .custom-scene-scrollbar::-webkit-scrollbar-thumb {
+      background: var(--primary-button);
+      border-radius: 10px;
+    }
+    .custom-scene-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #4ade80;
+    }
+    /* Firefox */
+    .custom-scene-scrollbar {
+      scrollbar-width: thin;
+      scrollbar-color: var(--primary-button) ${props.isDarkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)'};
+    }
+  `;
+
+  return (
+    <>
+      <style>{scrollbarCss}</style>
+      <SceneNavigator {...props} />
+    </>
+  );
+}

@@ -3,11 +3,15 @@ import { useRef, useState, useEffect, memo } from "react";
 import { useScroll, useTransform, motion } from "framer-motion";
 import { BookOpen, Sparkles, Coffee, Globe } from "lucide-react";
 import ResponsiveImageSkeleton from "../imageSkeletonLoaderCP";
-import oldage from "../../../assets/images/oldage.png";
-import oldageDesktop from "../../../assets/images/oldageDesktop.png";
-import a1 from "../../../assets/images/a1.jpeg";
-import a2 from "../../../assets/images/a2.jpeg";
-import a3 from "../../../assets/images/a3.jpeg";
+import a1 from "../../../assets/images/a1.png";
+import a2 from "../../../assets/images/a2.png";
+import a3 from "../../../assets/images/a3.png";
+import a4 from "../../../assets/images/a4.png";
+import a1mob from "../../../assets/images/a1mob.png";
+import a2mob from "../../../assets/images/a2mob.png";
+import a3mob from "../../../assets/images/a3mob.png";
+import a4mob from "../../../assets/images/a4mob.png";
+
 /* ───────────────────────────────
    CARD DATA
 ─────────────────────────────────── */
@@ -18,31 +22,31 @@ const allSteps = {
       subtitle: "بداية الخيال",
       text: "قصص مصوّرة وحكايات تفاعلية تبني مفردات الطفل وتغرس فيه حب الاستكشاف.",
       icon: Sparkles,
-      img: a1,
+      img: a1mob,
       color: "var(--primary-button)",
     },
     {
       title: "لليافعين",
       subtitle: "عالم من المغامرة",
-      text: "روايات خيال علمي وكتب تطوير ذات تواكب فضولهم وتجيب على أسئلتهم.",
+      text: "رويات علمية وتفاعلية حيث يمكنك تغيير مسار القصة واتخاذ قرارات تؤثر على تطور الأحداث، مع إمكانية تتبع تقدمك والتمتع بتجربة فريدة تناسب اهتماماتك.",
       icon: BookOpen,
-      img: a2,
+      img: a2mob,
       color: "var(--primary-border)",
     },
     {
       title: "للكبار",
       subtitle: "واحة المعرفة",
-      text: "كتب عميقة في شتى المجالات تعزز الفهم وترافق لحظات القهوة.",
+      text: "كتب علمية وفكرية تعزز الفهم العميق وتفتح آفاقاً جديدة لانتقاء القراءات، مع تقديم مسار مرن يتيح لك تغيير مجريات الأحداث كما تحب.",
       icon: Coffee,
-      img: a3,
+      img: a3mob,
       color: "var(--primary-button)",
     },
     {
       title: "للجميع",
       subtitle: "عالم يجمع القرّاء",
-      text: "مكتبة رقمية تستقبل كل قارئ، من كل مكان، بمحتوى يناسب كل الأعمار.",
+      text: "مكتبة رقمية تتيح لكل قارئ الاستمتاع بتجربة قراءة مميزة، حيث يمكن الوصول إلى المحتوى في أي وقت ومن أي مكان، مع خيارات تتناسب مع كل الأعمار والاهتمامات.",
       icon: Globe,
-      img: oldage,
+      img: a4mob,
       color: "var(--primary-button)",
     },
   ],
@@ -58,7 +62,7 @@ const allSteps = {
     {
       title: "لليافعين",
       subtitle: "عالم من المغامرة",
-      text: "روايات خيال علمي وكتب تطوير ذات تواكب فضولهم وتجيب على أسئلتهم.",
+      text: "رويات علمية وتفاعلية حيث يمكنك تغيير مسار القصة واتخاذ قرارات تؤثر على تطور الأحداث، مع إمكانية تتبع تقدمك والتمتع بتجربة فريدة تناسب اهتماماتك  ",
       icon: BookOpen,
       img: a2,
       color: "var(--primary-border)",
@@ -66,7 +70,7 @@ const allSteps = {
     {
       title: "للكبار",
       subtitle: "واحة المعرفة",
-      text: "كتب عميقة في شتى المجالات تعزز الفهم وترافق لحظات القهوة.",
+      text: "كتب علمية وفكرية تعزز الفهم العميق وتفتح آفاقاً جديدة لانتقاء القراءات، مع تقديم مسار مرن يتيح لك تغيير مجريات الأحداث كما تحب.",
       icon: Coffee,
       img: a3,
       color: "var(--primary-button)",
@@ -74,9 +78,9 @@ const allSteps = {
     {
       title: "للجميع",
       subtitle: "عالم يجمع القرّاء",
-      text: "مكتبة رقمية تستقبل كل قارئ، من كل مكان، بمحتوى يناسب كل الأعمار.",
+      text: "مكتبة رقمية تتيح لكل قارئ الاستمتاع بتجربة قراءة مميزة، حيث يمكن الوصول إلى المحتوى في أي وقت ومن أي مكان، مع خيارات تتناسب مع كل الأعمار والاهتمامات.",
       icon: Globe,
-      img: oldageDesktop,
+      img: a4,
       color: "var(--primary-button)",
     },
   ],
@@ -194,9 +198,9 @@ export default function ForAllAges() {
           <span className="text-[var(--primary-button)]">الأعمار</span>
         </h2>
 
-        <p className="text-lg md:text-xl lg:text-2xl max-w-3xl mx-auto font-medium text-[var(--secondary-text)]/60 leading-relaxed">
-          محتوى مُنسّق بعناية ليرافق القارئ في كل مرحلة من مراحل حياته، من
-          الخيال الأول إلى الحكمة العميقة.
+        <p className="text-lg md:text-xl lg:text-2xl max-w-3xl mx-auto font-medium text-[var(--secondary-text)] leading-relaxed">
+          من خلال مكتبتك الرقمية الذكية، تابع تقدمك، استمتع بالقصص التفاعلية،
+          واستمتع بالقراءة كما لم تفعل من قبل
         </p>
       </div>
 

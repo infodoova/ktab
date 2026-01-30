@@ -24,15 +24,15 @@ export default function ReaderFooter({
   return (
     <footer
       className="
-        fixed bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 w-[95%] sm:w-[90%] max-w-4xl z-50
-        h-16 sm:h-20
-        bg-white/90 backdrop-blur-xl
-        border border-black/[0.05]
-        rounded-2xl sm:rounded-[2.5rem]
-        flex items-center justify-between px-3 sm:px-8
-        shadow-[0_20px_50px_rgba(0,0,0,0.1)]
+        fixed bottom-0 left-0 w-full z-50
+        h-20 sm:h-24
+        bg-white/95 backdrop-blur-2xl
+        border-t border-black/[0.05]
+        flex items-center justify-center px-4 sm:px-8
+        shadow-[0_-5px_30px_rgba(0,0,0,0.05)]
       "
     >
+      <div className="w-full max-w-5xl flex items-center justify-between pb-4 sm:pb-6">
       {/* FONT SMALLER */}
       <div className="flex items-center">
         <button
@@ -144,6 +144,7 @@ export default function ReaderFooter({
             تكبير
           </span>
         </button>
+      </div>
       </div>
     </footer>
   );

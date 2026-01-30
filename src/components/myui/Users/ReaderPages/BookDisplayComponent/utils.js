@@ -1,12 +1,88 @@
+/**
+ * Detect if the current device is running iOS (iPhone, iPad, iPod)
+ * This is used to apply iOS-specific audio workarounds
+ */
+export function isIOSDevice() {
+  if (typeof window === "undefined" || typeof navigator === "undefined") {
+    return false;
+  }
+  
+  // Check for iOS devices using user agent
+  const userAgent = navigator.userAgent || navigator.vendor || window.opera || "";
+  const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
+  
+  // Also check for iPad on iOS 13+ which reports as Mac
+  const isIPadOS = navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1;
+  
+  return isIOS || isIPadOS;
+}
+
+/**
+ * Safari-compatible decodeAudioData wrapper
+ * Uses callback-style syntax and adds a timeout for older WebKit engines on iOS
+ */
+export function decodeAudioDataSafe(ctx, arrayBuffer) {
+  if (isIOSDevice()) {
+    return new Promise((resolve, reject) => {
+      // Safari decodeAudioData can sometimes hang if the context is not ready
+      const timeout = setTimeout(() => {
+        reject(new Error("Audio decode timeout on iOS"));
+      }, 10000);
+
+      ctx.decodeAudioData(
+        arrayBuffer,
+        (buffer) => {
+          clearTimeout(timeout);
+          resolve(buffer);
+        },
+        (err) => {
+          clearTimeout(timeout);
+          reject(err || new Error("Audio decode failed"));
+        }
+      );
+    });
+  }
+  return ctx.decodeAudioData(arrayBuffer);
+}
+
+/**
+ * Unlock iOS audio hardware by playing silent audio
+ * Must be called DIRECTLY from a user gesture (click/touch) event handler
+ */
+export function unlockIOSAudio(ctx) {
+  if (!ctx) return;
+  
+  // iOS requirement: resume context immediately in same tick as click
+  if (ctx.state === "suspended") {
+    ctx.resume().catch((err) => console.warn("ctx.resume failed:", err));
+  }
+
+  if (!isIOSDevice()) return;
+  
+  try {
+    const oscillator = ctx.createOscillator();
+    const silentGain = ctx.createGain();
+    silentGain.gain.value = 0;
+    oscillator.connect(silentGain);
+    silentGain.connect(ctx.destination);
+    oscillator.start(0);
+    oscillator.stop(0.001);
+    console.log("iOS audio context primed with oscillator");
+  } catch (err) {
+    console.warn("Failed to unlock iOS audio:", err);
+  }
+}
+
 export function getWsUrl() {
   try {
     if (import.meta.env.VITE_API_URL) {
-      return `wss://api.ktab.app/Ktab-0.0.1-SNAPSHOT/ws/reader/tts`;
+
+      return `wss://kristan-prickliest-ezekiel.ngrok-free.dev/ws/reader/tts?ngrok-skip-browser-warning=true`;
     }
   } catch (err) {
     void err;
   }
-  return `wss://api.ktab.app/Ktab-0.0.1-SNAPSHOT/ws/reader/tts`;
+  return `wss://api.ktab.app/Ktab-0.0.1-SNAPSHOT/ws/reader/tts?ngrok-skip-browser-warning=true`;
 }
 
 export function createAudioContextSafe() {

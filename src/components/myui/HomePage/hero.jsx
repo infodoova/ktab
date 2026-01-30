@@ -1,10 +1,13 @@
-/* eslint-disable no-unused-vars */
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { Sparkles } from "lucide-react";
 import heroVideo from "../../../assets/videos/hero1.mp4";
+import EarlyAccess from "./earlyaccess";
 
 export default function Hero() {
   const navigate = useNavigate();
+  const [isEarlyAccessOpen, setIsEarlyAccessOpen] = useState(false);
 
   const scrollToSection = (id) => {
     const el = document.getElementById(id);
@@ -80,8 +83,7 @@ export default function Hero() {
           drop-shadow-[0_15px_35px_rgba(0,0,0,0.5)]
         "
       >
-        جيل جديد من القراءة العربية
-      </motion.h1>
+مكتبتك الإلكترونية الجديدة      </motion.h1>
 
       {/* BUTTONS */}
       <motion.div
@@ -120,8 +122,47 @@ export default function Hero() {
         >
           اكتشف المنصة
         </button>
+
+        {/* EARLY ACCESS CTA */}
+        <button
+          onClick={() => setIsEarlyAccessOpen(true)}
+          className="
+            w-[230px]
+            px-10 py-4 rounded-full
+            bg-gradient-to-r from-indigo-500 via-purple-500 via-pink-500 via-red-500 via-yellow-500 to-teal-500 
+            bg-[length:300%_300%] animate-rainbow-fast
+            text-white text-lg font-black
+            transition-all duration-500 hover:scale-110 hover:-translate-y-1
+            shadow-[0_15px_45px_rgba(255,255,255,0.15)]
+            relative overflow-hidden group
+          "
+        >
+          <span className="relative z-10 flex items-center justify-center gap-2">
+            الوصول المبكر
+            <Sparkles size={18} className="animate-pulse" />
+          </span>
+          {/* Glass Overlay on Hover */}
+          <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out" />
+        </button>
       </motion.div>
     </motion.div>
+
+    {/* MODAL */}
+    <EarlyAccess 
+      isOpen={isEarlyAccessOpen} 
+      onClose={() => setIsEarlyAccessOpen(false)} 
+    />
+    
+    <style jsx>{`
+      @keyframes rainbow-fast {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+      .animate-rainbow-fast {
+        animation: rainbow-fast 8s ease infinite;
+      }
+    `}</style>
   </section>
 );
 }

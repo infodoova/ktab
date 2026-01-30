@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { getWsUrl, createAudioContextSafe, safeJsonParse } from "./utils";
+import { getWsUrl, createAudioContextSafe, safeJsonParse, decodeAudioDataSafe, unlockIOSAudio, isIOSDevice } from "./utils";
 
 // Prefetch threshold: start loading next page when 80% through current
 const PREFETCH_RATIO = 0.4;
@@ -217,14 +217,20 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
 
   const tryPlayAll = useCallback(async () => {
     const ctx = audioCtxRef.current;
-    if (!ctx) return;
+    if (!ctx) {
+      setIsLoading(false);
+      return;
+    }
 
     if (!gotCompleteRef.current) return;
-    if (allAudioChunksRef.current.length === 0) return;
+    
+    if (allAudioChunksRef.current.length === 0) {
+      console.warn("TTS: Stream complete but no audio received.");
+      setIsLoading(false);
+      return;
+    }
 
-    console.log(
-      `Complete! Got ${allAudioChunksRef.current.length} audio chunks, ${allAlignmentsRef.current.length} alignments`
-    );
+    console.log(`TTS: Concatenating ${allAudioChunksRef.current.length} chunks...`);
 
     // Concatenate all audio chunks
     const totalLength = allAudioChunksRef.current.reduce(
@@ -239,7 +245,14 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
     }
 
     try {
-      const decoded = await ctx.decodeAudioData(combined.buffer);
+      // iOS: Ensure context is running BEFORE decoding starts
+      if (isIOSDevice() && ctx.state !== "running") {
+        await ctx.resume().catch(e => console.warn("TTS: Context resume failed before decode", e));
+      }
+
+      console.log(`TTS: Decoding ${combined.byteLength} bytes...`);
+      // Use Safari-compatible decoder for iOS (slice(0) helps detach symbols)
+      const decoded = await decodeAudioDataSafe(ctx, combined.buffer.slice(0));
       const actualDuration = decoded.duration;
 
       if (streamCancelledRef.current) return;
@@ -455,7 +468,8 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
     }
 
     try {
-      const decoded = await ctx.decodeAudioData(combined.buffer.slice(0));
+      // Use Safari-compatible decoder for iOS (slice to create detached buffer)
+      const decoded = await decodeAudioDataSafe(ctx, combined.buffer.slice(0));
       const actualDuration = decoded.duration;
 
     // Sort alignments and calculate expected total duration
@@ -571,114 +585,115 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
     if (connectPromiseRef.current) return connectPromiseRef.current;
 
     ensureCtx();
+    console.log("TTS: Connecting to WebSocket...");
 
     connectPromiseRef.current = new Promise((resolve, reject) => {
-      const ws = new WebSocket(getWsUrl());
-      ws.binaryType = "arraybuffer";
-      wsRef.current = ws;
+      try {
+        const ws = new WebSocket(getWsUrl());
+        ws.binaryType = "arraybuffer";
+        wsRef.current = ws;
 
-      ws.onopen = () => {
-        console.log("WebSocket connected");
-        resolve(ws);
-      };
-      ws.onerror = () => reject(new Error("WebSocket connection error"));
-      ws.onclose = () => {
-        wsRef.current = null;
-        connectPromiseRef.current = null;
-      };
+        const connTimeout = setTimeout(() => {
+          if (ws.readyState !== WebSocket.OPEN) {
+            console.warn("TTS: Connection timeout, closing...");
+            ws.close();
+            reject(new Error("WebSocket timeout"));
+          }
+        }, 15000);
 
-      ws.onmessage = async (e) => {
-        if (typeof e.data === "string") {
-          const msg = safeJsonParse(e.data);
+        ws.onopen = () => {
+          clearTimeout(connTimeout);
+          console.log("TTS: WebSocket connected successfully");
+          resolve(ws);
+        };
 
-          if (msg?.type === "alignment") {
-            // Check prefetch status AT THE MOMENT of receiving
-            const isPrefetch = isPrefetchingRef.current;
-            const expectedId = isPrefetch
-              ? prefetchStreamIdRef.current
-              : streamIdRef.current;
+        ws.onerror = (err) => {
+          clearTimeout(connTimeout);
+          console.error("TTS: WebSocket error event received", err);
+          reject(new Error("WebSocket connection error"));
+        };
 
-            if (isPrefetch) {
-              if (prefetchStreamIdRef.current !== expectedId) return;
-              const seq = Number(msg.seq);
-              prefetchAlignmentsRef.current.push({
-                seq,
-                words:
-                  msg.words?.map((w) => ({
+        ws.onclose = (e) => {
+          clearTimeout(connTimeout);
+          console.warn(`TTS: WebSocket closed - Code: ${e.code}, Reason: ${e.reason || "None"}, Clean: ${e.wasClean}`);
+          wsRef.current = null;
+          connectPromiseRef.current = null;
+        };
+
+        ws.onmessage = async (e) => {
+          try {
+            if (typeof e.data === "string") {
+              const msg = safeJsonParse(e.data);
+              if (!msg) return;
+
+              if (msg.type === "alignment") {
+                const isPrefetch = isPrefetchingRef.current;
+                const arr = isPrefetch ? prefetchAlignmentsRef.current : allAlignmentsRef.current;
+                const expectedId = isPrefetch ? prefetchStreamIdRef.current : streamIdRef.current;
+                
+                if (isPrefetch) {
+                  if (prefetchStreamIdRef.current !== expectedId) return;
+                } else {
+                  if (streamIdRef.current !== expectedId) return;
+                }
+
+                arr.push({
+                  seq: Number(msg.seq),
+                  words: msg.words?.map(w => ({
                     word: w.word,
                     startSec: w.startSeconds,
                     endSec: w.endSeconds,
                     startChar: w.startChar,
-                    endChar: w.endChar,
-                  })) || [],
-              });
-            } else {
-              if (streamIdRef.current !== expectedId) return;
-              const seq = Number(msg.seq);
-              allAlignmentsRef.current.push({
-                seq,
-                words:
-                  msg.words?.map((w) => ({
-                    word: w.word,
-                    startSec: w.startSeconds,
-                    endSec: w.endSeconds,
-                    startChar: w.startChar,
-                    endChar: w.endChar,
-                  })) || [],
-              });
+                    endChar: w.endChar
+                  })) || []
+                });
+              } else if (msg.type === "complete") {
+                const isPrefetch = isPrefetchingRef.current;
+                if (isPrefetch) {
+                  prefetchGotCompleteRef.current = true;
+                  isPrefetchingRef.current = false;
+                  decodePrefetchedAudio();
+                } else {
+                  gotCompleteRef.current = true;
+                  tryPlayAll();
+                }
+              } else if (msg.type === "ack") {
+                if (!isPrefetchingRef.current) {
+                  totalChunksExpectedRef.current = msg.totalChunks;
+                }
+              }
+              return;
             }
-            return;
-          }
 
-          if (msg?.type === "complete") {
+            // Binary audio
+            let rawData = e.data;
+            if (rawData instanceof Blob) {
+              rawData = await rawData.arrayBuffer();
+            }
+
+            if (!(rawData instanceof ArrayBuffer)) {
+               console.warn("TTS: Received non-binary data in binary message path");
+               return;
+            }
+
             const isPrefetch = isPrefetchingRef.current;
-            const expectedId = isPrefetch
-              ? prefetchStreamIdRef.current
-              : streamIdRef.current;
-
-            if (isPrefetch) {
-              if (prefetchStreamIdRef.current !== expectedId) return;
-              console.log("Prefetch stream complete");
-              prefetchGotCompleteRef.current = true;
-              isPrefetchingRef.current = false;
-              decodePrefetchedAudio();
-            } else {
-              if (streamIdRef.current !== expectedId) return;
-              console.log("Stream complete");
-              gotCompleteRef.current = true;
-              tryPlayAll();
+            const targetChunks = isPrefetch ? prefetchAudioChunksRef.current : allAudioChunksRef.current;
+            const targetId = isPrefetch ? prefetchStreamIdRef.current : streamIdRef.current;
+            
+            // Check if stream is still valid
+            if (targetId === (isPrefetch ? prefetchStreamIdRef.current : streamIdRef.current)) {
+              const audioData = rawData.slice(8);
+              targetChunks.push(audioData);
+              if (!isPrefetch) chunksReceivedRef.current++;
             }
-            return;
+          } catch (err) {
+            console.error("TTS: message processing error", err);
           }
-
-          if (msg?.type === "ack") {
-            if (!isPrefetchingRef.current) {
-              totalChunksExpectedRef.current = msg.totalChunks;
-              console.log(`Expecting ${msg.totalChunks} chunks`);
-            } else {
-              console.log(`Prefetch expecting ${msg.totalChunks} chunks`);
-            }
-          }
-          return;
-        }
-
-        // Binary audio - route to appropriate buffer
-        const isPrefetch = isPrefetchingRef.current;
-        const expectedId = isPrefetch
-          ? prefetchStreamIdRef.current
-          : streamIdRef.current;
-
-        if (isPrefetch) {
-          if (prefetchStreamIdRef.current !== expectedId) return;
-          const audioData = e.data.slice(8);
-          prefetchAudioChunksRef.current.push(audioData);
-        } else {
-          if (streamIdRef.current !== expectedId) return;
-          const audioData = e.data.slice(8);
-          allAudioChunksRef.current.push(audioData);
-          chunksReceivedRef.current += 1;
-        }
-      };
+        };
+      } catch (err) {
+        console.error("TTS: WebSocket setup failed", err);
+        reject(err);
+      }
     });
 
     return connectPromiseRef.current;
@@ -693,16 +708,55 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
     };
   }, [enabled, connect, stopLoop, clearHighlight]);
 
-  const togglePlay = useCallback(async () => {
-    await connect();
-    const ctx = ensureCtx();
+  // iOS: Handle visibility changes (tab sleeping)
+  // Apple aggressively pauses timers when a tab is in the background.
+  // If a user switches apps and comes back, ctx.currentTime might be desynced.
+  useEffect(() => {
+    // Only apply this fix on iOS devices
+    if (!isIOSDevice()) return;
 
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible" && audioCtxRef.current) {
+        // Re-sync the context when the user returns to the tab
+        audioCtxRef.current.resume().catch((err) => {
+          console.warn("Failed to resume audio context on visibility change:", err);
+        });
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
+  }, []);
+
+  const togglePlay = useCallback(async () => {
+    // 1. Force the context to start/resume immediately on the user's click
+    // This MUST be the first thing to honor the user gesture.
+    const ctx = ensureCtx();
+    unlockIOSAudio(ctx); // Sync call to resume and play silent oscillator
+    
     if (!isPlaying) {
-      await ctx.resume();
-      startLoop();
+      // Set playing intent IMMEDIATELY before any awaits
       setIsPlaying(true);
+      startLoop();
+      
+      // Now handle background requirements (WebSocket connection)
+      try {
+        await connect();
+      } catch (err) {
+        console.error("Toggle play connection failed:", err);
+        // If connection fails, we might want to revert, but we'll stay in "playing" mode
+        // and show error toast from onTogglePlay.
+      }
     } else {
-      await ctx.suspend();
+      // Note: On iOS, avoid calling ctx.suspend() frequently as it can hang the thread.
+      // Just stop the logic loop and update state.
+      if (!isIOSDevice()) {
+        try {
+          await ctx.suspend();
+        } catch (e) {
+          console.warn("ctx.suspend failed:", e);
+        }
+      }
       stopLoop();
       setIsPlaying(false);
     }
@@ -797,7 +851,15 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
       const { prefetch = false } = options;
       const payloadStr = JSON.stringify(payload);
 
+      if (!prefetch) {
+        setIsLoading(true);
+        // Safety timeout: If loading takes too long on iOS, clear it
+        setTimeout(() => setIsLoading(false), 12000);
+      }
+
       await connect();
+      // Required for iOS/Safari: brief pause to let ngrok/proxy handshake settle
+      if (isIOSDevice()) await new Promise(r => setTimeout(r, 150));
       ensureCtx();
 
       if (prefetch) {
