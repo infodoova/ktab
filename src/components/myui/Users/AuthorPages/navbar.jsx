@@ -54,7 +54,7 @@ const navLinks = [
     href: "../../../Screens/dashboard/AuthorPages/NewInteractiveStory",
   },
   {
-    label: "   ادوات الذكاء الاصطناعي ",
+    label: "ادوات الذكاء الاصطناعي",
     icon: Bot,
     href: "../../../Screens/dashboard/AuthorPages/aiTools",
   },
