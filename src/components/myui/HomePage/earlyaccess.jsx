@@ -64,13 +64,17 @@ export default function EarlyAccess({ isOpen, onClose }) {
   // Block body scroll when open
   useEffect(() => {
     if (isOpen) {
+      const originalBodyOverflow = document.body.style.overflow;
+      const originalHtmlOverflow = document.documentElement.style.overflow;
+
       document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
+      document.documentElement.style.overflow = "hidden";
+
+      return () => {
+        document.body.style.overflow = originalBodyOverflow;
+        document.documentElement.style.overflow = originalHtmlOverflow;
+      };
     }
-    return () => {
-      document.body.style.overflow = "unset";
-    };
   }, [isOpen]);
 
   // Handle clicking outside custom dropdown

@@ -79,14 +79,17 @@ export default function BooksPinterest() {
   // Block/unblock body scroll when modal is open
   useEffect(() => {
     if (selectedBook) {
+      const originalBodyOverflow = document.body.style.overflow;
+      const originalHtmlOverflow = document.documentElement.style.overflow;
+
       document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
+      document.documentElement.style.overflow = "hidden";
+
+      return () => {
+        document.body.style.overflow = originalBodyOverflow;
+        document.documentElement.style.overflow = originalHtmlOverflow;
+      };
     }
-    // Cleanup on unmount
-    return () => {
-      document.body.style.overflow = "unset";
-    };
   }, [selectedBook]);
 
   const aspectRatios = [
