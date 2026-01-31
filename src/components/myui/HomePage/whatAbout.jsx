@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import interactivevideo from "../../../assets/videos/interactive.mp4";
 import ebookvideo from "../../../assets/videos/ebook.mp4";
 import audiobookvideo from "../../../assets/videos/audiobook.mp4";
+import aivideo from "../../../assets/videos/ai.mp4";
+
 const FEATURES = [
   {
     id: "interactive",
@@ -27,13 +29,13 @@ const FEATURES = [
     video: audiobookvideo,
     color: "#10b981",
   },
-  // {
-  //   id: "ai",
-  //   title: " المساعد الذكي ",
-  //   desc:  "مع مساعد الكاتب، يمكنك كتابة أول قصة تفاعلية لك حيث يمكنك تحديد المسار البصري والقصصي بينما يتولى الذكاء الاصطناعي باقي التفاصيل. إذا لم تكن راضيًا عن النهاية، يمكنك توليد نهايات جديدة بسهولة. كما يمكنك تلخيص النص وتحويله إلى نقاط رئيسية مما يسهل عليك إنشاء محتوى مرن يتكيف مع رؤيتك.",
-  //   image: imgAI,
-  //   color: "#059669",
-  // },
+  {
+    id: "ai",
+    title: " المساعد الذكي ",
+    desc:  "مع مساعد الكاتب، يمكنك كتابة أول قصة تفاعلية لك حيث يمكنك تحديد المسار البصري والقصصي بينما يتولى الذكاء الاصطناعي باقي التفاصيل. إذا لم تكن راضيًا عن النهاية، يمكنك توليد نهايات جديدة بسهولة. كما يمكنك تلخيص النص وتحويله إلى نقاط رئيسية مما يسهل عليك إنشاء محتوى مرن يتكيف مع رؤيتك.",
+    video: aivideo,
+    color: "#059669",
+  },
 ];
 
 export default function WhatAbout() {
@@ -74,14 +76,10 @@ export default function WhatAbout() {
            ============================================== */}
         <div className="hidden lg:flex w-1/2 h-[calc(100vh-80px)] sticky top-20 items-center justify-center p-12 overflow-hidden">
           
-          {/* Ambient Glow */}
-          <div 
-             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-[150px] transition-colors duration-1000 opacity-20"
-             style={{ backgroundColor: FEATURES[activeIndex].color }}
-          />
+     
 
           {/* video Frame */}
-          <div className="relative w-full aspect-[4/5] max-w-[500px] rounded-[3rem] overflow-hidden shadow-2xl border border-white/5 bg-[#0f0f0f]">
+          <div className="relative w-full aspect-[4/5] max-w-[500px] rounded-[3rem] overflow-hidden  border border-white/5 ">
             
             {/* The video Animation: Liquid Ripple Reveal */}
             <AnimatePresence initial={false}>
