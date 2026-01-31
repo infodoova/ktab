@@ -32,8 +32,21 @@ export default defineConfig({
       },
       workbox: {
         navigateFallback: "/index.html",
-        globPatterns: ["**/*.{js,css,html,ico,png,svg}"],
-        maximumFileSizeToCacheInBytes: 100 * 1024 * 1024,
+        globPatterns: ["*/.{js,css,html,ico,png,svg,mp4}"], // Include mp4 for caching
+        maximumFileSizeToCacheInBytes: 100 * 1024 * 1024, // Set to 100 MB for larger files
+        runtimeCaching: [
+          {
+            urlPattern: /\/assets\/.*\.(png|jpg|jpeg|gif|webp|mp4|svg)/, // Cache all assets including images and videos
+            handler: "CacheFirst",
+            options: {
+              cacheName: "assets-cache",
+              expiration: {
+                maxAgeSeconds: 60 * 60 * 24 * 30, // Cache for 30 days
+                maxEntries: 50, // Limit to 50 files
+              },
+            },
+          },
+        ],
       },
       devOptions: {
         enabled: true,
@@ -74,6 +87,14 @@ export default defineConfig({
       compress: {
         drop_console: true,
         drop_debugger: true,
+      },
+    },
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Example of manual chunking large video files
+          videoChunks: ['src/assets/videos/heromob.mp4', 'src/assets/videos/audiobook.mp4'],
+        },
       },
     },
   },
