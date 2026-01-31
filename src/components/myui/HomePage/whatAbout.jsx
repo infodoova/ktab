@@ -20,8 +20,6 @@ const FEATURES = [
     video: ebookvideo,
     color: "#34d399",
   },
-  //test
-  
   {
     id: "audio",
     title: " النصوص الصوتية",
@@ -69,7 +67,7 @@ export default function WhatAbout() {
         </motion.p>
       </div>
 
-      <div ref={containerRef} className="relative flex flex-col lg:flex-row max-w-[1920px] mx-auto">
+      <div ref={containerRef} className="relative flex flex-col lg:flex-row max-w-[1920px] mx-auto items-start">
         
         {/* ==============================================
             LEFT SIDE: STICKY VISUALS (The Modern Part)
@@ -178,8 +176,8 @@ function FeatureTextSection({ feature, index, setActiveIndex }) {
        </div>
 
        <motion.div
-         initial={{ opacity: 0, x: 50 }}
-         whileInView={{ opacity: 1, x: 0 }}
+         initial={{ opacity: 0, y: 20 }}
+         whileInView={{ opacity: 1, y: 0 }}
          transition={{ duration: 0.8, ease: "easeOut" }}
          viewport={{ once: true, margin: "-20%" }}
        >
@@ -253,4 +251,4 @@ function ModernButton({ feature }) {
       </div>
     </button>
   );
-}
+} 
