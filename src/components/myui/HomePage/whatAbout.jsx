@@ -2,41 +2,38 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import imgAI from "../../../assets/images/ai.png";
-import imgListen from "../../../assets/images/listen.png";
-import imgInteractive from "../../../assets/images/interactive.png";
-import imgProgress from "../../../assets/images/progress.png";
-import ResponsiveImageSkeleton from "../imageSkeletonLoaderCP";
-
+import interactivevideo from "../../../assets/videos/interactive.mp4";
+import ebookvideo from "../../../assets/videos/ebook.mp4";
+import audiobookvideo from "../../../assets/videos/audiobook.mp4";
 const FEATURES = [
   {
     id: "interactive",
     title: "القصص التفاعلية ",
     desc: "استمتع بتجربة قراءة فريدة حيث يمكن للقارئ اختيار مسار القصة. مع القصص التفاعلية، تتحول القراءة إلى مغامرة شخصية. يمكن للقارئ تحديد مسارات مختلفة تتضمن مؤامرات جديدة ونهايات غير متوقعة، مما يجعل كل تجربة قراءة مميزة.",
-    image: imgInteractive,
+    video: interactivevideo,
     color: "#5de3ba",
   },
   {
     id: "digital",
     title: " الرف الرقمي",
     desc:"مكتبتك الرقمية على بعد خطوة واحدة. من خلال الرف الرقمي، يمكنك إضافة الكتب إلى قائمة الأمنيات، التحقق من التوصيات المخصصة، ومتابعة قراءتك حيث توقفت. كما يمكنك تتبع إنجازاتك وتقييم الكتب التي قرأتها لتحصل دائمًا على الأفضل.",
-    image: imgInteractive,
+    video: ebookvideo,
     color: "#34d399",
   },
   {
     id: "audio",
     title: " النصوص الصوتية",
     desc: "اجعل القراءة أكثر سهولة وإمتاعًا مع النصوص الصوتية الغامرة. يمكن للقارئ الاستماع إلى الكتاب بدقة وجودة عالية، مع أصوات طبيعية تجعل من النصوص تجربة ممتعة وغنية. استمتع برواية القصص بتجربة صوتية غامرة تشعر وكأنك في قلب الحدث.",
-    image: imgListen,
+    video: audiobookvideo,
     color: "#10b981",
   },
-  {
-    id: "ai",
-    title: " المساعد الذكي ",
-    desc:  "مع مساعد الكاتب، يمكنك كتابة أول قصة تفاعلية لك حيث يمكنك تحديد المسار البصري والقصصي بينما يتولى الذكاء الاصطناعي باقي التفاصيل. إذا لم تكن راضيًا عن النهاية، يمكنك توليد نهايات جديدة بسهولة. كما يمكنك تلخيص النص وتحويله إلى نقاط رئيسية مما يسهل عليك إنشاء محتوى مرن يتكيف مع رؤيتك.",
-    image: imgAI,
-    color: "#059669",
-  },
+  // {
+  //   id: "ai",
+  //   title: " المساعد الذكي ",
+  //   desc:  "مع مساعد الكاتب، يمكنك كتابة أول قصة تفاعلية لك حيث يمكنك تحديد المسار البصري والقصصي بينما يتولى الذكاء الاصطناعي باقي التفاصيل. إذا لم تكن راضيًا عن النهاية، يمكنك توليد نهايات جديدة بسهولة. كما يمكنك تلخيص النص وتحويله إلى نقاط رئيسية مما يسهل عليك إنشاء محتوى مرن يتكيف مع رؤيتك.",
+  //   image: imgAI,
+  //   color: "#059669",
+  // },
 ];
 
 export default function WhatAbout() {
@@ -50,24 +47,24 @@ export default function WhatAbout() {
       className="relative bg-[var(--bg-dark)] py-32"
     >
       {/* 1. SECTION HEADER */}
-     <div className="text-center mb-24 px-6 relative z-10">
-        <motion.div
+      <div className="w-full px-6 py-28 md:py-40 text-center relative z-10">
+        <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="text-4xl md:text-7xl lg:text-8xl font-black mb-6 leading-tight text-[var(--secondary-text)] tracking-tight antialiased"
         >
-          <h2 className="text-4xl md:text-6xl lg:text-7xl font-black text-[var(--secondary-text)] tracking-tight">
-            كيف تبدو{" "}
-            <span className=" bg-clip-text text-[var(--primary-button)]">
-              التجربة؟
-            </span>
-          </h2>
+          كيف تبدو <span className="text-[var(--primary-button)]">التجربة؟</span>
+        </motion.h2>
 
-          <p className="max-w-2xl mx-auto mt-6 text-lg md:text-xl text-[var(--secondary-text)]/60 font-medium leading-relaxed">
-            رحلة قراءة مصمّمة بهدوء، تتكشف خطوةً خطوة عبر مسارات تفاعلية مذهلة.
-          </p>
-        </motion.div>
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-lg md:text-xl lg:text-2xl max-w-3xl mx-auto font-medium text-[var(--secondary-text)]/60 leading-relaxed"
+        >
+          رحلة قراءة مصمّمة بهدوء، تتكشف خطوةً خطوة عبر مسارات تفاعلية مذهلة.
+        </motion.p>
       </div>
 
       <div ref={containerRef} className="relative flex flex-col lg:flex-row max-w-[1920px] mx-auto">
@@ -75,7 +72,7 @@ export default function WhatAbout() {
         {/* ==============================================
             LEFT SIDE: STICKY VISUALS (The Modern Part)
            ============================================== */}
-        <div className="hidden lg:flex w-1/2 h-screen sticky top-0 items-center justify-center p-12 overflow-hidden">
+        <div className="hidden lg:flex w-1/2 h-[calc(100vh-80px)] sticky top-20 items-center justify-center p-12 overflow-hidden">
           
           {/* Ambient Glow */}
           <div 
@@ -83,38 +80,47 @@ export default function WhatAbout() {
              style={{ backgroundColor: FEATURES[activeIndex].color }}
           />
 
-          {/* Image Frame */}
+          {/* video Frame */}
           <div className="relative w-full aspect-[4/5] max-w-[500px] rounded-[3rem] overflow-hidden shadow-2xl border border-white/5 bg-[#0f0f0f]">
             
-            {/* The Image Animation: Liquid Ripple Reveal */}
+            {/* The video Animation: Liquid Ripple Reveal */}
             <AnimatePresence initial={false}>
-              <motion.div
-                key={activeIndex}
-                initial={{ 
-                  clipPath: "circle(0% at 50% 50%)",
-                  scale: 1.1,
-                }}
-                animate={{ 
-                  clipPath: "circle(150% at 50% 50%)",
-                  scale: 1,
-                }}
-                transition={{ 
-                   duration: 0.6,
-                   ease: [0.65, 0, 0.35, 1], // Fast and smooth
-                   scale: {
-                     duration: 0.6,
-                     ease: "easeOut"
-                   }
-                }}
-                className="absolute inset-0 w-full h-full"
-              >
-                <ResponsiveImageSkeleton
-                  src={FEATURES[activeIndex].image}
-                  alt={FEATURES[activeIndex].title}
-                  className="w-full h-full"
-                  imgClassName="object-cover w-full h-full"
-                />
-              </motion.div>
+              {FEATURES.map((feature, index) => (
+                index === activeIndex && (
+                  <motion.div
+                    key={feature.id}
+                    initial={{ 
+                      clipPath: "circle(0% at 50% 50%)",
+                      scale: 1.1,
+                      opacity: 0
+                    }}
+                    animate={{ 
+                      clipPath: "circle(150% at 50% 50%)",
+                      scale: 1,
+                      opacity: 1
+                    }}
+                    exit={{ 
+                      clipPath: "circle(0% at 50% 50%)",
+                      opacity: 0,
+                      scale: 0.9,
+                    }}
+                    transition={{ 
+                       duration: 0.8,
+                       ease: [0.65, 0, 0.35, 1],
+                    }}
+                    className="absolute inset-0 w-full h-full"
+                  >
+                    <video
+                      src={feature.video}
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      className="w-full h-full object-cover"
+                    />
+                  </motion.div>
+                )
+              ))}
             </AnimatePresence>
 
 
@@ -146,27 +152,27 @@ export default function WhatAbout() {
 // ------------------------------------------------------------------
 function FeatureTextSection({ feature, index, setActiveIndex }) {
   const ref = useRef(null);
-  const isInView = useInView(ref, { margin: "-50% 0px -50% 0px" });
+  const isInView = useInView(ref, { margin: "-40% 0px -40% 0px", amount: "some" });
 
   useEffect(() => {
-    if (isInView) setActiveIndex(index);
+    if (isInView) {
+      setActiveIndex(index);
+    }
   }, [isInView, index, setActiveIndex]);
 
   return (
     <div ref={ref} className="min-h-screen flex flex-col justify-center px-6 md:px-20 py-24">
        
-       {/* Mobile-Only Image Card */}
-       <div className="lg:hidden mb-12 aspect-square rounded-[2rem] overflow-hidden border border-white/10 bg-white/5 relative shadow-2xl">
-           <ResponsiveImageSkeleton
-               src={feature.image}
-               alt={feature.title}
-               className="w-full h-full"
-               imgClassName="object-cover"
+       <div className="lg:hidden mb-12 aspect-[2/3] rounded-[2rem] overflow-hidden border border-white/10 bg-white/5 relative shadow-2xl">
+           <video
+               src={feature.video}
+               autoPlay
+               loop
+               muted
+               playsInline
+               className="w-full h-full object-cover"
            />
            <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
-           <div className="absolute bottom-6 right-6">
-              <span className="text-[var(--primary-button)] font-bold text-xs uppercase tracking-widest">{feature.subtitle}</span>
-           </div>
        </div>
 
        <motion.div
@@ -175,20 +181,17 @@ function FeatureTextSection({ feature, index, setActiveIndex }) {
          transition={{ duration: 0.8, ease: "easeOut" }}
          viewport={{ once: true, margin: "-20%" }}
        >
-         {/* Number */}
-         <div className="flex items-center gap-4 mb-8">
-            <span className="text-7xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white/20 to-white/5 font-mono">
-              {feature.number}
-            </span>
-            <div className="h-[2px] w-20 bg-[var(--primary-button)]" />
+         {/* Subtitle Tag */}
+         <div className="flex items-center gap-3 mb-6">
+            <div className="h-[2px] w-8 bg-[var(--primary-button)]" />
+            
          </div>
-
-         <h3 className="text-5xl md:text-7xl font-black text-white mb-8 leading-tight">
+         
+         <h3 className="text-4xl md:text-6xl font-black text-white mb-8 leading-tight antialiased">
            {feature.title}
          </h3>
 
-         {/* UPDATED: Bigger, more legible body text */}
-         <p className="text-xl md:text-3xl text-gray-300 leading-[1.6] mb-12 max-w-2xl font-medium tracking-tight">
+         <p className="text-lg md:text-xl text-gray-300 leading-relaxed mb-12 max-w-2xl font-medium tracking-tight">
            {feature.desc}
          </p>
 
@@ -216,8 +219,8 @@ function ModernButton({ feature }) {
       case 'interactive':
         navigate('/reader/interactive-stories');
         break;
-      case 'progress':
-        navigate('/reader/Achievements');
+      case 'digital':
+        navigate('/reader/library');
         break;
       default:
         break;

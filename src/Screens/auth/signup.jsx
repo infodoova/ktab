@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-
+import authvideo from "../../assets/videos/auth.mp4"
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -13,11 +13,9 @@ import {
   SelectItem,
   SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent } from "@/components/ui/card";
 import { Eye, EyeOff } from "lucide-react";
 import CodeVerify from "@/components/myui/CodeVerify";
 import { AlertToast } from "../../components/myui/AlertToast";
-import owlSignup from "../../assets/character/owl5.png";
 
 export default function SignupPage() {
   const [verifyOpen, setVerifyOpen] = useState(false);
@@ -166,7 +164,6 @@ return (
             bg-[var(--glass-bg)]
             backdrop-blur-xl
             border border-[var(--glass-border)]
-            shadow-[var(--shadow-soft)]
             rounded-[2.5rem]
             px-8 py-9
             relative
@@ -341,32 +338,15 @@ return (
       </div>
     </div>
 
-    {/* RIGHT — VISUAL */}
-    <div className="hidden md:flex flex-1 md:basis-1/2 items-center justify-center bg-black relative">
-      {/* ambient light */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute -top-32 -right-32 w-96 h-96 bg-white/10 blur-[120px] rounded-full" />
-        <div className="absolute bottom-[-120px] left-[-120px] w-96 h-96 bg-white/5 blur-[120px] rounded-full" />
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="text-center px-10 relative z-10"
-      >
-        <img
-          src={owlSignup}
-          alt="Signup Owl"
-          className="w-[300px] mx-auto drop-shadow-[0_20px_60px_rgba(0,0,0,0.6)]"
-        />
-        <h2 className="mt-10 text-3xl font-bold text-white">
-          أهلاً بك في مجتمعنا
-        </h2>
-        <p className="mt-4 text-white/70 text-lg leading-relaxed max-w-md mx-auto">
-          آلاف الكتب والقصص التفاعلية بانتظارك في تجربة معرفية مصممة لك.
-        </p>
-      </motion.div>
+    <div className="hidden md:flex flex-1 md:basis-1/2 items-center justify-center bg-black relative overflow-hidden">
+      <video
+        src={authvideo}
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover opacity-60"
+      />
     </div>
 
     {verifyOpen && (

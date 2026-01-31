@@ -127,7 +127,7 @@ const RolePane = ({ role, index, active, onHover, isMobile }) => {
           </h3>
 
           <div className="max-w-xl">
-            <p className="text-white/70 text-base md:text-xl lg:text-2xl leading-relaxed font-medium">
+            <p className="text-white text-base md:text-xl lg:text-2xl leading-relaxed font-medium">
               {active && (
                 <Typewriter text={role.description} speed={20} delay={400} />
               )}

@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Sparkles } from "lucide-react";
-import heroVideo from "../../../assets/videos/hero1.mp4";
+import herodesk from "../../../assets/videos/herodesk.mp4";
+import heromob from "../../../assets/videos/heromob.mp4";
 import EarlyAccess from "./earlyaccess";
 
 export default function Hero() {
@@ -47,7 +48,7 @@ export default function Hero() {
         loop
         muted
         playsInline
-        src={heroVideo}
+        src={window.innerWidth <= 768 ? heromob : herodesk}
       />
       <div className="absolute inset-0 bg-black/30" />
     </div>
@@ -68,19 +69,20 @@ export default function Hero() {
       <motion.h1
         variants={itemVariants}
         className="
-          font-black text-center
-          leading-[1.3] lg:leading-[1.8]
-          text-[clamp(2.2rem,9vw,110px)]
-          py-8 lg:py-16
+          font-black text-center antialiased
+          leading-[1.1] lg:leading-[1.25]
+          text-[clamp(2.5rem,10vw,120px)]
+          py-8 lg:py-12
           px-4
           mx-auto
           whitespace-normal
           relative
           overflow-visible
           block
-          bg-gradient-to-b from-white/20 via-white/90 to-white
+          bg-gradient-to-b from-white via-white to-white/60
           bg-clip-text text-transparent
-          drop-shadow-[0_15px_35px_rgba(0,0,0,0.5)]
+          drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)]
+          tracking-tighter
         "
       >
 مكتبتك الإلكترونية الجديدة      </motion.h1>

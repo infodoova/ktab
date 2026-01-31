@@ -7,9 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { AlertToast } from "../../components/myui/AlertToast";
-import owlLogin from "../../assets/character/owl4.png";
 import { saveToken, getUserData } from "../../../store/authToken";
 import { ArrowRight } from "lucide-react";
+import authvideo from "../../assets/videos/auth.mp4"
 export default function LoginPage() {
   const navigate = useNavigate();
   const [resetOpen, setResetOpen] = useState(false);
@@ -165,7 +165,6 @@ export default function LoginPage() {
             bg-[var(--glass-bg)]
             backdrop-blur-xl
             border border-[var(--glass-border)]
-            shadow-[var(--shadow-soft)]
             rounded-[2.5rem]
             px-8 py-9
             relative
@@ -257,34 +256,15 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* RIGHT — QUIET VISUAL */}
-      <div className="hidden md:flex flex-1 relative bg-black items-center justify-center">
-        {/* ambient light */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute -top-32 -right-32 w-96 h-96 bg-white/10 blur-[120px] rounded-full" />
-          <div className="absolute bottom-[-120px] left-[-120px] w-96 h-96 bg-white/5 blur-[120px] rounded-full" />
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="relative z-10 text-center px-10 max-w-md"
-        >
-          <img
-            src={owlLogin}
-            alt="owl"
-            className="w-[300px] mx-auto drop-shadow-[0_20px_60px_rgba(0,0,0,0.6)]"
-          />
-
-          <h2 className="mt-10 text-3xl font-bold text-white">
-            اقرأ. استمع. تفاعل.
-          </h2>
-
-          <p className="mt-4 text-white/70 text-lg leading-relaxed">
-            كتّاب ليست منصة قراءة فقط، بل تجربة معرفية مصممة لك.
-          </p>
-        </motion.div>
+      <div className="hidden md:flex flex-1 relative bg-black overflow-hidden">
+        <video
+          src={authvideo}
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover opacity-60"
+        />
       </div>
 
       {resetOpen && <ResetPassword onClose={() => setResetOpen(false)} />}
