@@ -29,7 +29,7 @@ export default function BookDisplay() {
 
   const [bookText, setBookText] = useState("");
   const [loadingText, setLoadingText] = useState(true);
-  const [wordsPerPage] = useState(30);
+  const [wordsPerPage] = useState(100);
 
   const [voice, setVoice] = useState("IES4nrmZdUBHByLBde0P");
   const [effect, setEffect] = useState("none");
@@ -460,7 +460,9 @@ export default function BookDisplay() {
       if (isIOSDevice()) {
         if (iosSilentAudioRef.current) {
           if (isStarting) {
-            iosSilentAudioRef.current.play().catch((e) => console.warn("Silent audio play failed", e));
+            iosSilentAudioRef.current
+              .play()
+              .catch((e) => console.warn("Silent audio play failed", e));
           } else {
             iosSilentAudioRef.current.pause();
           }

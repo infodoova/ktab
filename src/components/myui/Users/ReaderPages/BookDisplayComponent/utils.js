@@ -6,14 +6,16 @@ export function isIOSDevice() {
   if (typeof window === "undefined" || typeof navigator === "undefined") {
     return false;
   }
-  
+
   // Check for iOS devices using user agent
-  const userAgent = navigator.userAgent || navigator.vendor || window.opera || "";
+  const userAgent =
+    navigator.userAgent || navigator.vendor || window.opera || "";
   const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
-  
+
   // Also check for iPad on iOS 13+ which reports as Mac
-  const isIPadOS = navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1;
-  
+  const isIPadOS =
+    navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1;
+
   return isIOS || isIPadOS;
 }
 
@@ -38,7 +40,7 @@ export function decodeAudioDataSafe(ctx, arrayBuffer) {
         (err) => {
           clearTimeout(timeout);
           reject(err || new Error("Audio decode failed"));
-        }
+        },
       );
     });
   }
@@ -51,14 +53,14 @@ export function decodeAudioDataSafe(ctx, arrayBuffer) {
  */
 export function unlockIOSAudio(ctx) {
   if (!ctx) return;
-  
+
   // iOS requirement: resume context immediately in same tick as click
   if (ctx.state === "suspended") {
     ctx.resume().catch((err) => console.warn("ctx.resume failed:", err));
   }
 
   if (!isIOSDevice()) return;
-  
+
   try {
     const oscillator = ctx.createOscillator();
     const silentGain = ctx.createGain();
@@ -76,8 +78,7 @@ export function unlockIOSAudio(ctx) {
 export function getWsUrl() {
   try {
     if (import.meta.env.VITE_API_URL) {
-
-      return `wss://kristan-prickliest-ezekiel.ngrok-free.dev/ws/reader/tts?ngrok-skip-browser-warning=true`;
+      return `wss://api.ktab.app/Ktab-0.0.1-SNAPSHOT/ws/reader/tts?ngrok-skip-browser-warning=true`;
     }
   } catch (err) {
     void err;
