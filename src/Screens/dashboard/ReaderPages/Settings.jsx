@@ -8,9 +8,6 @@ function Settings({ pageName = "الاعدادات" }) {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
 
-  const handleButtonPress = () => console.log("Button pressed");
-  const buttonTitleText = "زر";
-
   const handleLogout = () => {
     localStorage.removeItem("token");
     navigate("/", { replace: true });
@@ -24,11 +21,10 @@ function Settings({ pageName = "الاعدادات" }) {
       {/* NAVBAR */}
       <div dir="ltr">
         <Navbar
-          mobileButtonTitle={buttonTitleText}
-          onMobileButtonPress={handleButtonPress}
           pageName={pageName}
           collapsed={collapsed}
           setCollapsed={setCollapsed}
+          showSearch={false}
         />
       </div>
 

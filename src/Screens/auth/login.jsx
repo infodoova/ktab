@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { AlertToast } from "../../components/myui/AlertToast";
 import { saveToken, getUserData } from "../../../store/authToken";
 import { ArrowRight } from "lucide-react";
-import authvideo from "../../assets/videos/auth.mp4"
+import authvideo from "../../assets/videos/auth.mp4";
 export default function LoginPage() {
   const navigate = useNavigate();
   const [resetOpen, setResetOpen] = useState(false);
@@ -97,174 +97,127 @@ export default function LoginPage() {
   };
 
   return (
-    <div dir="rtl" className="fixed inset-0 w-full bg-black flex overflow-hidden">
-      {/* LEFT — FORM PANEL */}
+    <div
+      dir="rtl"
+      className="fixed inset-0 w-full h-full bg-black flex overflow-hidden font-sans"
+    >
+      {/* القسم الأيمن — لوحة التحكم (بدون تأثير الزجاج) */}
       <div
-        className="
-      relative z-10
-      w-full md:w-[48%]
-      bg-white
-      flex items-center md:justify-center
-      px-6 sm:px-10 md:px-14
-      overflow-y-auto
-      custom-scrollbar
-    "
+        className="relative z-10 w-full md:w-1/2 flex flex-col overflow-y-auto overflow-x-hidden no-scrollbar border-l border-white/20"
+        style={{ backgroundColor: "var(--bg-dark)" }} // استخدام اللون الداكن المخصص #0a0a0a
       >
-        {/* Ambient blurs for the left side - Refined for New Palette */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute -top-24 -left-24 w-64 h-64 bg-[var(--primary-button)]/10 blur-[80px] rounded-full" />
-          <div className="absolute top-1/2 -right-32 w-80 h-80 bg-[var(--primary-border)]/10 blur-[100px] rounded-full" />
-          <div className="absolute bottom-10 left-10 w-40 h-40 bg-[var(--primary-button)]/5 blur-[60px] rounded-full" />
+        {/* إضاءة خلفية دقيقة جداً */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[var(--primary-button)]/10 blur-[120px] rounded-full opacity-30" />
         </div>
 
-        {/* subtle divider */}
-        <div className="absolute top-0 right-0 h-full w-px bg-black/5 hidden md:block" />
-
-        {/* Back to Home Button */}
-        <Link
-          to="/"
-          className="absolute top-8 right-8 p-2.5 rounded-2xl bg-black/5 hover:bg-black/10 transition-all duration-300 group flex items-center justify-center z-20"
-          title="العودة للرئيسية"
+        {/* زر الرجوع */}
+        <motion.button
+          initial={{ opacity: 0, x: 10 }}
+          animate={{ opacity: 1, x: 0 }}
+          onClick={() => navigate("/")}
+          className="absolute top-8 right-8 z-20 flex items-center justify-center text-white/40 hover:text-white transition-all group w-10 h-10 rounded-full border border-white/5 hover:border-white/10 hover:bg-white/5"
         >
-          <ArrowRight className="w-5 h-5 text-black/40 group-hover:text-black group-hover:scale-110 transition-all duration-300" />
-        </Link>
+          <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+        </motion.button>
 
-        <div className="w-full max-w-md">
-          <div className="relative mb-8">
-            {/* Branded Eyebrow */}
-            <div className="flex items-center gap-2 mb-4">
-              <span className="w-8 h-[2px] bg-[var(--primary-button)] opacity-60 rounded-full" />
-              <span className="text-[10px] md:text-xs font-black tracking-[0.3em] text-[var(--primary-button)] uppercase">
-                K T A B
-              </span>
-            </div>
 
-            {/* Main Title with Decorative Element */}
-            <div className="relative">
-              <h1 className="text-2xl sm:text-3xl md:text-5xl font-black text-[var(--primary-text)] leading-tight">
-                أهلاً{" "}
-                <span className="text-[var(--primary-button)] ">بعودتك</span>
+
+        <div className="flex-1 flex items-center justify-center px-8 sm:px-16 lg:px-24 py-20">
+          <div className="w-full max-w-[400px] relative z-10">
+            <header className="mb-12">
+              <motion.div
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="flex items-center gap-3 mb-4"
+              >
+                <div className="w-1.5 h-6 bg-[var(--primary-button)] shadow-[0_0_15px_var(--primary-button)]" />
+                <span className="text-sm font-bold text-white">منصة كتاب</span>
+              </motion.div>
+
+
+              <h1 className="text-4xl font-black text-white leading-tight">
+                أهلاً بك <span className="text-white">من جديد</span>
               </h1>
-              {/* Floating aesthetic dot */}
-              <div className="absolute -top-4 -right-12 w-24 h-24 bg-[var(--primary-button)]/5 rounded-full blur-2xl" />
-            </div>
+            </header>
 
-            {/* Subtitle */}
-            <p className="mt-4 text-[var(--primary-text)]/60 text-base md:text-lg leading-relaxed max-w-md font-medium">
-              سجّل دخولك لمتابعة القراءة،{" "}
-              <span className="text-[var(--primary-button)] font-bold">
-                القصص التفاعلية،
-              </span>{" "}
-              وتقدمك الشخصي.
-            </p>
-          </div>
-
-          <div
-            className="
-            mt-10
-            bg-[var(--glass-bg)]
-            backdrop-blur-xl
-            border border-[var(--glass-border)]
-            rounded-[2.5rem]
-            px-8 py-9
-            relative
-            overflow-hidden
-          "
-          >
-            {/* Subtle inner tint */}
-            <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary-button)]/[0.03] to-transparent pointer-events-none" />
-
-            <div className="relative z-10 space-y-6">
-              {/* Email */}
-              <div className="space-y-1 mb-5">
-                <Label className="text-black font-medium">
+            <div className="space-y-6">
+              {/* الحقول - خلفية سوداء صلبة ونصوص بيضاء */}
+              <div className="space-y-2 group">
+                <label className="text-xs font-bold text-white mr-1  opacity-80 group-focus-within:text-[var(--primary-button)] transition-colors">
                   البريد الإلكتروني
-                </Label>
+                </label>
                 <Input
                   type="email"
                   placeholder="example@mail.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="bg-white border-black/10 focus-visible:ring-black/20"
+                  className=" mt-2 h-14 bg-black border-white/40 text-white rounded-xl focus-visible:ring-1 focus-visible:ring-[var(--primary-button)] focus-visible:border-[var(--primary-button)] transition-all placeholder:text-white/30"
                 />
-                {errors.email && (
-                  <p className="text-red-600 text-sm mt-1">{errors.email}</p>
-                )}
               </div>
 
-              {/* Password */}
-              <div className="space-y-1 mb-6">
-                <Label className="text-black font-medium">كلمة المرور</Label>
+              <div className="space-y-2 group">
+                <div className="flex justify-between items-center px-1">
+                  <label className="text-xs font-bold text-white opacity-80 group-focus-within:text-[var(--primary-button)] transition-colors">
+                    كلمة المرور
+                  </label>
+                  <button
+                    onClick={() => setResetOpen(true)}
+                    className="text-xs text-white/60 hover:text-[var(--primary-button)] transition-colors"
+                  >
+                    نسيت كلمة المرور؟
+                  </button>
+                </div>
                 <Input
                   type="password"
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="bg-white border-black/10 focus-visible:ring-black/20"
+                  className="h-14 bg-black border-white/40 text-white rounded-xl focus-visible:ring-1 focus-visible:ring-[var(--primary-button)] focus-visible:border-[var(--primary-button)] transition-all placeholder:text-white/30"
                 />
-                {errors.password && (
-                  <p className="text-red-600 text-sm mt-1">{errors.password}</p>
-                )}
               </div>
+
+              <Button
+                onClick={handleSubmit}
+                disabled={loading}
+                className="w-full h-14 text-black font-black text-lg rounded-xl mt-6 transition-all active:scale-[0.98] disabled:opacity-50 relative overflow-hidden group shadow-[0_8px_32px_rgba(93,227,186,0.1)]"
+                style={{ background: "var(--gradient)" }}
+              >
+                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                <span className="relative z-10 flex items-center justify-center gap-2">
+                  {loading ? "جاري الدخول..." : "دخول"}
+                  {!loading && <ArrowRight className="w-5 h-5 rotate-180" />}
+                </span>
+              </Button>
             </div>
 
-            {/* CTA */}
-            <Button
-              onClick={handleSubmit}
-              disabled={loading}
-              className="
-              relative z-10
-              w-full py-7
-              text-lg font-bold
-              text-[var(--primary-text)]
-              rounded-2xl
-              transition-all duration-300
-              hover:scale-[1.02] hover:shadow-xl hover:shadow-[var(--primary-button)]/20
-              active:scale-[0.98]
-              disabled:opacity-50
-              disabled:cursor-not-allowed
-              mt-2
-            "
-              style={{ background: "var(--gradient)" }}
-            >
-              {loading ? "جاري الدخول..." : "دخول"}
-            </Button>
-
-            {/* Links */}
-            <div className="mt-8 text-center space-y-3 relative z-10">
-              <p className="text-sm text-black/60">
+            <footer className="mt-12 pt-8 border-t border-white/10 text-center">
+              <p className="text-sm text-white/60">
                 ليس لديك حساب؟{" "}
                 <Link
                   to="/Screens/auth/signup"
-                  className="text-black font-semibold hover:underline"
+                  className="text-white hover:text-[var(--primary-button)] font-bold transition-colors"
                 >
                   إنشاء حساب جديد
                 </Link>
               </p>
-
-              <p className="text-sm text-black/60">
-                هل نسيت كلمة المرور؟{" "}
-                <span
-                  onClick={() => setResetOpen(true)}
-                  className="text-black font-semibold hover:underline cursor-pointer"
-                >
-                  إعادة تعيين كلمة المرور
-                </span>
-              </p>
-            </div>
+            </footer>
           </div>
         </div>
       </div>
 
-      <div className="hidden md:flex flex-1 relative bg-black overflow-hidden">
+      {/* القسم الأيسر — الفيديو النقي */}
+      <div className="hidden md:flex md:w-1/2 relative bg-black overflow-hidden">
         <video
           src={authvideo}
           autoPlay
           loop
           muted
           playsInline
-          className="absolute inset-0 w-full h-full object-cover opacity-60"
+          className="absolute inset-0 w-full h-full object-cover opacity-90"
         />
+        {/* تدرج جانبي بسيط لدمج الفيديو مع لوحة التحكم السوداء */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-transparent opacity-80" />
       </div>
 
       {resetOpen && <ResetPassword onClose={() => setResetOpen(false)} />}

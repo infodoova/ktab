@@ -13,7 +13,7 @@ import {
   SelectItem,
   SelectValue,
 } from "@/components/ui/select";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, ArrowRight } from "lucide-react";
 import CodeVerify from "@/components/myui/CodeVerify";
 import { AlertToast } from "../../components/myui/AlertToast";
 
@@ -123,230 +123,211 @@ const handleSubmit = async (e) => {
 return (
   <div
     dir="rtl"
-    className="fixed inset-0 w-full flex bg-white overflow-hidden"
+    className="fixed inset-0 w-full h-full bg-black flex overflow-hidden font-sans"
   >
-    {/* LEFT — SIGNUP FORM */}
-    <div className="flex-1 md:basis-1/2 flex flex-col items-center md:justify-center px-6 py-12 md:px-12 bg-white relative overflow-y-auto custom-scrollbar">
-      {/* Ambient blurs for the left side - Refined for New Palette */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-24 -left-24 w-64 h-64 bg-[var(--primary-button)]/10 blur-[80px] rounded-full" />
-        <div className="absolute top-1/2 -right-32 w-80 h-80 bg-[var(--primary-border)]/10 blur-[100px] rounded-full" />
-        <div className="absolute bottom-10 left-10 w-40 h-40 bg-[var(--primary-button)]/5 blur-[60px] rounded-full" />
+    {/* القسم الأيمن — نموذج التسجيل */}
+    <div
+      className="relative z-10 w-full md:w-1/2 flex flex-col overflow-y-auto overflow-x-hidden no-scrollbar border-l border-white/20"
+      style={{ backgroundColor: "var(--bg-dark)" }}
+    >
+      {/* إضاءة خلفية دقيقة */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[var(--primary-button)]/10 blur-[120px] rounded-full opacity-30" />
       </div>
 
-      <div className="w-full max-w-2xl relative z-10">
-        {/* Modern Header Section */}
-        <div className="mb-8 text-right">
-          {/* Branded Eyebrow */}
-          <div className="flex items-center gap-2 mb-4">
-            <span className="w-8 h-[2px] bg-[var(--primary-button)] opacity-60 rounded-full" />
-            <span className="text-[10px] md:text-xs font-black tracking-[0.3em] text-[var(--primary-button)] uppercase">
-              K T A B
-            </span>
-          </div>
 
-          <div className="relative">
-            <h1 className="text-2xl sm:text-3xl md:text-5xl font-black text-[var(--primary-text)] leading-tight">
-              إنشاء <span className="text-[var(--primary-button)] drop-shadow-sm">حساب جديد</span>
+
+      <div className="flex-1 flex items-center justify-center px-6 sm:px-10 lg:px-14 py-16">
+        <div className="w-full max-w-2xl relative z-10">
+          {/* الترويسة */}
+          <header className="mb-10 pr-2">
+            <motion.div
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="flex items-center gap-3 mb-4"
+            >
+              <div className="w-1.5 h-6 bg-[var(--primary-button)] shadow-[0_0_15px_var(--primary-button)]" />
+              <span className="text-sm font-bold text-white">منصة كتاب</span>
+            </motion.div>
+
+            <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight mb-2">
+              إنشاء <span className="text-white">حساب جديد</span>
             </h1>
-            {/* Floating aesthetic dot */}
-            <div className="absolute -top-4 -right-12 w-24 h-24 bg-[var(--primary-button)]/5 rounded-full blur-2xl" />
-          </div>
-          
-          <p className="mt-4 text-[var(--primary-text)]/60 text-base md:text-lg leading-relaxed max-w-md font-medium">
-            أنشئ حسابك وابدأ رحلة <span className="text-[var(--primary-button)] font-bold">القراءة التفاعلية</span> الخاصة بك.
-          </p>
-        </div>
+          </header>
 
-        {/* FORM CARD - Enhanced with Theme Palette */}
-        <div
-          className="
-            bg-[var(--glass-bg)]
-            backdrop-blur-xl
-            border border-[var(--glass-border)]
-            rounded-[2.5rem]
-            px-8 py-9
-            relative
-            overflow-hidden
-          "
-        >
-          {/* Subtle inner tint */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary-button)]/[0.03] to-transparent pointer-events-none" />
-          
-          <div className="relative z-10">
-            <form className="space-y-6" onSubmit={handleSubmit}>
-              {/* Names */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <form onSubmit={handleSubmit} className="space-y-8">
+            {/* القسم 1: المعلومات الشخصية (Grid) */}
+            <div className="space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
                 {[
-                  { label: "الاسم الأول *", key: "firstName" },
-                  { label: "الاسم الأوسط", key: "middleName" },
-                  { label: "الاسم الأخير *", key: "lastName" },
-                ].map(({ label, key }) => (
-                  <div key={key} className="space-y-1.5">
-                    <Label className="text-sm text-[var(--primary-text)]">
-                      {label}
-                    </Label>
+                  { key: "firstName", placeholder: "الاسم الأول" },
+                  { key: "middleName", placeholder: "الاسم الأوسط" },
+                  { key: "lastName", placeholder: "الاسم الأخير" },
+                ].map((field) => (
+                  <div
+                    key={field.key}
+                    className="sm:col-span-4 space-y-2 group"
+                  >
+                    <Label className="text-xs font-bold text-white/80 mr-1">{field.placeholder}</Label>
                     <Input
-                      value={form[key]}
+                      placeholder={field.placeholder}
+                      value={form[field.key]}
                       onChange={(e) =>
-                        setForm({ ...form, [key]: e.target.value })
+                        setForm({ ...form, [field.key]: e.target.value })
                       }
-                      className="bg-white border-black/10 focus-visible:ring-black/20"
+                      // نفس ستايل صفحة الدخول: border-white/40
+                      className="h-12 bg-black border-white/40 text-white rounded-lg focus-visible:ring-1 focus-visible:ring-[var(--primary-button)] focus-visible:border-[var(--primary-button)] transition-all text-right"
                     />
-                    {errors[key] && (
-                      <p className="text-red-500 text-xs">{errors[key]}</p>
+                    {errors[field.key] && (
+                      <p className="text-red-400 text-[10px] mr-1">
+                        {errors[field.key]}
+                      </p>
                     )}
                   </div>
                 ))}
               </div>
+            </div>
 
-              {/* Email + Role */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <Label className="text-sm text-[var(--primary-text)]">
-                    البريد الإلكتروني *
-                  </Label>
+            {/* القسم 2: بيانات الحساب */}
+            <div className="space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
+                {/* البريد الإلكتروني */}
+                <div className="sm:col-span-8 space-y-2 group">
+                  <Label className="text-xs font-bold text-white/80 mr-1">البريد الإلكتروني</Label>
                   <Input
                     type="email"
+                    placeholder="example@mail.com"
                     value={form.email}
                     onChange={(e) =>
                       setForm({ ...form, email: e.target.value })
                     }
                     dir="ltr"
-                    className="bg-white border-black/10 focus-visible:ring-black/20"
+                    className="h-12 bg-black border-white/40 text-white rounded-lg focus-visible:ring-1 focus-visible:ring-[var(--primary-button)] focus-visible:border-[var(--primary-button)] transition-all"
                   />
                   {errors.email && (
-                    <p className="text-red-500 text-xs">{errors.email}</p>
+                    <p className="text-red-400 text-[10px] mr-1">
+                      {errors.email}
+                    </p>
                   )}
                 </div>
-
-                <div className="space-y-1.5">
-                  <Label className="text-sm text-[var(--primary-text)]">
-                    نوع الحساب *
-                  </Label>
+                {/* نوع الحساب */}
+                <div className="sm:col-span-4 space-y-2 group">
+                  <Label className="text-xs font-bold text-white/80 mr-1">نوع الحساب</Label>
                   <Select
                     onValueChange={(value) => setForm({ ...form, role: value })}
                   >
-                    <SelectTrigger className="bg-white border-black/10 text-right flex-row-reverse">
-                      <SelectValue placeholder="اختر الدور" />
+                    <SelectTrigger className="h-12 bg-black border-white/40 text-white text-right flex-row-reverse rounded-lg focus:ring-[var(--primary-button)]">
+                      <SelectValue placeholder="اختر نوع الحساب" />
                     </SelectTrigger>
-                    <SelectContent className="bg-white border-black/10 shadow-lg rounded-xl z-[999]">
-                      <SelectItem value="20">قارئ</SelectItem>
-                      <SelectItem value="10">مؤلف</SelectItem>
-                      <SelectItem value="educator">قريباً</SelectItem>
+                    <SelectContent className="bg-[#111] border-white/20 text-white">
+                      <SelectItem value="20" className="flex-row-reverse">
+                        قارئ
+                      </SelectItem>
+                      <SelectItem value="10" className="flex-row-reverse">
+                        مؤلف
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                   {errors.role && (
-                    <p className="text-red-500 text-xs">{errors.role}</p>
-                  )}
-                </div>
-              </div>
-
-              {/* Passwords */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <Label className="text-sm text-[var(--primary-text)]">
-                    كلمة المرور *
-                  </Label>
-                  <div className="relative">
-                    <Input
-                      type={showPassword ? "text" : "password"}
-                      value={form.password}
-                      onChange={(e) =>
-                        setForm({ ...form, password: e.target.value })
-                      }
-                      className="bg-white border-black/10 pr-12"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 text-black/60 hover:text-black"
-                    >
-                      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                    </button>
-                  </div>
-                  {errors.password && (
-                    <p className="text-red-500 text-xs">{errors.password}</p>
-                  )}
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label className="text-sm text-[var(--primary-text)]">
-                    تأكيد كلمة المرور *
-                  </Label>
-                  <div className="relative">
-                    <Input
-                      type={showConfirm ? "text" : "password"}
-                      value={form.confirmPassword}
-                      onChange={(e) =>
-                        setForm({ ...form, confirmPassword: e.target.value })
-                      }
-                      onPaste={(e) => e.preventDefault()}
-                      className="bg-white border-black/10 pr-12"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirm(!showConfirm)}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 text-black/60 hover:text-black"
-                    >
-                      {showConfirm ? <EyeOff size={20} /> : <Eye size={20} />}
-                    </button>
-                  </div>
-                  {errors.confirmPassword && (
-                    <p className="text-red-500 text-xs">
-                      {errors.confirmPassword}
+                    <p className="text-red-400 text-[10px] mr-1">
+                      {errors.role}
                     </p>
                   )}
                 </div>
               </div>
+            </div>
 
-              {/* Submit — ENHANCED CTA */}
+            {/* القسم 3: الأمان */}
+            <div className="space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {[
+                  {
+                    key: "password",
+                    label: "كلمة المرور",
+                    show: showPassword,
+                    setShow: setShowPassword,
+                  },
+                  {
+                    key: "confirmPassword",
+                    label: "تأكيد كلمة المرور",
+                    show: showConfirm,
+                    setShow: setShowConfirm,
+                  },
+                ].map((field) => (
+                  <div key={field.key} className="space-y-2 group">
+                    <Label className="text-xs font-bold text-white/80 mr-1">{field.label}</Label>
+                    <div className="relative">
+                      <Input
+                        type={field.show ? "text" : "password"}
+                        placeholder={field.label}
+                        value={form[field.key]}
+                        onChange={(e) =>
+                          setForm({ ...form, [field.key]: e.target.value })
+                        }
+                        className="h-12 bg-black border-white/40 text-white rounded-lg focus-visible:ring-1 focus-visible:ring-[var(--primary-button)] focus-visible:border-[var(--primary-button)] transition-all pl-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => field.setShow(!field.show)}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white"
+                      >
+                        {field.show ? <EyeOff size={16} /> : <Eye size={16} />}
+                      </button>
+                    </div>
+                    {errors[field.key] && (
+                      <p className="text-red-400 text-[10px] mr-1">
+                        {errors[field.key]}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* الأزرار والروابط */}
+            <div className="pt-4">
               <Button
                 type="submit"
                 disabled={loading}
-                className="
-                  w-full py-7 text-lg font-bold
-                  text-[var(--primary-text)]
-                  rounded-2xl
-                  transition-all duration-300
-                  hover:scale-[1.02] hover:shadow-xl hover:shadow-[var(--primary-button)]/20
-                  active:scale-[0.98]
-                  disabled:opacity-50
-                  disabled:cursor-not-allowed
-                  mt-4
-                "
+                className="w-full h-14 text-black font-black text-lg rounded-xl transition-all active:scale-[0.98] disabled:opacity-50 relative overflow-hidden group shadow-[0_8px_32px_rgba(93,227,186,0.1)]"
                 style={{ background: "var(--gradient)" }}
               >
-                {loading ? "جارٍ إنشاء الحساب..." : "تسجيل الحساب"}
+                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                <span className="relative z-10 flex items-center justify-center gap-2">
+                  {loading ? "جاري الإنشاء..." : "إنشاء الحساب"}
+                  {!loading && <ArrowRight className="w-5 h-5 rotate-180" />}
+                </span>
               </Button>
 
-              {/* Footer */}
-              <div className="text-center mt-8 text-sm text-[var(--primary-text)]/60 space-y-2">
-                <p>
+              <div className="text-center mt-6 pt-6 border-t border-white/10">
+                <p className="text-sm text-white/60">
                   لديك حساب بالفعل؟{" "}
                   <Link
                     to="/Screens/auth/login"
-                    className="font-bold text-[var(--primary-text)] hover:underline"
+                    className="text-white hover:text-[var(--primary-button)] font-bold transition-colors"
                   >
-                    تسجيل الدخول
+                    سجل دخولك الآن
                   </Link>
                 </p>
               </div>
-            </form>
-          </div>
+            </div>
+          </form>
         </div>
       </div>
     </div>
 
-    <div className="hidden md:flex flex-1 md:basis-1/2 items-center justify-center bg-black relative overflow-hidden">
+    {/* القسم الأيسر — الفيديو (مطابق لصفحة الدخول) */}
+    <div className="hidden md:flex md:w-1/2 relative bg-black overflow-hidden">
       <video
         src={authvideo}
         autoPlay
         loop
         muted
         playsInline
-        className="absolute inset-0 w-full h-full object-cover opacity-60"
+        className="absolute inset-0 w-full h-full object-cover opacity-90"
       />
+      {/* تدرج جانبي مطابق لصفحة الدخول */}
+      <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-transparent opacity-80" />
     </div>
 
     {verifyOpen && (
@@ -356,5 +337,4 @@ return (
     )}
   </div>
 );
-
 }
