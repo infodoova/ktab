@@ -7,7 +7,7 @@ import "./VoiceSampleModal.css";
  * Pure presentational floating audio player widget styled after Apple and Eleven Reader.
  * All state, sentence chunking, auto-scrolling, and scrubber calculations reside in useVoiceSampleModal.
  */
-export default function VoiceSampleModal({
+export function VoiceSampleModal({
   isOpen,
   onClose,
   book,
@@ -327,3 +327,5 @@ export default function VoiceSampleModal({
     </AnimatePresence>
   );
 }
+
+export default VoiceSampleModal;

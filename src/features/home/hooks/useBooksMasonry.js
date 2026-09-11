@@ -1,8 +1,6 @@
-import { useState, useRef, useEffect, useCallback, useMemo } from "react";
-import {
-  FAKE_CATALOG_BOOKS,
-  FAKE_SOUND_SAMPLE,
-} from "@/fakedataorassets/testData";
+import { useRef, useEffect, useCallback, useMemo } from "react";
+import { FAKE_CATALOG_BOOKS } from "@/fakedataorassets/testData";
+import { useVoiceSampleStore } from "./useVoiceSampleStore";
 
 /**
  * Ultra-High Performance Custom Hook for Apple Books Showcase:
@@ -146,123 +144,15 @@ export function useBooksMasonry() {
   }, []);
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // AUDIO PLAYBACK & MODAL INTEGRATION
+  // AUDIO PLAYBACK DELEGATION (SINGLE AUDIO SOURCE)
   // ═══════════════════════════════════════════════════════════════════════════
-  const [selectedBook, setSelectedBook] = useState(null);
-  const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(1);
-  const audioRef = useRef(null);
-
-  const getAudio = useCallback((src) => {
-    const targetSrc = src || FAKE_SOUND_SAMPLE;
-    if (!audioRef.current) {
-      const audio = new Audio(targetSrc);
-      audio.preload = "auto";
-      audioRef.current = audio;
-    } else {
-      if (audioRef.current.src !== targetSrc) {
-        audioRef.current.src = targetSrc;
-        audioRef.current.load();
-      }
+  const handlePlayBook = useCallback((book, e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
     }
-    return audioRef.current;
+    useVoiceSampleStore.getState().openSample(book);
   }, []);
-
-  // Audio lifecycle listeners
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    const onTimeUpdate = () => {
-      setCurrentTime(audio.currentTime);
-      if (audio.duration && !isNaN(audio.duration)) {
-        setDuration(audio.duration);
-      }
-    };
-
-    const onLoadedMetadata = () => {
-      if (audio.duration && !isNaN(audio.duration)) {
-        setDuration(audio.duration);
-      }
-    };
-
-    const onEnded = () => {
-      setIsPlaying(false);
-      setCurrentTime(0);
-    };
-
-    audio.addEventListener("timeupdate", onTimeUpdate);
-    audio.addEventListener("loadedmetadata", onLoadedMetadata);
-    audio.addEventListener("ended", onEnded);
-
-    return () => {
-      audio.removeEventListener("timeupdate", onTimeUpdate);
-      audio.removeEventListener("loadedmetadata", onLoadedMetadata);
-      audio.removeEventListener("ended", onEnded);
-    };
-  }, [selectedBook]);
-
-  // Open & play audio sample for a book
-  const handlePlayBook = useCallback(
-    (book, e) => {
-      if (e) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-      setSelectedBook(book);
-      setIsVoiceModalOpen(true);
-
-      const audio = getAudio(book.audioSrc);
-      audio.currentTime = 0;
-      audio
-        .play()
-        .then(() => setIsPlaying(true))
-        .catch(() => setIsPlaying(false));
-    },
-    [getAudio]
-  );
-
-  const handleTogglePlay = useCallback(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    if (isPlaying) {
-      audio.pause();
-      setIsPlaying(false);
-    } else {
-      audio
-        .play()
-        .then(() => setIsPlaying(true))
-        .catch(() => setIsPlaying(false));
-    }
-  }, [isPlaying]);
-
-  const handleSkip = useCallback((seconds) => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    audio.currentTime = Math.max(
-      0,
-      Math.min(audio.duration || 0, audio.currentTime + seconds)
-    );
-  }, []);
-
-  const handleSeek = useCallback((fraction) => {
-    const audio = audioRef.current;
-    if (!audio || !audio.duration) return;
-    audio.currentTime = fraction * audio.duration;
-  }, []);
-
-  const handleCloseModal = useCallback(() => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-    }
-    setIsPlaying(false);
-    setIsVoiceModalOpen(false);
-  }, []);
-
-  const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return {
     row1,
@@ -273,17 +163,7 @@ export function useBooksMasonry() {
     handleRow1MouseLeave,
     handleRow2MouseEnter,
     handleRow2MouseLeave,
-    selectedBook,
-    isVoiceModalOpen,
-    isPlaying,
-    currentTime,
-    duration,
-    progress,
     handlePlayBook,
-    handleTogglePlay,
-    handleSkip,
-    handleSeek,
-    handleCloseModal,
   };
 }
 

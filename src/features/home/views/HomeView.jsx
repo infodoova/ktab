@@ -9,6 +9,7 @@ import PricingSection from "../components/Pricing";
 import ReadAnywhere from "../components/ReadAnywhere";
 import FAQ from "../components/FAQ";
 import Footer from "../components/Footer";
+import { VoiceSampleModalContainer } from "../components/VoiceSampleModal/VoiceSampleModalContainer";
 
 // Standalone View Styles
 import "./HomeView.css";
@@ -31,6 +32,9 @@ export function HomeView() {
       <ReadAnywhere />
       <FAQ />
       <Footer />
+
+      {/* Single Unified Voice Sample Modal across the entire landing page */}
+      <VoiceSampleModalContainer />
     </div>
   );
 }

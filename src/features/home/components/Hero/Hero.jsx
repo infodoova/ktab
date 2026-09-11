@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, Play, Volume2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Play } from "lucide-react";
 import { useHero } from "../../hooks/useHero";
 import EarlyAccess from "../EarlyAccess";
-import VoiceSampleModal from "../VoiceSampleModal";
 import "./Hero.css";
 
 /**
@@ -26,18 +25,7 @@ export default function Hero() {
     selectBook,
     toggleFlip,
     handleDragEnd,
-    isVoiceModalOpen,
     openVoiceModal,
-    closeVoiceModal,
-    isSamplePlaying,
-    sampleTimeFormatted,
-    sampleDurationFormatted,
-    sampleProgress,
-    toggleSamplePlay,
-    skipSampleTime,
-    seekSample,
-    playbackRate,
-    setPlaybackRate,
     isEarlyAccessOpen,
     closeEarlyAccess,
     handleStartNow,
@@ -138,7 +126,7 @@ export default function Hero() {
                       dir="rtl"
                       onClick={(e) => {
                         e.stopPropagation();
-                        openVoiceModal();
+                        openVoiceModal(book);
                       }}
                       aria-label={`تشغيل عينة ${book.title}`}
                     >
@@ -174,20 +162,7 @@ export default function Hero() {
         </motion.button>
       </div>
 
-      {/* Voice Sample Player Modal (Eleven Reader & Apple Quality) */}
-      <VoiceSampleModal
-        isOpen={isVoiceModalOpen}
-        onClose={closeVoiceModal}
-        book={currentBook}
-        isPlaying={isSamplePlaying}
-        currentTime={sampleTimeFormatted}
-        duration={sampleDurationFormatted}
-        progress={sampleProgress}
-        onTogglePlay={toggleSamplePlay}
-        onSkip={skipSampleTime}
-        onSeek={seekSample}
-        onStartNow={handleStartNow}
-      />
+
 
       {/* Early Access Modal */}
       <EarlyAccess

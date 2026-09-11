@@ -1,7 +1,6 @@
 import React from "react";
 import { Play, BookOpen } from "lucide-react";
 import { useBooksMasonry } from "../../hooks/useBooksMasonry";
-import VoiceSampleModal from "../VoiceSampleModal";
 import SectionHeader from "@/components/common/SectionHeader";
 import "./BooksMasonry.css";
 
@@ -21,17 +20,7 @@ export default function BooksMasonry() {
     handleRow1MouseLeave,
     handleRow2MouseEnter,
     handleRow2MouseLeave,
-    selectedBook,
-    isVoiceModalOpen,
-    isPlaying,
-    currentTime,
-    duration,
-    progress,
     handlePlayBook,
-    handleTogglePlay,
-    handleSkip,
-    handleSeek,
-    handleCloseModal,
   } = useBooksMasonry();
 
   return (
@@ -148,22 +137,6 @@ export default function BooksMasonry() {
           </div>
         </div>
       </div>
-
-      {/* Floating Apple-Grade Voice Sample Modal */}
-      {selectedBook && (
-        <VoiceSampleModal
-          isOpen={isVoiceModalOpen}
-          onClose={handleCloseModal}
-          book={selectedBook}
-          isPlaying={isPlaying}
-          currentTime={currentTime}
-          duration={duration}
-          progress={progress}
-          onTogglePlay={handleTogglePlay}
-          onSkip={handleSkip}
-          onSeek={handleSeek}
-        />
-      )}
     </section>
   );
 }

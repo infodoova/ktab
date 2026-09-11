@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useScroll, useTransform, useMotionValueEvent } from "framer-motion";
+import { useVoiceSampleStore } from "./useVoiceSampleStore";
 
 /**
  * Format seconds into mm:ss
@@ -110,11 +111,17 @@ export function useShowcaseVideo() {
     }
   }, [triggerPulse]);
 
-  // Mute / Unmute toggle
+  // Mute / Unmute toggle (Single audio enforcement)
   const toggleMute = useCallback(() => {
     if (!videoRef.current) return;
-    videoRef.current.muted = !videoRef.current.muted;
-    setIsMuted(videoRef.current.muted);
+    const nextMuted = !videoRef.current.muted;
+    videoRef.current.muted = nextMuted;
+    setIsMuted(nextMuted);
+
+    // If unmuting video, immediately close any active audio voice sample
+    if (!nextMuted) {
+      useVoiceSampleStore.getState().closeSample();
+    }
   }, []);
 
   // Listen to all video metadata and readyState events to guarantee duration is never stuck at 0

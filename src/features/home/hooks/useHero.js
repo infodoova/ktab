@@ -1,6 +1,7 @@
-import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { FAKE_HERO_BOOKS as HERO_BOOKS, FAKE_SOUND_SAMPLE } from "@/fakedataorassets/testData";
+import { FAKE_HERO_BOOKS as HERO_BOOKS } from "@/fakedataorassets/testData";
+import { useVoiceSampleStore } from "./useVoiceSampleStore";
 
 /**
  * Custom hook containing all state, audio playback, and 3D positioning metrics for the Hero section.
@@ -30,89 +31,10 @@ export function useHero() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Voice Sample Modal & Audio State
-  const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
-  const [isSamplePlaying, setIsSamplePlaying] = useState(false);
-  const [sampleTime, setSampleTime] = useState(0);
-  const [sampleDuration, setSampleDuration] = useState(1);
-  const [playbackRate, setPlaybackRateState] = useState(1.0);
-  const sampleAudioRef = useRef(null);
-
   // Early Access Modal State
   const [isEarlyAccessOpen, setIsEarlyAccessOpen] = useState(false);
 
   const currentBook = books[activeIndex] || books[0];
-
-  // Safe helper to obtain a ready-to-play HTMLAudioElement with valid source
-  const getAudio = useCallback(() => {
-    const targetSrc = currentBook?.audioSrc || FAKE_SOUND_SAMPLE;
-    if (!sampleAudioRef.current) {
-      const audio = new Audio(targetSrc);
-      audio.preload = "auto";
-      sampleAudioRef.current = audio;
-    } else if (
-      !sampleAudioRef.current.src ||
-      sampleAudioRef.current.src === "" ||
-      sampleAudioRef.current.src === window.location.href ||
-      !sampleAudioRef.current.src.includes(".mp3")
-    ) {
-      sampleAudioRef.current.src = targetSrc;
-      sampleAudioRef.current.load();
-    }
-    return sampleAudioRef.current;
-  }, [currentBook]);
-
-  // Initialize and synchronize sample audio element
-  useEffect(() => {
-    const audio = getAudio();
-    audio.playbackRate = playbackRate;
-
-    const handleLoadedMetadata = () => {
-      if (audio.duration && !isNaN(audio.duration)) {
-        setSampleDuration(audio.duration);
-      }
-    };
-
-    const handleTimeUpdate = () => {
-      setSampleTime(audio.currentTime || 0);
-    };
-
-    const handleEnded = () => {
-      setIsSamplePlaying(false);
-      setSampleTime(0);
-    };
-
-    const handlePlay = () => setIsSamplePlaying(true);
-    const handlePause = () => setIsSamplePlaying(false);
-
-    audio.addEventListener("loadedmetadata", handleLoadedMetadata);
-    audio.addEventListener("timeupdate", handleTimeUpdate);
-    audio.addEventListener("ended", handleEnded);
-    audio.addEventListener("play", handlePlay);
-    audio.addEventListener("pause", handlePause);
-
-    if (audio.duration && !isNaN(audio.duration)) {
-      setSampleDuration(audio.duration);
-    }
-
-    return () => {
-      audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
-      audio.removeEventListener("timeupdate", handleTimeUpdate);
-      audio.removeEventListener("ended", handleEnded);
-      audio.removeEventListener("play", handlePlay);
-      audio.removeEventListener("pause", handlePause);
-    };
-  }, [getAudio, playbackRate]);
-
-  // Cleanup audio on component unmount
-  useEffect(() => {
-    return () => {
-      if (sampleAudioRef.current) {
-        sampleAudioRef.current.pause();
-        sampleAudioRef.current = null;
-      }
-    };
-  }, []);
 
   // Carousel navigation handlers with flip reset
   const nextBook = useCallback(() => {
@@ -148,82 +70,15 @@ export function useHero() {
     [nextBook, prevBook]
   );
 
-  // Voice Sample Modal controls
-  const openVoiceModal = useCallback(() => {
-    setIsVoiceModalOpen(true);
-    const audio = getAudio();
-    if (audio) {
-      audio.currentTime = 0;
-      audio
-        .play()
-        .then(() => setIsSamplePlaying(true))
-        .catch((err) => {
-          console.warn("Audio playback was blocked:", err);
-          setIsSamplePlaying(false);
-        });
-    }
-  }, [getAudio]);
+  // Voice Sample Modal controls (Delegated to centralized singleton store)
+  const openVoiceModal = useCallback((book) => {
+    const targetBook = book || currentBook;
+    useVoiceSampleStore.getState().openSample(targetBook);
+  }, [currentBook]);
 
   const closeVoiceModal = useCallback(() => {
-    setIsVoiceModalOpen(false);
-    if (sampleAudioRef.current) {
-      sampleAudioRef.current.pause();
-      setIsSamplePlaying(false);
-    }
+    useVoiceSampleStore.getState().closeSample();
   }, []);
-
-  const toggleSamplePlay = useCallback(() => {
-    const audio = getAudio();
-    if (!audio) return;
-    if (isSamplePlaying) {
-      audio.pause();
-      setIsSamplePlaying(false);
-    } else {
-      audio
-        .play()
-        .then(() => setIsSamplePlaying(true))
-        .catch((err) => {
-          console.warn("Play blocked:", err);
-          setIsSamplePlaying(false);
-        });
-    }
-  }, [getAudio, isSamplePlaying]);
-
-  const skipSampleTime = useCallback((seconds) => {
-    const audio = getAudio();
-    if (!audio) return;
-    const maxDuration = audio.duration && !isNaN(audio.duration) ? audio.duration : sampleDuration || 1;
-    const newTime = Math.max(0, Math.min(maxDuration, audio.currentTime + seconds));
-    audio.currentTime = newTime;
-    setSampleTime(newTime);
-  }, [getAudio, sampleDuration]);
-
-  const seekSample = useCallback((percent) => {
-    const audio = getAudio();
-    if (!audio) return;
-    const maxDuration = audio.duration && !isNaN(audio.duration) ? audio.duration : sampleDuration || 1;
-    const newTime = (Math.max(0, Math.min(100, percent)) / 100) * maxDuration;
-    audio.currentTime = newTime;
-    setSampleTime(newTime);
-  }, [getAudio, sampleDuration]);
-
-  const setPlaybackRate = useCallback((rate) => {
-    const audio = getAudio();
-    if (audio) {
-      audio.playbackRate = rate;
-    }
-    setPlaybackRateState(rate);
-  }, [getAudio]);
-
-  // Time format helper (mm:ss)
-  const formatTime = (secs) => {
-    if (isNaN(secs) || secs < 0) return "0:00";
-    const minutes = Math.floor(secs / 60);
-    const seconds = Math.floor(secs % 60);
-    return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
-  };
-
-  const sampleProgress = sampleDuration > 0 ? (sampleTime / sampleDuration) * 100 : 0;
 
   // Fluid 3D Apple-style Curved Arc Animation Calculations
   const animatedBooks = useMemo(() => {
@@ -352,18 +207,8 @@ export function useHero() {
     toggleFlip,
     handleDragEnd,
     // Voice Sample Modal Controls
-    isVoiceModalOpen,
     openVoiceModal,
     closeVoiceModal,
-    isSamplePlaying,
-    sampleTimeFormatted: formatTime(sampleTime),
-    sampleDurationFormatted: formatTime(sampleDuration),
-    sampleProgress,
-    toggleSamplePlay,
-    skipSampleTime,
-    seekSample,
-    playbackRate,
-    setPlaybackRate,
     // Other Modals & Nav
     isEarlyAccessOpen,
     openEarlyAccess,
