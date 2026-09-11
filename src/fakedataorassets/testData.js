@@ -1,12 +1,12 @@
 // Centralized fake/mock media and book data
 // Placed in src/fakedataorassets/ so it can easily be swapped or removed later.
 
-import cover1 from "@/assets/images/b1.png";
-import cover2 from "@/assets/images/b2.jpeg";
-import cover3 from "@/assets/images/b3.png";
-import cover4 from "@/assets/images/b4.jpeg";
-import cover5 from "@/assets/images/a1.png";
-import cover6 from "@/assets/images/a2.png";
+import cover1 from "@/assets/images/covers/b1.webp";
+import cover2 from "@/assets/images/covers/b2.webp";
+import cover3 from "@/assets/images/covers/b3.webp";
+import cover4 from "@/assets/images/covers/b4.webp";
+import cover5 from "@/assets/images/covers/a1.webp";
+import cover6 from "@/assets/images/covers/a2.webp";
 
 // Optimized WebP thumbnails for catalog marquee (under 40KB each vs 7MB)
 import thumb1 from "@/assets/images/thumbs/b1.webp";

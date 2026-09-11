@@ -60,7 +60,7 @@
   min-height: 490px;
   box-sizing: border-box;
   overflow: visible;
-  cursor: pointer;
+  cursor: default;
   z-index: 1;
 
   /* Hover transition — smooth and springy */

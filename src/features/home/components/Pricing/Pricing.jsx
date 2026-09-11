@@ -52,7 +52,6 @@ export default function PricingSection() {
               <div
                 key={plan.id}
                 className={`pricing-card ${plan.highlight ? "is-highlighted" : ""}`}
-                onClick={() => handleSelectPlan(plan)}
               >
                 {/* Header: Plan Name */}
                 <div className="pricing-card-header">
@@ -91,10 +90,7 @@ export default function PricingSection() {
                     className={`pricing-action-btn ${
                       plan.highlight ? "is-primary" : "is-secondary"
                     }`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleSelectPlan(plan);
-                    }}
+                    onClick={() => handleSelectPlan(plan)}
                     aria-label={`${plan.buttonText} - ${plan.name}`}
                   >
                     <span>{plan.buttonText}</span>

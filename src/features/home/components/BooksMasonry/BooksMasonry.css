@@ -66,7 +66,7 @@
 .er-album-card {
   flex-shrink: 0;
   width: 175px;
-  cursor: pointer;
+  cursor: default;
   user-select: none;
   display: flex;
   flex-direction: column;
@@ -130,6 +130,7 @@
 .er-album-card:hover .er-album-hover-action,
 .er-album-card:focus-visible .er-album-hover-action {
   opacity: 1;
+  pointer-events: auto;
   transform: translate(-50%, -50%) scale(1);
 }
 
@@ -147,6 +148,18 @@
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
   white-space: nowrap;
   border: 1px solid rgba(255, 255, 255, 0.16);
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.er-album-listen-pill:hover {
+  background: var(--brand-black-hover, #1e293b);
+  transform: scale(1.05);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.er-album-listen-pill:active {
+  transform: scale(0.96);
 }
 
 .er-album-play-icon {

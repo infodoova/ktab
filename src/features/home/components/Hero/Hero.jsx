@@ -105,13 +105,7 @@ export default function Hero() {
                   setRevealedCardId(null);
                 }}
                 onClick={() => {
-                  if (book.isCenter) {
-                    if (revealedCardId === book.id) {
-                      openVoiceModal();
-                    } else {
-                      setRevealedCardId(book.id);
-                    }
-                  } else {
+                  if (!book.isCenter) {
                     setRevealedCardId(null);
                     selectBook(book.index);
                   }

@@ -30,7 +30,6 @@ export default function InteractiveStories() {
             <div
               key={pillar.id}
               className="er-card"
-              onClick={() => handlePillarAction(pillar.route)}
             >
               {/* Pillar Title */}
               <h3 className="er-card-title">{pillar.title}</h3>
@@ -42,10 +41,7 @@ export default function InteractiveStories() {
               <button
                 type="button"
                 className="er-card-action"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handlePillarAction(pillar.route);
-                }}
+                onClick={() => handlePillarAction(pillar.route)}
                 aria-label={pillar.actionLabel}
               >
                 <span>{pillar.actionLabel}</span>

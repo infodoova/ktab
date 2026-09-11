@@ -1,8 +1,8 @@
 import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import discoverImg from "@/assets/images/discover_screen.jpg";
-import createImg from "@/assets/images/create_screen.jpg";
-import playImg from "@/assets/images/play_screen.jpg";
+import discoverImg from "@/assets/images/interactive/discover_screen.webp";
+import createImg from "@/assets/images/interactive/create_screen.webp";
+import playImg from "@/assets/images/interactive/play_screen.webp";
 
 /**
  * 3 Core Pillars for Interactive Stories:

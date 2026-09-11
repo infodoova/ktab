@@ -59,16 +59,7 @@ export default function BooksMasonry() {
               <div
                 key={`r1-${book.id}-${idx}`}
                 className="er-album-card"
-                onClick={(e) => handlePlayBook(book, e)}
-                role="button"
-                tabIndex={0}
                 aria-label={book.title}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    handlePlayBook(book, e);
-                  }
-                }}
               >
                 {/* Album Cover Art (2:3 Standard Book Ratio) */}
                 <div className="er-album-cover-wrapper">
@@ -79,12 +70,20 @@ export default function BooksMasonry() {
                     loading="lazy"
                     decoding="async"
                   />
-                  {/* Apple-style Hover Action Pill */}
+                  {/* Apple-style Hover Action Button */}
                   <div className="er-album-hover-action">
-                    <span className="er-album-listen-pill">
+                    <button
+                      type="button"
+                      className="er-album-listen-pill"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handlePlayBook(book, e);
+                      }}
+                      aria-label={`استمع الآن إلى ${book.title}`}
+                    >
                       <span>استمع الآن</span>
                       <Play className="er-album-play-icon" size={14} fill="currentColor" />
-                    </span>
+                    </button>
                   </div>
                 </div>
 
@@ -110,16 +109,7 @@ export default function BooksMasonry() {
               <div
                 key={`r2-${book.id}-${idx}`}
                 className="er-album-card"
-                onClick={(e) => handlePlayBook(book, e)}
-                role="button"
-                tabIndex={0}
                 aria-label={book.title}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    handlePlayBook(book, e);
-                  }
-                }}
               >
                 {/* Album Cover Art */}
                 <div className="er-album-cover-wrapper">
@@ -130,12 +120,20 @@ export default function BooksMasonry() {
                     loading="lazy"
                     decoding="async"
                   />
-                  {/* Apple-style Hover Action Pill */}
+                  {/* Apple-style Hover Action Button */}
                   <div className="er-album-hover-action">
-                    <span className="er-album-listen-pill">
+                    <button
+                      type="button"
+                      className="er-album-listen-pill"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handlePlayBook(book, e);
+                      }}
+                      aria-label={`استمع الآن إلى ${book.title}`}
+                    >
                       <span>استمع الآن</span>
                       <Play className="er-album-play-icon" size={14} fill="currentColor" />
-                    </span>
+                    </button>
                   </div>
                 </div>
 

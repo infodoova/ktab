@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import appUiImg from "@/assets/images/appui/appui.png";
+import appUiImg from "@/assets/images/app-preview/appui.webp";
 
 /**
  * Hook for the "Read Anywhere" section.
