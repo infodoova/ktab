@@ -1,0 +1,26 @@
+.ktab-loader-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.ktab-loader-spinner {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-width: 3.5px;
+  border-style: solid;
+  border-color: var(--brand-teal);
+  border-top-color: transparent;
+  border-radius: 9999px;
+  animation: ktabSpin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes ktabSpin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

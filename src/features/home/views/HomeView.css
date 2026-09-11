@@ -1,0 +1,36 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   HOME VIEW STYLES (Light Rebrand Architecture - Dynamic index.css Tokens)
+   Standalone CSS file for HomeView
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.homepage-light {
+  min-height: 100vh;
+  background-color: var(--bg-primary, #ffffff);
+  color: var(--primary-text, #0a0a0a);
+  position: relative;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* Light mode body background */
+body:has(.homepage-light) {
+  background-color: var(--bg-primary, #ffffff) !important;
+}
+
+/* Custom smooth scrollbar for light mode */
+.homepage-light::-webkit-scrollbar {
+  width: 10px;
+}
+
+.homepage-light::-webkit-scrollbar-track {
+  background: var(--bg-secondary, #f1f5f9);
+}
+
+.homepage-light::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+
+.homepage-light::-webkit-scrollbar-thumb:hover {
+  background: var(--brand-teal, #5de3ba);
+}

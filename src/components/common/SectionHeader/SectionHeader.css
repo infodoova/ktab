@@ -1,0 +1,178 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   STANDALONE SECTION HEADER COMPONENT
+   Strictly 2 Sentences - Both Exact Same Medium Font Size
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --header-medium-size: clamp(1.35rem, 2.2vw, 1.7rem);
+}
+
+.ktab-section-header {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: clamp(40px, 4.5vw, 56px);
+  direction: rtl;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ALIGNMENT VARIANTS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.ktab-header-start {
+  align-items: flex-start;
+  text-align: right;
+}
+
+.ktab-header-start .ktab-header-eyebrow-row {
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.ktab-header-start .ktab-header-title {
+  text-align: right;
+  width: 100%;
+}
+
+.ktab-header-center {
+  align-items: center;
+  text-align: center;
+}
+
+.ktab-header-center .ktab-header-eyebrow-row {
+  justify-content: center;
+  width: 100%;
+}
+
+.ktab-header-center .ktab-header-title {
+  text-align: center;
+  width: 100%;
+}
+
+.ktab-header-end {
+  align-items: flex-end;
+  text-align: left;
+}
+
+.ktab-header-end .ktab-header-eyebrow-row {
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.ktab-header-end .ktab-header-title {
+  text-align: left;
+  width: 100%;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SENTENCE 1: SQUIRCLE ICON + SMALL EDITORIAL EYEBROW (Eleven Reader Style)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.ktab-header-eyebrow-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.ktab-header-icon-box {
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.25s ease, border-color 0.25s ease;
+}
+
+.ktab-header-icon {
+  width: 19px;
+  height: 19px;
+  display: block;
+}
+
+.ktab-header-eyebrow {
+  font-family: var(--font-arabic);
+  font-size: clamp(0.88rem, 1.1vw, 0.98rem);
+  font-weight: 650;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SENTENCE 2: PROMINENT MAIN TITLE (Authoritative Editorial Chapter Break)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.ktab-header-title {
+  font-family: var(--font-arabic);
+  font-size: clamp(2.25rem, 3.8vw, 3.25rem);
+  font-weight: 900;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  margin: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   THEME VARIANTS: LIGHT (Default) & DARK
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Light Mode */
+.ktab-header-light .ktab-header-icon-box {
+  background-color: var(--bg-primary, #ffffff);
+  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
+  color: var(--brand-black, #0a0a0a);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.ktab-header-light .ktab-header-eyebrow {
+  color: var(--text-subtle, #64748b);
+}
+
+.ktab-header-light .ktab-header-title {
+  color: var(--brand-black, #0a0a0a);
+}
+
+/* Dark Mode */
+.ktab-header-dark .ktab-header-icon-box {
+  background-color: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--brand-teal, #5de3ba);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+.ktab-header-dark .ktab-header-eyebrow {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.ktab-header-dark .ktab-header-title {
+  color: var(--secondary-text, #ffffff);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 640px) {
+  :root {
+    --header-medium-size: 1.25rem;
+  }
+
+  .ktab-section-header {
+    margin-bottom: 32px;
+  }
+
+  .ktab-header-icon-box {
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+  }
+
+  .ktab-header-icon {
+    width: 17px;
+    height: 17px;
+  }
+
+  .ktab-header-eyebrow-row {
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+}

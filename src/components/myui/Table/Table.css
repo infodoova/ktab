@@ -1,0 +1,55 @@
+.ktab-table-container {
+  width: 100%;
+  overflow-x: auto;
+  direction: rtl;
+  font-family: var(--font-arabic), sans-serif;
+}
+
+.ktab-table {
+  width: 100%;
+  caption-side: bottom;
+  font-size: 0.875rem;
+  text-align: right;
+  border-collapse: collapse;
+}
+
+.ktab-table-header {
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.ktab-table-body > tr {
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.ktab-table-body > tr:last-child {
+  border-bottom: none;
+}
+
+.ktab-table-row {
+  transition: background-color 0.15s ease;
+}
+
+.ktab-table-row:hover {
+  background-color: rgba(0, 0, 0, 0.025);
+}
+
+.ktab-table-head {
+  height: 3rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  text-align: right;
+  vertical-align: middle;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  user-select: none;
+}
+
+.ktab-table-cell {
+  padding: 1rem;
+  vertical-align: middle;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--primary-text);
+}

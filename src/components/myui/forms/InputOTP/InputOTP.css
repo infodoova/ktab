@@ -1,0 +1,71 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   INPUT OTP COMPONENT STYLES (Light Mode Apple / Eleven Reader Aesthetic)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.myui-otp-root {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.myui-otp-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.myui-otp-slot {
+  position: relative;
+  width: 48px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-primary, #ffffff);
+  border: 1px solid var(--border-card, rgba(0, 0, 0, 0.15));
+  border-radius: 12px;
+  font-family: var(--font-arabic, sans-serif);
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--brand-black, #0a0a0a);
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.myui-otp-slot.is-active {
+  border-color: var(--brand-black, #0a0a0a);
+  box-shadow: 0 0 0 3px rgba(10, 10, 10, 0.08);
+  transform: translateY(-1px);
+}
+
+.myui-otp-slot.has-error {
+  border-color: #ef4444;
+}
+
+.myui-otp-caret {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.myui-otp-caret-bar {
+  width: 2px;
+  height: 20px;
+  background-color: var(--brand-black, #0a0a0a);
+  animation: myui-otp-blink 1s ease-in-out infinite;
+}
+
+@keyframes myui-otp-blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}

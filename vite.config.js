@@ -32,24 +32,37 @@ export default defineConfig({
       },
       workbox: {
         navigateFallback: "/index.html",
-        globPatterns: ["*/.{js,css,html,ico,png,svg,mp4}"], // Include mp4 for caching
-        maximumFileSizeToCacheInBytes: 100 * 1024 * 1024, // Set to 100 MB for larger files
+        // Only precache essential app shell code (JS/CSS/HTML/icons); media and artwork are cached on demand
+        globPatterns: ["**/*.{js,css,html,ico,svg,webmanifest}"],
+        maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
         runtimeCaching: [
           {
-            urlPattern: /\/assets\/.*\.(png|jpg|jpeg|gif|webp|mp4|svg)/, // Cache all assets including images and videos
+            urlPattern: /\/assets\/.*\.(png|jpg|jpeg|gif|webp|svg|mp3|mp4)/,
             handler: "CacheFirst",
             options: {
-              cacheName: "assets-cache",
+              cacheName: "media-assets-cache",
               expiration: {
-                maxAgeSeconds: 60 * 60 * 24 * 30, // Cache for 30 days
-                maxEntries: 50, // Limit to 50 files
+                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+                maxEntries: 100,
+              },
+            },
+          },
+
+          {
+            urlPattern: /^https:\/\/fonts\.(?:googleapis|gstatic)\.com\/.*/i,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "google-fonts",
+              expiration: {
+                maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
+                maxEntries: 30,
               },
             },
           },
         ],
       },
       devOptions: {
-        enabled: true,
+        enabled: false,
       },
     }),
   ],
@@ -67,7 +80,7 @@ export default defineConfig({
       ".ktab.app",
       ".ngrok-free.dev",
       "localhost",
-      "127.0.0.1"
+      "127.0.0.1",
     ],
   },
   
@@ -78,11 +91,12 @@ export default defineConfig({
       "ktab.app",
       ".ktab.app",
       "localhost",
-      "127.0.0.1"
+      "127.0.0.1",
     ],
   },
 
   build: {
+    chunkSizeWarningLimit: 800,
     terserOptions: {
       compress: {
         drop_console: true,
@@ -91,11 +105,27 @@ export default defineConfig({
     },
     rollupOptions: {
       output: {
-        manualChunks: {
-          // Example of manual chunking large video files
-          videoChunks: ['src/assets/videos/heromob.mp4', 'src/assets/videos/audiobook.mp4'],
+        manualChunks(id) {
+          if (id.includes("node_modules")) {
+            if (id.includes("pdfjs-dist")) {
+              return "vendor-pdf";
+            }
+            if (id.includes("recharts") || id.includes("d3-")) {
+              return "vendor-charts";
+            }
+            if (id.includes("framer-motion") || id.includes("gsap")) {
+              return "vendor-animations";
+            }
+            if (id.includes("react-router") || id.includes("zustand")) {
+              return "vendor-core";
+            }
+            if (id.includes("lucide-react")) {
+              return "vendor-icons";
+            }
+          }
         },
       },
     },
   },
 });
+

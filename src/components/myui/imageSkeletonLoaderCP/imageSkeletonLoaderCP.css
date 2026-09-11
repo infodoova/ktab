@@ -1,0 +1,60 @@
+.ktab-img-skeleton-container {
+  position: relative;
+  overflow: hidden;
+  background-color: rgba(0, 0, 0, 0.06);
+  border-radius: 1rem;
+}
+
+.ktab-img-skeleton-placeholder {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.ktab-img-skeleton-shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.4) 50%,
+    transparent 100%
+  );
+  animation: ktabImageShimmer 1.5s infinite;
+}
+
+@keyframes ktabImageShimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.ktab-img-skeleton-img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  transition: opacity 0.3s ease;
+}
+
+.ktab-img-skeleton-img--hidden {
+  opacity: 0;
+}
+
+.ktab-img-skeleton-img--visible {
+  opacity: 1;
+}
+
+.ktab-img-skeleton-error {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: var(--text-subtle);
+  font-family: var(--font-arabic), sans-serif;
+}

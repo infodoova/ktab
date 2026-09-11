@@ -1,0 +1,311 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   INTERACTIVE STORIES 3-PILLAR SHOWCASE (عالم كامل من القصص التفاعلية وصنّاعها)
+   Clean cards: Title → Description → Small Action Button → App Screenshot
+   Hover = thick teal border + gentle lift
+   Light Mode · Apple + Eleven Reader aesthetics
+   Zero badges · Zero shapes · Zero clutter
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.er-section {
+  position: relative;
+  width: 100%;
+  background-color: var(--bg-primary, #ffffff);
+  padding: 100px 24px 150px;
+  box-sizing: border-box;
+  overflow: hidden;
+  direction: rtl;
+}
+
+.er-container {
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.er-section .ktab-section-header {
+  margin-bottom: 56px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CARDS GRID
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.er-grid {
+  --grid-gap: clamp(36px, 3.5vw, 60px);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--grid-gap);
+  width: 100%;
+  margin-bottom: 40px;
+  box-sizing: border-box;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   INDIVIDUAL CARD — The core unit
+   Thick border on hover, centered text, app screenshot 50% in / 50% out.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.er-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background-color: var(--bg-primary, #ffffff);
+  border-radius: 0;
+  padding: 44px 28px 0;
+  min-height: 490px;
+  box-sizing: border-box;
+  overflow: visible;
+  cursor: pointer;
+  z-index: 1;
+
+  /* Hover transition — smooth and springy */
+  transition:
+    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Gradient border via pseudo-element (triple width on hover: 9px) */
+.er-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 0;
+  padding: 9px;
+  background: linear-gradient(
+    135deg,
+    var(--brand-teal, #5de3ba),
+    var(--accent-emerald, #34d399),
+    var(--accent-cyan, #06b6d4),
+    var(--brand-teal, #5de3ba)
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  z-index: 2;
+}
+
+/* Default neutral border (same 9px width, neutral/no colors before hover) */
+.er-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 0;
+  box-sizing: border-box;
+  border: 9px solid var(--border-card, rgba(0, 0, 0, 0.08));
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+  z-index: 2;
+}
+
+.er-card:hover {
+  transform: translateY(-6px);
+  box-shadow:
+    var(--shadow-teal, 0 24px 48px -12px rgba(93, 227, 186, 0.22)),
+    0 8px 24px -6px rgba(0, 0, 0, 0.06);
+}
+
+/* Show gradient border, hide subtle border on hover */
+.er-card:hover::before {
+  opacity: 1;
+}
+
+.er-card:hover::after {
+  opacity: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CARD TITLE — Bold, brand-teal on hover, centered
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.er-card-title {
+  font-family: var(--font-arabic, sans-serif);
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--brand-black, #0a0a0a);
+  margin: 0 0 14px;
+  line-height: 1.35;
+  letter-spacing: -0.015em;
+  transition: color 0.3s ease;
+}
+
+.er-card:hover .er-card-title {
+  color: var(--brand-teal, #5de3ba);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CARD DESCRIPTION — Clean editorial body copy
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.er-card-desc {
+  font-family: var(--font-arabic, sans-serif);
+  font-size: 14.5px;
+  font-weight: 500;
+  line-height: 1.75;
+  color: var(--text-subtle, #64748b);
+  margin: 0 0 24px;
+  max-width: 320px;
+  min-height: 110px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CARD SMALL ACTION BUTTON — under text (استكشف، ألّف، عش التجربة)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.er-card-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 24px;
+  font-family: var(--font-arabic, sans-serif);
+  font-size: 14px;
+  font-weight: 750;
+  line-height: 1;
+  color: var(--text-inverse, #ffffff);
+  background-color: var(--brand-black, #0a0a0a);
+  border: 1px solid var(--brand-black, #0a0a0a);
+  border-radius: 9999px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 2;
+}
+
+.er-card-action span {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  /* Optical alignment: nudge Arabic text glyphs down to align precisely with arrow center */
+  transform: translateY(2px);
+}
+
+.er-card-action svg {
+  display: block;
+  flex-shrink: 0;
+  transition: transform 0.25s ease;
+}
+
+.er-card-action:hover {
+  background-color: var(--brand-black-hover, #222222);
+  border-color: var(--brand-black-hover, #222222);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+.er-card-action:hover svg {
+  transform: translateX(-3px);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CARD APP SCREENSHOT — 50% inside, 50% outside bottom, centered & smaller
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.er-card-preview {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%, 50%);
+  width: 210px;
+  height: 240px;
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-light, rgba(0, 0, 0, 0.08));
+  box-shadow:
+    0 16px 36px -6px rgba(0, 0, 0, 0.16),
+    0 4px 12px -2px rgba(0, 0, 0, 0.06);
+  z-index: 3;
+  transition:
+    box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.er-card:hover .er-card-preview {
+  box-shadow:
+    0 24px 44px -8px rgba(0, 0, 0, 0.22),
+    0 6px 16px -2px rgba(0, 0, 0, 0.08);
+}
+
+.er-card-img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: top center;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.er-card:hover .er-card-img {
+  transform: scale(1.04);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 1100px) {
+  .er-section {
+    padding: 70px 20px 110px;
+  }
+
+  .er-grid {
+    grid-template-columns: 1fr;
+    gap: 150px;
+    max-width: 380px;
+    margin: 0 auto 50px;
+  }
+
+  .er-card {
+    min-height: 420px;
+  }
+}
+
+@media (max-width: 640px) {
+  .er-section {
+    padding: 50px 16px 90px;
+  }
+
+  .er-grid {
+    gap: 140px;
+    margin-bottom: 40px;
+  }
+
+  .er-card {
+    padding: 34px 20px 0;
+    min-height: 430px;
+    border-radius: 0;
+  }
+
+  .er-card-title {
+    font-size: 22px;
+    margin: 0 0 12px;
+  }
+
+  .er-card-desc {
+    font-size: 14.5px;
+    line-height: 1.75;
+    margin: 0 0 24px;
+    max-width: 290px;
+  }
+
+  .er-card-preview {
+    width: 180px;
+    height: 210px;
+    border-radius: 10px;
+  }
+}

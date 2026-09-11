@@ -1,0 +1,9 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   ROUTE ERROR BOUNDARY STYLES (Light Mode Apple / Eleven Reader Aesthetic)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.route-error-boundary-wrap {
+  width: 100%;
+  min-height: 100%;
+  box-sizing: border-box;
+}

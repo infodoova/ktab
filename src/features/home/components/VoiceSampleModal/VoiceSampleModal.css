@@ -1,0 +1,732 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   FLOATING AUDIO PLAYER WIDGET (Apple & Eleven Reader Minimalist)
+   Docks at Bottom-Left with Real-Time Karaoke Highlight & Compact Controls
+   All colors bound to index.css dynamic variables
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.er-floating-player-widget {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  right: auto;
+  margin-inline: 0;
+  width: 410px;
+  max-width: calc(100vw - 32px);
+  z-index: 9999;
+  background: var(--glass-modal-bg);
+  backdrop-filter: blur(28px) saturate(210%);
+  -webkit-backdrop-filter: blur(28px) saturate(210%);
+  border: 1px solid var(--glass-modal-border);
+  border-radius: 24px;
+  box-shadow: var(--glass-modal-shadow);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  direction: rtl;
+  box-sizing: border-box;
+  transition: 
+    border-radius 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+/* 1. Header Row */
+.er-card-modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+}
+
+.er-fp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.er-fp-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.er-fp-thumb {
+  width: 40px;
+  height: 54px;
+  border-radius: 8px;
+  object-fit: cover;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  flex-shrink: 0;
+}
+
+.er-fp-text-col {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.er-fp-title {
+  font-size: 14.5px;
+  font-weight: 800;
+  color: var(--brand-black, #0a0a0a);
+  margin: 0;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.er-fp-author {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-subtle, #64748b);
+  margin: 3px 0 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.er-fp-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+/* 4-Bar Mini Waveform */
+.er-fp-mini-wave {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 18px;
+}
+
+.er-fp-mini-wave span {
+  width: 2.5px;
+  height: 6px;
+  background-color: var(--brand-black, #0a0a0a);
+  border-radius: 9999px;
+  transition: height 0.15s ease;
+}
+
+.er-fp-mini-wave.playing span {
+  background: var(--brand-black, #0a0a0a);
+  animation: erFpWave 0.7s ease-in-out infinite alternate;
+}
+
+.er-fp-mini-wave.playing span:nth-child(2) { animation-delay: 0.15s; height: 16px; }
+.er-fp-mini-wave.playing span:nth-child(3) { animation-delay: 0.3s; height: 11px; }
+.er-fp-mini-wave.playing span:nth-child(4) { animation-delay: 0.45s; height: 18px; }
+
+@keyframes erFpWave {
+  0% { transform: scaleY(0.4); }
+  100% { transform: scaleY(1); }
+}
+
+.er-fp-close-btn,
+.er-fp-action-icon-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--glass-modal-btn-bg);
+  border: 1px solid var(--glass-modal-btn-border);
+  color: var(--brand-black, #0a0a0a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.er-fp-close-btn:hover,
+.er-fp-action-icon-btn:hover {
+  background: var(--glass-modal-btn-hover);
+  color: var(--brand-black, #0a0a0a);
+  transform: scale(1.05);
+}
+
+/* 2. Sentence-by-Sentence Editorial Read-Along Highlighting */
+.er-fp-transcript-box {
+  background: var(--glass-modal-inner-bg);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--glass-modal-inner-border);
+  border-radius: 14px;
+  padding: 12px 16px;
+  max-height: 84px;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.er-fp-transcript-box::-webkit-scrollbar {
+  display: none;
+}
+
+.er-fp-transcript-text {
+  font-family: var(--font-arabic);
+  font-size: 13px;
+  line-height: 1.8;
+  margin: 0;
+  text-align: right;
+  direction: rtl;
+  color: var(--brand-black, #0a0a0a);
+}
+
+.er-fp-sentence {
+  display: inline;
+  padding: 3px 6px;
+  border-radius: 6px;
+  background-color: transparent;
+  box-shadow: none;
+  transition: 
+    background-color 0.22s cubic-bezier(0.2, 0.8, 0.2, 1),
+    color 0.18s ease,
+    box-shadow 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.er-fp-sentence.active-highlight {
+  background-color: var(--highlight-yellow-soft, #fef08a);
+  color: var(--brand-black, #0a0a0a);
+  font-weight: 700;
+  box-shadow: 0 1px 8px var(--highlight-yellow-glow, rgba(253, 224, 71, 0.35));
+}
+
+.er-fp-sentence.read-highlight {
+  color: var(--brand-black, #0a0a0a);
+  font-weight: 500;
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.er-fp-sentence.pending-highlight {
+  color: var(--text-subtle, #94a3b8);
+  font-weight: 400;
+  background-color: transparent;
+  box-shadow: none;
+}
+
+/* 3. Scrubber Section */
+.er-fp-scrubber-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  direction: rtl;
+}
+
+.er-fp-track {
+  width: 100%;
+  height: 5px;
+  background-color: var(--glass-modal-track-bg);
+  border-radius: 9999px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  direction: rtl;
+}
+
+.er-fp-fill {
+  height: 100%;
+  background: var(--brand-black, #0a0a0a);
+  border-radius: 9999px;
+  transition: width 0.1s linear;
+  margin-right: 0;
+  margin-left: auto;
+}
+
+.er-fp-times-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--text-subtle, #94a3b8);
+  font-variant-numeric: tabular-nums;
+  padding: 0 2px;
+  direction: rtl;
+}
+
+/* 4. Controls Row */
+.er-fp-controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 4px;
+}
+
+.er-fp-actions-group {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  direction: rtl;
+}
+
+.er-fp-skip-btn {
+  background: var(--glass-modal-btn-bg);
+  border: 1px solid var(--glass-modal-btn-border);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--brand-black, #0a0a0a);
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.er-fp-skip-btn:hover {
+  background: var(--glass-modal-btn-hover);
+  transform: scale(1.06);
+}
+
+.er-fp-skip-btn:active {
+  transform: scale(0.95);
+}
+
+.er-fp-play-btn {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background-color: var(--brand-black, #0a0a0a);
+  color: var(--brand-white, #ffffff);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.er-fp-play-btn:hover {
+  background-color: #18181b;
+  transform: scale(1.06);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+}
+
+.er-fp-play-btn:active {
+  transform: scale(0.95);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   HORIZONTAL PILL BAR MODE (Eleven Reader Floating Dock)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.er-floating-player-widget.er-pill-bar-mode {
+  bottom: 24px;
+  left: 0;
+  right: 0;
+  margin-inline: auto;
+  width: fit-content;
+  min-width: 620px;
+  max-width: min(760px, calc(100vw - 32px));
+  border-radius: 9999px;
+  padding: 12px 24px;
+  gap: 0;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 
+    0 24px 56px -12px rgba(0, 0, 0, 0.22),
+    0 4px 18px rgba(0, 0, 0, 0.08),
+    inset 0 1px 1px rgba(255, 255, 255, 0.85);
+}
+
+.er-pill-bar-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 22px;
+  position: relative;
+}
+
+/* 1. Meta (Thumbnail + Titles) */
+.er-pill-bar-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+.er-pill-bar-thumb {
+  width: 38px;
+  height: 50px;
+  border-radius: 8px;
+  object-fit: cover;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16);
+  flex-shrink: 0;
+}
+
+.er-pill-bar-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.er-pill-bar-title {
+  font-family: var(--font-arabic);
+  font-size: 14.5px;
+  font-weight: 800;
+  color: var(--brand-black, #0a0a0a);
+  margin: 0;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 175px;
+}
+
+.er-pill-bar-author {
+  font-family: var(--font-arabic);
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--text-subtle, #64748b);
+  margin: 2px 0 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 175px;
+}
+
+/* 2. Center Playback Controls */
+.er-pill-bar-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex-shrink: 0;
+  direction: rtl;
+}
+
+.er-pill-skip-btn {
+  background: var(--glass-modal-btn-bg);
+  border: 1px solid var(--glass-modal-btn-border);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--brand-black, #0a0a0a);
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.er-pill-skip-btn:hover {
+  background: var(--glass-modal-btn-hover);
+  transform: scale(1.08);
+}
+
+.er-pill-skip-btn:active {
+  transform: scale(0.94);
+}
+
+/* Circular progress wrapper around play button in minimized pill mode */
+.er-pill-play-circle-wrapper {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.er-pill-circular-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 44px;
+  height: 44px;
+  transform: rotate(-90deg);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.er-pill-circular-bg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.22);
+  stroke-width: 2.5px;
+}
+
+.er-pill-circular-meter {
+  fill: none;
+  stroke: var(--brand-white, #ffffff);
+  stroke-width: 2.5px;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.15s linear;
+}
+
+.er-pill-play-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: var(--brand-black, #0a0a0a);
+  color: var(--brand-white, #ffffff);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.24);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  z-index: 1;
+  padding: 0;
+}
+
+.er-pill-play-btn:hover {
+  background-color: #18181b;
+  transform: scale(1.06);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.26);
+}
+
+.er-pill-play-btn:active {
+  transform: scale(0.94);
+}
+
+/* 3. Right Side Actions */
+.er-pill-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.er-pill-app-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--glass-modal-btn-bg);
+  border: 1px solid var(--glass-modal-btn-border);
+  color: var(--brand-black, #0a0a0a);
+  font-family: var(--font-arabic);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px 14px;
+  border-radius: 9999px;
+  transition: all 0.2s ease;
+}
+
+.er-pill-app-btn:hover {
+  background: var(--glass-modal-btn-hover);
+  transform: scale(1.03);
+}
+
+/* Responsive Mobile Docks (From 340px up to 768px iPads) */
+@media (max-width: 768px) {
+  /* 1. Outer Floating Positioning Container */
+  .er-floating-player-widget {
+    bottom: 12px;
+    left: 10px;
+    right: 10px;
+    width: auto;
+    max-width: 420px;
+    margin-inline: auto;
+    padding: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    box-sizing: border-box;
+  }
+
+  /* 2. Expanded Card Modal */
+  .er-card-modal-content {
+    padding: 14px 14px 16px;
+    border-radius: 22px;
+    gap: 10px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .er-fp-header {
+    gap: 8px;
+  }
+
+  .er-fp-thumb {
+    width: 38px;
+    height: 52px;
+    border-radius: 8px;
+  }
+
+  .er-fp-title {
+    font-size: 13.5px;
+    line-height: 1.25;
+  }
+
+  .er-fp-author {
+    font-size: 11px;
+  }
+
+  .er-fp-header-right {
+    gap: 6px;
+  }
+
+  .er-fp-mini-wave {
+    height: 16px;
+    gap: 2px;
+    padding: 0 4px;
+  }
+
+  .er-fp-action-icon-btn {
+    width: 30px;
+    height: 30px;
+  }
+
+  .er-fp-transcript-box {
+    min-height: 64px;
+    max-height: 76px;
+    padding: 10px 12px;
+  }
+
+  .er-fp-transcript-text {
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+  .er-fp-scrubber-section {
+    padding-top: 2px;
+  }
+
+  .er-fp-times-row {
+    font-size: 11px;
+    padding-top: 4px;
+  }
+
+  .er-fp-controls-row {
+    padding-top: 2px;
+  }
+
+  .er-fp-actions-group {
+    gap: 16px;
+  }
+
+  .er-fp-play-btn {
+    width: 42px;
+    height: 42px;
+  }
+
+  .er-fp-skip-btn {
+    width: 34px;
+    height: 34px;
+  }
+
+  .er-fp-skip-btn svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  /* 3. Minimized Horizontal Pill Bar */
+  .er-floating-player-widget.er-pill-bar-mode {
+    bottom: 12px;
+    left: 8px !important;
+    right: 8px !important;
+    margin-inline: auto !important;
+    width: fit-content !important;
+    min-width: 0 !important;
+    max-width: calc(100vw - 16px) !important;
+    border-radius: 9999px;
+    padding: 6px 8px 6px 12px;
+    box-sizing: border-box;
+  }
+
+  .er-pill-bar-content {
+    gap: 8px;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .er-pill-bar-meta {
+    gap: 8px;
+    min-width: 0;
+    flex-shrink: 1;
+  }
+
+  .er-pill-bar-thumb {
+    width: 30px;
+    height: 42px;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+
+  .er-pill-bar-text {
+    min-width: 0;
+  }
+
+  .er-pill-bar-title {
+    max-width: 85px;
+    font-size: 12px;
+    line-height: 1.25;
+  }
+
+  .er-pill-bar-author {
+    display: none;
+  }
+
+  /* Center Controls on Mobile Pill */
+  .er-pill-bar-controls {
+    gap: 7px;
+    flex-shrink: 0;
+  }
+
+  .er-pill-play-circle-wrapper {
+    width: 36px;
+    height: 36px;
+  }
+
+  .er-pill-circular-svg {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  .er-pill-play-btn {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  .er-pill-play-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .er-pill-skip-btn {
+    width: 30px;
+    height: 30px;
+  }
+
+  .er-pill-skip-btn svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* Right Side Actions on Mobile Pill */
+  .er-pill-bar-actions {
+    gap: 5px;
+    flex-shrink: 0;
+  }
+
+  .er-pill-app-btn {
+    display: none;
+  }
+
+  .er-pill-bar-actions .er-fp-action-icon-btn {
+    width: 28px;
+    height: 28px;
+  }
+}

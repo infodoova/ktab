@@ -1,7 +1,2 @@
-export default function LoaderCircle() {
-  return (
-    <div className="flex items-center justify-center p-8">
-      <div className="animate-spin w-10 h-10 border-4 border-[var(--primary-border)] border-t-transparent rounded-full"></div>
-    </div>
-  );
-}
+export * from "./LoaderCircle/index.js";
+export { default } from "./LoaderCircle/index.js";

@@ -1,0 +1,342 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   PRICING SECTION — Eleven Reader + Apple Aesthetic
+   Light Mode · Editorial Typography · Zero Clutter · Fluid Interactions
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.pricing-section {
+  position: relative;
+  width: 100%;
+  background-color: var(--bg-primary, #ffffff);
+  padding: 100px 24px 120px;
+  box-sizing: border-box;
+  direction: rtl;
+  overflow: hidden;
+}
+
+.pricing-container {
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   BILLING SWITCHER — Apple-style Segmented Pill
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.pricing-billing-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 40px 0 56px;
+}
+
+.pricing-billing-segmented {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px;
+  background-color: var(--bg-secondary, #f8fafc);
+  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.06));
+  border-radius: 9999px;
+  box-shadow: 0 2px 8px var(--border-subtle, rgba(0, 0, 0, 0.04));
+  gap: 4px;
+}
+
+.pricing-billing-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 24px;
+  border-radius: 9999px;
+  border: none;
+  background: transparent;
+  font-family: var(--font-arabic);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-subtle, #64748b);
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+
+.pricing-billing-btn.is-active {
+  background-color: var(--brand-black, #0a0a0a);
+  color: var(--brand-white, #ffffff);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PRICING CARDS GRID
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+  align-items: stretch;
+}
+
+/* Card Foundation — Elegant Rounded Corners (Apple-style 28px) */
+.pricing-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-primary, #ffffff);
+  border: 1px solid var(--border-card, rgba(0, 0, 0, 0.08));
+  border-radius: 28px;
+  padding: 38px 32px 32px;
+  box-sizing: border-box;
+  cursor: pointer;
+  transition:
+    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.35s ease;
+}
+
+.pricing-card:hover {
+  transform: translateY(-6px);
+  box-shadow:
+    0 20px 40px -12px rgba(0, 0, 0, 0.08),
+    0 4px 16px -4px rgba(0, 0, 0, 0.04);
+  border-color: var(--brand-black, #0a0a0a);
+}
+
+/* Featured / Highlighted Card (Family) */
+.pricing-card.is-highlighted {
+  border: 2px solid var(--brand-black, #0a0a0a);
+  border-radius: 28px;
+  box-shadow:
+    0 16px 36px -8px rgba(0, 0, 0, 0.08),
+    0 4px 12px -2px rgba(0, 0, 0, 0.03);
+}
+
+.pricing-card.is-highlighted:hover {
+  border-color: var(--brand-teal, #5de3ba);
+  box-shadow:
+    0 24px 48px -12px rgba(93, 227, 186, 0.25),
+    0 8px 24px -6px rgba(0, 0, 0, 0.06);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CARD HEADER
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.pricing-card-header {
+  margin-bottom: 20px;
+}
+
+.pricing-card-name {
+  font-family: var(--font-arabic);
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--brand-black, #0a0a0a);
+  margin: 0;
+  line-height: 1.25;
+  transition: color 0.3s ease;
+}
+
+.pricing-card:hover .pricing-card-name {
+  color: var(--brand-teal, #5de3ba);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PRICE DISPLAY
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.pricing-price-wrap {
+  padding: 20px 0 24px;
+  border-top: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.06));
+  border-bottom: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.06));
+  margin-bottom: 28px;
+  min-height: 94px;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.pricing-price-free {
+  font-family: var(--font-arabic);
+  font-size: 42px;
+  font-weight: 900;
+  color: var(--brand-black, #0a0a0a);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.pricing-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.pricing-price-amount {
+  font-family: var(--font-arabic);
+  font-size: 50px;
+  font-weight: 900;
+  color: var(--brand-black, #0a0a0a);
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.pricing-price-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.pricing-price-currency {
+  font-family: var(--font-english);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--brand-black, #0a0a0a);
+}
+
+.pricing-price-period {
+  font-family: var(--font-arabic);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-subtle, #64748b);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   FEATURES CHECKLIST
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.pricing-features-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex-grow: 1;
+}
+
+.pricing-feature-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.pricing-check-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: var(--brand-teal-soft, #e6faf4);
+  color: var(--brand-teal-deep, #0d9488);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.pricing-feature-text {
+  font-family: var(--font-arabic);
+  font-size: 14.5px;
+  font-weight: 500;
+  line-height: 1.6;
+  color: var(--text-muted, #475569);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CTA BUTTON
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.pricing-card-action-wrap {
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+.pricing-action-btn {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 24px;
+  border-radius: 9999px;
+  font-family: var(--font-arabic);
+  font-size: 15px;
+  font-weight: 750;
+  line-height: 1;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pricing-action-btn span {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  transform: translateY(2px);
+}
+
+.pricing-action-btn svg {
+  display: block;
+  flex-shrink: 0;
+  transition: transform 0.25s ease;
+}
+
+.pricing-action-btn:hover svg {
+  transform: translateX(-4px);
+}
+
+/* Primary Highlight Button (Family Card) */
+.pricing-action-btn.is-primary {
+  background-color: var(--brand-black, #0a0a0a);
+  color: var(--brand-white, #ffffff);
+  border: 1px solid var(--brand-black, #0a0a0a);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
+}
+
+.pricing-action-btn.is-primary:hover {
+  background-color: var(--brand-black-hover, #1e293b);
+  border-color: var(--brand-black-hover, #1e293b);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.24);
+}
+
+/* Secondary Button (Reader & Educator) */
+.pricing-action-btn.is-secondary {
+  background-color: transparent;
+  color: var(--brand-black, #0a0a0a);
+  border: 1.5px solid var(--brand-black, #0a0a0a);
+}
+
+.pricing-action-btn.is-secondary:hover {
+  background-color: var(--brand-black, #0a0a0a);
+  color: var(--brand-white, #ffffff);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   RESPONSIVE DESIGN
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 1024px) {
+  .pricing-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .pricing-section {
+    padding: 70px 16px 80px;
+  }
+
+  .pricing-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .pricing-card {
+    padding: 28px 22px 24px;
+  }
+
+  .pricing-billing-wrap {
+    margin: 32px 0 40px;
+  }
+}

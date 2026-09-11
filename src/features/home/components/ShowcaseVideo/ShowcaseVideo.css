@@ -1,0 +1,150 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   SHOWCASE VIDEO SECTION (Google Antigravity & Apple Scroll Animation)
+   Pure Light Mode Editorial Aesthetic - Clean, Shadow-Free, Natural Scroll
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.er-showcase-section {
+  position: relative;
+  width: 100%;
+  background-color: var(--bg-primary, #ffffff);
+  padding: 110px 24px 140px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  direction: rtl;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.er-showcase-container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 10;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SCROLL-EXPANDING BIG VIDEO STAGE (Google Antigravity Style)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.er-showcase-video-stage {
+  width: 100%;
+  max-width: 1220px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.er-showcase-video-card {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background-color: #000000;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  transform-origin: center center;
+  will-change: transform, border-radius;
+}
+
+.er-showcase-video-element {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+}
+
+/* Bottom Glass Controls Overlay (Mute + Play/Pause) */
+.er-showcase-video-dock {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 20;
+}
+
+.er-showcase-control-btn {
+  background: rgba(15, 15, 15, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  color: #ffffff;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+
+.er-showcase-control-btn:hover {
+  background: rgba(30, 30, 30, 0.88);
+  transform: scale(1.08);
+}
+
+.er-showcase-control-btn:active {
+  transform: scale(0.94);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   RESPONSIVE MOBILE BREAKPOINTS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .er-showcase-section {
+    padding: 60px 16px 80px;
+  }
+
+  .er-showcase-header {
+    margin-bottom: 24px;
+  }
+
+  .er-showcase-title {
+    font-size: clamp(1.65rem, 6.8vw, 2.1rem);
+    margin-bottom: 8px;
+  }
+
+  .er-showcase-subtitle {
+    font-size: 0.9rem;
+    line-height: 1.55;
+  }
+
+  .er-showcase-video-stage {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .er-showcase-video-card {
+    aspect-ratio: 16 / 9 !important;
+    width: 100% !important;
+    border-radius: 16px !important;
+    transform: none !important;
+  }
+
+  .er-showcase-video-dock {
+    bottom: 12px;
+    left: 12px;
+    gap: 8px;
+  }
+
+  .er-showcase-control-btn {
+    width: 34px;
+    height: 34px;
+  }
+
+  .er-showcase-control-btn svg {
+    width: 15px;
+    height: 15px;
+  }
+}

@@ -1,81 +1,145 @@
-@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap");
-
-/* Arabic */
-
-@import url("https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap");
-
 @import "tailwindcss";
 @import "tw-animate-css";
 
 :root {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
-  /* 1. Define Font Names (Without 'sans-serif' here) */
-  --font-english: "Montserrat";
-  --font-arabic: "Tajawal";
 
-  /* TEXT */
-  --primary-text: #1a1a1a;
+  /* 1. Define Primary Font Stacks */
+  --font-arabic: "Tajawal", "Segoe UI", Tahoma, Arial, sans-serif;
+  --font-english: "Montserrat", "Segoe UI", sans-serif;
+
+  /* 2. Brand Palette (Black, White, and Teal) */
+  --brand-black: #0a0a0a;
+  --brand-black-surface: #141414;
+  --brand-black-hover: #1e293b;
+  --brand-white: #ffffff;
+  --brand-teal: #5de3ba;
+  --brand-teal-dark: #4ed4ab;
+  --brand-teal-soft: #e6faf4;
+  --brand-teal-deep: #0d9488;
+  --brand-teal-glow: rgba(93, 227, 186, 0.45);
+  --brand-teal-ambient: rgba(93, 227, 186, 0.15);
+
+  /* Traditional Book Highlighter Tokens */
+  --highlight-yellow: #fde047;
+  --highlight-yellow-soft: #fef08a;
+  --highlight-yellow-glow: rgba(253, 224, 71, 0.45);
+
+  /* Primary Theme Tokens */
+  --primary-text: #0a0a0a;
   --secondary-text: #ffffff;
+  --text-muted: #475569;
+  --text-subtle: #64748b;
+  --text-inverse: #ffffff;
 
-  /* BRAND */
   --primary-button: #5de3ba;
   --primary-border: #4ed4ab;
+  --gradient: linear-gradient(135deg, #5de3ba 0%, #4ed4ab 100%);
+  --gradient-hover: linear-gradient(135deg, #6ee7c1 0%, #5de3ba 100%);
 
-  /* SURFACES */
-  --glass-bg: rgba(255, 255, 255, 0.75);
-  --glass-border: rgba(26, 26, 26, 0.1);
-
-  /* EFFECTS */
-  --shadow-soft: 0 8px 32px rgba(93, 227, 186, 0.15);
-
-  /* GRADIENT */
-  --gradient: linear-gradient(135deg, #5de3ba 0%, #b6e8e1 100%);
-
+  /* Backgrounds & Surfaces */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
   --bg-dark: #0a0a0a;
   --bg-mint-soft: #fafffe;
+
+  /* Glass & Borders */
+  --glass-bg: rgba(255, 255, 255, 0.88);
+  --glass-bg-elevated: rgba(255, 255, 255, 0.96);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --border-subtle: rgba(0, 0, 0, 0.06);
+  --border-card: rgba(0, 0, 0, 0.08);
+
+  /* Translucent Frosted Glass Modal & Player Tokens */
+  --glass-modal-bg: rgba(255, 255, 255, 0.45);
+  --glass-modal-border: rgba(255, 255, 255, 0.55);
+  --glass-modal-inner-bg: rgba(255, 255, 255, 0.28);
+  --glass-modal-inner-border: rgba(255, 255, 255, 0.42);
+  --glass-modal-btn-bg: rgba(255, 255, 255, 0.32);
+  --glass-modal-btn-border: rgba(255, 255, 255, 0.48);
+  --glass-modal-btn-hover: rgba(255, 255, 255, 0.65);
+  --glass-modal-track-bg: rgba(0, 0, 0, 0.14);
+  --glass-modal-shadow: 0 24px 50px -10px rgba(0, 0, 0, 0.22), 0 4px 18px rgba(0, 0, 0, 0.08), inset 0 1px 1px rgba(255, 255, 255, 0.75);
+
+  /* Clean Neutral Buttons (Apple Minimalist - No Blue) */
+  --glass-btn-bg: rgba(255, 255, 255, 0.92);
+  --glass-btn-bg-hover: #ffffff;
+  --glass-btn-border: rgba(0, 0, 0, 0.08);
+  --glass-btn-border-subtle: rgba(0, 0, 0, 0.04);
+  --glass-btn-border-hover: rgba(0, 0, 0, 0.16);
+  --glass-btn-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  --glass-btn-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.12);
+
+  /* Shadows */
+  --shadow-card: 0 12px 35px rgba(0, 0, 0, 0.06);
+  --shadow-card-hover: 0 16px 45px rgba(0, 0, 0, 0.09);
+  --shadow-teal: 0 8px 26px rgba(93, 227, 186, 0.45);
+  --shadow-teal-hover: 0 12px 34px rgba(93, 227, 186, 0.6);
+  --shadow-soft: 0 8px 32px rgba(93, 227, 186, 0.15);
 }
 
-/* 2. iOS/iPhone Specific Override */
-@supports (-webkit-touch-callout: none) {
-  :root {
-    /* On iPhone, use 'Geeza Pro' first for better Arabic rendering, then system fallbacks */
-    --font-arabic: "Geeza Pro", -apple-system, sans-serif;
-  }
-}
-
-/* 3. Apply Fonts Correctly */
-* {
-
-  font-family: var(--font-english), var(--font-arabic), sans-serif !important;
-  
-  /* Fix iOS font rendering and character splitting */
+/* 2. Global Font & Text Rendering Rules */
+html,
+body,
+button,
+input,
+optgroup,
+select,
+textarea {
+  font-family: var(--font-arabic), var(--font-english), system-ui, -apple-system, sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
 }
 
-.font-arabic,
+/* 3. Arabic Typography Rules (Keep native OpenType mark positioning and cursive ligatures) */
 [dir="rtl"],
-[dir="rtl"] * {
-  /* Critical: Arabic must NOT have letter-spacing or it splits */
+[dir="rtl"] *,
+.font-arabic {
+  /* Prevent letter-spacing from breaking Arabic cursive joins */
   letter-spacing: 0 !important;
-  /* Force ligatures to ensure characters connect */
-  font-variant-ligatures: common-ligatures !important;
-  font-feature-settings: "rlig" 1, "calt" 1;
-  /* Ensure text doesn't arbitrarily resize on iOS */
+  word-spacing: normal;
+  /* Allow the browser's native shaping engine to handle Arabic marks (dots) and ligatures */
+  font-feature-settings: normal;
+  font-variant: normal;
   -webkit-text-size-adjust: 100%;
 }
 
 .font-arabic {
-  font-family: var(--font-arabic);
+  font-family: var(--font-arabic) !important;
 }
 .font-english {
-  font-family: var(--font-english);
+  font-family: var(--font-english) !important;
 }
 
 
+/* Stabilize GPU backdrop-filter layers so blur textures do not bleed/dot into text */
+.backdrop-blur-sm,
+.backdrop-blur-md,
+.backdrop-blur-lg,
+.backdrop-blur-xl,
+.backdrop-blur-2xl,
+.backdrop-blur-3xl,
+.glass {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+/* 4. Solid High-Contrast Text Color Tokens (Prevent Background Bleed-Through) */
+.text-white\/90 { color: #f8fafc !important; }
+.text-white\/80 { color: #f1f5f9 !important; }
+.text-white\/70 { color: #e2e8f0 !important; }
+.text-white\/60 { color: #cbd5e1 !important; }
+.text-white\/50 { color: #94a3b8 !important; }
+.text-white\/40 { color: #64748b !important; }
+.text-white\/30 { color: #475569 !important; }
+.text-white\/20 { color: #334155 !important; }
+
 html, body {
+
   margin: 0;
   padding: 0;
   min-height: 100%;
@@ -97,6 +161,7 @@ body {
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(0, 0, 0, 0.12);
 }
+
 
 /* Premium Button with Gradient and Glass Border */
 .btn-premium {

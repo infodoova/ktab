@@ -1,0 +1,131 @@
+.ktab-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  overflow-y: auto;
+  direction: rtl;
+  font-family: var(--font-arabic), sans-serif;
+}
+
+.ktab-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.ktab-modal-container {
+  position: relative;
+  width: 100%;
+  border-radius: 2rem;
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid var(--border-card);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  padding: 1.5rem;
+  z-index: 10;
+  overflow: hidden;
+  color: var(--primary-text);
+}
+
+@media (min-width: 768px) {
+  .ktab-modal-container {
+    padding: 2rem;
+  }
+}
+
+/* Width options */
+.ktab-modal-container--max-w-sm {
+  max-width: 24rem;
+}
+
+.ktab-modal-container--max-w-md {
+  max-width: 28rem;
+}
+
+.ktab-modal-container--max-w-lg {
+  max-width: 32rem;
+}
+
+.ktab-modal-container--max-w-xl {
+  max-width: 36rem;
+}
+
+.ktab-modal-container--max-w-2xl {
+  max-width: 42rem;
+}
+
+.ktab-modal-top-highlight {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1.5px;
+  background: linear-gradient(90deg, transparent 0%, rgba(93, 227, 186, 0.4) 50%, transparent 100%);
+  pointer-events: none;
+}
+
+.ktab-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.ktab-modal-title {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: var(--primary-text);
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.ktab-modal-desc {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+  margin-bottom: 0;
+}
+
+.ktab-modal-close-btn {
+  padding: 0.5rem;
+  border-radius: 0.75rem;
+  background-color: rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.ktab-modal-close-btn:hover {
+  background-color: rgba(0, 0, 0, 0.08);
+  color: var(--primary-text);
+}
+
+.ktab-modal-body {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.ktab-modal-footer {
+  padding-top: 1rem;
+  margin-top: 1rem;
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}

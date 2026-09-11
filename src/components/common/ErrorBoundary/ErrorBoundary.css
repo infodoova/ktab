@@ -1,0 +1,282 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   ERROR BOUNDARY STYLES (Light Mode Apple / Eleven Reader Aesthetic)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Inline Variant ── */
+.myui-eb-inline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  font-family: var(--font-arabic, sans-serif);
+  font-size: 13px;
+  direction: rtl;
+  box-sizing: border-box;
+}
+
+.myui-eb-inline-msg {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.myui-eb-inline-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background-color: #fee2e2;
+  color: #991b1b;
+  font-size: 12px;
+  font-weight: 750;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  transition: background-color 0.2s ease;
+  white-space: nowrap;
+}
+
+.myui-eb-inline-btn:hover {
+  background-color: #fca5a5;
+  color: #7f1d1d;
+}
+
+/* ── Card Variant ── */
+.myui-eb-card {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  margin: 16px auto;
+  padding: 32px 24px;
+  border-radius: 20px;
+  background-color: var(--bg-primary, #ffffff);
+  border: 1px solid var(--border-card, rgba(0, 0, 0, 0.1));
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  text-align: center;
+  direction: rtl;
+  font-family: var(--font-arabic, sans-serif);
+  box-sizing: border-box;
+}
+
+.myui-eb-card-icon-wrap {
+  width: 54px;
+  height: 54px;
+  margin: 0 auto 16px;
+  border-radius: 16px;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ef4444;
+}
+
+.myui-eb-card-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--brand-black, #0a0a0a);
+  margin: 0 0 6px;
+}
+
+.myui-eb-card-desc {
+  font-size: 13.5px;
+  color: var(--text-subtle, #64748b);
+  line-height: 1.6;
+  margin: 0 0 20px;
+}
+
+.myui-eb-card-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+/* ── Fullscreen / Page Variant ── */
+.myui-eb-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background-color: var(--bg-primary, #ffffff);
+  direction: rtl;
+  font-family: var(--font-arabic, sans-serif);
+  box-sizing: border-box;
+}
+
+.myui-eb-page-card {
+  width: 100%;
+  max-width: 520px;
+  padding: 44px 32px;
+  border-radius: 24px;
+  background-color: var(--bg-primary, #ffffff);
+  border: 1px solid var(--border-card, rgba(0, 0, 0, 0.1));
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.04);
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.myui-eb-page-icon-wrap {
+  width: 68px;
+  height: 68px;
+  margin: 0 auto 20px;
+  border-radius: 20px;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ef4444;
+}
+
+.myui-eb-page-title {
+  font-size: clamp(22px, 2.5vw, 26px);
+  font-weight: 850;
+  color: var(--brand-black, #0a0a0a);
+  margin: 0 0 8px;
+  letter-spacing: -0.02em;
+}
+
+.myui-eb-page-desc {
+  font-size: 14.5px;
+  color: var(--text-subtle, #64748b);
+  line-height: 1.65;
+  margin: 0 0 28px;
+}
+
+.myui-eb-page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+/* Action Buttons */
+.myui-eb-btn-primary {
+  height: 46px;
+  padding: 0 20px;
+  border-radius: 12px;
+  background-color: var(--brand-black, #0a0a0a);
+  color: #ffffff;
+  border: 1px solid var(--brand-black, #0a0a0a);
+  font-family: var(--font-arabic, sans-serif);
+  font-size: 14px;
+  font-weight: 750;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.myui-eb-btn-primary:hover {
+  background-color: var(--brand-teal, #5de3ba);
+  border-color: var(--brand-teal, #5de3ba);
+  color: #0a0a0a;
+  box-shadow: 0 6px 20px rgba(93, 227, 186, 0.4);
+}
+
+.myui-eb-btn-secondary {
+  height: 46px;
+  padding: 0 18px;
+  border-radius: 12px;
+  background-color: var(--bg-secondary, #f8fafc);
+  color: var(--brand-black, #0a0a0a);
+  border: 1px solid var(--border-card, rgba(0, 0, 0, 0.12));
+  font-family: var(--font-arabic, sans-serif);
+  font-size: 14px;
+  font-weight: 750;
+  text-decoration: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.myui-eb-btn-secondary:hover {
+  background-color: var(--brand-teal-soft, #e6faf4);
+  border-color: var(--brand-teal, #5de3ba);
+  color: var(--brand-black, #0a0a0a);
+}
+
+/* Diagnostic Details */
+.myui-eb-details-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  color: var(--text-subtle, #64748b);
+  font-family: var(--font-arabic, sans-serif);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 8px;
+  transition: color 0.2s ease;
+  outline: none;
+}
+
+.myui-eb-details-toggle:hover {
+  color: var(--brand-black, #0a0a0a);
+}
+
+.myui-eb-stack-box {
+  margin-top: 14px;
+  padding: 14px;
+  border-radius: 12px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  text-align: left;
+  direction: ltr;
+  font-family: monospace;
+  font-size: 11px;
+  max-height: 200px;
+  overflow: auto;
+  color: #dc2626;
+  box-sizing: border-box;
+}
+
+.myui-eb-stack-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.myui-eb-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #475569;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  padding: 3px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  outline: none;
+}
+
+.myui-eb-copy-btn:hover {
+  color: #0f172a;
+  border-color: #94a3b8;
+}

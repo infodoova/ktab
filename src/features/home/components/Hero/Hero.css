@@ -1,0 +1,499 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   HERO SECTION STYLES (Pure White Light Mode - Eleven Reader & Apple Style)
+   Standalone CSS file for Hero
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.er-hero-section {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--bg-primary, #ffffff);
+  background-image: none;
+  padding-top: 135px;
+  padding-bottom: 90px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  direction: rtl;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.er-hero-container {
+  max-width: 1240px;
+  width: 100%;
+  margin: auto;
+  padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+  z-index: 10;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   3D BOOK SHOWCASE CAROUSEL (Fluid Motion & Apple Perspective)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.er-carousel-stage {
+  position: relative;
+  width: 100%;
+  max-width: 980px;
+  height: 380px;
+  margin: 15px auto 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1600px;
+  user-select: none;
+  cursor: grab;
+}
+
+.er-carousel-stage:active {
+  cursor: grabbing;
+}
+
+/* Arrow Anchors (Handles absolute positioning and vertical centering) */
+.er-arrow-anchor {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 50;
+}
+
+.er-arrow-anchor.prev {
+  right: 15px;
+}
+
+.er-arrow-anchor.next {
+  left: 15px;
+}
+
+/* Minimalist Clean Circular Arrow Buttons (Simple, Clean White, No Blur, No Blue) */
+.er-carousel-arrow {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: var(--bg-primary, #ffffff);
+  border: 1px solid var(--border-card, rgba(0, 0, 0, 0.1));
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  color: var(--brand-black, #0a0a0a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  outline: none;
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.er-carousel-arrow:hover {
+  background-color: var(--bg-primary, #ffffff);
+  border-color: rgba(0, 0, 0, 0.22);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14);
+  color: var(--brand-black, #0a0a0a);
+}
+
+.er-carousel-arrow:active {
+  background-color: var(--bg-secondary, #f8fafc);
+}
+
+/* 3D Book Deck Container */
+.er-book-deck {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-style: preserve-3d;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PREMIUM EDITORIAL AI-LEARNING BOOK CARD (ElevenLabs, Linear & Apple)
+   - 28–32px Rounded Corners
+   - Seamless gradient-blended artwork (no harsh horizontal boundary)
+   - Refined contemporary Arabic typography & generous spacing
+   - Elegant glassmorphism lower dock
+   - Compact black pill play button with clean play icon
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.er-book-card-item {
+  position: absolute;
+  width: 245px;
+  height: 360px;
+  border-radius: 16px;
+  cursor: pointer;
+  transform-style: preserve-3d;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+.er-modern-card-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  background-color: var(--brand-black, #0a0a0a);
+  border: 1px solid var(--border-card, rgba(0, 0, 0, 0.08));
+  box-shadow: 
+    0 24px 48px -12px rgba(0, 0, 0, 0.2),
+    0 6px 16px -4px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.er-book-card-item:hover .er-modern-card-container,
+.er-book-card-item.revealed .er-modern-card-container {
+  box-shadow: 
+    0 32px 60px -12px rgba(0, 0, 0, 0.28),
+    0 8px 24px -4px rgba(0, 0, 0, 0.12);
+}
+
+/* Subtle Book Spine Highlight */
+.er-book-spine-highlight {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 20px;
+  background: linear-gradient(to left, rgba(0, 0, 0, 0.24), rgba(255, 255, 255, 0.16) 50%, transparent);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* 1. Visual Hero Artwork */
+.er-modern-card-art-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--brand-black, #0a0a0a);
+}
+
+.er-modern-card-art-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.er-book-card-item:hover .er-modern-card-art-img,
+.er-book-card-item.revealed .er-modern-card-art-img {
+  transform: scale(1.04);
+}
+
+/* 2. Elegant Glassmorphism Dock Surface: Hidden by default, slides up smoothly on hover */
+.er-modern-card-glass-dock {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  padding: 24px 16px 18px;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.90) 0%,
+    rgba(0, 0, 0, 0.62) 55%,
+    rgba(0, 0, 0, 0.15) 85%,
+    transparent 100%
+  );
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  z-index: 2;
+  box-sizing: border-box;
+  opacity: 0;
+  transform: translateY(14px);
+  pointer-events: none;
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.er-book-card-item:hover .er-modern-card-glass-dock,
+.er-book-card-item.revealed .er-modern-card-glass-dock {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* 3. Refined Arabic Editorial Typography */
+.er-modern-card-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  width: 100%;
+}
+
+.er-modern-card-title {
+  font-family: var(--font-arabic);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--brand-white, #ffffff);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+  margin: 0;
+  line-height: 1.35;
+  letter-spacing: normal;
+  text-align: center;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.er-modern-card-author {
+  font-family: var(--font-arabic);
+  font-size: 11.5px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.88);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  margin: 0;
+  text-align: center;
+}
+
+/* 4. Compact Crisp Glass Pill Button */
+.er-modern-card-play-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: 34px;
+  padding: 0 16px;
+  background-color: rgba(14, 14, 16, 0.92);
+  color: var(--brand-white, #ffffff);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 9999px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  outline: none;
+  margin-top: 4px;
+  direction: rtl;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.er-modern-card-play-btn:hover {
+  background-color: #000000;
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: scale(1.04);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+}
+
+.er-modern-card-play-btn:active {
+  transform: scale(0.96);
+}
+
+.er-modern-card-play-icon {
+  width: 10px;
+  height: 10px;
+  fill: currentColor;
+  flex-shrink: 0;
+  display: block;
+}
+
+.er-modern-card-play-text {
+  font-family: var(--font-arabic);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--brand-white, #ffffff);
+  white-space: nowrap;
+  display: inline-block;
+  direction: rtl;
+  letter-spacing: normal;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   EDITORIAL HEADLINE & SUBTITLE (Eleven Reader + Apple Typography)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.er-hero-title {
+  font-size: clamp(2.75rem, 5.4vw, 4.4rem);
+  font-weight: 950;
+  line-height: 1.15;
+  color: var(--brand-black, #0a0a0a);
+  margin: 0 0 24px;
+  max-width: 900px;
+  letter-spacing: -0.035em;
+}
+
+.er-hero-subtitle {
+  font-size: clamp(1.05rem, 1.8vw, 1.28rem);
+  font-weight: 500;
+  line-height: 1.75;
+  color: var(--text-subtle, #64748b);
+  margin: 0 auto 36px;
+  max-width: 640px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PRIMARY ACTION BUTTON (ابدأ الآن - Eleven Reader Solid Pill)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.er-hero-btn-primary {
+  background-color: var(--brand-black, #0a0a0a);
+  color: var(--brand-white, #ffffff);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  font-size: 16px;
+  font-weight: 700;
+  padding: 15px 44px;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.14);
+}
+
+.er-hero-btn-primary:hover {
+  background-color: var(--brand-black-hover, #1e293b);
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.22);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   RESPONSIVE QUERIES
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 680px) {
+  .er-hero-section {
+    padding-top: 105px;
+    padding-bottom: 50px;
+    min-height: auto;
+  }
+
+  .er-hero-container {
+    padding: 0 14px;
+  }
+
+  .er-carousel-stage {
+    height: 250px;
+    margin: 10px auto 38px;
+    max-width: 100%;
+  }
+
+  .er-book-card-item {
+    width: 145px;
+    height: 215px;
+    border-radius: 12px;
+  }
+
+  .er-modern-card-container {
+    border-radius: 12px;
+  }
+
+  .er-modern-card-glass-dock {
+    padding: 8px 10px 12px;
+    gap: 6px;
+  }
+
+  .er-modern-card-meta {
+    gap: 2px;
+  }
+
+  .er-modern-card-title {
+    font-size: 11.5px;
+    line-height: 1.3;
+  }
+
+  .er-modern-card-author {
+    font-size: 9px;
+  }
+
+  .er-modern-card-play-btn {
+    height: 26px;
+    padding: 0 11px;
+    gap: 5px;
+  }
+
+  .er-modern-card-play-icon {
+    width: 8px;
+    height: 8px;
+  }
+
+  .er-modern-card-play-text {
+    font-size: 10px;
+    line-height: 1.35;
+  }
+
+  .er-carousel-arrow {
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.94);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .er-carousel-arrow svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .er-arrow-anchor.prev {
+    right: 4px;
+  }
+
+  .er-arrow-anchor.next {
+    left: 4px;
+  }
+
+  .er-hero-title {
+    font-size: clamp(2.1rem, 7.5vw, 2.6rem);
+    line-height: 1.18;
+    letter-spacing: -0.025em;
+    margin-bottom: 18px;
+  }
+
+  .er-hero-subtitle {
+    font-size: clamp(0.9rem, 3.5vw, 1.05rem);
+    line-height: 1.65;
+    padding: 0 8px;
+    margin-bottom: 26px;
+  }
+
+  .er-hero-btn-primary {
+    padding: 13px 38px;
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 380px) {
+  .er-book-card-item {
+    width: 122px;
+    height: 184px;
+  }
+
+  .er-carousel-stage {
+    height: 230px;
+    margin-bottom: 30px;
+  }
+
+  .er-hero-title {
+    font-size: 1.6rem;
+  }
+}

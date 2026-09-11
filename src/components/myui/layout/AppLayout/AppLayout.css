@@ -1,0 +1,59 @@
+.ktab-app-layout {
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  font-family: var(--font-arabic), sans-serif;
+  direction: rtl;
+}
+
+.ktab-app-layout--dark {
+  background-color: #090d16;
+  color: var(--brand-white);
+}
+
+.ktab-app-layout--light {
+  background-color: var(--bg-primary);
+  color: var(--primary-text);
+}
+
+.ktab-app-layout__main-area {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  transition: margin-right 0.3s ease;
+}
+
+@media (min-width: 768px) {
+  .ktab-app-layout__main-area--collapsed {
+    margin-right: 5rem;
+  }
+
+  .ktab-app-layout__main-area--expanded {
+    margin-right: 16rem;
+  }
+}
+
+.ktab-app-layout__content {
+  flex: 1;
+  padding: 1rem;
+  padding-top: 5rem;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+@media (min-width: 640px) {
+  .ktab-app-layout__content {
+    padding: 1.5rem;
+    padding-top: 6rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .ktab-app-layout__content {
+    padding: 2.5rem;
+    padding-top: 7rem;
+  }
+}

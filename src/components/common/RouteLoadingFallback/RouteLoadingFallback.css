@@ -1,0 +1,61 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   ROUTE LOADING FALLBACK STYLES (Light Mode Apple / Eleven Reader Aesthetic)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.er-route-loading-stage {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-primary, #ffffff);
+  z-index: 9999;
+  direction: rtl;
+  font-family: var(--font-arabic, sans-serif);
+}
+
+.er-route-loading-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+}
+
+.er-route-loading-logo {
+  height: 54px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+  animation: er-logo-pulse 2s ease-in-out infinite;
+}
+
+@keyframes er-logo-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(0.98);
+  }
+}
+
+.er-route-progress-track {
+  width: 160px;
+  height: 4px;
+  border-radius: 9999px;
+  background-color: var(--border-card, rgba(0, 0, 0, 0.08));
+  overflow: hidden;
+  position: relative;
+}
+
+.er-route-progress-bar {
+  height: 100%;
+  background-color: var(--brand-black, #0a0a0a);
+  border-radius: 9999px;
+  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}

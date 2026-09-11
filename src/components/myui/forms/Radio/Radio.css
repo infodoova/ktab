@@ -1,0 +1,74 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   RADIO COMPONENT STYLES (Light Mode Apple / Eleven Reader Aesthetic)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.myui-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  direction: rtl;
+  text-align: right;
+  font-family: var(--font-arabic, sans-serif);
+}
+
+.myui-radio-label-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.myui-radio-label-wrap.is-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.myui-radio-circle {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-primary, #ffffff);
+  border: 1.5px solid var(--border-card, rgba(0, 0, 0, 0.2));
+  box-sizing: border-box;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.myui-radio-label-wrap:hover .myui-radio-circle:not(.is-checked) {
+  border-color: rgba(0, 0, 0, 0.35);
+  background-color: var(--bg-secondary, #f8fafc);
+}
+
+.myui-radio-circle.is-checked {
+  border-color: var(--brand-teal, #5de3ba);
+  background-color: var(--brand-teal-soft, #e6faf4);
+  box-shadow: 0 2px 8px rgba(93, 227, 186, 0.35);
+}
+
+.myui-radio-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--brand-teal-dark, #4ed4ab);
+  animation: myui-radio-pop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes myui-radio-pop {
+  0% {
+    transform: scale(0);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.myui-radio-text {
+  font-size: 14px;
+  font-weight: 650;
+  color: var(--brand-black, #0a0a0a);
+}

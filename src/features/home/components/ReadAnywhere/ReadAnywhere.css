@@ -1,0 +1,96 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   READ ANYWHERE — Readwise Reader inspired
+   Bold headline + description + Huge Full-Screen Image
+   Light Mode · Apple editorial · Zero clutter
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.ra-section {
+  position: relative;
+  width: 100%;
+  background-color: var(--bg-primary, #ffffff);
+  padding: 120px 0 0;
+  box-sizing: border-box;
+  overflow: hidden;
+  direction: rtl;
+}
+
+.ra-header {
+  width: 100%;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.ra-headline {
+  font-family: var(--font-arabic);
+  font-size: clamp(34px, 5.5vw, 56px);
+  font-weight: 900;
+  color: var(--brand-black, #0a0a0a);
+  margin: 0 0 20px;
+  line-height: 1.18;
+  letter-spacing: -0.03em;
+}
+
+.ra-headline:last-child {
+  margin-bottom: 56px;
+}
+
+.ra-description {
+  font-family: var(--font-arabic);
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.8;
+  color: var(--text-subtle, #64748b);
+  margin: 0 0 64px;
+  max-width: 660px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   HUGE FULL-SCREEN IMAGE
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.ra-image-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+  line-height: 0;
+}
+
+.ra-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+  filter: drop-shadow(0 -8px 30px rgba(0, 0, 0, 0.04)) drop-shadow(0 20px 50px rgba(0, 0, 0, 0.08));
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .ra-section {
+    padding: 70px 0 0;
+  }
+
+  .ra-header {
+    padding: 0 20px;
+  }
+
+  .ra-headline {
+    font-size: 28px;
+  }
+
+  .ra-description {
+    font-size: 15px;
+    margin-bottom: 40px;
+  }
+}

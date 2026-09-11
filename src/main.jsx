@@ -4,34 +4,32 @@ import { BrowserRouter } from "react-router-dom";
 import "./index.css";
 import App from "./App.jsx";
 import TokenRefreshWrapper from "../services/TokenRefreshWrapper";
-
 import { registerSW } from "virtual:pwa-register";
+import { ErrorBoundary } from "./components/common";
 
-// Register PWA service worker
-// main.jsx
-registerSW({
-  immediate: true,
-  onOfflineReady() {
-    console.log("DEBUG: PWA is ready to work offline");
-  },
-  onNeedRefresh() {
-    console.log("DEBUG: New version available");
-  },
-  onRegisteredSW(swUrl, registration) {
-    console.log("DEBUG: Service Worker registered at:", swUrl);
-    console.log("DEBUG: Scope:", registration.scope);
-  },
-  onRegisterError(error) {
-    console.error("DEBUG: Service Worker registration failed:", error);
-  },
-});
+// Only register PWA service worker in production to avoid console spam in dev
+if (import.meta.env.PROD) {
+  registerSW({
+    immediate: true,
+  });
+} else if (typeof window !== "undefined" && "serviceWorker" in navigator) {
+  // In development, unregister any leftover service workers so workbox logs stop
+  navigator.serviceWorker.getRegistrations().then((registrations) => {
+    for (const registration of registrations) {
+      registration.unregister();
+    }
+  });
+}
 
 createRoot(document.getElementById("root")).render(
-   <StrictMode>
-  <BrowserRouter>
-    <TokenRefreshWrapper>
-      <App />
-    </TokenRefreshWrapper>
-  </BrowserRouter>,
+  <StrictMode>
+    <ErrorBoundary variant="fullscreen">
+      <BrowserRouter>
+        <TokenRefreshWrapper>
+          <App />
+        </TokenRefreshWrapper>
+      </BrowserRouter>
+    </ErrorBoundary>
   </StrictMode>
 );
+
