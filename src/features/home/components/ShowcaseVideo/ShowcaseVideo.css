@@ -50,6 +50,9 @@
   border: 1px solid rgba(0, 0, 0, 0.08);
   transform-origin: center center;
   will-change: transform, border-radius;
+  cursor: pointer;
+  user-select: none;
+  outline: none;
 }
 
 .er-showcase-video-element {
@@ -57,14 +60,41 @@
   height: 100%;
   object-fit: cover;
   display: block;
-  pointer-events: none;
 }
 
-/* Bottom Glass Controls Overlay (Mute + Play/Pause) */
+/* ═══════════════════════════════════════════════════════════════════════════
+   CENTER TRANSIENT FEEDBACK RIPPLE (Play / Pause Indicator)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.er-showcase-center-feedback {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(10, 10, 10, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  pointer-events: none;
+  z-index: 30;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   BOTTOM FLOATING CONTROLS DOCK (Apple Translucent Glass)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 .er-showcase-video-dock {
   position: absolute;
-  bottom: 20px;
-  left: 20px;
+  bottom: 22px;
+  left: 22px;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -77,8 +107,8 @@
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
   color: #ffffff;
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -97,6 +127,70 @@
   transform: scale(0.94);
 }
 
+/* Frosted Glass Time Stamp Badge */
+.er-showcase-timestamp-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(15, 15, 15, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  color: #ffffff;
+  height: 42px;
+  padding: 0 16px;
+  border-radius: 9999px;
+  font-family: var(--font-english, system-ui, sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  user-select: none;
+}
+
+.er-showcase-time-current {
+  color: var(--brand-teal, #5de3ba);
+  font-variant-numeric: tabular-nums;
+}
+
+.er-showcase-time-sep {
+  opacity: 0.45;
+  font-weight: 400;
+}
+
+.er-showcase-time-total {
+  opacity: 0.85;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SLIM INTERACTIVE PROGRESS TRACK
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.er-showcase-progress-wrap {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.18);
+  cursor: pointer;
+  z-index: 25;
+  transition: height 0.2s ease;
+}
+
+.er-showcase-video-card:hover .er-showcase-progress-wrap {
+  height: 6px;
+}
+
+.er-showcase-progress-fill {
+  height: 100%;
+  background: var(--gradient, linear-gradient(135deg, #5de3ba 0%, #4ed4ab 100%));
+  box-shadow: 0 0 10px rgba(93, 227, 186, 0.6);
+  border-radius: 0 3px 3px 0;
+  transition: width 0.1s linear;
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
    RESPONSIVE MOBILE BREAKPOINTS
    ═══════════════════════════════════════════════════════════════════════════ */
@@ -104,20 +198,6 @@
 @media (max-width: 768px) {
   .er-showcase-section {
     padding: 60px 16px 80px;
-  }
-
-  .er-showcase-header {
-    margin-bottom: 24px;
-  }
-
-  .er-showcase-title {
-    font-size: clamp(1.65rem, 6.8vw, 2.1rem);
-    margin-bottom: 8px;
-  }
-
-  .er-showcase-subtitle {
-    font-size: 0.9rem;
-    line-height: 1.55;
   }
 
   .er-showcase-video-stage {
@@ -139,12 +219,29 @@
   }
 
   .er-showcase-control-btn {
-    width: 34px;
-    height: 34px;
+    width: 36px;
+    height: 36px;
   }
 
   .er-showcase-control-btn svg {
-    width: 15px;
-    height: 15px;
+    width: 16px;
+    height: 16px;
+  }
+
+  .er-showcase-timestamp-badge {
+    height: 36px;
+    padding: 0 12px;
+    font-size: 11.5px;
+    gap: 4px;
+  }
+
+  .er-showcase-center-feedback {
+    width: 56px;
+    height: 56px;
+  }
+
+  .er-showcase-center-feedback svg {
+    width: 22px;
+    height: 22px;
   }
 }
