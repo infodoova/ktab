@@ -10,6 +10,10 @@ import logger from "@/lib/logger";
 export function useAiTools() {
   const [loading, setLoading] = useState(false);
   const [summary, setSummary] = useState("");
+  const [isFormSheetOpen, setIsFormSheetOpen] = useState(false);
+
+  const openFormSheet = () => setIsFormSheetOpen(true);
+  const closeFormSheet = () => setIsFormSheetOpen(false);
 
   const handleGenerate = async (values) => {
     const { wordCount, audience, file } = values || {};
@@ -32,6 +36,8 @@ export function useAiTools() {
     const cleanWordCount = Math.max(50, Math.min(2000, parseInt(wordCount, 10) || 300));
     const cleanAudience = sanitizeText(audience);
 
+    // Close the mobile BottomSheet immediately upon starting generation
+    setIsFormSheetOpen(false);
     setLoading(true);
     setSummary("");
 
@@ -61,6 +67,9 @@ export function useAiTools() {
   return {
     loading,
     summary,
+    isFormSheetOpen,
+    openFormSheet,
+    closeFormSheet,
     handleGenerate,
   };
 }

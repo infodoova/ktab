@@ -17,6 +17,7 @@ import {
   BottomSheet,
   Pagination,
 } from "@/components/myui";
+import brandIconImg from "@/assets/logo/BrandIcon.png";
 import { useAuthorBooksTable } from "./useAuthorBooksTable";
 import { useBookThumbnail } from "./useBookThumbnail";
 import "./AuthorBooksTable.css";
@@ -33,8 +34,8 @@ function BookThumbnail({ coverUrl, title }) {
         <img
           src={coverUrl}
           alt={title || "كتاب"}
-          onLoad={() => setLoaded(true)}
-          onError={() => setHasError(true)}
+          onLoad={handleLoad}
+          onError={handleError}
           className={`ktab-book-cover-img ${
             loaded ? "ktab-book-cover-img--loaded" : "ktab-book-cover-img--loading"
           }`}
@@ -42,8 +43,12 @@ function BookThumbnail({ coverUrl, title }) {
           decoding="async"
         />
       ) : (
-        <div className="ktab-book-cover-empty" title={title || "غلاف غير متوفر"}>
-          <BookOpen size={15} color="var(--text-subtle)" />
+        <div className="ktab-book-cover-empty" aria-hidden="true">
+          <img
+            src={brandIconImg}
+            alt=""
+            className="ktab-book-cover-fallback-logo"
+          />
         </div>
       )}
     </div>
@@ -116,7 +121,7 @@ export function AuthorBooksTable({
               <button
                 type="button"
                 onClick={() => setIsFilterSheetOpen(true)}
-                className="ktab-mobile-filter-icon-btn ktab-mobile-only"
+                className="ktab-mobile-filter-btn ktab-mobile-only"
                 aria-label="تصفية وترتيب الكتب"
                 title="تصفية وترتيب الكتب"
               >

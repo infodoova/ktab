@@ -38,10 +38,10 @@
 }
 
 .ktab-topbar--light {
-  background-color: var(--glass-bg);
+  background-color: var(--bg-primary, #ffffff);
   border-bottom-color: var(--border-subtle);
   color: var(--primary-text);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
 }
 
 .ktab-topbar--dark {
@@ -112,6 +112,62 @@
 .ktab-topbar--dark .ktab-topbar__title {
   color: var(--brand-white);
 }
+
+/* ─────────────────────────────────────────────────────────────
+   BREADCRUMB NAVIGATION
+   ───────────────────────────────────────────────────────────── */
+.ktab-topbar__breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.ktab-topbar__breadcrumb-parent {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-subtle);
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: color 0.15s ease;
+}
+
+.ktab-topbar__breadcrumb-parent:hover {
+  color: var(--primary-text);
+}
+
+.ktab-topbar__breadcrumb-sep {
+  color: var(--text-subtle);
+  flex-shrink: 0;
+  opacity: 0.5;
+}
+
+.ktab-topbar__breadcrumb-current {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--brand-black);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ktab-topbar--dark .ktab-topbar__breadcrumb-parent {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.ktab-topbar--dark .ktab-topbar__breadcrumb-parent:hover {
+  color: var(--brand-white);
+}
+
+.ktab-topbar--dark .ktab-topbar__breadcrumb-current {
+  color: var(--brand-white);
+}
+
 
 /* ─────────────────────────────────────────────────────────────
    ACTIONS & MINIMALIST EXPANDABLE SEARCH

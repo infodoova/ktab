@@ -12,6 +12,7 @@ import "./AppLayout.css";
 export function AppLayout({
   children,
   pageName = "كِتَاب",
+  breadcrumb,
   showSearch = true,
   onSearchClick,
   searchQuery,
@@ -50,6 +51,7 @@ export function AppLayout({
         {/* Desktop Fixed Top Header */}
         <SideHeader
           mainTitle={pageName}
+          breadcrumb={breadcrumb}
           showSearch={showSearch}
           onSearchClick={onSearchClick}
           searchQuery={searchQuery}

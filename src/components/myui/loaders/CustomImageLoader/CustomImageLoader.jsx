@@ -69,9 +69,8 @@ export const CustomImageLoader = React.memo(function CustomImageLoader({
 
       {/* Clean Apple-style Error State */}
       {(hasError || !src) && (
-        <div className="ktab-img-loader__fallback" aria-label="تعذر تحميل الصورة">
-          <ImageIcon size={20} className="ktab-img-loader__fallback-icon" />
-          <span className="ktab-img-loader__fallback-text">تعذر التحميل</span>
+        <div className="ktab-img-loader__fallback" aria-label="صورة غير متوفرة">
+          <ImageIcon size={22} className="ktab-img-loader__fallback-icon" />
         </div>
       )}
     </div>

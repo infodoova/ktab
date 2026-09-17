@@ -1,0 +1,197 @@
+.book-pdf-uploader {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.book-pdf-uploader__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.book-pdf-uploader__label {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--primary-text);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.book-pdf-uploader__required {
+  color: var(--color-danger);
+}
+
+.book-pdf-uploader__hint {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-subtle);
+}
+
+.book-pdf-uploader__input {
+  display: none;
+}
+
+/* ── Distinct Empty Dropzone (Crisp Contrast & Border) ── */
+.book-pdf-uploader__dropzone {
+  width: 100%;
+  padding: 1.25rem 1.25rem;
+  border-radius: 0.75rem;
+  border: 1.5px dashed var(--btn-action-border, #cbd5e1);
+  background-color: var(--bg-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.125rem;
+  cursor: pointer;
+  text-align: right;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.book-pdf-uploader__dropzone:hover,
+.book-pdf-uploader__dropzone:focus-visible {
+  border-color: var(--brand-teal);
+  background-color: var(--brand-teal-soft);
+  box-shadow: 0 0 0 3px var(--brand-teal-ambient);
+  outline: none;
+}
+
+.book-pdf-uploader__dropzone--dragover {
+  border-color: var(--brand-teal);
+  background-color: var(--brand-teal-soft);
+  box-shadow: 0 0 0 4px var(--brand-teal-glow);
+}
+
+.book-pdf-uploader__dropzone--error {
+  border-color: var(--color-danger);
+  background-color: #fef2f2;
+}
+
+.book-pdf-uploader__icon-badge {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background-color: var(--brand-teal-soft);
+  border: 1.5px solid rgba(78, 212, 171, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--brand-teal-deep);
+  box-shadow: 0 2px 6px rgba(13, 148, 136, 0.1);
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.book-pdf-uploader__dropzone:hover .book-pdf-uploader__icon-badge {
+  transform: scale(1.06);
+}
+
+.book-pdf-uploader__cta-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.book-pdf-uploader__cta-action {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--primary-text);
+  line-height: 1.3;
+}
+
+.book-pdf-uploader__cta-sub {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+/* ── Attached File Card ── */
+.book-pdf-uploader__file-card {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.875rem 1rem;
+  border-radius: 0.75rem;
+  background-color: var(--bg-primary);
+  border: 1.5px solid var(--border-card);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.book-pdf-uploader__file-icon-wrap {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.625rem;
+  background-color: var(--brand-teal-soft);
+  border: 1px solid rgba(78, 212, 171, 0.35);
+  color: var(--brand-teal-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.book-pdf-uploader__file-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.book-pdf-uploader__file-name {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--primary-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.book-pdf-uploader__file-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.book-pdf-uploader__meta-item {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.book-pdf-uploader__meta-item + .book-pdf-uploader__meta-item::before {
+  content: "·";
+  margin-left: 0.35rem;
+  color: var(--text-subtle);
+}
+
+.book-pdf-uploader__btn-remove {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-card);
+  color: var(--text-muted);
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+  flex-shrink: 0;
+}
+
+.book-pdf-uploader__btn-remove:hover {
+  color: var(--color-danger);
+  border-color: #fca5a5;
+  background-color: #fef2f2;
+}
+
+.book-pdf-uploader__error-text {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-danger);
+  margin-top: 0.125rem;
+}

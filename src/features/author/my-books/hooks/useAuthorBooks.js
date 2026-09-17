@@ -16,6 +16,7 @@ export function useAuthorBooks() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalElements, setTotalElements] = useState(0);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedGenre, setSelectedGenre] = useState("ALL");
@@ -70,9 +71,15 @@ export function useAuthorBooks() {
           : [];
 
         const total = typeof res?.totalPages === "number" ? res.totalPages : 1;
+        const incomingTotalElements = typeof res?.totalElements === "number"
+          ? res.totalElements
+          : typeof res?.data?.totalElements === "number"
+          ? res.data.totalElements
+          : incoming.length;
 
         setBooks((prev) => (targetPage === 0 ? incoming : [...prev, ...incoming]));
         setTotalPages(total);
+        setTotalElements(incomingTotalElements);
         setPage(targetPage);
       } catch (err) {
         if (currentReqId === reqIdRef.current) {
@@ -96,6 +103,7 @@ export function useAuthorBooks() {
     setStatus((prevStatus) => {
       if (newStatus === prevStatus) return prevStatus;
       setBooks([]);
+      setTotalElements(0);
       setPage(0);
       return newStatus;
     });
@@ -115,6 +123,7 @@ export function useAuthorBooks() {
       if (res?.messageStatus === "SUCCESS" || res?.status === 200) {
         AlertToast("تم حذف الكتاب بنجاح", "SUCCESS");
         setBooks((prev) => prev.filter((b) => b.id !== bookToDelete.id));
+        setTotalElements((prev) => Math.max(0, prev - 1));
       } else {
         AlertToast(res?.message || "فشل حذف الكتاب", "ERROR");
       }
@@ -188,6 +197,7 @@ export function useAuthorBooks() {
     loadingMore,
     page,
     totalPages,
+    totalElements,
     status,
     searchQuery,
     setSearchQuery,

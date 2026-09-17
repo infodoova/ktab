@@ -17,6 +17,7 @@ import {
   Tag,
   FileText,
 } from "lucide-react";
+import brandIconImg from "@/assets/logo/BrandIcon.png";
 import { useBookDetailsDrawer } from "./useBookDetailsDrawer";
 import "./BookDetailsDrawer.css";
 
@@ -152,8 +153,12 @@ export function BookDetailsDrawer({ isOpen, onClose, book }) {
                     </>
                   ) : (
                     <div className="ktab-book-drawer__fallback-cover">
-                      <BookOpen size={26} strokeWidth={1.8} />
-                      <span className="ktab-book-drawer__fallback-badge">غلاف غير متوفر</span>
+                      <img
+                        src={brandIconImg}
+                        alt=""
+                        className="ktab-book-drawer__fallback-logo"
+                        aria-hidden="true"
+                      />
                     </div>
                   )}
                 </div>

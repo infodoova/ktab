@@ -1,13 +1,16 @@
 import React from "react";
+import { useLocation } from "react-router-dom";
 import { AppLayout } from "@/components/myui/layout";
-import { BookPublishForm } from "../components/BookPublishForm";
-import { UploadProgressModal } from "../components/UploadProgressModal";
+import { BookPublishForm, UploadProgressModal } from "../components";
 import { useBookPublish } from "../hooks/useBookPublish";
+import "./BookPublishView.css";
 
 /**
- * Pure presentation view for publishing and editing author books.
+ * Editorial studio view for publishing new books or updating existing drafts.
+ * Renders the unified BookPublishForm directly on the page layout without nested container cards.
  */
 export function BookPublishView({ pageName = "نشر كتاب جديد" }) {
+  const location = useLocation();
   const {
     formData,
     existingData,
@@ -23,32 +26,39 @@ export function BookPublishView({ pageName = "نشر كتاب جديد" }) {
     handlePublish,
   } = useBookPublish();
 
-  const title = isEditingDraft ? "تعديل مسودة الكتاب" : pageName;
+  const currentTitle = isEditingDraft ? "تعديل مسودة الكتاب" : pageName;
+
+  // Dynamically resolve breadcrumb based on referrer state (Dashboard vs Library/My-Books)
+  const breadcrumb = location.state?.from || {
+    parentLabel: "المكتبة",
+    parentPath: "/author/my-books",
+  };
 
   return (
-    <AppLayout pageName={title} showSearch={false}>
-      <BookPublishForm
-        formData={formData}
-        existingData={existingData}
-        genres={genres}
-        subGenres={subGenres}
-        isEditingDraft={isEditingDraft}
-        loading={loading}
-        onInputChange={handleInputChange}
-        onGenreChange={handleGenreChange}
-        onPdfChange={handlePdfChange}
-        onSaveDraft={handleSaveDraft}
-        onPublish={handlePublish}
-      />
+    <AppLayout pageName={currentTitle} breadcrumb={breadcrumb} showSearch={false}>
+      <div className="book-publish-page">
+        <BookPublishForm
+          formData={formData}
+          existingData={existingData}
+          genres={genres}
+          subGenres={subGenres}
+          isEditingDraft={isEditingDraft}
+          loading={loading}
+          onInputChange={handleInputChange}
+          onGenreChange={handleGenreChange}
+          onPdfChange={handlePdfChange}
+          onSaveDraft={handleSaveDraft}
+          onPublish={handlePublish}
+        />
 
-      <UploadProgressModal
-        isOpen={loading}
-        progress={progress}
-        title={isEditingDraft ? "جاري تحديث الكتاب..." : "جاري نشر وتجهيز الكتاب..."}
-      />
+        <UploadProgressModal
+          isOpen={loading}
+          progress={progress}
+          title={isEditingDraft ? "جاري تحديث الكتاب..." : "جاري نشر وتجهيز الكتاب..."}
+        />
+      </div>
     </AppLayout>
   );
 }
 
 export default BookPublishView;
-

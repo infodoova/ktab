@@ -11,7 +11,15 @@ import { isJwtExpired } from "../services/jwtDecoder";
  */
 export function RoleGuard({ allowedRoles = [], children }) {
   const navigate = useNavigate();
-  const [checking, setChecking] = useState(true);
+  // Prevent blank flicker if already authenticated with valid role in memory
+  const [checking, setChecking] = useState(() => {
+    const token = tokenManager.getToken();
+    const user = useAuthStore.getState().user;
+    if (!token || isJwtExpired(token)) return true;
+    if (!user) return true;
+    if (allowedRoles.length > 0 && !allowedRoles.includes(user.role)) return true;
+    return false;
+  });
 
   useEffect(() => {
     let isMounted = true;

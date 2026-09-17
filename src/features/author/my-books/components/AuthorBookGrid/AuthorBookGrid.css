@@ -229,37 +229,32 @@
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
 }
 
-/* Load More Action */
-.ktab-books-load-more {
+/* ── Infinite Scroll Sentinel & Subtle Spinner ── */
+.ktab-books-infinite-sentinel {
+  width: 100%;
+  min-height: 3rem;
   display: flex;
-  justify-content: center;
-  padding-top: 1rem;
-}
-
-.ktab-books-load-more__btn {
-  display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.875rem 2.25rem;
-  border-radius: 1rem;
-  background-color: var(--brand-black);
-  color: #ffffff;
-  font-size: 0.8125rem;
-  font-weight: 800;
-  border: 1px solid transparent;
-  cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
-  font-family: inherit;
+  padding: 1.5rem 0;
 }
 
-.ktab-books-load-more__btn:hover:not(:disabled) {
-  background-color: #1a1a1a;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+.ktab-books-infinite-spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--brand-black, #0a0a0a);
 }
 
-.ktab-books-load-more__btn:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
+.ktab-spinner {
+  animation: ktabSpin 1s linear infinite;
+}
+
+@keyframes ktabSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }

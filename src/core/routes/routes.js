@@ -17,7 +17,7 @@ const AuthorDashboardView = lazy(() => import("../../features/author/dashboard/v
 const BookPublishView = lazy(() => import("../../features/author/book-publish/views/BookPublishView"));
 const MyBooksView = lazy(() => import("../../features/author/my-books/views/MyBooksView"));
 const MyStoriesView = lazy(() => import("../../features/author/interactive-stories/views/MyStoriesView"));
-const NewInteractiveStoryView = lazy(() => import("../../features/author/interactive-stories/views/NewInteractiveStoryView"));
+const NewInteractiveStoryView = lazy(() => import("../../features/author/new-interactive-story/views/NewInteractiveStoryView"));
 const AiToolsView = lazy(() => import("../../features/author/ai-tools/views/AiToolsView"));
 const AuthorRatingsView = lazy(() => import("../../features/author/ratings/views/AuthorRatingsView"));
 const AuthorSettingsView = lazy(() => import("../../features/author/settings/views/AuthorSettingsView"));

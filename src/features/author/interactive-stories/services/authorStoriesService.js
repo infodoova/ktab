@@ -22,12 +22,35 @@ export async function fetchMyStories({ page = 0, size = 8 } = {}) {
     size: safeSize,
   });
 
-  const data = res?.data || {};
+  const data = res?.data ?? res ?? {};
+  const content = Array.isArray(data.content)
+    ? data.content
+    : Array.isArray(res?.content)
+    ? res.content
+    : [];
+
+  const totalElements = typeof data.totalElements === "number"
+    ? data.totalElements
+    : typeof res?.totalElements === "number"
+    ? res.totalElements
+    : content.length;
+
+  const totalPages = typeof data.totalPages === "number"
+    ? data.totalPages
+    : typeof res?.totalPages === "number"
+    ? res.totalPages
+    : 1;
+
   return {
-    content: Array.isArray(data.content) ? data.content : [],
-    totalPages: typeof data.totalPages === "number" ? data.totalPages : 1,
+    content,
+    totalPages,
+    totalElements,
+    pageNumber: typeof data.pageNumber === "number" ? data.pageNumber : safePage,
+    pageSize: typeof data.pageSize === "number" ? data.pageSize : safeSize,
+    last: typeof data.last === "boolean" ? data.last : undefined,
     messageStatus: res?.messageStatus,
     message: res?.message,
+    data,
   };
 }
 

@@ -170,7 +170,7 @@ html, body {
 }
 
 body {
-  overflow-x: hidden;
+  overflow-x: clip;
   transition: background-color 0.3s ease;
 }
 
@@ -664,5 +664,74 @@ body {
   overflow: hidden !important;
   text-overflow: ellipsis !important;
   word-break: break-word;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   GLOBAL UNIFIED MOBILE FILTER BUTTON & BADGE
+   Standardized across Dashboard, My Books, and Stories.
+   Editorial Light aesthetic: identical shape, neutral black badge, no neon, no shadows.
+   ───────────────────────────────────────────────────────────── */
+.ktab-mobile-filter-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.625rem;
+  background-color: var(--bg-primary, #ffffff);
+  border: 1px solid var(--border-card, rgba(0, 0, 0, 0.12));
+  color: var(--brand-black, #0a0a0a);
+  cursor: pointer;
+  box-shadow: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+  flex-shrink: 0;
+  outline: none;
+  box-sizing: border-box;
+  padding: 0;
+}
+
+.ktab-mobile-filter-btn:hover {
+  background-color: var(--bg-secondary, #f8fafc);
+  border-color: rgba(0, 0, 0, 0.22);
+}
+
+.ktab-mobile-filter-btn:active {
+  transform: scale(0.95);
+}
+
+.ktab-mobile-filter-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 1.125rem;
+  height: 1.125rem;
+  padding: 0 0.25rem;
+  border-radius: 9999px;
+  background-color: var(--brand-black, #0a0a0a);
+  color: var(--brand-white, #ffffff);
+  font-size: 0.6875rem;
+  font-weight: 850;
+  font-family: var(--font-english), sans-serif;
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--bg-primary, #ffffff);
+  box-shadow: none;
+  line-height: 1;
+  z-index: 2;
+}
+
+.ktab-layout--dark .ktab-mobile-filter-btn {
+  background-color: var(--bg-secondary, #141414);
+  border-color: var(--border-subtle);
+  color: var(--brand-white);
+}
+
+.ktab-layout--dark .ktab-mobile-filter-badge {
+  background-color: var(--brand-white);
+  color: var(--brand-black);
+  border-color: var(--bg-secondary, #141414);
 }
 

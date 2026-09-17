@@ -18,6 +18,7 @@
   align-items: center;
   border-bottom-width: 1px;
   border-bottom-style: solid;
+  box-sizing: border-box;
   direction: rtl;
   transition: background-color 0.25s ease, border-color 0.25s ease;
   font-family: var(--font-arabic), sans-serif;
@@ -30,12 +31,10 @@
 }
 
 .ktab-nav-mobile--light {
-  background-color: var(--glass-bg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background-color: var(--bg-primary, #ffffff);
   border-bottom-color: var(--border-subtle);
   color: var(--primary-text);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
 }
 
 .ktab-nav-mobile--dark {

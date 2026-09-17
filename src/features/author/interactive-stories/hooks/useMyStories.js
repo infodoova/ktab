@@ -11,6 +11,7 @@ export function useMyStories() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalElements, setTotalElements] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
 
   const [selectedStory, setSelectedStory] = useState(null);
@@ -40,11 +41,30 @@ export function useMyStories() {
 
     try {
       const res = await fetchMyStories({ page: targetPage, size: 8 });
-      if (res.messageStatus === "SUCCESS" || Array.isArray(res.content)) {
-        setStories((prev) => (targetPage === 0 ? res.content : [...prev, ...res.content]));
-        setTotalPages(res.totalPages);
+      const incoming = Array.isArray(res?.content)
+        ? res.content
+        : Array.isArray(res?.data?.content)
+        ? res.data.content
+        : [];
+
+      const total = typeof res?.totalPages === "number"
+        ? res.totalPages
+        : typeof res?.data?.totalPages === "number"
+        ? res.data.totalPages
+        : 1;
+
+      const incomingTotalElements = typeof res?.totalElements === "number"
+        ? res.totalElements
+        : typeof res?.data?.totalElements === "number"
+        ? res.data.totalElements
+        : incoming.length;
+
+      if (res?.messageStatus === "SUCCESS" || incoming.length > 0 || res?.totalPages !== undefined || res?.content !== undefined) {
+        setStories((prev) => (targetPage === 0 ? incoming : [...prev, ...incoming]));
+        setTotalPages(total);
+        setTotalElements(incomingTotalElements);
         setPage(targetPage);
-      } else if (res.message) {
+      } else if (res?.message) {
         AlertToast(res.message, "ERROR");
       }
     } catch (err) {
@@ -73,6 +93,7 @@ export function useMyStories() {
       if (res?.messageStatus === "SUCCESS" || res?.status === 200) {
         AlertToast("تم حذف القصة بنجاح", "SUCCESS");
         setStories((prev) => prev.filter((s) => s.id !== storyToDelete.id));
+        setTotalElements((prev) => Math.max(0, prev - 1));
       } else {
         AlertToast(res?.message || "فشل حذف القصة", "ERROR");
       }
@@ -118,6 +139,7 @@ export function useMyStories() {
     loadingMore,
     page,
     totalPages,
+    totalElements,
     searchQuery,
     setSearchQuery,
     selectedGenre,

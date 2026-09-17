@@ -1,0 +1,169 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   STORY STEPPER COMPONENT (Light Mode - Apple Clean Minimalist)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.story-stepper {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.story-stepper__track {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  position: relative;
+}
+
+.story-stepper__line {
+  flex: 1;
+  height: 2px;
+  background-color: var(--border-card, rgba(0, 0, 0, 0.12));
+  margin: 0 0.75rem;
+  border-radius: 9999px;
+  transition: background-color 0.25s ease;
+}
+
+.story-stepper__line--filled {
+  background-color: var(--brand-black, #0a0a0a);
+}
+
+.story-stepper__item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: transparent;
+  border: none;
+  padding: 0.35rem 0.5rem;
+  cursor: pointer;
+  outline: none;
+  font-family: inherit;
+  transition: opacity 0.2s ease;
+  text-align: right;
+  border-radius: 12px;
+}
+
+.story-stepper__item:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.story-stepper__circle {
+  width: 2.125rem;
+  height: 2.125rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8125rem;
+  font-weight: 800;
+  font-family: var(--font-english), sans-serif;
+  background-color: var(--bg-primary, #ffffff);
+  border: 1.5px solid var(--border-card, #cbd5e1);
+  color: var(--text-subtle, #94a3b8);
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+/* ── Active Step: White BG with Solid Black Border and Black Number ── */
+.story-stepper__item--active .story-stepper__circle {
+  border: 2px solid var(--brand-black, #0a0a0a);
+  background-color: var(--bg-primary, #ffffff);
+  color: var(--brand-black, #0a0a0a);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+/* ── Completed Step: Solid Black Border with Checkmark ── */
+.story-stepper__item--completed .story-stepper__circle {
+  border: 2px solid var(--brand-black, #0a0a0a);
+  background-color: var(--bg-primary, #ffffff);
+  color: var(--brand-black, #0a0a0a);
+}
+
+.story-stepper__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.story-stepper__label {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-muted, #64748b);
+  transition: color 0.2s ease;
+  white-space: nowrap;
+}
+
+.story-stepper__item--active .story-stepper__label {
+  color: var(--brand-black, #0a0a0a);
+  font-weight: 800;
+}
+
+.story-stepper__item--completed .story-stepper__label {
+  color: var(--brand-black, #0a0a0a);
+  font-weight: 750;
+}
+
+.story-stepper__desc {
+  font-size: 0.725rem;
+  font-weight: 500;
+  color: var(--text-subtle, #94a3b8);
+  white-space: nowrap;
+}
+
+/* ── Mobile Responsive Stepper (Stacked Circle + Centered Label) ── */
+@media (max-width: 640px) {
+  .story-stepper__track {
+    align-items: flex-start;
+  }
+
+  .story-stepper__desc {
+    display: none;
+  }
+
+  .story-stepper__item {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.35rem;
+    padding: 0.15rem;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .story-stepper__circle {
+    width: 1.875rem;
+    height: 1.875rem;
+    font-size: 0.75rem;
+  }
+
+  .story-stepper__line {
+    margin: 0.85rem -0.25rem 0;
+    min-width: 1rem;
+  }
+
+  .story-stepper__label {
+    font-size: 0.725rem;
+    line-height: 1.25;
+    white-space: normal;
+    text-align: center;
+    max-width: 5.5rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .story-stepper__label {
+    font-size: 0.675rem;
+    max-width: 4.5rem;
+  }
+
+  .story-stepper__circle {
+    width: 1.75rem;
+    height: 1.75rem;
+    font-size: 0.7rem;
+  }
+
+  .story-stepper__line {
+    margin: 0.8rem -0.35rem 0;
+  }
+}

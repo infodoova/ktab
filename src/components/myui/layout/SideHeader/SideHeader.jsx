@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Search, X, PanelLeft } from "lucide-react";
+import { Search, X, PanelLeft, ChevronLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useSideHeader } from "./useSideHeader";
 import "./SideHeader.css";
 
@@ -10,6 +11,7 @@ import "./SideHeader.css";
  */
 export function SideHeader({
   mainTitle = "لوحة التحكم",
+  breadcrumb,
   onSearchClick,
   showSearch = true,
   searchPlaceholder = "ابحث عن كتاب، مؤلف، أو موضوع...",
@@ -20,6 +22,7 @@ export function SideHeader({
   collapsed = false,
   onToggleCollapse,
 }) {
+  const navigate = useNavigate();
   const {
     query,
     isExpanded,
@@ -41,7 +44,7 @@ export function SideHeader({
 
   return (
     <header className={`ktab-topbar ${collapseClass} ${themeClass}`} dir="rtl">
-      {/* Right Side: Sidebar Toggle + Page Title */}
+      {/* Right Side: Sidebar Toggle + Page Title or Breadcrumb */}
       <div className="ktab-topbar__title-area">
         {onToggleCollapse && (
           <button
@@ -54,7 +57,21 @@ export function SideHeader({
             <PanelLeft size={19} strokeWidth={1.8} />
           </button>
         )}
-        <h1 className="ktab-topbar__title">{mainTitle}</h1>
+        {breadcrumb ? (
+          <div className="ktab-topbar__breadcrumb" role="navigation" aria-label="مسار التنقل">
+            <button
+              type="button"
+              className="ktab-topbar__breadcrumb-parent"
+              onClick={() => navigate(breadcrumb.parentPath)}
+            >
+              {breadcrumb.parentLabel}
+            </button>
+            <ChevronLeft size={14} className="ktab-topbar__breadcrumb-sep" />
+            <span className="ktab-topbar__breadcrumb-current">{mainTitle}</span>
+          </div>
+        ) : (
+          <h1 className="ktab-topbar__title">{mainTitle}</h1>
+        )}
       </div>
 
       {/* Left Side: Actions + Minimalist Expandable Search */}

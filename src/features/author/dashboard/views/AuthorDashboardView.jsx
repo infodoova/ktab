@@ -41,7 +41,16 @@ export function AuthorDashboardView({ pageName = "لوحة التحكم" }) {
   const headerActions = (
     <button
       type="button"
-      onClick={() => navigate("/author/new-book")}
+      onClick={() =>
+        navigate("/author/new-book", {
+          state: {
+            from: {
+              parentLabel: "لوحة التحكم",
+              parentPath: "/author/control",
+            },
+          },
+        })
+      }
       className="ktab-topbar__btn-action"
       title="نشر كتاب جديد"
     >

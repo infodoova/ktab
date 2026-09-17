@@ -1,6 +1,18 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, BookOpen } from "lucide-react";
+import {
+  X,
+  BookOpen,
+  Calendar,
+  Languages,
+  Eye,
+  Trash2,
+  Edit,
+  Sparkles,
+  Layers,
+  Compass,
+} from "lucide-react";
+import brandIconImg from "@/assets/logo/BrandIcon.png";
 import { useStoryEditorModal } from "./useStoryEditorModal";
 import "./StoryEditorModal.css";
 
@@ -95,8 +107,12 @@ export function StoryEditorModal({ isOpen, onClose, story }) {
                     </>
                   ) : (
                     <div className="ktab-story-drawer__fallback-cover">
-                      <BookOpen size={26} strokeWidth={1.8} />
-                      <span className="ktab-story-drawer__fallback-badge">غلاف غير متوفر</span>
+                      <img
+                        src={brandIconImg}
+                        alt=""
+                        className="ktab-story-drawer__fallback-logo"
+                        aria-hidden="true"
+                      />
                     </div>
                   )}
                 </div>

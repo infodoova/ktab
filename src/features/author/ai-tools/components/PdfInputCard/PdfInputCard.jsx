@@ -20,6 +20,7 @@ export function PdfInputCard({ onGenerate, loading = false }) {
     wordCountConfig,
     isDragging,
     formattedFileSize,
+    errors,
     handleFileChange,
     handleDragOver,
     handleDragLeave,
@@ -33,7 +34,7 @@ export function PdfInputCard({ onGenerate, loading = false }) {
       onSubmit={handleTrigger}
       className="ktab-pdf-input-card"
       dir="rtl"
-      aria-label="نموذج توليد الخاتمة بالذكاء الاصطناعي"
+      aria-label="نموذج توليد الخاتمة"
     >
       <div className="ktab-pdf-input-card__title-group">
         <h3 className="ktab-pdf-input-card__title">إعدادات التحليل والتوليد</h3>
@@ -44,10 +45,11 @@ export function PdfInputCard({ onGenerate, loading = false }) {
 
       {/* PDF Upload Dropzone */}
       <div className="ktab-pdf-input-field">
-        <label className="ktab-pdf-input-label">
-          <span>ملف الكتاب (PDF)</span>
-          <span className="ktab-pdf-input-required">*</span>
-        </label>
+        <div className="ktab-pdf-input-label-row">
+          <span className="ktab-pdf-input-label">
+            ملف الكتاب (PDF) <span className="ktab-pdf-input-required">*</span>
+          </span>
+        </div>
         <input
           ref={fileInputRef}
           type="file"
@@ -87,38 +89,51 @@ export function PdfInputCard({ onGenerate, loading = false }) {
             onDrop={handleDrop}
             className={`ktab-pdf-dropzone ${
               isDragging ? "ktab-pdf-dropzone--dragging" : ""
-            }`}
+            } ${errors.file ? "ktab-pdf-dropzone--error" : ""}`}
             role="button"
             tabIndex={0}
             aria-label="انقر أو اسحب ملف PDF للرفع"
           >
             <div className="ktab-pdf-dropzone__icon-wrap" aria-hidden="true">
-              <Upload size={22} strokeWidth={2} />
+              <Upload size={20} strokeWidth={2} />
             </div>
-            <span className="ktab-pdf-dropzone__prompt">اختر أو اسحب ملف PDF</span>
-            <span className="ktab-pdf-dropzone__hint">صيغة PDF فقط حتى 20 ميغابايت</span>
+            <span className="ktab-pdf-dropzone__prompt">اسحب مسودة الكتاب هنا أو تصفح</span>
+            <span className="ktab-pdf-dropzone__hint">صيغة PDF فقط • حتى 20 ميغابايت</span>
           </div>
+        )}
+
+        {errors.file && (
+          <span className="ktab-pdf-field-error" role="alert">
+            {errors.file}
+          </span>
         )}
       </div>
 
       {/* Audience Profile with Global Select */}
       <div className="ktab-pdf-input-field">
-        <label className="ktab-pdf-input-label">
-          <span>الفئة والأسلوب المستهدف</span>
-        </label>
+        <div className="ktab-pdf-input-label-row">
+          <span className="ktab-pdf-input-label">الفئة والأسلوب المستهدف</span>
+        </div>
         <Select
           value={audience}
           onChange={(e) => setAudience(e.target.value)}
           options={audienceOptions}
           placeholder="اختر الفئة المستهدفة"
         />
+        {errors.audience && (
+          <span className="ktab-pdf-field-error" role="alert">
+            {errors.audience}
+          </span>
+        )}
       </div>
 
       {/* Word Count Range Slider */}
       <div className="ktab-pdf-input-field">
-        <div className="ktab-pdf-input-label">
-          <span>عدد الكلمات التقريبي</span>
-          <span className="ktab-pdf-word-count-badge">{wordCount} كلمة</span>
+        <div className="ktab-pdf-input-label-row">
+          <span className="ktab-pdf-input-label">طول الخاتمة التقريبي</span>
+          <span className="ktab-pdf-word-count-badge">
+            {wordCount} كلمة
+          </span>
         </div>
         <input
           type="range"
@@ -132,23 +147,13 @@ export function PdfInputCard({ onGenerate, loading = false }) {
         />
       </div>
 
-      {/* Submit Action Button */}
+      {/* Submit Action Button - No icon, no AI mention */}
       <button
         type="submit"
         disabled={loading}
         className="ktab-pdf-submit-btn"
       >
-        {loading ? (
-          <>
-            <Loader2 size={18} className="ktab-spin-loader" />
-            <span>جاري التحليل والتوليد...</span>
-          </>
-        ) : (
-          <>
-            <Sparkles size={18} />
-            <span>توليد الخاتمة بالذكاء الاصطناعي</span>
-          </>
-        )}
+        <span>{loading ? "جاري التوليد..." : "توليد الخاتمة"}</span>
       </button>
     </form>
   );

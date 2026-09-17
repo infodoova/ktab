@@ -174,7 +174,7 @@
   transform: scale(0.95);
 }
 
-/* Vibrant Red Active Filter Badge for Mobile */
+/* Active Filter Badge for Mobile (Standardized Neutral Black - No Neon, No Shadows) */
 .ktab-mobile-filter-badge {
   position: absolute;
   top: -4px;
@@ -183,7 +183,7 @@
   height: 1.125rem;
   padding: 0 0.25rem;
   border-radius: 9999px;
-  background-color: var(--color-danger, #ef4444);
+  background-color: var(--brand-black, #0a0a0a);
   color: var(--brand-white, #ffffff);
   font-size: 0.6875rem;
   font-weight: 850;
@@ -193,7 +193,7 @@
   align-items: center;
   justify-content: center;
   border: 2px solid var(--bg-primary, #ffffff);
-  box-shadow: 0 2px 5px var(--color-danger-glow, rgba(239, 68, 68, 0.4));
+  box-shadow: none;
   line-height: 1;
   z-index: 2;
 }
@@ -566,6 +566,16 @@
   align-items: center;
   justify-content: center;
   background-color: var(--bg-secondary);
+}
+
+.ktab-book-cover-fallback-logo {
+  width: 1.35rem;
+  height: 1.35rem;
+  object-fit: contain;
+  filter: grayscale(100%);
+  opacity: 0.6;
+  user-select: none;
+  pointer-events: none;
 }
 
 .ktab-book-info {

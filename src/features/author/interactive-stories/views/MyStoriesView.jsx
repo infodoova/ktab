@@ -28,6 +28,7 @@ export function MyStoriesView({ pageName = "قصصي التفاعلية" }) {
     loadingMore,
     page,
     totalPages,
+    totalElements,
     searchQuery,
     setSearchQuery,
     selectedGenre,
@@ -50,7 +51,16 @@ export function MyStoriesView({ pageName = "قصصي التفاعلية" }) {
   const headerActions = (
     <button
       type="button"
-      onClick={() => navigate("/author/interactive-story")}
+      onClick={() =>
+        navigate("/author/interactive-story", {
+          state: {
+            from: {
+              parentLabel: "القصص التفاعلية",
+              parentPath: "/author/my-stories",
+            },
+          },
+        })
+      }
       className="ktab-topbar__btn-action"
       title="إنشاء قصة تفاعلية جديدة"
     >
@@ -74,7 +84,7 @@ export function MyStoriesView({ pageName = "قصصي التفاعلية" }) {
           <div className="ktab-stories-section-meta">
             <h2 className="ktab-stories-section-title">القصص التفاعلية</h2>
             <span className="ktab-stories-section-count">
-              {stories.length} {stories.length === 1 ? "قصة" : stories.length === 2 ? "قصتان" : stories.length > 10 ? "قصة" : "قصص"}
+              {totalElements} {totalElements === 1 ? "قصة" : totalElements === 2 ? "قصتان" : totalElements > 10 ? "قصة" : "قصص"}
             </span>
           </div>
 
@@ -105,13 +115,13 @@ export function MyStoriesView({ pageName = "قصصي التفاعلية" }) {
           <button
             type="button"
             onClick={() => setIsFilterSheetOpen(true)}
-            className="ktab-stories-mobile-filter-btn ktab-mobile-only"
+            className="ktab-mobile-filter-btn ktab-mobile-only"
             aria-label="تصفية وترتيب القصص"
             title="تصفية وترتيب القصص"
           >
             <SlidersHorizontal size={15} />
             {activeFiltersCount > 0 && (
-              <span className="ktab-stories-mobile-filter-badge">
+              <span className="ktab-mobile-filter-badge">
                 {activeFiltersCount}
               </span>
             )}
@@ -130,7 +140,16 @@ export function MyStoriesView({ pageName = "قصصي التفاعلية" }) {
           onStoryClick={setSelectedStory}
           onDeleteClick={setStoryToDelete}
           onLoadMore={loadMore}
-          onCreateNew={() => navigate("/author/interactive-story")}
+          onCreateNew={() =>
+            navigate("/author/interactive-story", {
+              state: {
+                from: {
+                  parentLabel: "القصص التفاعلية",
+                  parentPath: "/author/my-stories",
+                },
+              },
+            })
+          }
           searchQuery={searchQuery}
           isFiltered={selectedGenre !== "ALL"}
           onResetFilters={() => {

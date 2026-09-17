@@ -1,0 +1,208 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   UNIFIED EDITORIAL BOOK PUBLISH FORM (Single Vertical Flow - No Enclosing BG)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.book-publish-form {
+  width: 100%;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/* Centered Editorial Flow Container */
+.book-publish-form__body {
+  max-width: 780px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.35rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ── Individual Form Field Rows ── */
+.book-publish-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.book-publish-form__label {
+  font-size: 0.875rem;
+  font-weight: 750;
+  color: var(--brand-black);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.book-publish-form__required {
+  color: var(--color-danger);
+}
+
+/* Input & Textarea Styled to Match Global Select Components */
+.book-publish-form__input {
+  width: 100%;
+  height: 48px;
+  border-radius: 12px;
+  border: 1px solid var(--border-card);
+  background-color: var(--bg-primary);
+  color: var(--brand-black);
+  padding: 0 16px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.book-publish-form__input:focus {
+  outline: none;
+  border-color: var(--brand-teal);
+  box-shadow: 0 0 0 3px var(--brand-teal-ambient);
+}
+
+.book-publish-form__textarea {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid var(--border-card);
+  background-color: var(--bg-primary);
+  color: var(--brand-black);
+  padding: 12px 16px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  font-family: inherit;
+  line-height: 1.6;
+  resize: vertical;
+  min-height: 115px;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.book-publish-form__textarea:focus {
+  outline: none;
+  border-color: var(--brand-teal);
+  box-shadow: 0 0 0 3px var(--brand-teal-ambient);
+}
+
+/* ── 2x2 Select Grid ── */
+.book-publish-form__selects-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem 1rem;
+  width: 100%;
+}
+
+.book-publish-form__select-field {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Action Buttons ── */
+.book-publish-form__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.875rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border-subtle);
+  margin-top: 0.5rem;
+}
+
+.book-publish-form__btn-draft {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 46px;
+  padding: 0 1.35rem;
+  border-radius: 10px;
+  border: 1px solid var(--border-card);
+  background-color: var(--bg-primary);
+  color: var(--text-muted);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.book-publish-form__btn-draft:hover:not(:disabled) {
+  background-color: var(--btn-action-bg-hover);
+  color: var(--brand-black);
+  border-color: var(--btn-action-border);
+}
+
+.book-publish-form__btn-publish {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 46px;
+  padding: 0 1.65rem;
+  border-radius: 10px;
+  border: none;
+  background-color: var(--brand-black);
+  color: var(--brand-white);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.14);
+  transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
+}
+
+.book-publish-form__btn-publish:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
+}
+
+.book-publish-form__btn-publish:disabled,
+.book-publish-form__btn-draft:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.book-publish-form__spinner {
+  animation: book-publish-spin 1s linear infinite;
+}
+
+@keyframes book-publish-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── Mobile & Tablet Full-Width Responsive ── */
+@media (max-width: 860px) {
+  .book-publish-form__body {
+    max-width: 100%;
+    padding: 0 1rem;
+    gap: 1.15rem;
+  }
+
+  .book-publish-form__selects-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .book-publish-form__actions {
+    display: flex;
+    flex-direction: row;
+    gap: 0.75rem;
+    width: 100%;
+    padding-top: 1rem;
+  }
+
+  .book-publish-form__btn-draft,
+  .book-publish-form__btn-publish {
+    flex: 1;
+    height: 48px;
+  }
+}

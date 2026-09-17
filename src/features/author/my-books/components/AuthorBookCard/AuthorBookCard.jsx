@@ -1,18 +1,18 @@
 import React from "react";
-import { MoreVertical, Trash2, Edit, Eye, BookOpen, Star, Headphones } from "lucide-react";
+import { MoreVertical, Trash2, Edit, Eye, Star, Headphones } from "lucide-react";
+import brandIconImg from "@/assets/logo/BrandIcon.png";
 import { useAuthorBookCard } from "./useAuthorBookCard";
 import "./AuthorBookCard.css";
 
 /**
- * Pure presentation AuthorBookCard component.
- * Invokes useAuthorBookCard for state and event handling.
+ * Pure presentation card component for author books.
  */
-export function AuthorBookCard({
+export const AuthorBookCard = React.memo(function AuthorBookCard({
   book,
-  onClick,
-  onDelete,
   openMenuId,
   setOpenMenuId,
+  onBookClick,
+  onDeleteClick,
 }) {
   const {
     coverUrl,
@@ -36,8 +36,8 @@ export function AuthorBookCard({
     book,
     openMenuId,
     setOpenMenuId,
-    onClick,
-    onDelete,
+    onClick: onBookClick,
+    onDelete: onDeleteClick,
   });
 
   return (
@@ -57,13 +57,12 @@ export function AuthorBookCard({
             role="img"
             aria-label={book?.title || "كتاب"}
           >
-            <div className="ktab-book-card__fallback-icon">
-              <BookOpen size={24} strokeWidth={1.8} />
-            </div>
-            <span className="ktab-book-card__fallback-title" title={book?.title}>
-              {book?.title || "كتاب"}
-            </span>
-            <span className="ktab-book-card__fallback-badge">غلاف غير متوفر</span>
+            <img
+              src={brandIconImg}
+              alt=""
+              className="ktab-book-card__fallback-logo"
+              aria-hidden="true"
+            />
           </div>
         ) : (
           <div className="ktab-book-card__image-container">
@@ -176,6 +175,6 @@ export function AuthorBookCard({
       </div>
     </div>
   );
-}
+});
 
 export default AuthorBookCard;

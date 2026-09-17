@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
+import { Loader2 } from "lucide-react";
 import { AuthorBookCard } from "../AuthorBookCard";
 import { BooksSkeleton } from "../BooksSkeleton";
 import "./AuthorBookGrid.css";
 
 /**
- * Pure presentation AuthorBookGrid component matching Interactive Stories layout.
+ * Presentation grid for author books with IntersectionObserver infinite scroll.
  */
 export function AuthorBookGrid({
   books = [],
@@ -22,6 +23,25 @@ export function AuthorBookGrid({
   onResetFilters,
   isFiltered = false,
 }) {
+  const sentinelRef = useRef(null);
+
+  // Automatic infinite scroll trigger on viewport intersection
+  useEffect(() => {
+    if (!sentinelRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !loading && !loadingMore && page + 1 < totalPages) {
+          onLoadMore?.();
+        }
+      },
+      { rootMargin: "350px" }
+    );
+
+    observer.observe(sentinelRef.current);
+    return () => observer.disconnect();
+  }, [loading, loadingMore, page, totalPages, onLoadMore]);
+
   if (loading) {
     return <BooksSkeleton count={8} />;
   }
@@ -38,8 +58,8 @@ export function AuthorBookGrid({
           {isSearchOrFilter
             ? searchQuery.trim()
               ? `لم نتمكن من العثور على أي كتاب يطابق «${searchQuery.trim()}».`
-              : "لا توجد كتب ضمن التصنيف المحدد حالياً."
-            : "ابدأ بنشر أول كتاب لك وصياغة الفصول والصفحات لجمهورك."}
+              : "لا توجد كتب ضمن هذا التصنيف حالياً."
+            : "ابدأ بنشر أول كتاب رقمي وشاركه مع قراء المنصة بكل سهولة."}
         </p>
 
         {isSearchOrFilter ? (
@@ -59,7 +79,7 @@ export function AuthorBookGrid({
               onClick={onCreateNew}
               className="ktab-books-empty__action-btn"
             >
-              نشر كتاب جديد
+              نشر أول كتاب
             </button>
           )
         )}
@@ -68,30 +88,28 @@ export function AuthorBookGrid({
   }
 
   return (
-    <div className="ktab-books-container" dir="rtl">
+    <div className="ktab-books-container">
       <div className="ktab-books-grid">
-        {books.map((book) => (
+        {books.map((book, index) => (
           <AuthorBookCard
-            key={book.id}
+            key={book.id || index}
             book={book}
-            openMenuId={openMenuId}
-            setOpenMenuId={setOpenMenuId}
-            onClick={onBookClick}
+            isMenuOpen={openMenuId === book.id}
+            onToggleMenu={(id) => setOpenMenuId((prev) => (prev === id ? null : id))}
+            onCardClick={onBookClick}
             onDelete={onDeleteClick}
           />
         ))}
       </div>
 
+      {/* Infinite Scroll Sentinel & Subtle Spinner */}
       {page + 1 < totalPages && (
-        <div className="ktab-books-load-more">
-          <button
-            type="button"
-            onClick={onLoadMore}
-            disabled={loadingMore}
-            className="ktab-books-load-more__btn"
-          >
-            {loadingMore ? "جاري التحميل..." : "عرض المزيد من الكتب"}
-          </button>
+        <div ref={sentinelRef} className="ktab-books-infinite-sentinel">
+          {loadingMore && (
+            <div className="ktab-books-infinite-spinner">
+              <Loader2 size={24} className="ktab-spinner" />
+            </div>
+          )}
         </div>
       )}
     </div>

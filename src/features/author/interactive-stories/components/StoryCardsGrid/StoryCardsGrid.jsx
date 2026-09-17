@@ -1,5 +1,6 @@
-import React from "react";
-import { MoreVertical, Trash2, Eye, Compass } from "lucide-react";
+import React, { useRef, useEffect } from "react";
+import { MoreVertical, Trash2, Eye, Loader2 } from "lucide-react";
+import brandIconImg from "@/assets/logo/BrandIcon.png";
 import { useStoryCoverImage } from "./useStoryCoverImage";
 import { ARABIC_TAG_MAP } from "../../constants/interactiveStoriesConstants";
 import "./StoryCardsGrid.css";
@@ -10,13 +11,12 @@ function StoryCoverImage({ coverUrl, title }) {
   if (!coverUrl || hasError) {
     return (
       <div className="ktab-story-card__fallback-cover" role="img" aria-label={title || "قصة تفاعلية"}>
-        <div className="ktab-story-card__fallback-icon">
-          <Compass size={24} strokeWidth={1.8} />
-        </div>
-        <span className="ktab-story-card__fallback-title" title={title}>
-          {title || "قصة تفاعلية"}
-        </span>
-        <span className="ktab-story-card__fallback-badge">غلاف غير متوفر</span>
+        <img
+          src={brandIconImg}
+          alt=""
+          className="ktab-story-card__fallback-logo"
+          aria-hidden="true"
+        />
       </div>
     );
   }
@@ -58,6 +58,25 @@ export function StoryCardsGrid({
   onResetFilters,
   isFiltered = false,
 }) {
+  const sentinelRef = useRef(null);
+
+  // Automatic infinite scroll trigger on viewport intersection
+  useEffect(() => {
+    if (!sentinelRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !loading && !loadingMore && page + 1 < totalPages) {
+          onLoadMore?.();
+        }
+      },
+      { rootMargin: "350px" }
+    );
+
+    observer.observe(sentinelRef.current);
+    return () => observer.disconnect();
+  }, [loading, loadingMore, page, totalPages, onLoadMore]);
+
   if (loading) {
     return (
       <div className="ktab-stories-grid">
@@ -188,16 +207,14 @@ export function StoryCardsGrid({
         })}
       </div>
 
+      {/* Infinite Scroll Sentinel & Subtle Spinner */}
       {page + 1 < totalPages && (
-        <div className="ktab-stories-load-more">
-          <button
-            type="button"
-            onClick={onLoadMore}
-            disabled={loadingMore}
-            className="ktab-stories-load-more__btn"
-          >
-            {loadingMore ? "جاري التحميل..." : "عرض المزيد من القصص"}
-          </button>
+        <div ref={sentinelRef} className="ktab-stories-infinite-sentinel">
+          {loadingMore && (
+            <div className="ktab-stories-infinite-spinner">
+              <Loader2 size={24} className="ktab-spinner" />
+            </div>
+          )}
         </div>
       )}
     </div>

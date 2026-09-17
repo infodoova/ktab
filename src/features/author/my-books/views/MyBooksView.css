@@ -10,7 +10,7 @@
   width: 100%;
   max-width: 100%;
   margin: 0;
-  padding: 1.25rem 1.25rem 3.5rem 1.25rem;
+  padding: 0 1.25rem 3.5rem 1.25rem;
   direction: rtl;
   font-family: var(--font-arabic), sans-serif;
   box-sizing: border-box;
@@ -18,40 +18,42 @@
 
 @media (min-width: 768px) {
   .ktab-mybooks-page {
-    padding: 2rem 2.5rem 5rem 2.5rem;
+    padding: 0 2.5rem 5rem 2.5rem;
     gap: 2rem;
   }
 }
 
 /* ─────────────────────────────────────────────────────────────
-   TOP STICKY SECTION HEADER (Aligned optically, Blur on scroll)
+   TOP STICKY SECTION HEADER (Full-Bleed Opaque Solid Background)
    ───────────────────────────────────────────────────────────── */
 .ktab-mybooks-section-header {
+  position: -webkit-sticky;
   position: sticky;
   top: 4rem;
   z-index: 25;
-  background-color: rgba(248, 250, 252, 0.92);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background-color: var(--bg-secondary, #f8fafc);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 100%;
+  width: auto;
   gap: 1.25rem;
-  padding-top: 0.75rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid var(--border-subtle);
-  margin-top: -0.75rem;
-  margin-bottom: 0.5rem;
+  margin-top: 0;
+  margin-right: -2.5rem;
+  margin-left: -2.5rem;
+  padding: 1rem 2.5rem 1rem 2.5rem;
+  border-bottom: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
   box-sizing: border-box;
   transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 @media (max-width: 767px) {
   .ktab-mybooks-section-header {
-    top: 3.75rem;
-    padding-top: 0.5rem;
-    margin-top: -0.5rem;
+    top: calc(3.75rem - 1px);
+    margin-top: -1px;
+    margin-right: -1.25rem;
+    margin-left: -1.25rem;
+    padding: 0.75rem 1.25rem 0.875rem 1.25rem;
   }
 }
 
@@ -157,47 +159,7 @@
   font-size: 0.75rem !important;
 }
 
-/* Mobile Filter Trigger Button */
-.ktab-mybooks-mobile-filter-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  padding: 0.5rem 0.9rem;
-  background-color: var(--bg-primary);
-  border: 1px solid var(--border-subtle);
-  border-radius: 0.75rem;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--brand-black);
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  font-family: inherit;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-}
-
-.ktab-mybooks-mobile-filter-btn:hover {
-  background-color: var(--bg-secondary);
-}
-
-.ktab-mybooks-mobile-filter-btn--active {
-  border-color: var(--brand-teal);
-  color: #166534;
-  background-color: rgba(93, 227, 186, 0.1);
-}
-
-.ktab-mybooks-mobile-filter-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.15rem;
-  height: 1.15rem;
-  border-radius: 50%;
-  background-color: var(--brand-teal);
-  color: #0f172a;
-  font-size: 0.65rem;
-  font-weight: 800;
-  line-height: 1;
-}
+/* Mobile Filter Trigger Button uses global .ktab-mobile-filter-btn and .ktab-mobile-filter-badge */
 
 /* ─────────────────────────────────────────────────────────────
    BOTTOM SHEET FILTER FORM

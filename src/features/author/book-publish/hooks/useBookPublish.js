@@ -144,8 +144,8 @@ export function useBookPublish() {
           description: local.description || "",
           category: local.category || "",
           subCategory: local.subCategory || "",
-          language: local.language || "arabic",
-          ageGroup: local.ageGroup || "",
+          language: local.language || LANG_OPTIONS[0].id,
+          ageGroup: local.ageGroup || AGE_GROUPS[0],
           coverFile: null,
           pdfFile: null,
         };
@@ -156,8 +156,8 @@ export function useBookPublish() {
       description: "",
       category: "",
       subCategory: "",
-      language: "arabic",
-      ageGroup: "",
+      language: LANG_OPTIONS[0].id,
+      ageGroup: AGE_GROUPS[0],
       coverFile: null,
       pdfFile: null,
     };
@@ -294,22 +294,43 @@ export function useBookPublish() {
     }
   }, [draft, genres]);
 
+  // Auto-select index 0 for genre and subgenre when genres load and no category is selected
+  useEffect(() => {
+    if (isEditingDraft || !genres || genres.length === 0) return;
+
+    setFormData((prev) => {
+      if (prev.category) return prev;
+      const firstGenre = genres[0];
+      const firstGenreId = String(firstGenre.id);
+      const subs = firstGenre.subGenres || [];
+      const firstSubId = subs.length > 0 ? String(subs[0].id) : "";
+      setSubGenres(subs);
+      return {
+        ...prev,
+        category: firstGenreId,
+        subCategory: firstSubId,
+      };
+    });
+  }, [genres, isEditingDraft]);
+
   // Memoized input change handler
   const handleInputChange = useCallback((field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   }, []);
 
-  // Memoized genre selection handler
+  // Memoized genre selection handler with auto-selection of first subgenre
   const handleGenreChange = useCallback(
     (genreId) => {
+      const selectedGenre = genres.find((g) => String(g.id) === String(genreId));
+      const subs = selectedGenre?.subGenres || [];
+      setSubGenres(subs);
+      const firstSubId = subs.length > 0 ? String(subs[0].id) : "";
+
       setFormData((prev) => ({
         ...prev,
-        category: genreId,
-        subCategory: "",
+        category: String(genreId),
+        subCategory: firstSubId,
       }));
-
-      const selectedGenre = genres.find((g) => String(g.id) === String(genreId));
-      setSubGenres(selectedGenre?.subGenres || []);
     },
     [genres]
   );

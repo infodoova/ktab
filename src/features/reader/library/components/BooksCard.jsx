@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { MoreVertical, Loader2, BookOpen, Star } from "lucide-react";
+import {
+  MoreVertical,
+  BookOpen,
+  Headphones,
+  CheckCircle,
+  Clock,
+  Trash2,
+  Share2,
+  Star,
+} from "lucide-react";
+import brandIconImg from "@/assets/logo/BrandIcon.png";
 import { Link } from "react-router-dom";
 import SkeletonBookLoader from "./SkeletonBookLoader";
 
@@ -46,11 +56,12 @@ function BookCoverImage({ src, title, isAboveFold }) {
           }`}
         />
       ) : (
-        <div className="absolute inset-0 flex flex-col items-center justify-center p-3 text-center bg-gradient-to-br from-slate-100 to-slate-200 border border-black/5 text-slate-400">
-          <BookOpen size={26} className="text-slate-400 mb-1.5 stroke-[1.5]" />
-          <span className="text-[11px] font-bold text-slate-500 line-clamp-2 px-1 leading-snug">
-            {title || "غلاف غير متوفر"}
-          </span>
+        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 border border-black/5" aria-hidden="true">
+          <img
+            src={brandIconImg}
+            alt=""
+            className="w-14 h-14 object-contain grayscale opacity-65 select-none pointer-events-none"
+          />
         </div>
       )}
     </>

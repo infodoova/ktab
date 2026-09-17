@@ -48,7 +48,14 @@ export function useAuthorBookCard({
 
   const handleEditClick = useCallback(() => {
     setOpenMenuId(null);
-    navigate(`/author/new-book/${book.id}`);
+    navigate(`/author/new-book/${book.id}`, {
+      state: {
+        from: {
+          parentLabel: "المكتبة",
+          parentPath: "/author/my-books",
+        },
+      },
+    });
   }, [book?.id, navigate, setOpenMenuId]);
 
   const handleDeleteClick = useCallback(() => {

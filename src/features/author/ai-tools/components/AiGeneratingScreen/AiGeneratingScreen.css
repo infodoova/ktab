@@ -1,5 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   AI GENERATING SCREEN - Eleven Reader + Apple Dynamic Loader
+   AI GENERATING SCREEN - Eleven Reader + Apple Dynamic Studio Loader
+   Uses dynamic tokens from src/index.css — Zero hardcoded colors
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .ktab-ai-generating {
@@ -9,13 +10,16 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 3rem 1.5rem;
-  gap: 1.5rem;
+  padding: 2.25rem 1.5rem;
+  gap: 1.25rem;
   direction: rtl;
   font-family: var(--font-arabic), sans-serif;
   box-sizing: border-box;
 }
 
+/* ─────────────────────────────────────────────────────────────
+   BEACON WITH GLOW RING
+   ───────────────────────────────────────────────────────────── */
 .ktab-ai-generating__beacon {
   position: relative;
   display: flex;
@@ -24,34 +28,39 @@
 }
 
 .ktab-ai-generating__icon-box {
-  width: 4.5rem;
-  height: 4.5rem;
-  border-radius: 1.25rem;
-  background-color: var(--brand-teal-soft);
+  width: 3.75rem;
+  height: 3.75rem;
+  border-radius: 1.15rem;
+  background-color: var(--bg-primary);
   color: var(--brand-teal-deep);
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(93, 227, 186, 0.4);
-  animation: ktabBeaconPulse 2s ease-in-out infinite;
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 4px 14px -2px rgba(93, 227, 186, 0.25);
+  animation: ktabBeaconPulse 2.2s ease-in-out infinite;
   z-index: 2;
 }
 
 .ktab-ai-generating__glow-ring {
   position: absolute;
-  inset: -0.5rem;
-  border-radius: 1.5rem;
-  background: radial-gradient(circle, rgba(93, 227, 186, 0.35) 0%, rgba(93, 227, 186, 0) 70%);
+  inset: -0.4rem;
+  border-radius: 1.4rem;
+  background: radial-gradient(circle, rgba(93, 227, 186, 0.25) 0%, rgba(93, 227, 186, 0) 70%);
   animation: ktabBeaconGlow 2.5s ease-in-out infinite;
   z-index: 1;
   pointer-events: none;
 }
 
+/* ─────────────────────────────────────────────────────────────
+   TITLE & DYNAMIC THINKING STATUS
+   ───────────────────────────────────────────────────────────── */
 .ktab-ai-generating__text-group {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
-  max-width: 24rem;
+  align-items: center;
+  gap: 0.4rem;
+  max-width: 26rem;
 }
 
 .ktab-ai-generating__title {
@@ -62,33 +71,240 @@
   letter-spacing: -0.01em;
 }
 
-.ktab-ai-generating__desc {
-  font-size: 0.8125rem;
-  font-weight: 500;
-  line-height: 1.65;
-  color: var(--text-subtle);
-  margin: 0;
+.ktab-ai-generating__thinking-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.85rem;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 9999px;
+  min-height: 1.85rem;
 }
 
-/* Animations */
+.ktab-ai-generating__thinking-pulse {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background-color: var(--primary-button);
+  box-shadow: 0 0 6px var(--brand-teal-glow);
+  animation: ktabThinkingPulse 1.6s infinite ease-in-out;
+  flex-shrink: 0;
+}
+
+.ktab-ai-generating__desc {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--text-subtle);
+  margin: 0;
+  transition: opacity 0.25s ease;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   PROGRESS BAR CARD
+   ───────────────────────────────────────────────────────────── */
+.ktab-ai-generating__progress-card {
+  width: 100%;
+  max-width: 22rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 0.85rem 1rem;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.85rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+  box-sizing: border-box;
+}
+
+.ktab-ai-generating__progress-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.ktab-ai-generating__progress-label {
+  font-size: 0.75rem;
+  font-weight: 650;
+  color: var(--text-subtle);
+}
+
+.ktab-ai-generating__progress-val {
+  font-size: 0.875rem;
+  font-weight: 800;
+  color: var(--brand-black);
+  font-variant-numeric: tabular-nums;
+}
+
+.ktab-ai-generating__track {
+  width: 100%;
+  height: 0.45rem;
+  background-color: var(--bg-secondary);
+  border-radius: 9999px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.ktab-ai-generating__bar {
+  height: 100%;
+  border-radius: 9999px;
+  background: var(--gradient, linear-gradient(90deg, #5de3ba 0%, #4ed4ab 100%));
+  box-shadow: 0 0 10px var(--brand-teal-glow, rgba(93, 227, 186, 0.5));
+  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+.ktab-ai-generating__bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.6) 50%,
+    transparent 100%
+  );
+  animation: ktabBarShimmer 1.8s infinite ease-in-out;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   MULTI-STEP CHECKLIST
+   ───────────────────────────────────────────────────────────── */
+.ktab-ai-generating__steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  width: 100%;
+  max-width: 22rem;
+}
+
+.ktab-ai-generating__step {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.55rem 0.85rem;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.65rem;
+  font-size: 0.775rem;
+  font-weight: 600;
+  color: var(--text-subtle);
+  text-align: right;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+.ktab-ai-generating__step-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.25s ease;
+}
+
+.ktab-ai-generating__step-dot {
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 50%;
+  background-color: var(--text-subtle);
+  opacity: 0.35;
+}
+
+.ktab-ai-generating__step-text {
+  flex: 1;
+}
+
+/* Completed Step State */
+.ktab-ai-generating__step--completed {
+  color: var(--brand-black);
+  border-color: rgba(93, 227, 186, 0.3);
+  background-color: rgba(93, 227, 186, 0.03);
+}
+
+.ktab-ai-generating__step--completed .ktab-ai-generating__step-icon {
+  background-color: var(--primary-button);
+  border-color: var(--primary-border);
+  color: var(--brand-black);
+}
+
+/* Active Step State */
+.ktab-ai-generating__step--active {
+  color: var(--brand-black);
+  font-weight: 750;
+  border-color: var(--primary-border);
+  background-color: rgba(93, 227, 186, 0.08);
+  box-shadow: 0 2px 8px -2px rgba(93, 227, 186, 0.18);
+}
+
+.ktab-ai-generating__step--active .ktab-ai-generating__step-icon {
+  background-color: var(--bg-primary);
+  color: var(--brand-teal-deep);
+  border-color: var(--primary-button);
+}
+
+.ktab-step-spin {
+  animation: ktabSpin 1s linear infinite;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   KEYFRAME ANIMATIONS
+   ───────────────────────────────────────────────────────────── */
 @keyframes ktabBeaconPulse {
   0%, 100% {
     transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(93, 227, 186, 0.3);
+    box-shadow: 0 4px 14px -2px rgba(93, 227, 186, 0.25);
   }
   50% {
-    transform: scale(1.05);
-    box-shadow: 0 0 20px 4px rgba(93, 227, 186, 0.25);
+    transform: scale(1.04);
+    box-shadow: 0 6px 20px 2px rgba(93, 227, 186, 0.35);
   }
 }
 
 @keyframes ktabBeaconGlow {
   0%, 100% {
-    opacity: 0.5;
+    opacity: 0.4;
     transform: scale(0.95);
   }
   50% {
-    opacity: 1;
+    opacity: 0.9;
     transform: scale(1.15);
+  }
+}
+
+@keyframes ktabThinkingPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 1;
+  }
+}
+
+@keyframes ktabBarShimmer {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes ktabSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }

@@ -25,6 +25,7 @@ export function MyBooksView({ pageName = "كتبي" }) {
     loadingMore,
     page,
     totalPages,
+    totalElements,
     status,
     searchQuery,
     setSearchQuery,
@@ -56,7 +57,16 @@ export function MyBooksView({ pageName = "كتبي" }) {
   const headerActions = (
     <button
       type="button"
-      onClick={() => navigate("/author/new-book")}
+      onClick={() =>
+        navigate("/author/new-book", {
+          state: {
+            from: {
+              parentLabel: pageName || "المكتبة",
+              parentPath: "/author/my-books",
+            },
+          },
+        })
+      }
       className="ktab-topbar__btn-action"
       title="نشر كتاب جديد"
     >
@@ -82,12 +92,12 @@ export function MyBooksView({ pageName = "كتبي" }) {
               {status === "DRAFT" ? "المسودات" : "الكتب المنشورة"}
             </h2>
             <span className="ktab-mybooks-section-count">
-              {displayedBooks.length}{" "}
-              {displayedBooks.length === 1
+              {totalElements}{" "}
+              {totalElements === 1
                 ? "كتاب"
-                : displayedBooks.length === 2
+                : totalElements === 2
                 ? "كتابان"
-                : displayedBooks.length > 10
+                : totalElements > 10
                 ? "كتاب"
                 : "كتب"}
             </span>
@@ -141,24 +151,20 @@ export function MyBooksView({ pageName = "كتبي" }) {
           </div>
 
           {/* Mobile Filter Button (opens BottomSheet) */}
-          <div className="ktab-mybooks-filters-group ktab-mobile-only">
-            <button
-              type="button"
-              className={`ktab-mybooks-mobile-filter-btn ${
-                activeFiltersCount > 0 ? "ktab-mybooks-mobile-filter-btn--active" : ""
-              }`}
-              onClick={() => setIsFilterSheetOpen(true)}
-              aria-label="تصفية الكتب"
-            >
-              <SlidersHorizontal size={14} />
-              <span>تصفية</span>
-              {activeFiltersCount > 0 && (
-                <span className="ktab-mybooks-mobile-filter-badge">
-                  {activeFiltersCount}
-                </span>
-              )}
-            </button>
-          </div>
+          <button
+            type="button"
+            className="ktab-mobile-filter-btn ktab-mobile-only"
+            onClick={() => setIsFilterSheetOpen(true)}
+            aria-label="تصفية وترتيب الكتب"
+            title="تصفية وترتيب الكتب"
+          >
+            <SlidersHorizontal size={15} />
+            {activeFiltersCount > 0 && (
+              <span className="ktab-mobile-filter-badge">
+                {activeFiltersCount}
+              </span>
+            )}
+          </button>
         </div>
 
         {/* Books Grid */}

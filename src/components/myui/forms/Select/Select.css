@@ -25,8 +25,9 @@
 }
 
 .myui-select-required {
-  color: var(--brand-teal-dark, #4ed4ab);
+  color: var(--color-danger, #ef4444);
   font-size: 14px;
+  font-weight: 750;
   line-height: 1;
 }
 
