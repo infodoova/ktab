@@ -1,251 +1,290 @@
-import React, { useState, useRef, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Menu, X, ChevronRight, User as UserIcon, Search } from "lucide-react";
-import { getNavItemsByRole } from "@/core/routes/navigation";
-import { useAuthStore } from "@/core/store/authStore";
-
-// Brand Logo Imports
-import logoImg from "@/assets/logo/logo.png";
-import logoDarkImg from "@/assets/logo/logo2.png";
+import React from "react";
+import { Link } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Menu,
+  X,
+  Search,
+  MoreVertical,
+  LogOut,
+} from "lucide-react";
+import { useNavbar } from "./useNavbar";
 import "./Navbar.css";
 
 /**
- * Global App Navbar Component
+ * Editorial Apple / Eleven Reader Inspired Global Navbar & Sidebar.
+ * Pure editorial typography, no profile pictures ("pp"), no badges,
+ * and zero unsolicited clutter.
  */
 export function Navbar({
   collapsed = false,
   setCollapsed,
-  isDark = true,
+  isDark = false,
   showSearch = true,
   onSearchClick,
   searchQuery,
   onSearchChange,
   navLinks,
   pageName,
+  headerActions,
 }) {
-  const location = useLocation();
-  const user = useAuthStore((state) => state.user) || {};
-  const role = user?.role || "AUTHOR";
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [internalMobileSearchOpen, setInternalMobileSearchOpen] = useState(false);
-  const [internalSearchQuery, setInternalSearchQuery] = useState("");
-  const mobileSearchInputRef = useRef(null);
+  const {
+    firstName,
+    sub,
+    isUserLoaded,
+    links,
+    isLinkActive,
+    logo,
+    brandIcon,
+    mobileOpen,
+    setMobileOpen,
+    mobileSearchOpen,
+    mobileSearchInputRef,
+    query,
+    userMenuOpen,
+    userMenuRef,
+    handleMobileSearchClick,
+    handleCloseMobileSearch,
+    handleQueryChange,
+    handleToggleCollapse,
+    handleToggleUserMenu,
+    handleLogout,
+  } = useNavbar({
+    collapsed,
+    setCollapsed,
+    isDark,
+    onSearchClick,
+    searchQuery,
+    onSearchChange,
+    navLinks,
+  });
 
-  const query = searchQuery !== undefined ? searchQuery : internalSearchQuery;
-  const mobileSearchOpen = internalMobileSearchOpen || Boolean(query);
-
-  useEffect(() => {
-    if (mobileSearchOpen) {
-      setTimeout(() => mobileSearchInputRef.current?.focus(), 100);
-    }
-  }, [mobileSearchOpen]);
-
-  const handleMobileSearchClick = () => {
-    if (onSearchClick) {
-      onSearchClick();
-    } else {
-      setInternalMobileSearchOpen(true);
-    }
-  };
-
-  const handleCloseMobileSearch = (e) => {
-    e?.stopPropagation?.();
-    setInternalMobileSearchOpen(false);
-    setInternalSearchQuery("");
-    onSearchChange?.("");
-  };
-
-  const handleQueryChange = (val) => {
-    setInternalSearchQuery(val);
-    onSearchChange?.(val);
-  };
-
-  // Compute active navigation items based on passed links or user role
-  const links = navLinks || getNavItemsByRole(role);
-
-  const isLinkActive = (path) => {
-    if (path === "/reader/home" || path === "/author/control") {
-      return location.pathname === path;
-    }
-    return location.pathname.startsWith(path);
-  };
-
-  const logo = isDark ? logoDarkImg : logoImg;
-  const themeMobileClass = isDark ? "ktab-navbar-mobile--dark" : "ktab-navbar-mobile--light";
-  const themeDesktopClass = isDark ? "ktab-navbar-desktop--dark" : "ktab-navbar-desktop--light";
-  const collapseDesktopClass = collapsed ? "ktab-navbar-desktop--collapsed" : "ktab-navbar-desktop--expanded";
+  const themeMobileClass = isDark ? "ktab-nav-mobile--dark" : "ktab-nav-mobile--light";
+  const themeDesktopClass = isDark ? "ktab-nav-desktop--dark" : "ktab-nav-desktop--light";
+  const collapseDesktopClass = collapsed ? "ktab-nav-desktop--collapsed" : "ktab-nav-desktop--expanded";
 
   return (
     <>
       {/* ============================================================ */}
       {/* 📱 MOBILE HEADER BAR                                         */}
       {/* ============================================================ */}
-      <header dir="rtl" className={`ktab-navbar-mobile ${themeMobileClass}`}>
+      <header className={`ktab-nav-mobile ${themeMobileClass}`} dir="rtl">
         {mobileSearchOpen ? (
-          <div className="ktab-navbar-mobile__search-wrapper">
-            <div className="ktab-navbar-mobile__search-input-box">
-              <Search size={17} style={{ color: "#94a3b8", flexShrink: 0 }} />
+          <div className="ktab-nav-mobile__search-wrapper">
+            <div className="ktab-nav-mobile__search-box">
+              <Search size={16} className="ktab-nav-mobile__search-icon" />
               <input
                 ref={mobileSearchInputRef}
                 type="text"
                 value={query}
                 onChange={(e) => handleQueryChange(e.target.value)}
                 placeholder="ابحث عن كتاب، مؤلف، أو موضوع..."
-                className="ktab-navbar-mobile__search-input"
+                className="ktab-nav-mobile__search-input"
               />
             </div>
             <button
               type="button"
               onClick={handleCloseMobileSearch}
-              className="ktab-navbar-mobile__icon-btn"
+              className="ktab-nav-mobile__icon-btn"
               aria-label="إغلاق البحث"
             >
-              <X size={18} />
+              <X size={17} strokeWidth={2} />
             </button>
           </div>
         ) : (
-          <>
-            <div className="ktab-navbar-mobile__left">
-              <button
-                type="button"
-                onClick={() => setMobileOpen(true)}
-                className="ktab-navbar-mobile__icon-btn"
-                aria-label="فتح القائمة"
-              >
-                <Menu size={19} />
-              </button>
-              <span className="ktab-navbar-mobile__title">{pageName || "كِتَاب"}</span>
+          <div className="ktab-nav-mobile__inner">
+            {/* Right: Page Name (No logo on mobile) */}
+            <div className="ktab-nav-mobile__title-area">
+              <span className="ktab-nav-mobile__title">{pageName || "كِتَاب"}</span>
             </div>
 
-            <div className="ktab-navbar-mobile__right">
+            {/* Left: Actions + on max left the Hamburger Menu */}
+            <div className="ktab-nav-mobile__actions">
+              <motion.button
+                type="button"
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setMobileOpen(true)}
+                className="ktab-nav-mobile__icon-btn"
+                aria-label="فتح القائمة"
+              >
+                <Menu size={19} strokeWidth={2} />
+              </motion.button>
               {showSearch && (
                 <button
                   type="button"
                   onClick={handleMobileSearchClick}
-                  className="ktab-navbar-mobile__icon-btn"
+                  className="ktab-nav-mobile__icon-btn"
                   aria-label="البحث"
                 >
-                  <Search size={17} />
+                  <Search size={18} strokeWidth={2} />
                 </button>
               )}
-              <img src={logo} alt="Ktab Logo" className="ktab-navbar-mobile__logo" />
+              {headerActions && (
+                <div className="ktab-nav-mobile__custom-actions">{headerActions}</div>
+              )}
             </div>
-          </>
+          </div>
         )}
       </header>
 
       {/* ============================================================ */}
-      {/* 📱 MOBILE DRAWER OVERLAY                                     */}
+      {/* 📱 MOBILE DRAWER OVERLAY (Buttery Smooth Framer Motion)       */}
       {/* ============================================================ */}
-      {mobileOpen && (
-        <div className="ktab-drawer-overlay" onClick={() => setMobileOpen(false)}>
-          <aside
-            dir="rtl"
-            onClick={(e) => e.stopPropagation()}
-            className="ktab-drawer-aside"
-          >
-            <div>
-              {/* Header inside drawer */}
-              <div className="ktab-drawer-header">
-                <img src={logo} alt="Ktab Logo" style={{ height: "2.5rem", width: "auto", objectFit: "contain" }} />
-                <button
-                  type="button"
-                  onClick={() => setMobileOpen(false)}
-                  className="ktab-drawer-close-btn"
-                  aria-label="إغلاق القائمة"
-                >
-                  <X size={18} />
-                </button>
+      <AnimatePresence>
+        {mobileOpen && (
+          <div className="ktab-nav-drawer-overlay" dir="rtl">
+            {/* Backdrop Blur Overlay */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.22, ease: "easeOut" }}
+              className="ktab-nav-drawer-backdrop"
+              onClick={() => setMobileOpen(false)}
+            />
+
+            {/* Aside Drawer docked on RIGHT: slides in from right-to-left, closes left-to-right */}
+            <motion.aside
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{
+                type: "spring",
+                damping: 30,
+                stiffness: 350,
+                mass: 0.8,
+              }}
+              className={`ktab-nav-drawer-aside ${isDark ? "ktab-nav-drawer--dark" : "ktab-nav-drawer--light"}`}
+              dir="rtl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div>
+                {/* Header inside drawer */}
+                <div className="ktab-nav-drawer-header">
+                  <Link to="/" onClick={() => setMobileOpen(false)}>
+                    <img src={logo} alt="Ktab Logo" className="ktab-nav-drawer-logo" />
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => setMobileOpen(false)}
+                    className="ktab-nav-drawer-close-btn"
+                    aria-label="إغلاق القائمة"
+                  >
+                    <X size={18} strokeWidth={2} />
+                  </button>
+                </div>
+
+                {/* Navigation Links: Icons on the right side */}
+                <nav className="ktab-nav-drawer-nav">
+                  {links.map((link) => {
+                    const Icon = link.icon;
+                    const active = isLinkActive(link.path);
+
+                    return (
+                      <Link
+                        key={link.path}
+                        to={link.path}
+                        onClick={() => setMobileOpen(false)}
+                        className={`ktab-nav-item ${active ? "ktab-nav-item--active" : "ktab-nav-item--inactive"}`}
+                      >
+                        <span className="ktab-nav-item__icon-wrapper">
+                          <Icon size={18} strokeWidth={active ? 2.2 : 1.8} />
+                        </span>
+                        <span className="ktab-nav-item__label">{link.label}</span>
+                      </Link>
+                    );
+                  })}
+                </nav>
               </div>
 
-              {/* Navigation Links */}
-              <nav className="ktab-drawer-nav">
-                {links.map((link) => {
-                  const Icon = link.icon;
-                  const active = isLinkActive(link.path);
+              {/* User Profile Summary with Options Popover (No PP / No Badges) */}
+              <div className="ktab-nav-drawer-footer">
+                <div className="ktab-nav-profile__wrapper" ref={userMenuRef}>
+                  {!isUserLoaded ? (
+                    <div className="ktab-nav-profile ktab-nav-profile--loading" aria-busy="true" aria-label="جاري التحميل...">
+                      <div className="ktab-nav-profile__info">
+                        <div className="ktab-nav-skeleton ktab-nav-skeleton--name" />
+                        <div className="ktab-nav-skeleton ktab-nav-skeleton--email" />
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      {userMenuOpen && (
+                        <div className="ktab-user-menu-popover">
+                          <div className="ktab-user-menu-header">
+                            <div className="ktab-user-menu-header__details">
+                              <span className="ktab-user-menu-header__name">{firstName}</span>
+                              <span className="ktab-user-menu-header__email">{sub}</span>
+                            </div>
+                          </div>
+                          <div className="ktab-user-menu-divider" />
+                          <button
+                            type="button"
+                            onClick={handleLogout}
+                            className="ktab-user-menu-item ktab-user-menu-item--danger"
+                          >
+                            <LogOut size={15} strokeWidth={2} />
+                            <span>تسجيل الخروج</span>
+                          </button>
+                        </div>
+                      )}
 
-                  return (
-                    <Link
-                      key={link.path}
-                      to={link.path}
-                      onClick={() => setMobileOpen(false)}
-                      className={`ktab-nav-link-mobile ${
-                        active ? "ktab-nav-link-mobile--active" : "ktab-nav-link-mobile--inactive"
-                      }`}
-                    >
-                      <Icon size={20} />
-                      <span>{link.label}</span>
-                    </Link>
-                  );
-                })}
-              </nav>
-            </div>
-
-            {/* User Profile Summary */}
-            <div className="ktab-drawer-footer">
-              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                <div className="ktab-avatar-badge">
-                  <UserIcon size={16} />
-                </div>
-                <div style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                  <p style={{ fontSize: "0.75rem", fontWeight: 700, margin: 0, color: "var(--brand-white)" }}>
-                    {user?.fullName || "المؤلف"}
-                  </p>
-                  <p style={{ fontSize: "11px", color: "#94a3b8", fontWeight: 500, margin: 0 }}>
-                    {user?.email || "حساب المؤلف"}
-                  </p>
+                      <div className="ktab-nav-profile">
+                        <div className="ktab-nav-profile__info">
+                          <span className="ktab-nav-profile__name">{firstName}</span>
+                          <p className="ktab-nav-profile__email">{sub}</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleToggleUserMenu}
+                          className="ktab-nav-profile__options-btn"
+                          aria-label="خيارات الحساب"
+                          title="خيارات الحساب"
+                        >
+                          <MoreVertical size={16} strokeWidth={2} />
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
-            </div>
-          </aside>
-        </div>
-      )}
+            </motion.aside>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* ============================================================ */}
       {/* 💻 DESKTOP SIDEBAR                                           */}
       {/* ============================================================ */}
-      <aside
-        dir="rtl"
-        className={`ktab-navbar-desktop ${collapseDesktopClass} ${themeDesktopClass}`}
-      >
-        <div>
-          {/* Logo Brand Area */}
-          <div className="ktab-navbar-desktop__brand-row">
-            <Link to="/" style={{ display: "flex", alignItems: "center", gap: "0.75rem", textDecoration: "none" }}>
-              <img
-                src={logo}
-                alt="Ktab Logo"
-                style={{
-                  transition: "all 0.3s ease",
-                  objectFit: "contain",
-                  height: collapsed ? "2rem" : "2.5rem",
-                  width: collapsed ? "2rem" : "auto",
-                  maxWidth: "130px",
-                }}
-              />
-            </Link>
-
-            {/* Desktop Collapse Toggle */}
+      <aside className={`ktab-nav-desktop ${collapseDesktopClass} ${themeDesktopClass}`} dir="rtl">
+        <div className="ktab-nav-desktop__top">
+          {/* Top Brand Header (Height matches SideHeader 4rem for perfect alignment) */}
+          <div className="ktab-nav-desktop__brand-row">
             <button
               type="button"
-              onClick={() => setCollapsed(!collapsed)}
-              className="ktab-navbar-desktop__collapse-toggle"
-              aria-label={collapsed ? "توسيع القائمة" : "طي القائمة"}
-              title={collapsed ? "توسيع" : "طي"}
+              onClick={handleToggleCollapse}
+              className="ktab-nav-desktop__logo-btn"
+              aria-label={collapsed ? "توسيع القائمة الجانبية" : "طي القائمة الجانبية"}
+              title={collapsed ? "توسيع القائمة" : "طي القائمة"}
             >
-              <ChevronRight
-                size={16}
-                style={{
-                  transition: "transform 0.3s ease",
-                  transform: collapsed ? "rotate(180deg)" : "none",
-                  color: collapsed ? "var(--brand-teal)" : "inherit",
-                }}
-              />
+              {collapsed ? (
+                <img
+                  src={brandIcon}
+                  alt="Ktab Icon"
+                  className="ktab-nav-desktop__brand-icon"
+                />
+              ) : (
+                <img
+                  src={logo}
+                  alt="Ktab Logo"
+                  className="ktab-nav-desktop__logo"
+                />
+              )}
             </button>
           </div>
 
-          {/* Desktop Navigation Links */}
-          <nav className="ktab-navbar-desktop__nav">
+          {/* Navigation Links: Icons on the right side */}
+          <nav className="ktab-nav-desktop__nav">
             {links.map((link) => {
               const Icon = link.icon;
               const active = isLinkActive(link.path);
@@ -255,21 +294,15 @@ export function Navbar({
                   key={link.path}
                   to={link.path}
                   title={collapsed ? link.label : undefined}
-                  className={`ktab-nav-link-desktop ${
-                    active ? "ktab-nav-link-desktop--active" : "ktab-nav-link-desktop--inactive"
-                  } ${collapsed ? "ktab-nav-link-desktop--collapsed" : ""}`}
+                  className={`ktab-nav-item ${active ? "ktab-nav-item--active" : "ktab-nav-item--inactive"} ${
+                    collapsed ? "ktab-nav-item--collapsed" : ""
+                  }`}
                 >
-                  <Icon
-                    size={19}
-                    style={{
-                      flexShrink: 0,
-                      strokeWidth: active ? 2.5 : 2,
-                    }}
-                  />
+                  <span className="ktab-nav-item__icon-wrapper">
+                    <Icon size={18} strokeWidth={active ? 2.2 : 1.8} />
+                  </span>
                   {!collapsed && (
-                    <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      {link.label}
-                    </span>
+                    <span className="ktab-nav-item__label">{link.label}</span>
                   )}
                 </Link>
               );
@@ -277,31 +310,82 @@ export function Navbar({
           </nav>
         </div>
 
-        {/* User Profile Footer */}
-        <div className="ktab-navbar-desktop__profile-area">
-          {!collapsed ? (
-            <div className="ktab-navbar-desktop__profile-card">
-              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", minWidth: 0 }}>
-                <div className="ktab-avatar-badge">
-                  <UserIcon size={16} />
-                </div>
-                <div style={{ minWidth: 0 }}>
-                  <p style={{ fontSize: "0.75rem", fontWeight: 700, margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                    {user?.fullName || "المؤلف"}
-                  </p>
-                  <p style={{ fontSize: "11px", color: "#94a3b8", fontWeight: 500, margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                    {user?.email || "حساب المؤلف"}
-                  </p>
-                </div>
+        {/* User Profile Footer with Options Component (No PP / No Badges) */}
+        <div className="ktab-nav-desktop__footer">
+          <div className="ktab-nav-profile__wrapper" ref={userMenuRef}>
+            {!isUserLoaded ? (
+              <div
+                className={`ktab-nav-profile ktab-nav-profile--loading ${
+                  collapsed ? "ktab-nav-profile--collapsed" : ""
+                }`}
+                aria-busy="true"
+                aria-label="جاري التحميل..."
+              >
+                {!collapsed ? (
+                  <div className="ktab-nav-profile__info">
+                    <div className="ktab-nav-skeleton ktab-nav-skeleton--name" />
+                    <div className="ktab-nav-skeleton ktab-nav-skeleton--email" />
+                  </div>
+                ) : (
+                  <div className="ktab-nav-skeleton ktab-nav-skeleton--collapsed-btn" />
+                )}
               </div>
-            </div>
-          ) : (
-            <div style={{ display: "flex", justifyContent: "center", padding: "0.25rem 0" }}>
-              <div className="ktab-avatar-badge" title={user?.fullName || "المؤلف"}>
-                <UserIcon size={16} />
-              </div>
-            </div>
-          )}
+            ) : (
+              <>
+                {userMenuOpen && (
+                  <div
+                    className={`ktab-user-menu-popover ${
+                      collapsed ? "ktab-user-menu-popover--collapsed" : ""
+                    }`}
+                  >
+                    <div className="ktab-user-menu-header">
+                      <div className="ktab-user-menu-header__details">
+                        <span className="ktab-user-menu-header__name">{firstName}</span>
+                        <span className="ktab-user-menu-header__email">{sub}</span>
+                      </div>
+                    </div>
+                    <div className="ktab-user-menu-divider" />
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className="ktab-user-menu-item ktab-user-menu-item--danger"
+                    >
+                      <LogOut size={15} strokeWidth={2} />
+                      <span>تسجيل الخروج</span>
+                    </button>
+                  </div>
+                )}
+
+                {!collapsed ? (
+                  <div className="ktab-nav-profile">
+                    <div className="ktab-nav-profile__info">
+                      <span className="ktab-nav-profile__name">{firstName}</span>
+                      <p className="ktab-nav-profile__email">{sub}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleToggleUserMenu}
+                      className="ktab-nav-profile__options-btn"
+                      aria-label="خيارات الحساب"
+                      title="خيارات الحساب"
+                    >
+                      <MoreVertical size={16} strokeWidth={2} />
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleToggleUserMenu}
+                    className="ktab-nav-profile ktab-nav-profile--collapsed"
+                    title={`${firstName} - خيارات الحساب`}
+                    aria-label="خيارات الحساب"
+                  >
+                    <MoreVertical size={17} strokeWidth={2} />
+                  </button>
+                )}
+              </>
+            )}
+          </div>
         </div>
       </aside>
     </>

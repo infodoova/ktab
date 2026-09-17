@@ -1,0 +1,353 @@
+/* NewInteractiveStoryView Styles - Ktab Design System */
+
+.ktab-story-editor-page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 52rem;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 3.5rem 1.25rem;
+  direction: rtl;
+  font-family: var(--font-arabic), sans-serif;
+  box-sizing: border-box;
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .ktab-story-editor-page {
+    padding: 2rem 2.25rem 4rem 2.25rem;
+    gap: 2rem;
+  }
+}
+
+/* Card Container */
+.ktab-story-form-card {
+  background-color: var(--bg-primary, #ffffff);
+  border: 1px solid var(--border-subtle);
+  border-radius: 1.5rem;
+  padding: 1.75rem;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+@media (min-width: 768px) {
+  .ktab-story-form-card {
+    padding: 2.5rem;
+    gap: 2rem;
+  }
+}
+
+.ktab-story-form-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--brand-black);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+/* Form Groups */
+.ktab-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ktab-form-label {
+  font-size: 0.75rem;
+  font-weight: 750;
+  color: var(--text-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.ktab-form-required {
+  color: var(--color-danger);
+}
+
+.ktab-form-input,
+.ktab-form-select,
+.ktab-form-textarea {
+  width: 100%;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.75rem;
+  padding: 0.875rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--brand-black);
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+}
+
+.ktab-form-input:focus,
+.ktab-form-select:focus,
+.ktab-form-textarea:focus {
+  border-color: var(--brand-teal);
+  box-shadow: 0 0 0 3px var(--brand-teal-ambient);
+  background-color: var(--bg-primary);
+}
+
+.ktab-form-input::placeholder,
+.ktab-form-textarea::placeholder {
+  color: var(--text-subtle);
+  font-weight: 500;
+}
+
+.ktab-form-textarea {
+  min-height: 8rem;
+  line-height: 1.7;
+  resize: vertical;
+}
+
+/* 2-Column Responsive Layout */
+.ktab-form-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .ktab-form-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Genre Preset Selection Grid */
+.ktab-genre-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .ktab-genre-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.ktab-genre-card {
+  padding: 0.875rem 1rem;
+  border-radius: 0.875rem;
+  border: 1px solid var(--border-subtle);
+  background-color: var(--bg-secondary);
+  text-align: right;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  transition: all 0.18s ease;
+  font-family: inherit;
+}
+
+.ktab-genre-card:hover {
+  background-color: #f1f5f9;
+  border-color: var(--border-card);
+}
+
+.ktab-genre-card--active {
+  background-color: var(--brand-teal-soft, #e6faf4);
+  border-color: var(--brand-teal-dark, #4ed4ab);
+  box-shadow: 0 2px 8px var(--brand-teal-ambient);
+}
+
+.ktab-genre-card__name {
+  font-size: 0.8125rem;
+  font-weight: 750;
+  color: var(--brand-black);
+}
+
+.ktab-genre-card__desc {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--text-subtle);
+}
+
+/* Slider Section */
+.ktab-slider-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ktab-slider-badge {
+  font-size: 0.75rem;
+  font-weight: 750;
+  padding: 0.25rem 0.65rem;
+  border-radius: 0.45rem;
+  background-color: var(--btn-action-bg);
+  border: 1px solid var(--btn-action-border);
+  color: var(--btn-action-text);
+}
+
+.ktab-range-slider {
+  width: 100%;
+  height: 0.375rem;
+  border-radius: 9999px;
+  outline: none;
+  cursor: pointer;
+  accent-color: var(--brand-teal-deep, #0d9488);
+}
+
+/* Dropzone & Cover Upload */
+.ktab-cover-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2.25rem 1.5rem;
+  border: 2px dashed var(--border-card);
+  border-radius: 1.25rem;
+  background-color: var(--bg-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  gap: 0.75rem;
+}
+
+.ktab-cover-dropzone:hover {
+  border-color: var(--brand-teal);
+  background-color: #f8fafc;
+}
+
+.ktab-cover-dropzone__icon-wrap {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 1rem;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease;
+}
+
+.ktab-cover-dropzone:hover .ktab-cover-dropzone__icon-wrap {
+  transform: scale(1.08);
+}
+
+.ktab-cover-dropzone__primary-text {
+  font-size: 0.875rem;
+  font-weight: 750;
+  color: var(--brand-black);
+}
+
+.ktab-cover-dropzone__secondary-text {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-subtle);
+}
+
+/* Cover Preview */
+.ktab-cover-preview-wrap {
+  position: relative;
+  width: 11rem;
+  aspect-ratio: 3 / 4;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border: 1px solid var(--border-card);
+  margin: 0 auto;
+}
+
+.ktab-cover-preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ktab-cover-preview-remove {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background-color: rgba(10, 10, 10, 0.75);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--brand-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.18s ease;
+}
+
+.ktab-cover-preview-remove:hover {
+  background-color: var(--color-danger);
+}
+
+/* Submit Actions */
+.ktab-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding-top: 0.5rem;
+}
+
+.ktab-submit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 2.75rem;
+  padding: 0 2rem;
+  border-radius: 0.75rem;
+  background-color: var(--btn-action-bg);
+  border: 1px solid var(--btn-action-border);
+  color: var(--btn-action-text);
+  font-size: 0.875rem;
+  font-weight: 750;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: var(--btn-action-shadow);
+}
+
+.ktab-submit-btn:hover:not(:disabled) {
+  background-color: var(--btn-action-bg-hover);
+  border-color: var(--btn-action-border-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--btn-action-shadow-hover);
+}
+
+.ktab-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Dark Theme Support */
+.ktab-layout--dark .ktab-story-form-card {
+  background-color: var(--brand-black-surface, #141414);
+  border-color: var(--border-card);
+}
+
+.ktab-layout--dark .ktab-story-form-title,
+.ktab-layout--dark .ktab-genre-card__name,
+.ktab-layout--dark .ktab-cover-dropzone__primary-text {
+  color: var(--brand-white);
+}
+
+.ktab-layout--dark .ktab-form-input,
+.ktab-layout--dark .ktab-form-select,
+.ktab-layout--dark .ktab-form-textarea,
+.ktab-layout--dark .ktab-genre-card,
+.ktab-layout--dark .ktab-cover-dropzone {
+  background-color: var(--brand-black, #0a0a0a);
+  border-color: var(--border-card);
+  color: var(--brand-white);
+}
+
+.ktab-layout--dark .ktab-genre-card--active {
+  background-color: rgba(93, 227, 186, 0.12);
+  border-color: var(--brand-teal);
+}

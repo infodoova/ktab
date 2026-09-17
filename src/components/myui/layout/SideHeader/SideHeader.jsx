@@ -1,11 +1,12 @@
-import React, { useState, useRef, useEffect } from "react";
+import React from "react";
 import { motion } from "framer-motion";
-import { Search, X } from "lucide-react";
+import { Search, X, PanelLeft } from "lucide-react";
+import { useSideHeader } from "./useSideHeader";
 import "./SideHeader.css";
 
 /**
- * Global App Header Component (Fixed Top Header)
- * Features a seamless expandable animated glass search bar on the far left.
+ * Editorial Apple-inspired Fixed Top Header Bar.
+ * Pure declarative presentational layer backed by useSideHeader hook.
  */
 export function SideHeader({
   mainTitle = "لوحة التحكم",
@@ -15,83 +16,68 @@ export function SideHeader({
   searchQuery,
   onSearchChange,
   children,
-  isDark = true,
+  isDark = false,
   collapsed = false,
+  onToggleCollapse,
 }) {
-  const [internalExpanded, setInternalExpanded] = useState(false);
-  const [internalQuery, setInternalQuery] = useState("");
-  const inputRef = useRef(null);
+  const {
+    query,
+    isExpanded,
+    inputRef,
+    handleOpenSearch,
+    handleCloseSearch,
+    handleQueryChange,
+  } = useSideHeader({
+    onSearchClick,
+    searchQuery,
+    onSearchChange,
+  });
 
-  const query = searchQuery !== undefined ? searchQuery : internalQuery;
-  const isExpanded = internalExpanded || Boolean(query);
-
-  useEffect(() => {
-    if (isExpanded) {
-      setTimeout(() => inputRef.current?.focus(), 120);
-    }
-  }, [isExpanded]);
-
-  const handleOpenSearch = () => {
-    if (onSearchClick) {
-      onSearchClick();
-    } else {
-      setInternalExpanded(true);
-    }
-  };
-
-  const handleCloseSearch = (e) => {
-    e?.stopPropagation?.();
-    setInternalExpanded(false);
-    setInternalQuery("");
-    onSearchChange?.("");
-  };
-
-  const handleQueryChange = (val) => {
-    setInternalQuery(val);
-    onSearchChange?.(val);
-  };
-
-  const collapseClass = collapsed ? "ktab-side-header--collapsed" : "ktab-side-header--expanded";
-  const themeClass = isDark ? "ktab-side-header--dark" : "ktab-side-header--light";
+  const collapseClass = collapsed ? "ktab-topbar--collapsed" : "ktab-topbar--expanded";
+  const themeClass = isDark ? "ktab-topbar--dark" : "ktab-topbar--light";
   const searchStateClass = isExpanded
-    ? "ktab-side-header__search-box--expanded"
-    : "ktab-side-header__search-box--collapsed";
+    ? "ktab-topbar__search--expanded"
+    : "ktab-topbar__search--collapsed";
 
   return (
-    <header
-      dir="rtl"
-      className={`ktab-side-header ${collapseClass} ${themeClass}`}
-    >
-      {/* Right Side: Main Page Title */}
-      <div>
-        <h1 className="ktab-side-header__title">
-          {mainTitle}
-        </h1>
+    <header className={`ktab-topbar ${collapseClass} ${themeClass}`} dir="rtl">
+      {/* Right Side: Sidebar Toggle + Page Title */}
+      <div className="ktab-topbar__title-area">
+        {onToggleCollapse && (
+          <button
+            type="button"
+            onClick={onToggleCollapse}
+            className="ktab-topbar__toggle-btn"
+            aria-label={collapsed ? "توسيع القائمة الجانبية" : "طي القائمة الجانبية"}
+            title={collapsed ? "توسيع" : "طي"}
+          >
+            <PanelLeft size={19} strokeWidth={1.8} />
+          </button>
+        )}
+        <h1 className="ktab-topbar__title">{mainTitle}</h1>
       </div>
 
-      {/* Left Side: Children Actions + Seamless Expandable Search */}
-      <div className="ktab-side-header__actions">
-        {children}
-
+      {/* Left Side: Actions + Minimalist Expandable Search */}
+      <div className="ktab-topbar__actions" dir="ltr">
         {showSearch && (
           <motion.div
             initial={false}
-            animate={{ width: isExpanded ? 320 : 44 }}
+            animate={{ width: isExpanded ? 300 : 38 }}
             transition={{ type: "spring", stiffness: 450, damping: 35 }}
             onClick={() => {
               if (!isExpanded) handleOpenSearch();
             }}
-            className={`ktab-side-header__search-box ${searchStateClass}`}
+            className={`ktab-topbar__search ${searchStateClass}`}
           >
             <button
               type="button"
               onClick={() => {
                 if (!isExpanded) handleOpenSearch();
               }}
-              className="ktab-side-header__search-btn"
+              className="ktab-topbar__search-btn"
               aria-label="البحث"
             >
-              <Search size={18} />
+              <Search size={18} strokeWidth={2} />
             </button>
 
             {isExpanded && (
@@ -99,7 +85,7 @@ export function SideHeader({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.15 }}
-                className="ktab-side-header__search-content"
+                className="ktab-topbar__search-inner"
               >
                 <input
                   ref={inputRef}
@@ -107,20 +93,24 @@ export function SideHeader({
                   value={query}
                   onChange={(e) => handleQueryChange(e.target.value)}
                   placeholder={searchPlaceholder}
-                  className="ktab-side-header__search-input"
+                  className="ktab-topbar__search-input"
+                  dir="rtl"
                 />
                 <button
                   type="button"
                   onClick={handleCloseSearch}
-                  className="ktab-side-header__close-btn"
+                  className="ktab-topbar__search-close"
                   aria-label="إغلاق البحث"
                 >
-                  <X size={16} />
+                  <X size={15} strokeWidth={2.2} />
                 </button>
               </motion.div>
             )}
           </motion.div>
         )}
+
+        {/* Custom Actions (filters, buttons, etc.) */}
+        {children && <div className="ktab-topbar__custom-actions">{children}</div>}
       </div>
     </header>
   );

@@ -35,3 +35,8 @@ description: Rebranding and architecture rules for Ktab web application
 ## 6. Fake Data vs. Real Content Management
 - **Centralized Test Media**: All fake/mock data (specifically audio files, placeholder book covers, and mock book catalog items) must reside in `src/fakedataorassets/testData.js` so it can be easily removed or swapped later.
 - **Authentic Platform Text**: Real platform copy (such as official navigation links, section titles, and action button labels) is authentic content and must remain in the feature logic/hook, not mixed into the temporary mock assets file.
+
+## 7. Developer-Centric Code Comments (No Marketing / Aesthetic Buzzwords)
+- **Technical & Informative Comments Only**: Write code comments strictly aimed at helping future software engineers understand and maintain the code.
+- **Document the "Why" and Edge Cases**: Explain non-obvious engineering solutions (e.g. why `activeElement.blur()` is required to defeat browser focus-anchoring during pagination scrolling, minimum network animation delay rationale, Spring Boot page parsing fallbacks, CSS clipping compensations).
+- **Zero Marketing Fluff**: Strictly avoid design slogans or aesthetic buzzwords in code comments (do NOT write "Apple style", "Eleven reader aesthetic", "hero numbers taking full control", "buttery smooth"). Keep all comments technical, practical, and functional.

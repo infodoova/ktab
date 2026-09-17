@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { Plus } from "lucide-react";
 import { AppLayout } from "@/components/myui/layout";
 import { AuthorStatsCards } from "../components/AuthorStatsCards";
 import { AuthorBooksTable } from "../components/AuthorBooksTable";
@@ -7,13 +8,14 @@ import { AgeBarGraph } from "../components/AgeBarGraph";
 import { MostReadPieChart } from "../components/MostReadPieChart";
 import { DashboardSkeleton } from "../components/DashboardSkeleton";
 import { useAuthorDashboard } from "../hooks/useAuthorDashboard";
+import "./AuthorDashboardView.css";
 
 /**
- * Pure presentation view for the Author Dashboard / Control Board - Liquid Glass Dark Edition
+ * Author Dashboard View.
+ * Pure declarative presentational layer rendering statistics, demographic charts, and books table.
  */
 export function AuthorDashboardView({ pageName = "لوحة التحكم" }) {
-  const [searchQuery, setSearchQuery] = useState("");
-
+  const navigate = useNavigate();
   const {
     stats,
     statsLoading,
@@ -27,25 +29,33 @@ export function AuthorDashboardView({ pageName = "لوحة التحكم" }) {
     setSelectedBookId,
     ageStats,
     ageLoading,
+    isAgeDemo,
     mostReadStats,
     mostReadLoading,
-    loadMoreBooks,
+    isMostReadDemo,
+    searchQuery,
+    setSearchQuery,
+    onPageChange,
   } = useAuthorDashboard();
 
-  // Auto-scroll down to the books table when searching
-  useEffect(() => {
-    if (searchQuery && searchQuery.trim().length > 0) {
-      const tableEl = document.getElementById("author-books-table");
-      if (tableEl) {
-        tableEl.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
-    }
-  }, [searchQuery]);
+  const headerActions = (
+    <button
+      type="button"
+      onClick={() => navigate("/author/new-book")}
+      className="ktab-topbar__btn-action"
+      title="نشر كتاب جديد"
+    >
+      <Plus size={15} strokeWidth={2.4} />
+      <span className="ktab-topbar__btn-text">نشر كتاب جديد</span>
+    </button>
+  );
 
   if (statsLoading && booksLoading) {
     return (
-      <AppLayout pageName={pageName} isDark={true}>
-        <DashboardSkeleton />
+      <AppLayout pageName={pageName} headerActions={headerActions}>
+        <div className="ktab-author-dashboard">
+          <DashboardSkeleton />
+        </div>
       </AppLayout>
     );
   }
@@ -53,40 +63,43 @@ export function AuthorDashboardView({ pageName = "لوحة التحكم" }) {
   return (
     <AppLayout
       pageName={pageName}
-      isDark={true}
+      headerActions={headerActions}
       searchQuery={searchQuery}
       onSearchChange={setSearchQuery}
       searchPlaceholder="ابحث في كتبك وقراءاتك..."
     >
-      <motion.div
-        initial={{ opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="space-y-8 max-w-7xl mx-auto"
-      >
-        {/* Top Analytics Summary */}
+      <div className="ktab-author-dashboard" dir="rtl">
+        {/* Top Summary Stats Cards (Authentic Live API Data) */}
         <AuthorStatsCards stats={stats} />
 
-        {/* Dynamic Charts Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <AgeBarGraph data={ageStats} loading={ageLoading} />
-          <MostReadPieChart data={mostReadStats} loading={mostReadLoading} />
+        {/* Reader Demographics & Popularity Charts Grid */}
+        <div className="ktab-author-dashboard__charts">
+          <AgeBarGraph
+            data={ageStats}
+            loading={ageLoading}
+            isDemo={isAgeDemo}
+          />
+          <MostReadPieChart
+            data={mostReadStats}
+            loading={mostReadLoading}
+            isDemo={isMostReadDemo}
+          />
         </div>
 
-        {/* Books & Performance Table (Filtered by Search, Genre, and Status) */}
+        {/* Books & Performance Table */}
         <AuthorBooksTable
           books={books}
           genres={genres}
           searchQuery={searchQuery}
           loading={booksLoading}
-          loadingMore={loadingMore}
+          isPaginating={loadingMore}
           page={page}
           totalPages={totalPages}
           selectedBookId={selectedBookId}
-          onLoadMore={loadMoreBooks}
+          onPageChange={onPageChange}
           onSelectBookForStats={setSelectedBookId}
         />
-      </motion.div>
+      </div>
     </AppLayout>
   );
 }

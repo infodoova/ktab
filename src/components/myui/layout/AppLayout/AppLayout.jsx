@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Navbar } from "../Navbar";
 import { SideHeader } from "../SideHeader";
 import { ErrorBoundary } from "@/components/common";
+import { useAppLayout } from "./useAppLayout";
 import "./AppLayout.css";
 
 /**
  * Global App Layout Shell
+ * Eleven Reader + Apple clean editorial foundation.
  */
 export function AppLayout({
   children,
@@ -16,25 +18,19 @@ export function AppLayout({
   onSearchChange,
   searchPlaceholder,
   headerActions,
-  isDark = true,
+  isDark = false,
   navLinks,
   className = "",
 }) {
-  const [collapsed, setCollapsed] = useState(false);
+  const { collapsed, setCollapsed } = useAppLayout({ isDark });
 
-  useEffect(() => {
-    const bgColor = isDark ? "#090d16" : "#ffffff";
-    document.body.style.backgroundColor = bgColor;
-    document.documentElement.style.backgroundColor = bgColor;
-  }, [isDark]);
-
-  const themeClass = isDark ? "ktab-app-layout--dark" : "ktab-app-layout--light";
+  const themeClass = isDark ? "ktab-layout--dark" : "ktab-layout--light";
   const collapseClass = collapsed
-    ? "ktab-app-layout__main-area--collapsed"
-    : "ktab-app-layout__main-area--expanded";
+    ? "ktab-layout__main--collapsed"
+    : "ktab-layout__main--expanded";
 
   return (
-    <div dir="rtl" className={`ktab-app-layout ${themeClass}`}>
+    <div dir="rtl" className={`ktab-layout ${themeClass}`}>
       {/* Global Navbar Sidebar */}
       <Navbar
         pageName={pageName}
@@ -46,10 +42,11 @@ export function AppLayout({
         searchQuery={searchQuery}
         onSearchChange={onSearchChange}
         navLinks={navLinks}
+        headerActions={headerActions}
       />
 
       {/* Main Page Area */}
-      <div className={`ktab-app-layout__main-area ${collapseClass}`}>
+      <div className={`ktab-layout__main ${collapseClass}`}>
         {/* Desktop Fixed Top Header */}
         <SideHeader
           mainTitle={pageName}
@@ -60,12 +57,13 @@ export function AppLayout({
           searchPlaceholder={searchPlaceholder}
           isDark={isDark}
           collapsed={collapsed}
+          onToggleCollapse={() => setCollapsed((prev) => !prev)}
         >
           {headerActions}
         </SideHeader>
 
-        {/* Content View with proper clearance for mobile & desktop headers */}
-        <main className={`ktab-app-layout__content ${className}`}>
+        {/* Content View with clean clearance for mobile & desktop headers */}
+        <main className={`ktab-layout__content ${className}`}>
           <ErrorBoundary
             variant="card"
             title={`تعذر تحميل محتوى ${pageName}`}

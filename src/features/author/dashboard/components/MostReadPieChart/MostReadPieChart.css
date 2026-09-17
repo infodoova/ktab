@@ -1,0 +1,364 @@
+/* Most Read Chapters Donut Chart & Tooltip Styles */
+
+.ktab-pie-card {
+  position: relative;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 1.25rem;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-card);
+  direction: rtl;
+  font-family: var(--font-arabic), sans-serif;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+  overflow: hidden;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+@media (min-width: 640px) {
+  .ktab-pie-card {
+    padding: 1.5rem;
+  }
+}
+
+.ktab-pie-card:hover {
+  box-shadow: var(--shadow-card-hover);
+  border-color: var(--glass-border);
+}
+
+.ktab-pie-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding-bottom: 0.875rem;
+  margin-bottom: 0.875rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.ktab-pie-card__title-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.625rem;
+  margin-bottom: 0.25rem;
+}
+
+.ktab-pie-card__title {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--brand-black);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+/* Editorial Demo Badge */
+.ktab-analytics-demo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 9999px;
+  background-color: var(--brand-teal-soft, #e6faf4);
+  border: 1px solid rgba(93, 227, 186, 0.45);
+  color: var(--brand-teal-deep, #0d9488);
+  font-size: 0.6875rem;
+  font-weight: 750;
+  line-height: 1;
+  user-select: none;
+}
+
+.ktab-analytics-demo-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: var(--brand-teal-dark, #0d9488);
+  flex-shrink: 0;
+}
+
+.ktab-pie-card__subtitle {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.ktab-pie-card__body {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.ktab-pie-chart-wrap {
+  width: 100%;
+  height: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* Central Donut Metric */
+.ktab-pie-center-stat {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  pointer-events: none;
+  user-select: none;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  z-index: 5;
+}
+
+.ktab-pie-center-stat__value {
+  font-size: 1.5rem;
+  font-weight: 850;
+  line-height: 1.1;
+  color: var(--brand-black);
+  font-family: var(--font-english), sans-serif;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  transition: color 0.15s ease;
+}
+
+.ktab-pie-center-stat__label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+  max-width: 110px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: var(--font-arabic), sans-serif;
+  transition: color 0.15s ease;
+}
+
+/* Compact Chapter Chips */
+.ktab-pie-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  margin-top: 0.75rem;
+  padding: 0 0.5rem;
+  box-sizing: border-box;
+}
+
+.ktab-pie-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: 9999px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  color: var(--brand-black);
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: var(--font-arabic), sans-serif;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  outline: none;
+}
+
+.ktab-pie-chip:hover {
+  background-color: var(--bg-primary);
+  border-color: var(--border-card);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.ktab-pie-chip--active {
+  background-color: var(--bg-primary) !important;
+  border-color: var(--brand-black) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.ktab-pie-chip__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ktab-pie-chip__name {
+  color: var(--brand-black);
+  max-width: 130px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ktab-pie-chip__percent {
+  color: var(--text-subtle);
+  font-family: var(--font-english), sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 700;
+}
+
+.ktab-pie-card__empty {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-subtle);
+  text-align: center;
+  padding: 4rem 1rem;
+}
+
+.ktab-pie-card__skeleton {
+  width: 100%;
+  height: 17.5rem;
+  border-radius: 0.75rem;
+  background-color: var(--bg-secondary);
+  animation: ktabPiePulse 1.5s ease-in-out infinite;
+}
+
+@keyframes ktabPiePulse {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Interactive Tooltip on Hover & Mobile Touch */
+.ktab-pie-card .ktab-chart-tooltip {
+  background-color: var(--bg-primary, #ffffff);
+  border: 1px solid var(--border-subtle);
+  color: var(--brand-black, #0a0a0a);
+  border-radius: 0.75rem;
+  padding: 0.55rem 0.85rem;
+  font-size: 0.8125rem;
+  font-family: var(--font-arabic), sans-serif;
+  direction: rtl;
+  text-align: right;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.04);
+  pointer-events: none;
+  user-select: none;
+}
+
+.ktab-pie-card .ktab-chart-tooltip__label {
+  font-weight: 750;
+  margin-bottom: 0.25rem;
+  color: var(--brand-black, #0a0a0a);
+  font-size: 0.8125rem;
+}
+
+.ktab-pie-card .ktab-chart-tooltip__metrics {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.ktab-pie-card .ktab-chart-tooltip__value {
+  color: var(--brand-teal-deep, #0d9488);
+  font-weight: 800;
+  font-family: var(--font-english), var(--font-arabic), sans-serif;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.875rem;
+}
+
+.ktab-pie-card .ktab-chart-tooltip__percent {
+  color: var(--text-muted);
+  font-weight: 700;
+  font-family: var(--font-english), sans-serif;
+  font-size: 0.8125rem;
+  background-color: var(--bg-secondary, #f1f5f9);
+  padding: 0.1rem 0.4rem;
+  border-radius: 0.35rem;
+  line-height: 1.2;
+}
+
+/* Touch & Cursor Interaction: Remove focus outline & make interactive */
+.ktab-pie-chart-wrap svg,
+.ktab-pie-chart-wrap path,
+.ktab-pie-sector,
+.recharts-pie-sector,
+.recharts-sector {
+  outline: none !important;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.recharts-pie-sector:focus,
+.recharts-sector:focus {
+  outline: none !important;
+}
+
+/* Dark Mode */
+.ktab-layout--dark .ktab-pie-card {
+  background-color: var(--brand-black-surface);
+  border-color: var(--border-card);
+}
+
+.ktab-layout--dark .ktab-pie-card__header {
+  border-bottom-color: var(--border-card);
+}
+
+.ktab-layout--dark .ktab-pie-card__title {
+  color: var(--brand-white);
+}
+
+.ktab-layout--dark .ktab-pie-card__subtitle {
+  color: var(--text-subtle);
+}
+
+.ktab-layout--dark .ktab-pie-card__skeleton {
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+.ktab-layout--dark .ktab-pie-card .ktab-chart-tooltip {
+  background-color: var(--brand-black-surface, #1e293b);
+  border-color: var(--border-card, rgba(255, 255, 255, 0.12));
+  color: var(--brand-white);
+}
+
+.ktab-layout--dark .ktab-pie-card .ktab-chart-tooltip__label {
+  color: var(--brand-white);
+}
+
+.ktab-layout--dark .ktab-pie-card .ktab-chart-tooltip__value {
+  color: var(--brand-teal, #5de3ba);
+}
+
+.ktab-layout--dark .ktab-pie-card .ktab-chart-tooltip__percent {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--text-subtle);
+}
+
+.ktab-layout--dark .ktab-pie-center-stat__value {
+  color: var(--brand-white);
+}
+
+.ktab-layout--dark .ktab-pie-center-stat__label {
+  color: var(--text-subtle);
+}
+
+.ktab-layout--dark .ktab-pie-chip {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: var(--border-card);
+  color: var(--brand-white);
+}
+
+.ktab-layout--dark .ktab-pie-chip:hover,
+.ktab-layout--dark .ktab-pie-chip--active {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border-color: var(--brand-white) !important;
+}
+
+.ktab-layout--dark .ktab-pie-chip__name {
+  color: var(--brand-white);
+}

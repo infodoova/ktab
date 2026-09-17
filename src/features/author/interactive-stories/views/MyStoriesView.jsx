@@ -1,14 +1,24 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/myui/layout";
-import { StoryCardsGrid } from "../components/StoryCardsGrid";
-import { StoryEditorModal } from "../components/StoryEditorModal";
-import { DeleteStoryModal } from "../components/DeleteStoryModal";
+import {
+  StoryCardsGrid,
+  StoryEditorModal,
+  DeleteStoryModal,
+} from "../components";
 import { useMyStories } from "../hooks/useMyStories";
-import { Plus, Search } from "lucide-react";
+import { Select, BottomSheet } from "@/components/myui";
+import { Plus, SlidersHorizontal, RotateCcw } from "lucide-react";
+import "./MyStoriesView.css";
+
+import {
+  INTERACTIVE_STORIES_GENRE_OPTIONS,
+  INTERACTIVE_STORIES_SORT_OPTIONS,
+} from "../constants/interactiveStoriesConstants";
 
 /**
  * Pure presentation view for Author's Interactive Stories list.
+ * Styled with Ktab's Eleven Reader + Apple design system.
  */
 export function MyStoriesView({ pageName = "قصصي التفاعلية" }) {
   const navigate = useNavigate();
@@ -20,6 +30,13 @@ export function MyStoriesView({ pageName = "قصصي التفاعلية" }) {
     totalPages,
     searchQuery,
     setSearchQuery,
+    selectedGenre,
+    setSelectedGenre,
+    sortBy,
+    setSortBy,
+    isFilterSheetOpen,
+    setIsFilterSheetOpen,
+    activeFiltersCount,
     selectedStory,
     setSelectedStory,
     storyToDelete,
@@ -32,27 +49,73 @@ export function MyStoriesView({ pageName = "قصصي التفاعلية" }) {
 
   const headerActions = (
     <button
+      type="button"
       onClick={() => navigate("/author/interactive-story")}
-      className="btn-premium px-5 py-2.5 rounded-2xl text-white font-black text-xs uppercase tracking-widest flex items-center gap-2 shadow-lg active:scale-95 transition-all"
+      className="ktab-topbar__btn-action"
+      title="إنشاء قصة تفاعلية جديدة"
     >
-      <Plus size={16} />
-      <span>قصة جديدة</span>
+      <Plus size={15} strokeWidth={2.4} />
+      <span className="ktab-topbar__btn-text">قصة تفاعلية جديدة</span>
     </button>
   );
 
   return (
-    <AppLayout pageName={pageName} showSearch={false} headerActions={headerActions}>
-      <div className="space-y-8" dir="rtl">
-        {/* Search Bar */}
-        <div className="relative max-w-md">
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="ابحث في قصصك التفاعلية..."
-            className="w-full bg-white border border-black/5 rounded-2xl pr-11 pl-4 py-3 text-xs font-bold text-slate-800 placeholder:text-slate-400 outline-none focus:border-[#5de3ba] transition-colors shadow-sm"
-          />
-          <Search size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" />
+    <AppLayout
+      pageName={pageName}
+      showSearch={true}
+      searchQuery={searchQuery}
+      onSearchChange={setSearchQuery}
+      searchPlaceholder="ابحث في قصصك التفاعلية..."
+      headerActions={headerActions}
+    >
+      <div className="ktab-stories-page">
+        {/* Section Header */}
+        <div className="ktab-stories-section-header">
+          <div className="ktab-stories-section-meta">
+            <h2 className="ktab-stories-section-title">القصص التفاعلية</h2>
+            <span className="ktab-stories-section-count">
+              {stories.length} {stories.length === 1 ? "قصة" : stories.length === 2 ? "قصتان" : stories.length > 10 ? "قصة" : "قصص"}
+            </span>
+          </div>
+
+          {/* Desktop Filter Dropdowns (screens >= 768px) */}
+          <div className="ktab-stories-filters-left ktab-desktop-only">
+            <Select
+              value={selectedGenre}
+              onChange={(e) => setSelectedGenre(e.target.value)}
+              options={INTERACTIVE_STORIES_GENRE_OPTIONS}
+              placeholder="جميع التصنيفات"
+              className="ktab-stories-filter-select"
+              triggerClassName="ktab-stories-filter-select-trigger"
+              menuClassName="ktab-stories-filter-select-menu"
+            />
+
+            <Select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              options={INTERACTIVE_STORIES_SORT_OPTIONS}
+              placeholder="الترتيب"
+              className="ktab-stories-filter-select"
+              triggerClassName="ktab-stories-filter-select-trigger"
+              menuClassName="ktab-stories-filter-select-menu"
+            />
+          </div>
+
+          {/* Mobile Filter Button (screens < 768px) */}
+          <button
+            type="button"
+            onClick={() => setIsFilterSheetOpen(true)}
+            className="ktab-stories-mobile-filter-btn ktab-mobile-only"
+            aria-label="تصفية وترتيب القصص"
+            title="تصفية وترتيب القصص"
+          >
+            <SlidersHorizontal size={15} />
+            {activeFiltersCount > 0 && (
+              <span className="ktab-stories-mobile-filter-badge">
+                {activeFiltersCount}
+              </span>
+            )}
+          </button>
         </div>
 
         {/* Stories Grid */}
@@ -67,6 +130,13 @@ export function MyStoriesView({ pageName = "قصصي التفاعلية" }) {
           onStoryClick={setSelectedStory}
           onDeleteClick={setStoryToDelete}
           onLoadMore={loadMore}
+          onCreateNew={() => navigate("/author/interactive-story")}
+          searchQuery={searchQuery}
+          isFiltered={selectedGenre !== "ALL"}
+          onResetFilters={() => {
+            setSearchQuery("");
+            setSelectedGenre("ALL");
+          }}
         />
 
         {/* Details Drawer */}
@@ -76,13 +146,77 @@ export function MyStoriesView({ pageName = "قصصي التفاعلية" }) {
           story={selectedStory}
         />
 
-        {/* Delete Confirmation */}
+        {/* Delete Confirmation Modal */}
         <DeleteStoryModal
           isOpen={Boolean(storyToDelete)}
           onClose={() => setStoryToDelete(null)}
           onConfirm={handleConfirmDelete}
           storyTitle={storyToDelete?.title || ""}
         />
+
+        {/* Mobile Filter Bottom Sheet */}
+        <BottomSheet
+          isOpen={isFilterSheetOpen}
+          onClose={() => setIsFilterSheetOpen(false)}
+          title="تصفية وترتيب القصص"
+          className="ktab-stories-bottom-sheet"
+          scrollable={false}
+        >
+          <div className="ktab-stories-sheet-body">
+            {/* Genre Select */}
+            <div className="ktab-stories-sheet-field">
+              <label className="ktab-stories-sheet-label">التصنيف</label>
+              <Select
+                value={selectedGenre}
+                onChange={(e) => setSelectedGenre(e.target.value)}
+                options={INTERACTIVE_STORIES_GENRE_OPTIONS}
+                placeholder="جميع التصنيفات"
+                className="ktab-stories-sheet-select"
+                triggerClassName="ktab-stories-filter-select-trigger"
+                menuClassName="ktab-stories-filter-select-menu"
+              />
+            </div>
+
+            {/* Sort Select */}
+            <div className="ktab-stories-sheet-field">
+              <label className="ktab-stories-sheet-label">الترتيب</label>
+              <Select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                options={INTERACTIVE_STORIES_SORT_OPTIONS}
+                placeholder="الترتيب"
+                className="ktab-stories-sheet-select"
+                triggerClassName="ktab-stories-filter-select-trigger"
+                menuClassName="ktab-stories-filter-select-menu"
+              />
+            </div>
+
+            {/* Sheet Footer Actions */}
+            <div className="ktab-stories-sheet-actions">
+              {activeFiltersCount > 0 && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedGenre("ALL");
+                    setSortBy("newest");
+                  }}
+                  className="ktab-stories-sheet-reset-btn"
+                >
+                  <RotateCcw size={13} />
+                  <span>إعادة تعيين</span>
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={() => setIsFilterSheetOpen(false)}
+                className="ktab-stories-sheet-apply-btn"
+              >
+                تطبيق
+              </button>
+            </div>
+          </div>
+        </BottomSheet>
       </div>
     </AppLayout>
   );

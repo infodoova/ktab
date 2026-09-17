@@ -1,0 +1,157 @@
+import React from "react";
+import { Upload, FileText, Sparkles, X, Loader2 } from "lucide-react";
+import { Select } from "@/components/myui";
+import { usePdfInputCard } from "./usePdfInputCard";
+import "./PdfInputCard.css";
+
+/**
+ * Pure presentation card for uploading book PDF, selecting target audience,
+ * and configuring word count for AI-driven ending generation.
+ */
+export function PdfInputCard({ onGenerate, loading = false }) {
+  const {
+    file,
+    fileInputRef,
+    wordCount,
+    setWordCount,
+    audience,
+    setAudience,
+    audienceOptions,
+    wordCountConfig,
+    isDragging,
+    formattedFileSize,
+    handleFileChange,
+    handleDragOver,
+    handleDragLeave,
+    handleDrop,
+    handleRemoveFile,
+    handleTrigger,
+  } = usePdfInputCard({ onGenerate, loading });
+
+  return (
+    <form
+      onSubmit={handleTrigger}
+      className="ktab-pdf-input-card"
+      dir="rtl"
+      aria-label="نموذج توليد الخاتمة بالذكاء الاصطناعي"
+    >
+      <div className="ktab-pdf-input-card__title-group">
+        <h3 className="ktab-pdf-input-card__title">إعدادات التحليل والتوليد</h3>
+        <p className="ktab-pdf-input-card__subtitle">
+          ارفع مسودة الكتاب وحدد الخصائص لصياغة خاتمة احترافية
+        </p>
+      </div>
+
+      {/* PDF Upload Dropzone */}
+      <div className="ktab-pdf-input-field">
+        <label className="ktab-pdf-input-label">
+          <span>ملف الكتاب (PDF)</span>
+          <span className="ktab-pdf-input-required">*</span>
+        </label>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="application/pdf"
+          onChange={handleFileChange}
+          style={{ display: "none" }}
+          aria-label="اختيار ملف PDF"
+        />
+
+        {file ? (
+          <div className="ktab-pdf-file-card">
+            <div className="ktab-pdf-file-card__meta">
+              <div className="ktab-pdf-file-card__icon" aria-hidden="true">
+                <FileText size={18} strokeWidth={2} />
+              </div>
+              <div className="ktab-pdf-file-card__text">
+                <span className="ktab-pdf-file-card__name" title={file.name}>
+                  {file.name}
+                </span>
+                <span className="ktab-pdf-file-card__size">{formattedFileSize}</span>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={handleRemoveFile}
+              className="ktab-pdf-file-card__remove-btn"
+              aria-label="حذف الملف المختار"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        ) : (
+          <div
+            onClick={() => fileInputRef.current?.click()}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            className={`ktab-pdf-dropzone ${
+              isDragging ? "ktab-pdf-dropzone--dragging" : ""
+            }`}
+            role="button"
+            tabIndex={0}
+            aria-label="انقر أو اسحب ملف PDF للرفع"
+          >
+            <div className="ktab-pdf-dropzone__icon-wrap" aria-hidden="true">
+              <Upload size={22} strokeWidth={2} />
+            </div>
+            <span className="ktab-pdf-dropzone__prompt">اختر أو اسحب ملف PDF</span>
+            <span className="ktab-pdf-dropzone__hint">صيغة PDF فقط حتى 20 ميغابايت</span>
+          </div>
+        )}
+      </div>
+
+      {/* Audience Profile with Global Select */}
+      <div className="ktab-pdf-input-field">
+        <label className="ktab-pdf-input-label">
+          <span>الفئة والأسلوب المستهدف</span>
+        </label>
+        <Select
+          value={audience}
+          onChange={(e) => setAudience(e.target.value)}
+          options={audienceOptions}
+          placeholder="اختر الفئة المستهدفة"
+        />
+      </div>
+
+      {/* Word Count Range Slider */}
+      <div className="ktab-pdf-input-field">
+        <div className="ktab-pdf-input-label">
+          <span>عدد الكلمات التقريبي</span>
+          <span className="ktab-pdf-word-count-badge">{wordCount} كلمة</span>
+        </div>
+        <input
+          type="range"
+          min={wordCountConfig.MIN}
+          max={wordCountConfig.MAX}
+          step={wordCountConfig.STEP}
+          value={wordCount}
+          onChange={(e) => setWordCount(Number(e.target.value))}
+          className="ktab-pdf-slider"
+          aria-label="عدد الكلمات التقريبي للخاتمة"
+        />
+      </div>
+
+      {/* Submit Action Button */}
+      <button
+        type="submit"
+        disabled={loading}
+        className="ktab-pdf-submit-btn"
+      >
+        {loading ? (
+          <>
+            <Loader2 size={18} className="ktab-spin-loader" />
+            <span>جاري التحليل والتوليد...</span>
+          </>
+        ) : (
+          <>
+            <Sparkles size={18} />
+            <span>توليد الخاتمة بالذكاء الاصطناعي</span>
+          </>
+        )}
+      </button>
+    </form>
+  );
+}
+
+export default PdfInputCard;

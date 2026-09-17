@@ -1,22 +1,13 @@
 import React, { Component } from "react";
-import {
-  AlertTriangle,
-  RotateCcw,
-  Home,
-  ArrowRight,
-  ChevronDown,
-  ChevronUp,
-  Copy,
-  Check,
-  ShieldAlert,
-  Bug,
-} from "lucide-react";
+import { RotateCcw, Home, ArrowRight, AlertCircle } from "lucide-react";
 import "./ErrorBoundary.css";
 
 /**
- * Enterprise-grade Error Boundary in Apple Light Mode (Zero Tailwind).
- * Supports visual variants: "fullscreen", "page", "card", "inline"
- * Auto-recovers on key changes (e.g. route transitions)
+ * Application Error Boundary.
+ * Catches JavaScript errors anywhere in child component tree and displays fallback UI.
+ * - Suppresses technical stack traces from end-users in production.
+ * - Supports visual variants: "page" (default), "card", "inline".
+ * - Auto-recovers on route changes via resetKeys.
  */
 export class ErrorBoundary extends Component {
   constructor(props) {
@@ -25,8 +16,6 @@ export class ErrorBoundary extends Component {
       hasError: false,
       error: null,
       errorInfo: null,
-      isDetailsOpen: false,
-      isCopied: false,
     };
   }
 
@@ -64,27 +53,11 @@ export class ErrorBoundary extends Component {
       hasError: false,
       error: null,
       errorInfo: null,
-      isDetailsOpen: false,
-      isCopied: false,
-    });
-  };
-
-  handleCopyDetails = () => {
-    const { error, errorInfo } = this.state;
-    const details = `[Error]: ${error?.toString()}\n\n[Component Stack]: ${
-      errorInfo?.componentStack || "N/A"
-    }`;
-
-    navigator.clipboard.writeText(details).then(() => {
-      this.setState({ isCopied: true });
-      setTimeout(() => {
-        this.setState({ isCopied: false });
-      }, 2500);
     });
   };
 
   render() {
-    const { hasError, error, errorInfo, isDetailsOpen, isCopied } = this.state;
+    const { hasError, error, errorInfo } = this.state;
     const {
       children,
       fallback,
@@ -112,14 +85,14 @@ export class ErrorBoundary extends Component {
       return fallback;
     }
 
-    // Inline Variant (compact banner)
+    // 1. Inline Variant (compact banner)
     if (variant === "inline") {
       return (
         <div dir="rtl" className={`myui-eb-inline ${className}`}>
-          <div className="myui-eb-inline-msg">
-            <AlertTriangle size={16} />
-            <span>
-              {message || error?.message || "حدث خطأ غير متوقع في هذا الجزء."}
+          <div className="myui-eb-inline-content">
+            <AlertCircle size={16} className="myui-eb-inline-icon" />
+            <span className="myui-eb-inline-text">
+              {message || "تعذر إكمال هذه العملية مؤقتاً."}
             </span>
           </div>
           <button
@@ -134,12 +107,12 @@ export class ErrorBoundary extends Component {
       );
     }
 
-    // Card / Section Variant
+    // 2. Card / Section Variant
     if (variant === "card") {
       return (
         <div dir="rtl" className={`myui-eb-card ${className}`}>
-          <div className="myui-eb-card-icon-wrap">
-            <ShieldAlert size={28} />
+          <div className="myui-eb-emblem" aria-hidden="true">
+            <AlertCircle size={24} />
           </div>
 
           <h3 className="myui-eb-card-title">
@@ -147,16 +120,17 @@ export class ErrorBoundary extends Component {
           </h3>
 
           <p className="myui-eb-card-desc">
-            {message || "حدث خطأ غير متوقع أثناء تحميل هذه البيانات. يمكنك المحاولة مرة أخرى."}
+            {message ||
+              "حدث خطأ غير متوقع أثناء تحميل البيانات. يمكنك محاولة التحديث مجدداً."}
           </p>
 
-          <div className="myui-eb-card-actions">
+          <div className="myui-eb-actions">
             <button
               type="button"
               onClick={this.resetErrorBoundary}
               className="myui-eb-btn-primary"
             >
-              <RotateCcw size={14} />
+              <RotateCcw size={15} />
               <span>إعادة المحاولة</span>
             </button>
           </div>
@@ -164,24 +138,28 @@ export class ErrorBoundary extends Component {
       );
     }
 
-    // Default Fullscreen / Page Variant
+    // 3. Default Page / Fullscreen Variant (Apple Editorial)
     return (
-      <div dir="rtl" className={`myui-eb-page ${className}`}>
-        <div className="myui-eb-page-card">
-          <div className="myui-eb-page-icon-wrap">
-            <ShieldAlert size={36} />
+      <main dir="rtl" className={`myui-eb-page ${className}`}>
+        <div className="myui-eb-card-container">
+          {/* Subtle Apple Emblem */}
+          <div className="myui-eb-emblem" aria-hidden="true">
+            <AlertCircle size={28} />
           </div>
 
-          <h1 className="myui-eb-page-title">
-            {title || "عذراً، حدث خطأ غير متوقع"}
+          {/* User-Facing Heading */}
+          <h1 className="myui-eb-title">
+            {title || "تعذر تحميل هذه الصفحة"}
           </h1>
 
-          <p className="myui-eb-page-desc">
+          {/* Polite, clear explanation (zero code technical clutter) */}
+          <p className="myui-eb-desc">
             {message ||
-              "واجه التطبيق مشكلة تقنية غير متوقعة أثناء معالجة هذا الطلب. نعتذر عن الإزعاج، يمكنك المحاولة مجدداً أو العودة للصفحة الرئيسية."}
+              "نواجه صعوبة مؤقتة في معالجة هذا الطلب. يمكنك محاولة إعادة التحميل الآن أو العودة للصفحة السابقة."}
           </p>
 
-          <div className="myui-eb-page-actions">
+          {/* Responsive Action Buttons */}
+          <div className="myui-eb-actions">
             <button
               type="button"
               onClick={this.resetErrorBoundary}
@@ -198,69 +176,21 @@ export class ErrorBoundary extends Component {
               </a>
             )}
 
-            {showBackButton && typeof window !== "undefined" && window.history.length > 1 && (
-              <button
-                type="button"
-                onClick={() => window.history.back()}
-                className="myui-eb-btn-secondary"
-              >
-                <span>الرجوع للخلف</span>
-                <ArrowRight size={15} />
-              </button>
-            )}
-          </div>
-
-          {/* Diagnostic Error Details */}
-          <div>
-            <button
-              type="button"
-              onClick={() =>
-                this.setState((prev) => ({
-                  isDetailsOpen: !prev.isDetailsOpen,
-                }))
-              }
-              className="myui-eb-details-toggle"
-            >
-              <Bug size={13} />
-              <span>
-                {isDetailsOpen ? "إخفاء التفاصيل التقنية" : "عرض التفاصيل التقنية للخطأ"}
-              </span>
-              {isDetailsOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-            </button>
-
-            {isDetailsOpen && (
-              <div className="myui-eb-stack-box" dir="ltr">
-                <div className="myui-eb-stack-header">
-                  <span style={{ color: "#64748b" }}>Error Stack</span>
-                  <button
-                    type="button"
-                    onClick={this.handleCopyDetails}
-                    className="myui-eb-copy-btn"
-                  >
-                    {isCopied ? (
-                      <>
-                        <Check size={11} color="#10b981" />
-                        <span style={{ color: "#10b981" }}>تم النسخ</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy size={11} />
-                        <span>نسخ</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-                <p style={{ fontWeight: "bold", margin: "0 0 6px" }}>{error?.toString()}</p>
-                {errorInfo?.componentStack && (
-                  <pre style={{ margin: 0, whiteSpace: "pre-wrap", color: "#64748b" }}>
-                    {errorInfo.componentStack}
-                  </pre>
-                )}
-              </div>
-            )}
+            {showBackButton &&
+              typeof window !== "undefined" &&
+              window.history.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => window.history.back()}
+                  className="myui-eb-btn-secondary"
+                >
+                  <ArrowRight size={15} />
+                  <span>الرجوع للخلف</span>
+                </button>
+              )}
           </div>
         </div>
-      </div>
+      </main>
     );
   }
 }

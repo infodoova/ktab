@@ -55,7 +55,6 @@ export function LoginView() {
                   placeholder="name@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  dir="ltr"
                   className={`login-input ${errors.email ? "has-error" : ""}`}
                   autoComplete="email"
                 />

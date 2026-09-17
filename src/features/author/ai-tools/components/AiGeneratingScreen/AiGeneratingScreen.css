@@ -1,0 +1,94 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   AI GENERATING SCREEN - Eleven Reader + Apple Dynamic Loader
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.ktab-ai-generating {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 3rem 1.5rem;
+  gap: 1.5rem;
+  direction: rtl;
+  font-family: var(--font-arabic), sans-serif;
+  box-sizing: border-box;
+}
+
+.ktab-ai-generating__beacon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ktab-ai-generating__icon-box {
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 1.25rem;
+  background-color: var(--brand-teal-soft);
+  color: var(--brand-teal-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(93, 227, 186, 0.4);
+  animation: ktabBeaconPulse 2s ease-in-out infinite;
+  z-index: 2;
+}
+
+.ktab-ai-generating__glow-ring {
+  position: absolute;
+  inset: -0.5rem;
+  border-radius: 1.5rem;
+  background: radial-gradient(circle, rgba(93, 227, 186, 0.35) 0%, rgba(93, 227, 186, 0) 70%);
+  animation: ktabBeaconGlow 2.5s ease-in-out infinite;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.ktab-ai-generating__text-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-width: 24rem;
+}
+
+.ktab-ai-generating__title {
+  font-size: 1.05rem;
+  font-weight: 850;
+  color: var(--brand-black);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.ktab-ai-generating__desc {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.65;
+  color: var(--text-subtle);
+  margin: 0;
+}
+
+/* Animations */
+@keyframes ktabBeaconPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(93, 227, 186, 0.3);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px 4px rgba(93, 227, 186, 0.25);
+  }
+}
+
+@keyframes ktabBeaconGlow {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(0.95);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}

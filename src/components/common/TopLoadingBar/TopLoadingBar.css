@@ -1,0 +1,22 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   TOP LOADING BAR (Apple / Eleven Reader Non-Intrusive Route Loader)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.ktab-top-loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2.5px;
+  z-index: 99999;
+  pointer-events: none;
+  background-color: transparent;
+}
+
+.ktab-top-loader__bar {
+  height: 100%;
+  background: var(--gradient, linear-gradient(90deg, #5de3ba 0%, #4ed4ab 100%));
+  box-shadow: 0 0 8px var(--brand-teal-glow, rgba(93, 227, 186, 0.5));
+  border-radius: 0 9999px 9999px 0;
+  transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}

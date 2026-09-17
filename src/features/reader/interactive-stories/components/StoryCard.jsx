@@ -1,6 +1,73 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 
+function ReaderStoryCover({ coverImageUrl, title, isDark }) {
+  const [loaded, setLoaded] = React.useState(false);
+  const [hasError, setHasError] = React.useState(false);
+
+  React.useEffect(() => {
+    setLoaded(false);
+    setHasError(false);
+  }, [coverImageUrl]);
+
+  return (
+    <>
+      {!loaded && !hasError && coverImageUrl && (
+        <div
+          className={cn(
+            "absolute inset-0 overflow-hidden z-[1]",
+            isDark ? "bg-white/5" : "bg-slate-100"
+          )}
+        >
+          <div
+            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent"
+            style={{
+              animation: "ktabCardShimmer 1.5s infinite cubic-bezier(0.16, 1, 0.3, 1)",
+            }}
+          />
+        </div>
+      )}
+
+      {!hasError && coverImageUrl ? (
+        <img
+          src={coverImageUrl}
+          alt={title}
+          loading="lazy"
+          decoding="async"
+          onLoad={() => setLoaded(true)}
+          onError={() => {
+            setHasError(true);
+            setLoaded(false);
+          }}
+          className={cn(
+            "w-full h-full object-cover transition-all duration-700 ease-out group-hover:scale-110",
+            loaded ? "opacity-100 blur-0 scale-100" : "opacity-0 blur-md scale-105"
+          )}
+        />
+      ) : (
+        <div
+          className={cn(
+            "w-full h-full flex flex-col items-center justify-center p-4 text-center transition-colors",
+            isDark
+              ? "bg-white/5 text-white/40"
+              : "bg-slate-100 text-slate-400"
+          )}
+        >
+          <svg className="w-10 h-10 mb-2 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1.5}
+              d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+            />
+          </svg>
+          <span className="text-[11px] font-bold opacity-75 line-clamp-1">{title}</span>
+        </div>
+      )}
+    </>
+  );
+}
+
 /**
  * Pure presentation StoryCard grid component.
  */
@@ -26,30 +93,11 @@ export function StoryCard({ stories = [], onStoryClick, isDark = false }) {
                 : "border-black/5 bg-slate-50 shadow-[0_20px_40px_rgba(0,0,0,0.03)]"
             )}
           >
-            {story.coverImageUrl ? (
-              <img
-                src={story.coverImageUrl}
-                alt={story.title}
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                loading="lazy"
-              />
-            ) : (
-              <div
-                className={cn(
-                  "w-full h-full flex items-center justify-center transition-colors",
-                  isDark ? "text-white/10" : "text-black/10"
-                )}
-              >
-                <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1}
-                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                  />
-                </svg>
-              </div>
-            )}
+            <ReaderStoryCover
+              coverImageUrl={story.coverImageUrl}
+              title={story.title}
+              isDark={isDark}
+            />
 
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 

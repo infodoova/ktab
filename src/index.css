@@ -26,6 +26,10 @@
   --highlight-yellow-soft: #fef08a;
   --highlight-yellow-glow: rgba(253, 224, 71, 0.45);
 
+  /* Status & Notification Tokens */
+  --color-danger: #ef4444;
+  --color-danger-glow: rgba(239, 68, 68, 0.4);
+
   /* Primary Theme Tokens */
   --primary-text: #0a0a0a;
   --secondary-text: #ffffff;
@@ -70,6 +74,26 @@
   --glass-btn-border-hover: rgba(0, 0, 0, 0.16);
   --glass-btn-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
   --glass-btn-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.12);
+
+  /* Editorial Neutral Action Button Tokens (Soft Slate / Minimalist) */
+  --btn-action-bg: #f1f5f9;
+  --btn-action-bg-hover: #e2e8f0;
+  --btn-action-bg-active: #cbd5e1;
+  --btn-action-border: #cbd5e1;
+  --btn-action-border-hover: #94a3b8;
+  --btn-action-text: #0f172a;
+  --btn-action-icon: #334155;
+  --btn-action-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --btn-action-shadow-hover: 0 2px 6px rgba(0, 0, 0, 0.08);
+
+  /* Dark Variant */
+  --btn-action-dark-bg: rgba(255, 255, 255, 0.08);
+  --btn-action-dark-bg-hover: rgba(255, 255, 255, 0.14);
+  --btn-action-dark-bg-active: rgba(255, 255, 255, 0.2);
+  --btn-action-dark-border: rgba(255, 255, 255, 0.14);
+  --btn-action-dark-border-hover: rgba(255, 255, 255, 0.24);
+  --btn-action-dark-text: #f8fafc;
+  --btn-action-dark-icon: #cbd5e1;
 
   /* Shadows */
   --shadow-card: 0 12px 35px rgba(0, 0, 0, 0.06);
@@ -223,23 +247,85 @@ body {
     transform: translateY(0);
   }
 }
-/* Custom smooth scrollbar */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
+/* ═══════════════════════════════════════════════════════════════════════════
+   GLOBAL APPLE / ELEVEN READER CUSTOM SCROLLBARS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Firefox standard scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.18) transparent;
 }
 
-.custom-scrollbar::-webkit-scrollbar-track {
+.ktab-layout--dark *,
+.dark * {
+  scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
+}
+
+/* Chrome, Edge, Safari WebKit Global Scrollbar */
+*::-webkit-scrollbar,
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track,
+::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: var(--primary-button);
-  opacity: 0.5;
-  border-radius: 20px;
+*::-webkit-scrollbar-thumb,
+::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.18);
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  background-clip: padding-box;
+  transition: background-color 0.2s ease;
 }
 
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: var(--primary-border);
+*::-webkit-scrollbar-thumb:hover,
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.35);
+}
+
+*::-webkit-scrollbar-thumb:active,
+::-webkit-scrollbar-thumb:active {
+  background-color: var(--brand-teal-deep, #0d9488);
+}
+
+/* Eliminate native stepper arrow buttons completely on all browsers */
+*::-webkit-scrollbar-button,
+::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+*::-webkit-scrollbar-corner,
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Dark variant for WebKit */
+.ktab-layout--dark *::-webkit-scrollbar-thumb,
+.ktab-layout--dark ::-webkit-scrollbar-thumb,
+.dark *::-webkit-scrollbar-thumb,
+.dark ::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.ktab-layout--dark *::-webkit-scrollbar-thumb:hover,
+.ktab-layout--dark ::-webkit-scrollbar-thumb:hover,
+.dark *::-webkit-scrollbar-thumb:hover,
+.dark ::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.38);
+}
+
+.ktab-layout--dark *::-webkit-scrollbar-thumb:active,
+.ktab-layout--dark ::-webkit-scrollbar-thumb:active,
+.dark *::-webkit-scrollbar-thumb:active,
+.dark ::-webkit-scrollbar-thumb:active {
+  background-color: var(--brand-teal, #5de3ba);
 }
 /* book flip css */
 
@@ -537,3 +623,46 @@ body {
     transform: translateX(200%) rotate(45deg);
   }
 }
+
+@keyframes ktabCardShimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   GLOBAL RESPONSIVE TEXT TRUNCATION & OVERFLOW UTILITIES (...)
+   ───────────────────────────────────────────────────────────── */
+.truncate-text,
+.ktab-truncate {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  display: block;
+}
+
+.truncate-text-2,
+.ktab-clamp-2 {
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  word-break: break-word;
+}
+
+.truncate-text-3,
+.ktab-clamp-3 {
+  display: -webkit-box !important;
+  -webkit-line-clamp: 3 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  word-break: break-word;
+}
+

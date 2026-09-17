@@ -142,7 +142,6 @@ export function SignupView() {
                         placeholder="name@example.com"
                         value={form.email}
                         onChange={(e) => setFormField("email", e.target.value)}
-                        dir="ltr"
                         className={`signup-input ${errors.email ? "has-error" : ""}`}
                         autoComplete="email"
                       />

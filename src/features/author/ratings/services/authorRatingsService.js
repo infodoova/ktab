@@ -24,5 +24,5 @@ export async function fetchAuthorRatingStats() {
   const res = await getHelper({
     url: `${API_BASE}/authors/me/analytics`,
   });
-  return res?.data || res;
+  return res?.data ?? res;
 }

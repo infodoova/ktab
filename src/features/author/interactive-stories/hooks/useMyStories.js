@@ -17,6 +17,12 @@ export function useMyStories() {
   const [storyToDelete, setStoryToDelete] = useState(null);
   const [openMenuId, setOpenMenuId] = useState(null);
 
+  const [selectedGenre, setSelectedGenre] = useState("ALL");
+  const [sortBy, setSortBy] = useState("newest");
+  const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
+
+  const activeFiltersCount = (selectedGenre !== "ALL" ? 1 : 0) + (sortBy !== "newest" ? 1 : 0);
+
   // Close menus on outside click
   useEffect(() => {
     const handleOutsideClick = (e) => {
@@ -78,10 +84,32 @@ export function useMyStories() {
     }
   };
 
-  const filteredStories = stories.filter((story) => {
-    if (!searchQuery.trim()) return true;
-    return story.title?.toLowerCase().includes(searchQuery.toLowerCase());
-  });
+  const filteredStories = stories
+    .filter((story) => {
+      if (!searchQuery.trim()) return true;
+      const q = searchQuery.toLowerCase();
+      const title = (story.title || "").toLowerCase();
+      const genre = (story.genre || story.visualStyle || "").toLowerCase();
+      return title.includes(q) || genre.includes(q);
+    })
+    .filter((story) => {
+      if (selectedGenre === "ALL") return true;
+      const g = (story.genre || "").toLowerCase();
+      return g.includes(selectedGenre.toLowerCase());
+    })
+    .sort((a, b) => {
+      if (sortBy === "scenes") {
+        const scenesA = a.maxScenes ?? a.sceneCount ?? 0;
+        const scenesB = b.maxScenes ?? b.sceneCount ?? 0;
+        return scenesB - scenesA;
+      }
+      if (sortBy === "title") {
+        return (a.title || "").localeCompare(b.title || "");
+      }
+      const idA = a.id ?? a.storyId ?? 0;
+      const idB = b.id ?? b.storyId ?? 0;
+      return idB - idA;
+    });
 
   return {
     stories: filteredStories,
@@ -92,6 +120,13 @@ export function useMyStories() {
     totalPages,
     searchQuery,
     setSearchQuery,
+    selectedGenre,
+    setSelectedGenre,
+    sortBy,
+    setSortBy,
+    isFilterSheetOpen,
+    setIsFilterSheetOpen,
+    activeFiltersCount,
     selectedStory,
     setSelectedStory,
     storyToDelete,

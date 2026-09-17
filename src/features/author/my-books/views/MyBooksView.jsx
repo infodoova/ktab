@@ -1,24 +1,42 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/myui/layout";
-import { AuthorBookGrid } from "../components/AuthorBookGrid";
-import { BookDetailsDrawer } from "../components/BookDetailsDrawer";
-import { DeleteBookModal } from "../components/DeleteBookModal";
+import {
+  AuthorBookGrid,
+  BookDetailsDrawer,
+  DeleteBookModal,
+} from "../components";
 import { useAuthorBooks } from "../hooks/useAuthorBooks";
-import { Plus } from "lucide-react";
+import { MY_BOOKS_SORT_OPTIONS } from "../constants/myBooksConstants";
+import { Select, BottomSheet } from "@/components/myui";
+import { Plus, SlidersHorizontal, RotateCcw } from "lucide-react";
+import "./MyBooksView.css";
 
 /**
  * Pure presentation view for Author's books library.
+ * Styled with Ktab's Eleven Reader + Apple design system.
  */
 export function MyBooksView({ pageName = "كتبي" }) {
   const navigate = useNavigate();
   const {
     books,
+    displayedBooks,
     loading,
     loadingMore,
     page,
     totalPages,
     status,
+    searchQuery,
+    setSearchQuery,
+    selectedGenre,
+    setSelectedGenre,
+    availableGenres,
+    sortBy,
+    setSortBy,
+    isFilterSheetOpen,
+    setIsFilterSheetOpen,
+    activeFiltersCount,
+    resetFilters,
     openMenuId,
     setOpenMenuId,
     selectedBookForDetails,
@@ -30,48 +48,122 @@ export function MyBooksView({ pageName = "كتبي" }) {
     handleConfirmDelete,
   } = useAuthorBooks();
 
+  const genreOptions = [
+    { value: "ALL", label: "جميع التصنيفات" },
+    ...availableGenres.map((g) => ({ value: g, label: g })),
+  ];
+
   const headerActions = (
     <button
+      type="button"
       onClick={() => navigate("/author/new-book")}
-      className="btn-premium px-5 py-2.5 rounded-2xl text-white font-black text-xs uppercase tracking-widest flex items-center gap-2 shadow-lg active:scale-95 transition-all"
+      className="ktab-topbar__btn-action"
+      title="نشر كتاب جديد"
     >
-      <Plus size={16} />
-      <span>رفع كتاب جديد</span>
+      <Plus size={15} strokeWidth={2.4} />
+      <span className="ktab-topbar__btn-text">نشر كتاب جديد</span>
     </button>
   );
 
   return (
-    <AppLayout pageName={pageName} showSearch={false} headerActions={headerActions}>
-      <div className="space-y-8" dir="rtl">
-        {/* Status Tabs */}
-        <div className="flex items-center justify-between border-b border-black/5 pb-4">
-          <div className="flex items-center gap-2 bg-slate-50 p-1.5 rounded-2xl border border-black/5">
+    <AppLayout
+      pageName={pageName}
+      showSearch={true}
+      searchQuery={searchQuery}
+      onSearchChange={setSearchQuery}
+      searchPlaceholder="ابحث في كتبك..."
+      headerActions={headerActions}
+    >
+      <div className="ktab-mybooks-page">
+        {/* Sticky Section Header */}
+        <div className="ktab-mybooks-section-header">
+          <div className="ktab-mybooks-section-meta">
+            <h2 className="ktab-mybooks-section-title">
+              {status === "DRAFT" ? "المسودات" : "الكتب المنشورة"}
+            </h2>
+            <span className="ktab-mybooks-section-count">
+              {displayedBooks.length}{" "}
+              {displayedBooks.length === 1
+                ? "كتاب"
+                : displayedBooks.length === 2
+                ? "كتابان"
+                : displayedBooks.length > 10
+                ? "كتاب"
+                : "كتب"}
+            </span>
+          </div>
+
+          {/* Status Segmented Control (Desktop) */}
+          <div className="ktab-mybooks-status-tabs ktab-desktop-only">
             <button
+              type="button"
               onClick={() => handleStatusChange("PUBLISHED")}
-              className={`px-6 py-2.5 rounded-xl text-xs font-black transition-all ${
-                status === "PUBLISHED"
-                  ? "bg-white shadow-sm text-slate-900"
-                  : "text-slate-400 hover:text-slate-700"
+              className={`ktab-mybooks-status-tab ${
+                status === "PUBLISHED" ? "ktab-mybooks-status-tab--active" : ""
               }`}
             >
               الكتب المنشورة
             </button>
             <button
+              type="button"
               onClick={() => handleStatusChange("DRAFT")}
-              className={`px-6 py-2.5 rounded-xl text-xs font-black transition-all ${
-                status === "DRAFT"
-                  ? "bg-white shadow-sm text-slate-900"
-                  : "text-slate-400 hover:text-slate-700"
+              className={`ktab-mybooks-status-tab ${
+                status === "DRAFT" ? "ktab-mybooks-status-tab--active" : ""
               }`}
             >
               المسودات
+            </button>
+          </div>
+
+          {/* Desktop Filter Dropdowns */}
+          <div className="ktab-mybooks-filters-group ktab-desktop-only">
+            {genreOptions.length > 2 && (
+              <Select
+                value={selectedGenre}
+                onChange={(e) => setSelectedGenre(e.target.value)}
+                options={genreOptions}
+                placeholder="التصنيف"
+                className="ktab-mybooks-filter-select"
+                triggerClassName="ktab-mybooks-filter-select-trigger"
+                menuClassName="ktab-mybooks-filter-select-menu"
+              />
+            )}
+
+            <Select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              options={MY_BOOKS_SORT_OPTIONS}
+              placeholder="الترتيب"
+              className="ktab-mybooks-filter-select"
+              triggerClassName="ktab-mybooks-filter-select-trigger"
+              menuClassName="ktab-mybooks-filter-select-menu"
+            />
+          </div>
+
+          {/* Mobile Filter Button (opens BottomSheet) */}
+          <div className="ktab-mybooks-filters-group ktab-mobile-only">
+            <button
+              type="button"
+              className={`ktab-mybooks-mobile-filter-btn ${
+                activeFiltersCount > 0 ? "ktab-mybooks-mobile-filter-btn--active" : ""
+              }`}
+              onClick={() => setIsFilterSheetOpen(true)}
+              aria-label="تصفية الكتب"
+            >
+              <SlidersHorizontal size={14} />
+              <span>تصفية</span>
+              {activeFiltersCount > 0 && (
+                <span className="ktab-mybooks-mobile-filter-badge">
+                  {activeFiltersCount}
+                </span>
+              )}
             </button>
           </div>
         </div>
 
         {/* Books Grid */}
         <AuthorBookGrid
-          books={books}
+          books={displayedBooks}
           loading={loading}
           loadingMore={loadingMore}
           page={page}
@@ -81,16 +173,95 @@ export function MyBooksView({ pageName = "كتبي" }) {
           onBookClick={setSelectedBookForDetails}
           onDeleteClick={setBookToDelete}
           onLoadMore={loadMore}
+          onCreateNew={() => navigate("/author/new-book")}
+          searchQuery={searchQuery}
+          isFiltered={selectedGenre !== "ALL" || sortBy !== "newest"}
+          onResetFilters={resetFilters}
         />
 
-        {/* Book Details Drawer */}
+        {/* Mobile Filter BottomSheet */}
+        <BottomSheet
+          isOpen={isFilterSheetOpen}
+          onClose={() => setIsFilterSheetOpen(false)}
+          title="تصفية الكتب"
+        >
+          <div className="ktab-mybooks-sheet-content">
+            {/* Status Tab Toggle on Mobile */}
+            <div className="ktab-mybooks-sheet-field">
+              <span className="ktab-mybooks-sheet-label">حالة الكتب</span>
+              <div className="ktab-mybooks-status-tabs" style={{ width: "100%" }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleStatusChange("PUBLISHED");
+                  }}
+                  className={`ktab-mybooks-status-tab ${
+                    status === "PUBLISHED" ? "ktab-mybooks-status-tab--active" : ""
+                  }`}
+                  style={{ flex: 1, textAlign: "center" }}
+                >
+                  الكتب المنشورة
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleStatusChange("DRAFT");
+                  }}
+                  className={`ktab-mybooks-status-tab ${
+                    status === "DRAFT" ? "ktab-mybooks-status-tab--active" : ""
+                  }`}
+                  style={{ flex: 1, textAlign: "center" }}
+                >
+                  المسودات
+                </button>
+              </div>
+            </div>
+
+            {/* Sort Selector */}
+            <div className="ktab-mybooks-sheet-field">
+              <span className="ktab-mybooks-sheet-label">الترتيب</span>
+              <Select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                options={MY_BOOKS_SORT_OPTIONS}
+                placeholder="الترتيب"
+              />
+            </div>
+
+            {/* Genre Selector */}
+            {genreOptions.length > 2 && (
+              <div className="ktab-mybooks-sheet-field">
+                <span className="ktab-mybooks-sheet-label">التصنيف</span>
+                <Select
+                  value={selectedGenre}
+                  onChange={(e) => setSelectedGenre(e.target.value)}
+                  options={genreOptions}
+                  placeholder="التصنيف"
+                />
+              </div>
+            )}
+
+            {activeFiltersCount > 0 && (
+              <button
+                type="button"
+                className="ktab-mybooks-sheet-reset-btn"
+                onClick={resetFilters}
+              >
+                <RotateCcw size={14} />
+                <span>إعادة ضبط الفلاتر</span>
+              </button>
+            )}
+          </div>
+        </BottomSheet>
+
+        {/* Book Details Modal (Floating PC card, blur-to-load, scroll lock) */}
         <BookDetailsDrawer
           isOpen={Boolean(selectedBookForDetails)}
           onClose={() => setSelectedBookForDetails(null)}
           book={selectedBookForDetails}
         />
 
-        {/* Delete Confirmation Modal */}
+        {/* Delete Confirmation Modal (Spring motion, scroll lock) */}
         <DeleteBookModal
           isOpen={Boolean(bookToDelete)}
           onClose={() => setBookToDelete(null)}

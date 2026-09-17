@@ -70,12 +70,11 @@ export function ResetPasswordModal({ onClose, inline = false }) {
               البريد الإلكتروني
             </Label>
             <Input
-              dir="ltr"
               type="email"
               value={email}
               placeholder="example@mail.com"
               onChange={(e) => setEmail(e.target.value)}
-              className="bg-white h-12 text-sm rounded-xl border-black/10 focus-visible:ring-black/20 text-left"
+              className="bg-white h-12 text-sm rounded-xl border-black/10 focus-visible:ring-black/20"
             />
             {errors.email && (
               <p className="text-red-600 text-xs">{errors.email}</p>

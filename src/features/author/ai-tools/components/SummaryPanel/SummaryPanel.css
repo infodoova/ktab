@@ -1,0 +1,161 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   SUMMARY PANEL - Eleven Reader + Apple Editorial Results Card
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.ktab-summary-panel {
+  flex: 1;
+  width: 100%;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 1.5rem;
+  padding: 1.75rem 1.85rem;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 480px;
+  direction: rtl;
+  font-family: var(--font-arabic), sans-serif;
+  box-sizing: border-box;
+}
+
+/* Header */
+.ktab-summary-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border-subtle);
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.ktab-summary-panel__title-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.ktab-summary-panel__icon-badge {
+  width: 2.35rem;
+  height: 2.35rem;
+  border-radius: 0.75rem;
+  background-color: rgba(93, 227, 186, 0.16);
+  color: var(--brand-teal-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid rgba(93, 227, 186, 0.3);
+}
+
+.ktab-summary-panel__titles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.ktab-summary-panel__title {
+  font-size: 1.125rem;
+  font-weight: 850;
+  color: var(--brand-black);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.ktab-summary-panel__subtitle {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-subtle);
+  margin: 0;
+}
+
+/* Copy Action Button */
+.ktab-summary-panel__copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.95rem;
+  border-radius: 0.75rem;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  color: var(--brand-black);
+  font-size: 0.75rem;
+  font-weight: 750;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: inherit;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.ktab-summary-panel__copy-btn:hover {
+  background-color: var(--border-subtle);
+  transform: translateY(-1px);
+}
+
+.ktab-summary-panel__copy-btn--copied {
+  background-color: rgba(93, 227, 186, 0.15);
+  border-color: var(--brand-teal);
+  color: var(--brand-teal-deep);
+}
+
+/* Body Content */
+.ktab-summary-panel__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding-top: 1.25rem;
+}
+
+.ktab-summary-panel__result-box {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 1.15rem;
+  padding: 1.5rem 1.75rem;
+  color: var(--brand-black);
+  font-size: 0.9375rem;
+  line-height: 1.95;
+  font-weight: 550;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Empty State */
+.ktab-summary-panel__empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 3rem 1.5rem;
+  gap: 0.85rem;
+}
+
+.ktab-summary-panel__empty-icon {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 1.1rem;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+.ktab-summary-panel__empty-title {
+  font-size: 0.9375rem;
+  font-weight: 750;
+  color: var(--brand-black);
+  margin: 0;
+}
+
+.ktab-summary-panel__empty-desc {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.65;
+  color: var(--text-subtle);
+  margin: 0;
+  max-width: 24rem;
+}

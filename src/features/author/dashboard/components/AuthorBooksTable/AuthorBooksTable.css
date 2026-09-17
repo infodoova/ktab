@@ -1,0 +1,1011 @@
+/* Author Books Table Layout & Responsive Breakpoints */
+
+.ktab-books-card {
+  position: relative;
+  background-color: var(--bg-primary, #ffffff);
+  border: 1px solid var(--border-subtle);
+  border-radius: 1.25rem;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-card);
+  direction: rtl;
+  font-family: var(--font-arabic), sans-serif;
+  box-sizing: border-box;
+  overflow: visible;
+  scroll-margin-top: 5.5rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ktab-books-card:hover {
+  box-shadow: var(--shadow-card-hover);
+  border-color: var(--glass-border);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   CONTROLS HEADER
+   ───────────────────────────────────────────────────────────── */
+.ktab-books-card__header {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-bottom: 1.25rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+@media (min-width: 768px) {
+  .ktab-books-card__header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.ktab-books-card__title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 0.75rem;
+}
+
+.ktab-books-card__title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  flex-shrink: 1;
+}
+
+.ktab-books-card__title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--brand-black);
+  margin: 0;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+@media (min-width: 640px) {
+  .ktab-books-card__title {
+    font-size: 1.125rem;
+  }
+}
+
+.ktab-books-card__count {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap !important;
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  font-family: var(--font-english), var(--font-arabic), sans-serif;
+  font-variant-numeric: tabular-nums;
+  background-color: var(--bg-secondary, #f1f5f9);
+  border: 1px solid var(--border-subtle);
+  border-radius: 9999px;
+  padding: 0.15rem 0.5rem;
+  line-height: 1;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   MOBILE VS DESKTOP VISIBILITY SWITCHERS
+   ───────────────────────────────────────────────────────────── */
+.ktab-mobile-only,
+.ktab-mobile-filter-icon-btn {
+  display: none !important;
+}
+
+@media (max-width: 767px) {
+  .ktab-desktop-only {
+    display: none !important;
+  }
+  .ktab-mobile-only,
+  .ktab-mobile-filter-icon-btn {
+    display: inline-flex !important;
+  }
+
+  /* Full-bleed table layout spanning edge-to-edge on mobile */
+  .ktab-books-card {
+    margin-left: -1rem;
+    margin-right: -1rem;
+    width: calc(100% + 2rem);
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    padding: 1.25rem 0;
+    box-shadow: none;
+  }
+
+  .ktab-books-card__header {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .ktab-table-scroll-indicator {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .ktab-table-container-outer {
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+
+  .ktab-books-pagination {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .ktab-mobile-only,
+  .ktab-mobile-filter-icon-btn,
+  .ktab-filter-bottom-sheet {
+    display: none !important;
+  }
+}
+
+/* Mobile Icon-Only Filter Trigger Button (Beside Title, Mobile Only) */
+.ktab-mobile-filter-icon-btn {
+  position: relative;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.625rem;
+  background-color: var(--bg-primary, #ffffff);
+  border: 1px solid var(--border-subtle);
+  color: var(--brand-black);
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+  outline: none;
+}
+
+.ktab-mobile-filter-icon-btn:hover {
+  background-color: var(--bg-secondary);
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+.ktab-mobile-filter-icon-btn:active {
+  transform: scale(0.95);
+}
+
+/* Vibrant Red Active Filter Badge for Mobile */
+.ktab-mobile-filter-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 1.125rem;
+  height: 1.125rem;
+  padding: 0 0.25rem;
+  border-radius: 9999px;
+  background-color: var(--color-danger, #ef4444);
+  color: var(--brand-white, #ffffff);
+  font-size: 0.6875rem;
+  font-weight: 850;
+  font-family: var(--font-english), sans-serif;
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--bg-primary, #ffffff);
+  box-shadow: 0 2px 5px var(--color-danger-glow, rgba(239, 68, 68, 0.4));
+  line-height: 1;
+  z-index: 2;
+}
+
+.ktab-mobile-filter-dot {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--color-danger, #ef4444);
+  border: 1.5px solid var(--bg-primary, #ffffff);
+  box-shadow: 0 0 0 1px var(--color-danger-glow, rgba(239, 68, 68, 0.4));
+  z-index: 2;
+}
+
+/* Desktop Header Controls */
+.ktab-books-card__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.ktab-books-card__selects-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Status Filter Segmented Switcher (All / Published / Draft) */
+.ktab-segmented-tabs {
+  display: flex;
+  align-items: center;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.625rem;
+  padding: 0.25rem;
+  gap: 0.25rem;
+}
+
+.ktab-segmented-tab {
+  background: transparent;
+  border: none;
+  border-radius: 0.45rem;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.ktab-segmented-tab:hover {
+  color: var(--brand-black);
+}
+
+.ktab-segmented-tab--active {
+  background-color: var(--bg-primary, #ffffff);
+  color: var(--brand-black);
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* Global Select Integration (Wider comfortable selections) */
+.ktab-table-select {
+  width: auto;
+  min-width: 12.5rem;
+  margin: 0;
+}
+
+.ktab-table-select-trigger {
+  height: 2.375rem !important;
+  min-height: 2.375rem !important;
+  min-width: 12.5rem !important;
+  padding: 0 1rem !important;
+  border-radius: 0.625rem !important;
+  border: 1px solid var(--border-subtle) !important;
+  background-color: var(--bg-primary, #ffffff) !important;
+  font-size: 0.8125rem !important;
+  font-weight: 600 !important;
+  color: var(--brand-black) !important;
+  white-space: nowrap;
+}
+
+.ktab-table-select-trigger:hover:not(:disabled) {
+  border-color: rgba(0, 0, 0, 0.2) !important;
+}
+
+.ktab-table-select-trigger.is-open,
+.ktab-table-select-trigger:focus {
+  border-color: var(--brand-black) !important;
+  box-shadow: 0 0 0 2px rgba(10, 10, 10, 0.08) !important;
+}
+
+.ktab-table-select-menu {
+  min-width: 14.5rem !important;
+  width: max-content !important;
+  max-width: 24rem !important;
+  border-radius: 0.75rem !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12) !important;
+  border: 1px solid var(--border-subtle) !important;
+  padding: 0.375rem !important;
+  z-index: 70 !important;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   TABLE SECTION & HORIZONTAL SCROLL INDICATOR
+   ───────────────────────────────────────────────────────────── */
+.ktab-table-scroll-section {
+  position: relative;
+  width: 100%;
+}
+
+/* Mobile Scroll Indicator */
+.ktab-table-scroll-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.625rem;
+  padding: 0 0.25rem;
+}
+
+@media (min-width: 768px) {
+  .ktab-table-scroll-indicator {
+    display: none;
+  }
+}
+
+.ktab-table-scroll-indicator-bar {
+  position: relative;
+  height: 4px;
+  flex: 1;
+  max-width: 130px;
+  background-color: var(--bg-secondary, #f1f5f9);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.ktab-table-scroll-indicator-thumb {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background-color: var(--brand-black, #0f172a);
+  border-radius: 9999px;
+  transition: right 0.08s ease;
+}
+
+.ktab-table-scroll-indicator-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--text-subtle, #94a3b8);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   TABLE CONTAINER OUTER & SLEEK TOP LINE LOADER
+   ───────────────────────────────────────────────────────────── */
+.ktab-table-container-outer {
+  position: relative;
+  width: 100%;
+  border-radius: 0.875rem;
+  border: 1px solid var(--border-subtle);
+  background-color: var(--bg-primary, #ffffff);
+  overflow: hidden;
+  box-sizing: border-box;
+  scroll-margin-top: 5rem;
+}
+
+@media (min-width: 768px) {
+  .ktab-table-container-outer {
+    scroll-margin-top: 5.5rem;
+  }
+}
+
+/* Indeterminate line loader for async table data fetching */
+.ktab-table-line-loader {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3.5px;
+  z-index: 25;
+  pointer-events: none;
+  background-color: transparent;
+  opacity: 0;
+  visibility: hidden;
+  overflow: hidden;
+  transition: opacity 0.22s ease, visibility 0.22s ease;
+}
+
+.ktab-table-line-loader--active {
+  opacity: 1;
+  visibility: visible;
+  background-color: rgba(93, 227, 186, 0.2);
+}
+
+.ktab-table-line-loader__track {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.ktab-table-line-loader--active .ktab-table-line-loader__bar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 45%;
+  height: 100%;
+  background: linear-gradient(
+    to left,
+    transparent 0%,
+    var(--brand-teal, #5de3ba) 30%,
+    var(--brand-teal-deep, #0d9488) 70%,
+    transparent 100%
+  );
+  box-shadow: 0 0 14px var(--brand-teal, #5de3ba), 0 0 6px var(--brand-teal-glow, rgba(93, 227, 186, 0.6));
+  border-radius: 9999px;
+  animation: ktabTableLineLoaderAnim 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes ktabTableLineLoaderAnim {
+  0% {
+    transform: translateX(120%) scaleX(0.7);
+  }
+  50% {
+    transform: translateX(-60%) scaleX(1.3);
+  }
+  100% {
+    transform: translateX(-250%) scaleX(0.7);
+  }
+}
+
+/* Table Wrapper: Always Smooth Horizontal Scroll on Mobile */
+.ktab-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  background-color: #ffffff;
+  border: none;
+  border-radius: 0;
+  transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ktab-table-wrapper--paginating {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+/* PURE WHITE NORMAL TABLE */
+.ktab-pure-white-table {
+  width: 100%;
+  min-width: 600px;
+  background-color: #ffffff !important;
+  border-collapse: collapse;
+}
+
+.ktab-pure-white-table thead {
+  background-color: #fafafa !important;
+}
+
+.ktab-pure-white-table tbody {
+  background-color: #ffffff !important;
+}
+
+.ktab-pure-white-table tbody tr {
+  background-color: #ffffff !important;
+  border-bottom: 1px solid var(--border-subtle) !important;
+}
+
+.ktab-pure-white-table tbody tr:last-child {
+  border-bottom: none !important;
+}
+
+.ktab-book-row {
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.ktab-book-row:hover {
+  background-color: #f8fafc !important;
+}
+
+/* Pure White Selected Row (Zero Black Line) */
+.ktab-book-row--selected {
+  background-color: #ffffff !important;
+}
+
+.ktab-book-cell-main {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  min-width: 0;
+}
+
+.ktab-book-cover-wrap {
+  position: relative;
+  width: 2.25rem;
+  height: 3.15rem;
+  border-radius: 0.45rem;
+  overflow: hidden;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ktab-book-cover-shimmer {
+  position: absolute;
+  inset: 0;
+  background-color: var(--bg-secondary);
+  overflow: hidden;
+  z-index: 1;
+}
+
+.ktab-book-cover-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.6) 50%,
+    transparent 100%
+  );
+  animation: ktabBookCoverShimmer 1.5s infinite cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes ktabBookCoverShimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.ktab-book-cover-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ktab-book-cover-img--loading {
+  opacity: 0;
+  filter: blur(10px);
+  transform: scale(1.08);
+}
+
+.ktab-book-cover-img--loaded {
+  opacity: 1;
+  filter: blur(0);
+  transform: scale(1);
+}
+
+.ktab-book-cover-empty {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-secondary);
+}
+
+.ktab-book-info {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.ktab-book-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--brand-black);
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 230px;
+}
+
+.ktab-book-genre {
+  font-size: 0.75rem;
+  color: var(--text-subtle);
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Professional Editorial Status Indicators (Monochrome) */
+.ktab-status-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.ktab-status-dot {
+  width: 0.4375rem;
+  height: 0.4375rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ktab-status-text--published {
+  color: var(--brand-black);
+}
+
+.ktab-status-text--published .ktab-status-dot {
+  background-color: var(--brand-black);
+}
+
+.ktab-status-text--draft {
+  color: var(--text-subtle);
+}
+
+.ktab-status-text--draft .ktab-status-dot {
+  background-color: #94a3b8;
+}
+
+.ktab-rating-display {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 700;
+  color: var(--brand-black);
+  font-family: var(--font-english), sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+.ktab-reads-display {
+  font-weight: 700;
+  color: var(--brand-black);
+  font-family: var(--font-english), sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   PAGINATION CONTROLS WITH ARROWS
+   ───────────────────────────────────────────────────────────── */
+.ktab-books-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 1.25rem;
+  margin-top: 1.25rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.ktab-pagination-info {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.ktab-pagination-num {
+  font-weight: 800;
+  color: var(--brand-black);
+  font-family: var(--font-english), sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+.ktab-pagination-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ktab-pagination-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  height: 2.25rem;
+  padding: 0 0.875rem;
+  border-radius: 0.625rem;
+  background-color: var(--bg-primary, #ffffff);
+  border: 1px solid var(--border-subtle);
+  color: var(--brand-black);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: all 0.15s ease;
+}
+
+.ktab-pagination-btn:hover:not(:disabled) {
+  background-color: var(--bg-secondary);
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+.ktab-pagination-btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.ktab-pagination-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   BOTTOM SHEET FILTER CONTENT
+   ───────────────────────────────────────────────────────────── */
+.ktab-filter-sheet-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 0.25rem 0 0.5rem 0;
+}
+
+.ktab-filter-sheet-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ktab-filter-sheet-label {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.ktab-filter-sheet-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.375rem;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.75rem;
+  padding: 0.25rem;
+}
+
+.ktab-filter-sheet-tab {
+  background: transparent;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.25rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+  text-align: center;
+}
+
+.ktab-filter-sheet-tab--active {
+  background-color: var(--bg-primary, #ffffff);
+  color: var(--brand-black);
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.ktab-filter-bottom-sheet {
+  overflow: visible !important;
+}
+
+.ktab-filter-bottom-sheet .ktab-bottom-sheet__body {
+  overflow: visible !important;
+  max-height: none !important;
+}
+
+.ktab-filter-sheet-select {
+  width: 100%;
+}
+
+.ktab-filter-sheet-select .ktab-table-select-trigger {
+  width: 100% !important;
+  height: 2.75rem !important;
+  font-size: 0.875rem !important;
+}
+
+.ktab-filter-sheet-select .ktab-table-select-menu {
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.ktab-filter-sheet-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.ktab-filter-sheet-reset-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  height: 2.75rem;
+  padding: 0 1rem;
+  border-radius: 0.75rem;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s ease;
+}
+
+.ktab-filter-sheet-reset-btn:hover {
+  color: var(--brand-black);
+  background-color: rgba(0, 0, 0, 0.06);
+}
+
+.ktab-filter-sheet-apply-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 2.75rem;
+  border-radius: 0.75rem;
+  background-color: var(--brand-black);
+  color: var(--brand-white);
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.ktab-filter-sheet-apply-btn:active {
+  transform: scale(0.98);
+}
+
+/* Empty State */
+.ktab-books-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text-subtle);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.ktab-books-empty__text {
+  margin: 0;
+  color: var(--text-subtle);
+}
+
+.ktab-books-empty__reset-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 0.5rem;
+  background-color: var(--bg-secondary, #f1f5f9);
+  border: 1px solid var(--border-subtle);
+  color: var(--brand-black);
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ktab-books-empty__reset-btn:hover {
+  background-color: rgba(0, 0, 0, 0.08);
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   DARK MODE OVERRIDES
+   ───────────────────────────────────────────────────────────── */
+.ktab-layout--dark .ktab-books-card {
+  background-color: var(--brand-black-surface);
+  border-color: var(--border-card);
+}
+
+.ktab-layout--dark .ktab-books-card__header {
+  border-bottom-color: var(--border-card);
+}
+
+.ktab-layout--dark .ktab-books-card__title {
+  color: var(--brand-white);
+}
+
+.ktab-layout--dark .ktab-segmented-tabs,
+.ktab-layout--dark .ktab-filter-sheet-tabs {
+  background-color: rgba(255, 255, 255, 0.04);
+  border-color: var(--border-card);
+}
+
+.ktab-layout--dark .ktab-segmented-tab--active,
+.ktab-layout--dark .ktab-filter-sheet-tab--active {
+  background-color: rgba(255, 255, 255, 0.12);
+  color: var(--brand-white);
+}
+
+.ktab-layout--dark .ktab-mobile-filter-icon-btn {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: var(--border-card);
+  color: var(--brand-white);
+}
+
+.ktab-layout--dark .ktab-mobile-filter-dot {
+  background-color: var(--brand-white);
+}
+
+.ktab-layout--dark .ktab-table-container-outer {
+  background-color: var(--brand-black-surface);
+  border-color: var(--border-card);
+}
+
+.ktab-layout--dark .ktab-table-line-loader--active {
+  background-color: rgba(93, 227, 186, 0.12);
+}
+
+.ktab-layout--dark .ktab-table-wrapper {
+  background-color: var(--brand-black-surface);
+  border-color: var(--border-card);
+}
+
+.ktab-layout--dark .ktab-pure-white-table,
+.ktab-layout--dark .ktab-pure-white-table tbody,
+.ktab-layout--dark .ktab-pure-white-table tbody tr {
+  background-color: var(--brand-black-surface) !important;
+  border-bottom-color: var(--border-card) !important;
+}
+
+.ktab-layout--dark .ktab-pure-white-table thead {
+  background-color: rgba(255, 255, 255, 0.03) !important;
+}
+
+.ktab-layout--dark .ktab-book-row:hover {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+}
+
+.ktab-layout--dark .ktab-table-scroll-indicator-bar {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.ktab-layout--dark .ktab-table-scroll-indicator-thumb {
+  background-color: var(--brand-white);
+}
+
+.ktab-layout--dark .ktab-pagination-btn {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: var(--border-card);
+  color: var(--brand-white);
+}
+
+.ktab-layout--dark .ktab-pagination-btn:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.ktab-layout--dark .ktab-pagination-num {
+  color: var(--brand-white);
+}
+
+.ktab-layout--dark .ktab-books-pagination {
+  border-top-color: var(--border-card);
+}
+
+.ktab-layout--dark .ktab-book-title {
+  color: var(--brand-white);
+}
+
+.ktab-layout--dark .ktab-status-text--published {
+  color: var(--brand-white);
+}
+
+.ktab-layout--dark .ktab-status-text--published .ktab-status-dot {
+  background-color: var(--brand-white);
+}
+
+.ktab-layout--dark .ktab-rating-display,
+.ktab-layout--dark .ktab-reads-display {
+  color: var(--brand-white);
+}
+
+.ktab-layout--dark .ktab-table-select-trigger {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  border-color: var(--border-card) !important;
+  color: var(--brand-white) !important;
+}
+
+.ktab-layout--dark .ktab-table-select-trigger.is-open,
+.ktab-layout--dark .ktab-table-select-trigger:focus {
+  border-color: var(--brand-white) !important;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1) !important;
+}
+
+.ktab-layout--dark .ktab-table-select-menu {
+  background-color: var(--brand-black-surface) !important;
+  border-color: var(--border-card) !important;
+}

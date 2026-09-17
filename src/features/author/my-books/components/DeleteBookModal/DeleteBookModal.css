@@ -1,0 +1,113 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   DELETE BOOK MODAL (Apple / Eleven Reader Aesthetic)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.ktab-delete-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background-color: rgba(0, 0, 0, 0.48);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  direction: rtl;
+  font-family: var(--font-arabic), sans-serif;
+  box-sizing: border-box;
+}
+
+.ktab-delete-modal-card {
+  width: 100%;
+  max-width: 26rem;
+  background-color: var(--bg-primary);
+  border-radius: 1.5rem;
+  border: 1px solid var(--border-subtle);
+  padding: 2rem 1.75rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25), 0 10px 20px rgba(0, 0, 0, 0.08);
+  box-sizing: border-box;
+}
+
+.ktab-delete-modal-icon-wrap {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 1.125rem;
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ktab-delete-modal-text-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ktab-delete-modal-title {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--brand-black);
+  margin: 0;
+}
+
+.ktab-delete-modal-desc {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.ktab-delete-modal-highlight {
+  color: var(--brand-black);
+  font-weight: 700;
+}
+
+.ktab-delete-modal-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.ktab-delete-modal-btn {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border-radius: 0.875rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: inherit;
+  border: 1px solid transparent;
+}
+
+.ktab-delete-modal-btn--cancel {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--border-subtle);
+}
+
+.ktab-delete-modal-btn--cancel:hover {
+  background-color: var(--border-subtle);
+}
+
+.ktab-delete-modal-btn--confirm {
+  background-color: #ef4444;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+}
+
+.ktab-delete-modal-btn--confirm:hover {
+  background-color: #dc2626;
+  transform: scale(1.02);
+}

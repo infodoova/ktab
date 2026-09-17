@@ -1,0 +1,344 @@
+/* MyStoriesView Styles - Ktab Design System */
+
+.ktab-stories-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 1.25rem 1.25rem 3.5rem 1.25rem;
+  direction: rtl;
+  font-family: var(--font-arabic), sans-serif;
+  box-sizing: border-box;
+}
+
+@media (min-width: 768px) {
+  .ktab-stories-page {
+    padding: 2rem 2.5rem 5rem 2.5rem;
+    gap: 2rem;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   TOP SECTION FOR CARDS (Sticky on scroll, Title + Count on Right, Filters on Left)
+   ───────────────────────────────────────────────────────────── */
+.ktab-stories-section-header {
+  position: sticky;
+  top: 4rem;
+  z-index: 25;
+  background-color: rgba(248, 250, 252, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 1.25rem;
+  padding-top: 0.75rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-top: -0.75rem;
+  margin-bottom: 0.5rem;
+  box-sizing: border-box;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+@media (max-width: 767px) {
+  .ktab-stories-section-header {
+    top: 3.75rem;
+    padding-top: 0.5rem;
+    margin-top: -0.5rem;
+  }
+}
+
+.ktab-stories-section-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-width: 0;
+  flex-shrink: 0;
+}
+
+.ktab-stories-section-title {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--brand-black);
+  margin: 0;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  line-height: 1.2;
+}
+
+.ktab-stories-section-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  font-family: var(--font-english), var(--font-arabic), sans-serif;
+  font-variant-numeric: tabular-nums;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 9999px;
+  padding: 0.15rem 0.55rem;
+  line-height: 1;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transform: translateY(-2px); /* Optically aligns with the Arabic font glyph center */
+}
+
+/* Filters pinned to the LEFT side of the screen */
+.ktab-stories-filters-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-inline-start: auto;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
+}
+
+/* Global Select Integration for Stories Filter */
+.ktab-stories-filter-select {
+  width: auto !important;
+  min-width: 9.5rem;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.ktab-stories-filter-select-trigger {
+  height: 2.375rem !important;
+  min-height: 2.375rem !important;
+  min-width: 9.5rem !important;
+  padding: 0 0.95rem !important;
+  border-radius: 0.625rem !important;
+  border: 1px solid var(--border-subtle) !important;
+  background-color: var(--bg-primary, #ffffff) !important;
+  font-size: 0.8125rem !important;
+  font-weight: 600 !important;
+  color: var(--brand-black) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  transition: all 0.18s ease;
+}
+
+.ktab-stories-filter-select-trigger:hover:not(:disabled) {
+  border-color: var(--border-card) !important;
+}
+
+.ktab-stories-filter-select-menu {
+  min-width: 10.5rem !important;
+  border-radius: 0.75rem !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12) !important;
+  border: 1px solid var(--border-subtle) !important;
+  z-index: 60 !important;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   MOBILE VS DESKTOP FILTER SWITCHER
+   ───────────────────────────────────────────────────────────── */
+.ktab-stories-mobile-filter-btn {
+  position: relative;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.625rem;
+  background-color: var(--bg-primary, #ffffff);
+  border: 1px solid var(--border-subtle);
+  color: var(--brand-black);
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+  outline: none;
+}
+
+.ktab-stories-mobile-filter-btn:hover {
+  background-color: var(--bg-secondary);
+  border-color: rgba(0, 0, 0, 0.16);
+}
+
+.ktab-stories-mobile-filter-btn:active {
+  transform: scale(0.95);
+}
+
+.ktab-stories-mobile-filter-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 1.125rem;
+  height: 1.125rem;
+  padding: 0 0.25rem;
+  border-radius: 9999px;
+  background-color: var(--brand-black);
+  color: var(--brand-white);
+  font-size: 0.6875rem;
+  font-weight: 850;
+  font-family: var(--font-english), sans-serif;
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--bg-primary, #ffffff);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  line-height: 1;
+  z-index: 2;
+}
+
+@media (max-width: 767px) {
+  .ktab-desktop-only {
+    display: none !important;
+  }
+
+  .ktab-stories-mobile-filter-btn.ktab-mobile-only {
+    display: flex !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .ktab-mobile-only {
+    display: none !important;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   MOBILE FILTER BOTTOM SHEET STYLES
+   ───────────────────────────────────────────────────────────── */
+.ktab-stories-bottom-sheet {
+  direction: rtl;
+  font-family: var(--font-arabic), sans-serif;
+  overflow: visible !important;
+}
+
+.ktab-stories-bottom-sheet .ktab-bottom-sheet__body {
+  overflow: visible !important;
+  max-height: none !important;
+}
+
+.ktab-stories-sheet-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 0.5rem 0 0.75rem 0;
+}
+
+.ktab-stories-sheet-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  width: 100%;
+}
+
+.ktab-stories-sheet-label {
+  font-size: 0.8125rem;
+  font-weight: 750;
+  color: var(--brand-black);
+}
+
+.ktab-stories-sheet-select {
+  width: 100% !important;
+}
+
+.ktab-stories-sheet-select .ktab-stories-filter-select-trigger {
+  width: 100% !important;
+  height: 2.75rem !important;
+}
+
+.ktab-stories-sheet-select .ktab-stories-filter-select-menu {
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.ktab-stories-sheet-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-top: 0.75rem;
+  margin-top: 0.5rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.ktab-stories-sheet-apply-btn {
+  flex: 1;
+  height: 2.65rem;
+  border-radius: 0.625rem;
+  background-color: var(--brand-black);
+  color: var(--brand-white);
+  border: 1px solid var(--brand-black);
+  font-size: 0.875rem;
+  font-weight: 750;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.ktab-stories-sheet-apply-btn:hover {
+  background-color: var(--brand-black-hover);
+}
+
+.ktab-stories-sheet-reset-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  height: 2.65rem;
+  padding: 0 1rem;
+  border-radius: 0.625rem;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  color: var(--brand-black);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.ktab-stories-sheet-reset-btn:hover {
+  background-color: var(--bg-primary);
+  border-color: var(--border-card);
+}
+
+/* Dark Theme Support */
+.ktab-layout--dark .ktab-stories-section-header {
+  background-color: rgba(10, 10, 10, 0.9);
+  border-bottom-color: var(--border-card);
+}
+
+.ktab-layout--dark .ktab-stories-section-count {
+  background-color: var(--brand-black-surface);
+  border-color: var(--border-card);
+  color: var(--text-subtle);
+}
+
+.ktab-layout--dark .ktab-stories-mobile-filter-btn {
+  background-color: var(--brand-black-surface);
+  border-color: var(--border-card);
+  color: var(--brand-white);
+}
+
+.ktab-layout--dark .ktab-stories-mobile-filter-badge {
+  background-color: var(--brand-teal);
+  color: var(--brand-black);
+  border-color: var(--brand-black-surface);
+}
+
+.ktab-layout--dark .ktab-stories-sheet-label {
+  color: var(--brand-white);
+}
+
+.ktab-layout--dark .ktab-stories-sheet-actions {
+  border-top-color: var(--border-card);
+}
+
+.ktab-layout--dark .ktab-stories-sheet-reset-btn {
+  background-color: var(--brand-black-surface);
+  border-color: var(--border-card);
+  color: var(--brand-white);
+}

@@ -60,8 +60,10 @@ export function extractUserFromToken(rawToken) {
     firstName: payload.firstName || "",
     middleName: payload.middleName || "",
     lastName: payload.lastName || "",
+    fullName: [payload.firstName, payload.lastName].filter(Boolean).join(" "),
     role: payload.role || "",
     userId: payload.userId || payload.id || payload.sub || "",
+    sub: payload.sub || payload.email || "",
     email: payload.email || payload.sub || "",
   };
 }

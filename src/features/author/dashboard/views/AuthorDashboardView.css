@@ -1,0 +1,37 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   AUTHOR DASHBOARD VIEW
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.ktab-author-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 1.25rem 1.25rem 3.5rem 1.25rem;
+  box-sizing: border-box;
+  direction: rtl;
+}
+
+@media (min-width: 768px) {
+  .ktab-author-dashboard {
+    padding: 2rem 2.5rem 5rem 2.5rem;
+    gap: 2rem;
+  }
+}
+
+.ktab-author-dashboard__charts {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (min-width: 1024px) {
+  .ktab-author-dashboard__charts {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+}

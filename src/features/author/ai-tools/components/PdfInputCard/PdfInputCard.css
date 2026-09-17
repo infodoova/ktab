@@ -1,0 +1,250 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   PDF INPUT CARD - Eleven Reader + Apple Editorial Form
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.ktab-pdf-input-card {
+  width: 100%;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 1.5rem;
+  padding: 1.75rem 1.85rem;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  direction: rtl;
+  font-family: var(--font-arabic), sans-serif;
+  box-sizing: border-box;
+}
+
+.ktab-pdf-input-card__title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.ktab-pdf-input-card__title {
+  font-size: 1.15rem;
+  font-weight: 850;
+  color: var(--brand-black);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.ktab-pdf-input-card__subtitle {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-subtle);
+  margin: 0;
+}
+
+/* Field Containers */
+.ktab-pdf-input-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.ktab-pdf-input-label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ktab-pdf-input-required {
+  color: var(--color-danger);
+  margin-right: 0.25rem;
+}
+
+/* Upload Dropzone */
+.ktab-pdf-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem 1.25rem;
+  border-radius: 1.15rem;
+  border: 2px dashed var(--border-subtle);
+  background-color: var(--bg-secondary);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ktab-pdf-dropzone:hover {
+  border-color: var(--brand-teal);
+  background-color: var(--brand-teal-soft);
+}
+
+.ktab-pdf-dropzone--dragging {
+  border-color: var(--brand-teal);
+  background-color: var(--brand-teal-soft);
+  transform: scale(0.99);
+}
+
+.ktab-pdf-dropzone__icon-wrap {
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 1rem;
+  background-color: rgba(93, 227, 186, 0.18);
+  color: var(--brand-teal-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.75rem;
+  transition: transform 0.2s ease;
+}
+
+.ktab-pdf-dropzone:hover .ktab-pdf-dropzone__icon-wrap {
+  transform: scale(1.08);
+}
+
+.ktab-pdf-dropzone__prompt {
+  font-size: 0.875rem;
+  font-weight: 800;
+  color: var(--brand-black);
+  margin-bottom: 0.25rem;
+}
+
+.ktab-pdf-dropzone__hint {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--text-subtle);
+}
+
+/* Selected File Pill */
+.ktab-pdf-file-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.85rem 1.15rem;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 1rem;
+}
+
+.ktab-pdf-file-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.ktab-pdf-file-card__icon {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.65rem;
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--color-danger);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ktab-pdf-file-card__text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.ktab-pdf-file-card__name {
+  font-size: 0.8125rem;
+  font-weight: 750;
+  color: var(--brand-black);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ktab-pdf-file-card__size {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--text-subtle);
+}
+
+.ktab-pdf-file-card__remove-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.ktab-pdf-file-card__remove-btn:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: var(--color-danger);
+}
+
+/* Word Count Pill & Slider */
+.ktab-pdf-word-count-badge {
+  font-size: 0.6875rem;
+  font-weight: 800;
+  background-color: var(--brand-teal-soft);
+  color: var(--brand-teal-deep);
+  padding: 0.15rem 0.55rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(93, 227, 186, 0.35);
+  font-family: var(--font-english), var(--font-arabic), sans-serif;
+}
+
+.ktab-pdf-slider {
+  width: 100%;
+  accent-color: var(--brand-teal);
+  cursor: pointer;
+  margin-top: 0.35rem;
+}
+
+/* Submit Action Button */
+.ktab-pdf-submit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  width: 100%;
+  padding: 0.95rem 1.5rem;
+  border-radius: 1rem;
+  background: var(--brand-black);
+  color: var(--brand-white);
+  font-size: 0.875rem;
+  font-weight: 800;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: inherit;
+  margin-top: 0.5rem;
+}
+
+.ktab-pdf-submit-btn:hover:not(:disabled) {
+  background: var(--brand-black-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+}
+
+.ktab-pdf-submit-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.ktab-pdf-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.ktab-pdf-submit-btn svg {
+  color: var(--brand-teal);
+}

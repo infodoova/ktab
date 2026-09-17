@@ -1,0 +1,265 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   AUTHOR BOOK GRID (Matching Interactive Stories Grid System)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.ktab-books-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  width: 100%;
+  direction: rtl;
+  font-family: var(--font-arabic), sans-serif;
+  box-sizing: border-box;
+}
+
+.ktab-books-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+  align-items: start;
+  box-sizing: border-box;
+}
+
+@media (min-width: 1200px) {
+  .ktab-books-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 900px) and (max-width: 1199px) {
+  .ktab-books-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.35rem;
+  }
+}
+
+@media (min-width: 640px) and (max-width: 899px) {
+  .ktab-books-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+}
+
+@media (max-width: 639px) {
+  .ktab-books-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.85rem;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   SKELETON CARDS (Apple / Eleven Reader Fluid Wave Shimmer)
+   ───────────────────────────────────────────────────────────── */
+.ktab-book-skeleton {
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.ktab-book-skeleton__cover {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  aspect-ratio: 3 / 4;
+  border-radius: 0.85rem;
+  background-color: var(--bg-secondary);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.ktab-book-skeleton__cover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 15%,
+    rgba(255, 255, 255, 0.5) 45%,
+    rgba(255, 255, 255, 0.8) 50%,
+    rgba(255, 255, 255, 0.5) 55%,
+    transparent 85%
+  );
+  animation: ktabSkeletonSweep 1.8s infinite cubic-bezier(0.4, 0, 0.2, 1);
+  animation-delay: calc(var(--skel-idx, 0) * 0.12s);
+}
+
+.ktab-book-skeleton__badge-placeholder {
+  position: absolute;
+  top: 0.65rem;
+  right: 0.65rem;
+  width: 2.5rem;
+  height: 1.15rem;
+  border-radius: 9999px;
+  background-color: rgba(0, 0, 0, 0.06);
+  z-index: 1;
+}
+
+.ktab-book-skeleton__footer-placeholder {
+  position: absolute;
+  bottom: 0.65rem;
+  left: 0.65rem;
+  right: 0.65rem;
+  height: 1.35rem;
+  border-radius: 9999px;
+  background-color: rgba(0, 0, 0, 0.06);
+  z-index: 1;
+}
+
+.ktab-book-skeleton__line {
+  position: relative;
+  border-radius: 0.45rem;
+  background-color: var(--bg-secondary);
+  overflow: hidden;
+}
+
+.ktab-book-skeleton__line::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 15%,
+    rgba(255, 255, 255, 0.6) 45%,
+    rgba(255, 255, 255, 0.9) 50%,
+    rgba(255, 255, 255, 0.6) 55%,
+    transparent 85%
+  );
+  animation: ktabSkeletonSweep 1.8s infinite cubic-bezier(0.4, 0, 0.2, 1);
+  animation-delay: calc(var(--skel-idx, 0) * 0.12s + 0.06s);
+}
+
+.ktab-book-skeleton__line--title {
+  width: 80%;
+  height: 0.95rem;
+}
+
+.ktab-book-skeleton__line--subtitle {
+  width: 48%;
+  height: 0.75rem;
+}
+
+@keyframes ktabSkeletonSweep {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+/* Empty State */
+.ktab-books-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4.5rem 1.5rem;
+  background-color: var(--bg-primary);
+  border: 1px dashed var(--border-subtle);
+  border-radius: 1.5rem;
+  text-align: center;
+  gap: 0.75rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.ktab-books-empty__title {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--brand-black);
+  margin: 0;
+}
+
+.ktab-books-empty__desc {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin: 0;
+  max-width: 26rem;
+  line-height: 1.6;
+}
+
+.ktab-books-empty__reset-btn {
+  margin-top: 0.5rem;
+  padding: 0.6rem 1.25rem;
+  border-radius: 0.75rem;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  color: var(--brand-black);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.ktab-books-empty__reset-btn:hover {
+  background-color: var(--brand-black);
+  color: #ffffff;
+  border-color: var(--brand-black);
+}
+
+.ktab-books-empty__action-btn {
+  margin-top: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  border-radius: 0.85rem;
+  background-color: var(--brand-black);
+  color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 800;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  font-family: inherit;
+}
+
+.ktab-books-empty__action-btn:hover {
+  background-color: #1a1a1a;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+}
+
+/* Load More Action */
+.ktab-books-load-more {
+  display: flex;
+  justify-content: center;
+  padding-top: 1rem;
+}
+
+.ktab-books-load-more__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.875rem 2.25rem;
+  border-radius: 1rem;
+  background-color: var(--brand-black);
+  color: #ffffff;
+  font-size: 0.8125rem;
+  font-weight: 800;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  font-family: inherit;
+}
+
+.ktab-books-load-more__btn:hover:not(:disabled) {
+  background-color: #1a1a1a;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+}
+
+.ktab-books-load-more__btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}

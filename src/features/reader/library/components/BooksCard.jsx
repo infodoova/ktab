@@ -6,6 +6,58 @@ import SkeletonBookLoader from "./SkeletonBookLoader";
 const ITEMS_PER_PAGE = 8;
 
 /* -----------------------------------------------------------
+   🔹 BOOK COVER WITH PROGRESSIVE BLUR & EMPTY STATE
+----------------------------------------------------------- */
+function BookCoverImage({ src, title, isAboveFold }) {
+  const [loaded, setLoaded] = useState(false);
+  const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    setLoaded(false);
+    setHasError(false);
+  }, [src]);
+
+  return (
+    <>
+      {!loaded && !hasError && src && (
+        <div className="absolute inset-0 bg-slate-100 overflow-hidden z-[1]">
+          <div
+            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent"
+            style={{
+              animation: "ktabCardShimmer 1.5s infinite cubic-bezier(0.16, 1, 0.3, 1)",
+            }}
+          />
+        </div>
+      )}
+      {!hasError && src ? (
+        <img
+          src={src}
+          alt={`غلاف كتاب ${title || ""}`}
+          loading={isAboveFold ? "eager" : "lazy"}
+          fetchPriority={isAboveFold ? "high" : "auto"}
+          decoding="async"
+          onLoad={() => setLoaded(true)}
+          onError={() => {
+            setHasError(true);
+            setLoaded(false);
+          }}
+          className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 ease-out group-hover:scale-105 will-change-transform ${
+            loaded ? "opacity-100 blur-0 scale-100" : "opacity-0 blur-md scale-105"
+          }`}
+        />
+      ) : (
+        <div className="absolute inset-0 flex flex-col items-center justify-center p-3 text-center bg-gradient-to-br from-slate-100 to-slate-200 border border-black/5 text-slate-400">
+          <BookOpen size={26} className="text-slate-400 mb-1.5 stroke-[1.5]" />
+          <span className="text-[11px] font-bold text-slate-500 line-clamp-2 px-1 leading-snug">
+            {title || "غلاف غير متوفر"}
+          </span>
+        </div>
+      )}
+    </>
+  );
+}
+
+/* -----------------------------------------------------------
    🔹 MINIMAL BOOK CARD 
 ----------------------------------------------------------- */
 export const MinimalBookCard = React.memo(
@@ -33,15 +85,12 @@ export const MinimalBookCard = React.memo(
             </div>
           )}
 
-          <img
+          <BookCoverImage
             src={book.coverImageUrl || book.cover}
-            alt={`غلاف كتاب ${book.title}`}
-            loading={isAboveFold ? "eager" : "lazy"}
-            fetchPriority={isAboveFold ? "high" : "auto"}
-            decoding="async"
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105 will-change-transform"
+            title={book.title}
+            isAboveFold={isAboveFold}
           />
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300 pointer-events-none" />
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300 pointer-events-none z-[2]" />
         </div>
         <h3
           className="text-slate-900 text-[15px] font-black tracking-tight line-clamp-1 group-hover:opacity-70 transition-opacity"

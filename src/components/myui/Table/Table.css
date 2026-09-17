@@ -1,12 +1,16 @@
 .ktab-table-container {
   width: 100%;
+  max-width: 100%;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   direction: rtl;
   font-family: var(--font-arabic), sans-serif;
+  scrollbar-width: thin;
 }
 
 .ktab-table {
   width: 100%;
+  min-width: 600px;
   caption-side: bottom;
   font-size: 0.875rem;
   text-align: right;

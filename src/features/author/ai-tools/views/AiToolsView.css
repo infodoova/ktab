@@ -1,0 +1,47 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   AI TOOLS VIEW - Eleven Reader + Apple Editorial Canvas
+   Full-width responsive layout with balanced card heights
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.ktab-ai-tools-view {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 0 2.5rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  direction: rtl;
+  font-family: var(--font-arabic), sans-serif;
+}
+
+/* 2-Column Responsive Canvas */
+.ktab-ai-tools-layout {
+  display: grid;
+  grid-template-columns: 24rem minmax(0, 1fr);
+  gap: 1.5rem;
+  align-items: stretch;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.ktab-ai-tools-input-col {
+  width: 100%;
+  display: flex;
+}
+
+.ktab-ai-tools-result-col {
+  width: 100%;
+  display: flex;
+}
+
+/* Tablet & Mobile Responsiveness */
+@media (max-width: 1024px) {
+  .ktab-ai-tools-layout {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .ktab-ai-tools-view {
+    padding-bottom: 2rem;
+  }
+}

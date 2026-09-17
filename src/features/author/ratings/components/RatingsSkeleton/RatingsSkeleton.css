@@ -1,0 +1,194 @@
+/* RatingsSkeleton Styles - Ktab Design System */
+
+.ktab-ratings-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 2.25rem;
+  width: 100%;
+}
+
+.ktab-ratings-skeleton__section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  width: 100%;
+}
+
+.ktab-ratings-skeleton__header-line {
+  width: 14rem;
+  height: 1.25rem;
+  border-radius: 0.5rem;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  position: relative;
+  overflow: hidden;
+}
+
+.ktab-ratings-skeleton__metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.875rem;
+  width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .ktab-ratings-skeleton__metrics-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+  }
+}
+
+.ktab-ratings-skeleton__metric-card {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 1.25rem;
+  padding: 1.25rem 1.4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 8.5rem;
+  height: 100%;
+  box-shadow: var(--shadow-card);
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.ktab-ratings-skeleton__metric-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.ktab-ratings-skeleton__metric-title {
+  width: 7rem;
+  height: 0.875rem;
+  border-radius: 0.35rem;
+  background-color: var(--bg-secondary);
+}
+
+.ktab-ratings-skeleton__metric-icon {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.75rem;
+  background-color: var(--bg-secondary);
+}
+
+.ktab-ratings-skeleton__metric-value {
+  width: 5rem;
+  height: 1.75rem;
+  border-radius: 0.45rem;
+  background-color: var(--bg-secondary);
+  margin: 0.5rem 0;
+}
+
+.ktab-ratings-skeleton__metric-footer {
+  width: 9rem;
+  height: 0.75rem;
+  border-radius: 0.35rem;
+  background-color: var(--bg-secondary);
+}
+
+/* Reviews Feed Skeleton */
+.ktab-ratings-skeleton__feed {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+.ktab-ratings-skeleton__review-card {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 1.25rem;
+  padding: 1.35rem 1.65rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  box-shadow: var(--shadow-card);
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.ktab-ratings-skeleton__review-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.ktab-ratings-skeleton__reviewer {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.ktab-ratings-skeleton__avatar {
+  width: 2.35rem;
+  height: 2.35rem;
+  border-radius: 9999px;
+  background-color: var(--bg-secondary);
+}
+
+.ktab-ratings-skeleton__reviewer-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.ktab-ratings-skeleton__reviewer-name {
+  width: 7rem;
+  height: 0.875rem;
+  border-radius: 0.35rem;
+  background-color: var(--bg-secondary);
+}
+
+.ktab-ratings-skeleton__reviewer-date {
+  width: 4.5rem;
+  height: 0.65rem;
+  border-radius: 0.25rem;
+  background-color: var(--bg-secondary);
+}
+
+.ktab-ratings-skeleton__rating-badge {
+  width: 3.25rem;
+  height: 1.65rem;
+  border-radius: 0.65rem;
+  background-color: var(--bg-secondary);
+}
+
+.ktab-ratings-skeleton__review-body {
+  width: 90%;
+  height: 0.875rem;
+  border-radius: 0.35rem;
+  background-color: var(--bg-secondary);
+}
+
+.ktab-ratings-skeleton__review-body-sm {
+  width: 60%;
+  height: 0.875rem;
+  border-radius: 0.35rem;
+  background-color: var(--bg-secondary);
+}
+
+/* Fluid Shimmer Sweep */
+.ktab-ratings-skeleton__header-line::after,
+.ktab-ratings-skeleton__metric-card::after,
+.ktab-ratings-skeleton__review-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 15%,
+    rgba(255, 255, 255, 0.45) 45%,
+    rgba(255, 255, 255, 0.85) 50%,
+    rgba(255, 255, 255, 0.45) 55%,
+    transparent 85%
+  );
+  animation: ktabCardShimmer 1.7s infinite cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}

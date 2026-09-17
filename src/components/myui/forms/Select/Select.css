@@ -115,12 +115,14 @@
   position: absolute;
   top: calc(100% + 6px);
   right: 0;
-  left: 0;
   z-index: 60;
-  max-height: 240px;
+  min-width: 100%;
+  width: max-content;
+  max-width: 26rem;
+  max-height: 260px;
   overflow-y: auto;
   background-color: var(--bg-primary, #ffffff);
-  border: 1px solid var(--border-card, rgba(0, 0, 0, 0.1));
+  border: 1px solid var(--border-subtle);
   border-radius: 14px;
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.04);
   padding: 6px;
@@ -144,15 +146,17 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 12px;
+  gap: 12px;
+  padding: 8px 14px;
   border-radius: 10px;
   border: none;
   background: transparent;
-  font-family: var(--font-arabic, sans-serif);
+  font-family: var(--font-arabic), sans-serif;
   font-size: 14px;
   font-weight: 600;
   color: var(--brand-black, #0a0a0a);
   text-align: right;
+  white-space: nowrap;
   cursor: pointer;
   box-sizing: border-box;
   outline: none;
@@ -166,11 +170,15 @@
 .myui-select-option.is-selected {
   background-color: var(--brand-teal-soft, #e6faf4);
   color: var(--brand-black, #0a0a0a);
-  font-weight: 800;
+  font-weight: 750;
+}
+
+.myui-select-option.is-selected:hover {
+  background-color: var(--brand-teal-soft, #e6faf4);
 }
 
 .myui-select-check {
-  color: var(--brand-teal-dark, #4ed4ab);
+  color: var(--brand-teal-dark, #0d9488);
   flex-shrink: 0;
   margin-left: 4px;
 }

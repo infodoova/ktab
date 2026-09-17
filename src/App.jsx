@@ -6,7 +6,7 @@ import RoleGuard from "./core/guards/RoleGuard";
 import {
   ErrorBoundary,
   RouteErrorBoundary,
-  RouteLoadingFallback,
+  TopLoadingBar,
 } from "./components/common";
 
 /**
@@ -41,8 +41,8 @@ function renderRouteElement(route) {
   }
 
   return (
-    <RouteErrorBoundary title={route.name ? `خطأ في صفحة ${route.name}` : undefined}>
-      <Suspense fallback={<RouteLoadingFallback />}>
+    <RouteErrorBoundary>
+      <Suspense fallback={<TopLoadingBar />}>
         {content}
       </Suspense>
     </RouteErrorBoundary>

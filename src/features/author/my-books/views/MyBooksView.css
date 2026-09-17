@@ -1,0 +1,262 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   MY BOOKS VIEW (Apple / Eleven Reader Aesthetic)
+   Fluid responsive layout, sticky topbar, optical count alignment.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.ktab-mybooks-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 1.25rem 1.25rem 3.5rem 1.25rem;
+  direction: rtl;
+  font-family: var(--font-arabic), sans-serif;
+  box-sizing: border-box;
+}
+
+@media (min-width: 768px) {
+  .ktab-mybooks-page {
+    padding: 2rem 2.5rem 5rem 2.5rem;
+    gap: 2rem;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   TOP STICKY SECTION HEADER (Aligned optically, Blur on scroll)
+   ───────────────────────────────────────────────────────────── */
+.ktab-mybooks-section-header {
+  position: sticky;
+  top: 4rem;
+  z-index: 25;
+  background-color: rgba(248, 250, 252, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 1.25rem;
+  padding-top: 0.75rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-top: -0.75rem;
+  margin-bottom: 0.5rem;
+  box-sizing: border-box;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+@media (max-width: 767px) {
+  .ktab-mybooks-section-header {
+    top: 3.75rem;
+    padding-top: 0.5rem;
+    margin-top: -0.5rem;
+  }
+}
+
+.ktab-mybooks-section-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-width: 0;
+  flex-shrink: 0;
+}
+
+.ktab-mybooks-section-title {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--brand-black);
+  margin: 0;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  line-height: 1.2;
+}
+
+.ktab-mybooks-section-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  font-family: var(--font-english), var(--font-arabic), sans-serif;
+  font-variant-numeric: tabular-nums;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 9999px;
+  padding: 0.15rem 0.55rem;
+  line-height: 1;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transform: translateY(-2px); /* Optically aligns with the Arabic font glyph center */
+}
+
+/* ─────────────────────────────────────────────────────────────
+   SEGMENTED CONTROL (Published vs Drafts)
+   ───────────────────────────────────────────────────────────── */
+.ktab-mybooks-status-tabs {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  background-color: var(--bg-secondary);
+  padding: 0.25rem;
+  border-radius: 0.875rem;
+  border: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.ktab-mybooks-status-tab {
+  padding: 0.45rem 0.95rem;
+  border-radius: 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.ktab-mybooks-status-tab--active {
+  background-color: var(--bg-primary);
+  color: var(--brand-black);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.ktab-mybooks-status-tab:hover:not(.ktab-mybooks-status-tab--active) {
+  color: var(--brand-black);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   FILTERS GROUP (Desktop vs Mobile)
+   ───────────────────────────────────────────────────────────── */
+.ktab-mybooks-filters-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.ktab-mybooks-filter-select {
+  width: 140px;
+}
+
+.ktab-mybooks-filter-select-trigger {
+  height: 2.25rem !important;
+  font-size: 0.75rem !important;
+  font-weight: 700 !important;
+  border-radius: 0.75rem !important;
+  padding: 0 0.85rem !important;
+}
+
+.ktab-mybooks-filter-select-menu {
+  font-size: 0.75rem !important;
+}
+
+/* Mobile Filter Trigger Button */
+.ktab-mybooks-mobile-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 0.9rem;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--brand-black);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: inherit;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.ktab-mybooks-mobile-filter-btn:hover {
+  background-color: var(--bg-secondary);
+}
+
+.ktab-mybooks-mobile-filter-btn--active {
+  border-color: var(--brand-teal);
+  color: #166534;
+  background-color: rgba(93, 227, 186, 0.1);
+}
+
+.ktab-mybooks-mobile-filter-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: 50%;
+  background-color: var(--brand-teal);
+  color: #0f172a;
+  font-size: 0.65rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   BOTTOM SHEET FILTER FORM
+   ───────────────────────────────────────────────────────────── */
+.ktab-mybooks-sheet-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 0.5rem 0 1rem 0;
+  direction: rtl;
+  font-family: var(--font-arabic), sans-serif;
+}
+
+.ktab-mybooks-sheet-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ktab-mybooks-sheet-label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.ktab-mybooks-sheet-reset-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px dashed var(--border-subtle);
+  background-color: var(--bg-secondary);
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  margin-top: 0.5rem;
+}
+
+.ktab-mybooks-sheet-reset-btn:hover {
+  background-color: var(--border-subtle);
+  color: var(--brand-black);
+}
+
+/* Utility Visibility */
+@media (max-width: 767px) {
+  .ktab-desktop-only {
+    display: none !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .ktab-mobile-only {
+    display: none !important;
+  }
+}

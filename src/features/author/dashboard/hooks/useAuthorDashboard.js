@@ -1,10 +1,11 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   fetchAuthorAnalytics,
   fetchAuthorBookAnalytics,
   fetchBookAgeStats,
   fetchBookMostReadStats,
 } from "../services/authorDashboardService";
+import { FAKE_AUTHOR_ANALYTICS } from "@/fakedataorassets/testData";
 import { useGenreStore } from "@/core/store";
 import { AlertToast } from "@/components/myui/AlertToast";
 import logger from "@/lib/logger";
@@ -29,46 +30,129 @@ export function useAuthorDashboard() {
 
   const [ageStats, setAgeStats] = useState([]);
   const [ageLoading, setAgeLoading] = useState(false);
+  const [isAgeDemo, setIsAgeDemo] = useState(false);
 
   const [mostReadStats, setMostReadStats] = useState([]);
   const [mostReadLoading, setMostReadLoading] = useState(false);
+  const [isMostReadDemo, setIsMostReadDemo] = useState(false);
 
-  // 1. Fetch Author Summary Analytics
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const booksFetchIdRef = useRef(0);
+  const isMountedRef = useRef(true);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  // Smoothly scroll down to the books table when a search query is entered (debounced)
+  useEffect(() => {
+    if (!searchQuery || !searchQuery.trim()) return;
+
+    const timer = setTimeout(() => {
+      const tableEl = document.getElementById("author-books-table");
+      if (tableEl) {
+        const topbarHeight = window.innerWidth < 768 ? 68 : 80;
+        const rect = tableEl.getBoundingClientRect();
+        // Avoid scrolling if table is already visible within the viewport
+        if (rect.top < topbarHeight + 60 && rect.bottom > 150) {
+          return;
+        }
+        const currentY =
+          window.pageYOffset ||
+          document.documentElement.scrollTop ||
+          document.body.scrollTop ||
+          0;
+        const targetScrollY = currentY + rect.top - topbarHeight;
+        window.scrollTo({
+          top: Math.max(0, targetScrollY),
+          behavior: "smooth",
+        });
+      }
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // 1. Fetch Author Summary Analytics (Direct Live API)
   const loadStats = useCallback(async () => {
     setStatsLoading(true);
     try {
       const res = await fetchAuthorAnalytics();
+      if (!isMountedRef.current) return;
       if (res?.messageStatus === "SUCCESS" || res?.data) {
-        setStats(res?.data || null);
+        const data = res?.data || null;
+        setStats(data);
+        if (data?.totalBooks && typeof data.totalBooks === "number") {
+          const calculatedPages = Math.ceil(data.totalBooks / 8);
+          if (calculatedPages > 1) {
+            setTotalPages((prev) => Math.max(prev, calculatedPages));
+          }
+        }
       } else if (res?.message) {
         AlertToast(res.message, res.messageStatus || "ERROR");
       }
     } catch (err) {
       logger.error("Error fetching author stats:", err);
     } finally {
-      setStatsLoading(false);
+      if (isMountedRef.current) {
+        setStatsLoading(false);
+      }
     }
   }, []);
 
-  // 2. Fetch Books Analytics
+  // 2. Fetch Books Analytics (Guarded against race conditions via fetchId sequence)
   const loadBooks = useCallback(async (targetPage = 0, isInitial = false) => {
+    const fetchId = ++booksFetchIdRef.current;
     if (isInitial) setBooksLoading(true);
     else setLoadingMore(true);
 
     try {
-      const res = await fetchAuthorBookAnalytics({ page: targetPage, size: 8 });
-      const payload = res?.data ?? res ?? {};
-      const content = Array.isArray(payload.content) ? payload.content : [];
-      const total = payload.totalPages ?? 1;
+      const minDelay = !isInitial
+        ? new Promise((r) => setTimeout(r, 500))
+        : Promise.resolve();
 
-      setBooks((prev) => (targetPage === 0 ? content : [...prev, ...content]));
-      setTotalPages(total);
+      const [res] = await Promise.all([
+        fetchAuthorBookAnalytics({ page: targetPage, size: 8 }),
+        minDelay,
+      ]);
+
+      // Guard: discard stale response if another page was requested or component unmounted
+      if (!isMountedRef.current || fetchId !== booksFetchIdRef.current) {
+        return;
+      }
+
+      const payload = res?.data ?? res ?? {};
+      const content = Array.isArray(payload.content)
+        ? payload.content
+        : Array.isArray(payload)
+        ? payload
+        : [];
+
+      const total =
+        typeof payload.totalPages === "number" && payload.totalPages > 0
+          ? payload.totalPages
+          : typeof payload.totalElements === "number" && payload.totalElements > 0
+          ? Math.ceil(payload.totalElements / 8)
+          : Array.isArray(content) && content.length === 8
+          ? Math.max(2, targetPage + 2)
+          : 1;
+
+      setBooks(content);
+      setTotalPages((prev) => Math.max(prev, total));
       setPage(targetPage);
     } catch (err) {
-      logger.error("Error fetching author books analytics:", err);
+      if (isMountedRef.current && fetchId === booksFetchIdRef.current) {
+        logger.error("Error fetching author books analytics:", err);
+      }
     } finally {
-      if (isInitial) setBooksLoading(false);
-      else setLoadingMore(false);
+      if (isMountedRef.current && fetchId === booksFetchIdRef.current) {
+        if (isInitial) setBooksLoading(false);
+        else setLoadingMore(false);
+      }
     }
   }, []);
 
@@ -112,12 +196,6 @@ export function useAuthorDashboard() {
 
   // 4. Fetch Chart Data when selectedBookId changes
   useEffect(() => {
-    if (!selectedBookId) {
-      setAgeStats([]);
-      setMostReadStats([]);
-      return;
-    }
-
     let active = true;
 
     async function loadChartData() {
@@ -125,20 +203,44 @@ export function useAuthorDashboard() {
       setMostReadLoading(true);
 
       try {
-        const [ageData, mostReadData] = await Promise.all([
-          fetchBookAgeStats(selectedBookId),
-          fetchBookMostReadStats(selectedBookId),
-        ]);
+        if (selectedBookId) {
+          const [ageData, mostReadData] = await Promise.all([
+            fetchBookAgeStats(selectedBookId),
+            fetchBookMostReadStats(selectedBookId),
+          ]);
 
-        if (active) {
-          setAgeStats(ageData);
-          setMostReadStats(mostReadData);
+          if (active) {
+            if (Array.isArray(ageData) && ageData.length > 0) {
+              setAgeStats(ageData);
+              setIsAgeDemo(false);
+            } else {
+              setAgeStats(FAKE_AUTHOR_ANALYTICS.ageStats);
+              setIsAgeDemo(true);
+            }
+
+            if (Array.isArray(mostReadData) && mostReadData.length > 0) {
+              setMostReadStats(mostReadData);
+              setIsMostReadDemo(false);
+            } else {
+              setMostReadStats(FAKE_AUTHOR_ANALYTICS.mostReadStats);
+              setIsMostReadDemo(true);
+            }
+          }
+        } else {
+          if (active) {
+            setAgeStats(FAKE_AUTHOR_ANALYTICS.ageStats);
+            setIsAgeDemo(true);
+            setMostReadStats(FAKE_AUTHOR_ANALYTICS.mostReadStats);
+            setIsMostReadDemo(true);
+          }
         }
       } catch (err) {
-        console.error("Chart data loading error:", err);
+        logger.error("Chart data loading error:", err);
         if (active) {
-          setAgeStats([]);
-          setMostReadStats([]);
+          setAgeStats(FAKE_AUTHOR_ANALYTICS.ageStats);
+          setIsAgeDemo(true);
+          setMostReadStats(FAKE_AUTHOR_ANALYTICS.mostReadStats);
+          setIsMostReadDemo(true);
         }
       } finally {
         if (active) {
@@ -154,9 +256,37 @@ export function useAuthorDashboard() {
     };
   }, [selectedBookId]);
 
-  const loadMoreBooks = () => {
-    if (!booksLoading && !loadingMore && page + 1 < totalPages) {
-      loadBooks(page + 1, false);
+  // Whenever pagination loads, automatically scroll to the table content (loader & first row)
+  useEffect(() => {
+    if (loadingMore) {
+      if (document.activeElement && typeof document.activeElement.blur === "function") {
+        document.activeElement.blur();
+      }
+      setTimeout(() => {
+        const el =
+          document.getElementById("author-books-table-content") ||
+          document.getElementById("author-books-table");
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "start" });
+          const topbarHeight = window.innerWidth < 768 ? 65 : 75;
+          const rect = el.getBoundingClientRect();
+          const currentY =
+            window.pageYOffset ||
+            document.documentElement.scrollTop ||
+            document.body.scrollTop ||
+            0;
+          const targetY = currentY + rect.top - topbarHeight;
+          window.scrollTo({ top: Math.max(0, targetY), behavior: "smooth" });
+          document.documentElement.scrollTo({ top: Math.max(0, targetY), behavior: "smooth" });
+          document.body.scrollTo({ top: Math.max(0, targetY), behavior: "smooth" });
+        }
+      }, 30);
+    }
+  }, [loadingMore]);
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 0 && !booksLoading && !loadingMore) {
+      loadBooks(newPage, false);
     }
   };
 
@@ -173,9 +303,13 @@ export function useAuthorDashboard() {
     setSelectedBookId,
     ageStats,
     ageLoading,
+    isAgeDemo,
     mostReadStats,
     mostReadLoading,
-    loadMoreBooks,
+    isMostReadDemo,
+    searchQuery,
+    setSearchQuery,
+    onPageChange: handlePageChange,
     refreshDashboard: () => {
       loadStats();
       loadBooks(0, true);

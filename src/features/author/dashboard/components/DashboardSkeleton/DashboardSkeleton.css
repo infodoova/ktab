@@ -1,0 +1,114 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   DASHBOARD SKELETON LOADER
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.ktab-dashboard-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  direction: rtl;
+  box-sizing: border-box;
+}
+
+.ktab-skeleton-box {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 1.25rem;
+  box-shadow: var(--shadow-card);
+}
+
+.ktab-skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 0.5rem;
+}
+
+.ktab-skeleton-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.6) 50%,
+    transparent 100%
+  );
+  animation: ktabSkeletonSlide 1.5s infinite cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes ktabSkeletonSlide {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.ktab-skeleton-grid-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.875rem;
+}
+
+@media (min-width: 1024px) {
+  .ktab-skeleton-grid-stats {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+  }
+}
+
+.ktab-skeleton-stat-card {
+  padding: 1.25rem;
+  height: 8.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.ktab-skeleton-charts-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+
+@media (min-width: 1024px) {
+  .ktab-skeleton-charts-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.ktab-skeleton-chart-card {
+  padding: 1.5rem;
+  height: 22rem;
+}
+
+.ktab-skeleton-table-card {
+  padding: 1.5rem;
+  height: 24rem;
+}
+
+/* Dark Mode */
+.ktab-layout--dark .ktab-skeleton-box {
+  background-color: var(--brand-black-surface);
+  border-color: var(--border-card);
+}
+
+.ktab-layout--dark .ktab-skeleton-shimmer {
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+.ktab-layout--dark .ktab-skeleton-shimmer::after {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.12) 50%,
+    transparent 100%
+  );
+}

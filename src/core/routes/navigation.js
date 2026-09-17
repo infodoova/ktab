@@ -6,8 +6,6 @@ import {
   Settings,
   LayoutDashboard,
   Sparkles,
-  Layers,
-  PlusCircle,
   Star,
   Library as LibraryIcon,
 } from "lucide-react";
@@ -59,22 +57,10 @@ export const AUTHOR_NAV_ITEMS = [
     path: "/author/control",
   },
   {
-    name: "AuthorInteractiveStory",
-    label: "قصة تفاعلية جديدة",
-    icon: Layers,
-    path: "/author/interactive-story",
-  },
-  {
     name: "AuthorMyStories",
     label: "قصصي التفاعلية",
     icon: FolderOpen,
     path: "/author/my-stories",
-  },
-  {
-    name: "AuthorNewBook",
-    label: "نشر كتاب جديد",
-    icon: PlusCircle,
-    path: "/author/new-book",
   },
   {
     name: "AuthorMyBooks",

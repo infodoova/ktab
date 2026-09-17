@@ -1,10 +1,11 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useAuthStore } from "@/core/store/authStore";
 import { fetchAuthorBooks, deleteAuthorBook } from "../services/myBooksService";
 import { AlertToast } from "@/components/myui/AlertToast";
 
 /**
- * Hook for managing Author's published books and drafts with race condition protection.
+ * Hook for managing Author's published books and drafts with race condition protection,
+ * client-side search, genre filtering, sorting, and mobile sheet state.
  */
 export function useAuthorBooks() {
   const user = useAuthStore((state) => state.user) || {};
@@ -15,6 +16,11 @@ export function useAuthorBooks() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedGenre, setSelectedGenre] = useState("ALL");
+  const [sortBy, setSortBy] = useState("newest");
+  const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
 
   const [openMenuId, setOpenMenuId] = useState(null);
   const [selectedBookForDetails, setSelectedBookForDetails] = useState(null);
@@ -50,7 +56,7 @@ export function useAuthorBooks() {
           size: 8,
         });
 
-        // Drop response if newer request has already been initiated (e.g. fast tab change)
+        // Drop response if newer request has already been initiated
         if (currentReqId !== reqIdRef.current) return;
 
         if (res?.messageStatus === "ERROR") {
@@ -120,13 +126,80 @@ export function useAuthorBooks() {
     }
   }, [bookToDelete]);
 
+  const displayedBooks = useMemo(() => {
+    let result = [...books];
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.trim().toLowerCase();
+      result = result.filter((book) => {
+        const title = (book?.title || "").toLowerCase();
+        const genre = (book?.genreName || book?.mainGenre?.name || "").toLowerCase();
+        const author = (book?.authorName || "").toLowerCase();
+        return title.includes(q) || genre.includes(q) || author.includes(q);
+      });
+    }
+
+    if (selectedGenre && selectedGenre !== "ALL") {
+      result = result.filter((book) => {
+        const genre = book?.genreName || book?.mainGenre?.name || "";
+        return genre === selectedGenre;
+      });
+    }
+
+    if (sortBy === "rating") {
+      result.sort((a, b) => (Number(b.averageRating) || 0) - (Number(a.averageRating) || 0));
+    } else if (sortBy === "reads") {
+      result.sort((a, b) => (Number(b.readCount || b.totalReads) || 0) - (Number(a.readCount || a.totalReads) || 0));
+    } else if (sortBy === "title") {
+      result.sort((a, b) => (a.title || "").localeCompare(b.title || "", "ar"));
+    } else {
+      result.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+    }
+
+    return result;
+  }, [books, searchQuery, selectedGenre, sortBy]);
+
+  const availableGenres = useMemo(() => {
+    const set = new Set();
+    books.forEach((b) => {
+      const g = b?.genreName || b?.mainGenre?.name;
+      if (g) set.add(g);
+    });
+    return Array.from(set);
+  }, [books]);
+
+  const activeFiltersCount = useMemo(() => {
+    let count = 0;
+    if (selectedGenre && selectedGenre !== "ALL") count += 1;
+    if (sortBy && sortBy !== "newest") count += 1;
+    return count;
+  }, [selectedGenre, sortBy]);
+
+  const resetFilters = useCallback(() => {
+    setSelectedGenre("ALL");
+    setSortBy("newest");
+    setSearchQuery("");
+  }, []);
+
   return {
     books,
+    displayedBooks,
     loading,
     loadingMore,
     page,
     totalPages,
     status,
+    searchQuery,
+    setSearchQuery,
+    selectedGenre,
+    setSelectedGenre,
+    availableGenres,
+    sortBy,
+    setSortBy,
+    isFilterSheetOpen,
+    setIsFilterSheetOpen,
+    activeFiltersCount,
+    resetFilters,
     openMenuId,
     setOpenMenuId,
     selectedBookForDetails,
@@ -140,4 +213,3 @@ export function useAuthorBooks() {
 }
 
 export default useAuthorBooks;
-

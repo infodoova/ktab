@@ -45,6 +45,9 @@ export function Modal({
     ? `ktab-modal-container--${maxWidth}`
     : "ktab-modal-container--max-w-lg";
 
+  const isMobile =
+    typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches;
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -61,14 +64,29 @@ export function Modal({
 
           {/* Modal Container */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 15 }}
+            initial={
+              isMobile
+                ? { opacity: 0, y: "100%" }
+                : { opacity: 0, scale: 0.96, y: 12 }
+            }
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 15 }}
-            transition={{ type: "spring", stiffness: 350, damping: 25 }}
+            exit={
+              isMobile
+                ? { opacity: 0, y: "100%" }
+                : { opacity: 0, scale: 0.96, y: 12 }
+            }
+            transition={{
+              type: "spring",
+              damping: isMobile ? 30 : 25,
+              stiffness: isMobile ? 300 : 350,
+            }}
             className={`ktab-modal-container ${widthClass} ${className}`}
           >
             {/* Top Highlight */}
             <div className="ktab-modal-top-highlight" />
+
+            {/* Mobile Grab Handle */}
+            <div className="ktab-modal-handle" />
 
             {/* Header */}
             {(title || showCloseButton) && (

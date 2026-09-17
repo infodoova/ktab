@@ -1,0 +1,380 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   AUTHOR BOOK CARD (Matching Interactive Stories / Eleven Reader Aesthetic)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.ktab-book-card {
+  position: relative;
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  box-shadow: none;
+  cursor: pointer;
+  overflow: hidden;
+  user-select: none;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  direction: rtl;
+  font-family: var(--font-arabic), sans-serif;
+  box-sizing: border-box;
+}
+
+/* Cover Wrapper (Fixed 3:4 Aspect Ratio, Elevated Cover) */
+.ktab-book-card__cover-wrap {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  aspect-ratio: 3 / 4;
+  border-radius: 0.85rem;
+  overflow: hidden;
+  background-color: var(--bg-secondary);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+}
+
+.ktab-book-card__image-container {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--bg-secondary);
+}
+
+.ktab-book-card__cover-shimmer {
+  position: absolute;
+  inset: 0;
+  background-color: var(--bg-secondary);
+  overflow: hidden;
+  z-index: 2;
+}
+
+.ktab-book-card__cover-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 15%,
+    rgba(255, 255, 255, 0.45) 45%,
+    rgba(255, 255, 255, 0.8) 50%,
+    rgba(255, 255, 255, 0.45) 55%,
+    transparent 85%
+  );
+  animation: ktabCardShimmer 1.6s infinite cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes ktabCardShimmer {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.ktab-book-card__cover-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ktab-book-card__cover-img--loading {
+  opacity: 0;
+  filter: blur(14px);
+  transform: scale(1.08);
+}
+
+.ktab-book-card__cover-img--loaded {
+  opacity: 1;
+  filter: blur(0);
+  transform: scale(1);
+}
+
+.ktab-book-card:hover .ktab-book-card__cover-img--loaded {
+  transform: scale(1.04);
+}
+
+/* Fallback Cover */
+.ktab-book-card__fallback-cover {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  text-align: center;
+  background: linear-gradient(145deg, var(--bg-secondary) 0%, #e2e8f0 100%);
+  color: var(--text-muted);
+  gap: 0.5rem;
+  box-sizing: border-box;
+}
+
+.ktab-book-card__fallback-icon {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--brand-black);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  flex-shrink: 0;
+}
+
+.ktab-book-card__fallback-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--brand-black);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  line-height: 1.35;
+  max-width: 100%;
+}
+
+.ktab-book-card__fallback-badge {
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 0.15rem 0.5rem;
+  border-radius: 9999px;
+  border: 1px solid var(--border-subtle);
+  margin-top: 0.15rem;
+}
+
+/* Top Badges on Cover (Draft & Language) */
+.ktab-book-card__top-badges {
+  position: absolute;
+  top: 0.625rem;
+  right: 0.625rem;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.ktab-book-card__draft-badge {
+  background-color: rgba(245, 158, 11, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #ffffff;
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  padding: 0.2rem 0.55rem;
+  border-radius: 9999px;
+  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.3);
+}
+
+.ktab-book-card__lang-badge {
+  background-color: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #ffffff;
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  padding: 0.2rem 0.55rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Bottom Floating Cover Bar: Rating & Audio */
+.ktab-book-card__cover-footer {
+  position: absolute;
+  bottom: 0.55rem;
+  left: 0.55rem;
+  right: 0.55rem;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  pointer-events: none;
+}
+
+.ktab-book-card__footer-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background-color: rgba(15, 23, 42, 0.78);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: #ffffff;
+  font-size: 0.6875rem;
+  font-weight: 750;
+  padding: 0.22rem 0.5rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+  font-family: var(--font-english), var(--font-arabic), sans-serif;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.ktab-book-card__star-icon {
+  color: #fbbf24;
+  fill: #fbbf24;
+}
+
+.ktab-book-card__footer-pill--audio-active {
+  color: var(--brand-teal);
+  border-color: rgba(93, 227, 186, 0.35);
+}
+
+.ktab-book-card__footer-pill--audio-inactive {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+/* Menu Actions */
+.ktab-book-card__menu-anchor {
+  position: absolute;
+  top: 0.65rem;
+  left: 0.65rem;
+  z-index: 15;
+}
+
+.ktab-book-card__menu-btn {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: var(--brand-black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.ktab-book-card__menu-btn:hover {
+  background-color: #ffffff;
+  color: var(--brand-black);
+  transform: scale(1.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.14);
+}
+
+.ktab-book-card__menu-dropdown {
+  position: absolute;
+  top: 2.35rem;
+  left: 0;
+  width: 9.5rem;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.85rem;
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.18);
+  padding: 0.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  z-index: 25;
+  animation: ktabBookMenuFade 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes ktabBookMenuFade {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.ktab-book-card__menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.55rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: none;
+  background: transparent;
+  color: var(--brand-black);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: right;
+  font-family: inherit;
+}
+
+.ktab-book-card__menu-item:hover {
+  background-color: var(--bg-secondary);
+}
+
+.ktab-book-card__menu-item--danger {
+  color: #ef4444;
+}
+
+.ktab-book-card__menu-item--danger:hover {
+  background-color: rgba(239, 68, 68, 0.08);
+  color: #dc2626;
+}
+
+/* Body */
+.ktab-book-card__body {
+  padding: 0.65rem 0.15rem 0.25rem 0.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.ktab-book-card__title {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  font-size: 0.875rem;
+  font-weight: 750;
+  color: var(--brand-black);
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+
+.ktab-book-card__author {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.25;
+}
