@@ -19,6 +19,8 @@ export function AppLayout({
   onSearchChange,
   searchPlaceholder,
   headerActions,
+  onFilterClick,
+  activeFiltersCount,
   isDark = false,
   navLinks,
   className = "",
@@ -44,6 +46,8 @@ export function AppLayout({
         onSearchChange={onSearchChange}
         navLinks={navLinks}
         headerActions={headerActions}
+        onFilterClick={onFilterClick}
+        activeFiltersCount={activeFiltersCount}
       />
 
       {/* Main Page Area */}
@@ -57,6 +61,8 @@ export function AppLayout({
           searchQuery={searchQuery}
           onSearchChange={onSearchChange}
           searchPlaceholder={searchPlaceholder}
+          onFilterClick={onFilterClick}
+          activeFiltersCount={activeFiltersCount}
           isDark={isDark}
           collapsed={collapsed}
           onToggleCollapse={() => setCollapsed((prev) => !prev)}

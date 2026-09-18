@@ -7,6 +7,7 @@ import {
   Search,
   MoreVertical,
   LogOut,
+  SlidersHorizontal,
 } from "lucide-react";
 import { useNavbar } from "./useNavbar";
 import "./Navbar.css";
@@ -27,6 +28,8 @@ export function Navbar({
   navLinks,
   pageName,
   headerActions,
+  onFilterClick,
+  activeFiltersCount = 0,
 }) {
   const {
     firstName,
@@ -82,6 +85,20 @@ export function Navbar({
                 className="ktab-nav-mobile__search-input"
               />
             </div>
+            {onFilterClick && (
+              <button
+                type="button"
+                onClick={onFilterClick}
+                className="ktab-nav-mobile__icon-btn ktab-nav-mobile__filter-btn"
+                aria-label="تصفية النتائج"
+                title="تصفية متقدمة"
+              >
+                <SlidersHorizontal size={17} strokeWidth={2} />
+                {activeFiltersCount > 0 && (
+                  <span className="ktab-nav-mobile__filter-badge">{activeFiltersCount}</span>
+                )}
+              </button>
+            )}
             <button
               type="button"
               onClick={handleCloseMobileSearch}
@@ -115,8 +132,12 @@ export function Navbar({
                   onClick={handleMobileSearchClick}
                   className="ktab-nav-mobile__icon-btn"
                   aria-label="البحث"
+                  style={{ position: "relative" }}
                 >
                   <Search size={18} strokeWidth={2} />
+                  {activeFiltersCount > 0 && (
+                    <span className="ktab-topbar__search-dot" />
+                  )}
                 </button>
               )}
               {headerActions && (

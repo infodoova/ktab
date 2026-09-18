@@ -11,25 +11,8 @@ import "./NewInteractiveStoryView.css";
  */
 export function NewInteractiveStoryView({ pageName = "إنشاء قصة تفاعلية جديدة" }) {
   const location = useLocation();
-  const {
-    formData,
-    coverPreview,
-    currentStep,
-    isSubmitting,
-    errors,
-    genrePresets,
-    lensOptions,
-    artStyleOptions,
-    sceneCountConfig,
-    handleInputChange,
-    handleCoverSelect,
-    goToNextStep,
-    goToPrevStep,
-    handleStepClick,
-    handleSubmit,
-  } = useNewInteractiveStory();
+  const storyHook = useNewInteractiveStory();
 
-  // Dynamic breadcrumb navigation in the top bar (mirroring new books)
   const breadcrumb = location.state?.from || {
     parentLabel: "القصص التفاعلية",
     parentPath: "/author/my-stories",
@@ -39,21 +22,32 @@ export function NewInteractiveStoryView({ pageName = "إنشاء قصة تفاع
     <AppLayout pageName={pageName} breadcrumb={breadcrumb} showSearch={false}>
       <div className="new-interactive-story-page">
         <NewInteractiveStoryForm
-          formData={formData}
-          coverPreview={coverPreview}
-          currentStep={currentStep}
-          errors={errors}
-          isSubmitting={isSubmitting}
-          genrePresets={genrePresets}
-          lensOptions={lensOptions}
-          artStyleOptions={artStyleOptions}
-          sceneCountConfig={sceneCountConfig}
-          onInputChange={handleInputChange}
-          onCoverSelect={handleCoverSelect}
-          goToNextStep={goToNextStep}
-          goToPrevStep={goToPrevStep}
-          onStepClick={handleStepClick}
-          onSubmit={handleSubmit}
+          formData={storyHook.formData}
+          coverPreview={storyHook.coverPreview}
+          currentStep={storyHook.currentStep}
+          errors={storyHook.errors}
+          isSubmitting={storyHook.isSubmitting}
+          genrePresets={storyHook.genrePresets}
+          lensOptions={storyHook.lensOptions}
+          artStyleOptions={storyHook.artStyleOptions}
+          sceneCountConfig={storyHook.sceneCountConfig}
+          constitutionFields={storyHook.constitutionFields}
+          selectedGenreLabel={storyHook.selectedGenreLabel}
+          selectedLensLabel={storyHook.selectedLensLabel}
+          selectedStyleLabel={storyHook.selectedStyleLabel}
+          filledConstitutionCount={storyHook.filledConstitutionCount}
+          handleTitleChange={storyHook.handleTitleChange}
+          handleGenreClick={storyHook.handleGenreClick}
+          handleStepBtnClick={storyHook.handleStepBtnClick}
+          handleConstitutionChange={storyHook.handleConstitutionChange}
+          handleLensChange={storyHook.handleLensChange}
+          handleSceneCountChange={storyHook.handleSceneCountChange}
+          handleVisualStyleChange={storyHook.handleVisualStyleChange}
+          handleVisualStyleNotesChange={storyHook.handleVisualStyleNotesChange}
+          handleCoverSelect={storyHook.handleCoverSelect}
+          goToNextStep={storyHook.goToNextStep}
+          goToPrevStep={storyHook.goToPrevStep}
+          handleSubmit={storyHook.handleSubmit}
         />
       </div>
     </AppLayout>

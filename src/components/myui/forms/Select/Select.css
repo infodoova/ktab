@@ -169,17 +169,17 @@
 }
 
 .myui-select-option.is-selected {
-  background-color: var(--brand-teal-soft, #e6faf4);
+  background-color: var(--bg-secondary, #f8fafc);
   color: var(--brand-black, #0a0a0a);
   font-weight: 750;
 }
 
 .myui-select-option.is-selected:hover {
-  background-color: var(--brand-teal-soft, #e6faf4);
+  background-color: var(--border-subtle, #f1f5f9);
 }
 
 .myui-select-check {
-  color: var(--brand-teal-dark, #0d9488);
+  color: var(--brand-black, #0a0a0a);
   flex-shrink: 0;
   margin-left: 4px;
 }

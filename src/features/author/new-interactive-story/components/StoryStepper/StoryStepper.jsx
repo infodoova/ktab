@@ -4,8 +4,8 @@ import "./StoryStepper.css";
 
 const STEPS = [
   { id: 1, label: "الهوية والغلاف", desc: "العنوان والتصنيف" },
-  { id: 2, label: "قوانين العالم", desc: "الدستور ومنظور السرد" },
-  { id: 3, label: "الإخراج والإطلاق", desc: "النمط البصري والمراجعة" },
+  { id: 2, label: "دستور العالم", desc: "قوانين وأركان القصة الـ 8" },
+  { id: 3, label: "المنظور والإطلاق", desc: "النمط البصري والمراجعة" },
 ];
 
 /**
@@ -34,7 +34,8 @@ export function StoryStepper({ currentStep = 1, onStepClick }) {
 
               <button
                 type="button"
-                onClick={() => isClickable && onStepClick?.(step.id)}
+                data-step={step.id}
+                onClick={onStepClick}
                 disabled={!isClickable}
                 className={`story-stepper__item ${
                   isActive ? "story-stepper__item--active" : ""

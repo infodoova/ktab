@@ -58,63 +58,9 @@ export async function fetchInteractiveStoryDetails(storyId) {
   } catch (error) {
     if (error?.message && error.message !== "[object Object]") throw error;
     AlertToast("فشل في جلب تفاصيل القصة", "error", "خطأ");
-    throw error;
   }
 }
 
-/**
- * Starts a new interactive story session.
- *
- * @param {string|number} storyId
- * @returns {Promise<any>}
- */
-export async function startInteractiveStorySession(storyId) {
-  try {
-    const res = await postHelper({
-      url: `${API_BASE}/sessions/start/${storyId}`,
-    });
-    handleApiError(res);
-    return res?.data ?? res;
-  } catch (error) {
-    if (error?.message && error.message !== "[object Object]") throw error;
-    AlertToast("فشل في بدء الجلسة", "error", "خطأ");
-    throw error;
-  }
-}
+export const getStories = fetchInteractiveStories;
+export const getStoryDetails = fetchInteractiveStoryDetails;
 
-/**
- * Submits user's choice to progress the interactive story session.
- *
- * @param {string|number} sessionId
- * @param {string} choiceId
- * @returns {Promise<any>}
- */
-export async function submitInteractiveChoice(sessionId, choiceId) {
-  try {
-    const res = await postHelper({
-      url: `${API_BASE}/sessions/${sessionId}/choose`,
-      body: { choiceId },
-    });
-    handleApiError(res);
-    return res?.data ?? res;
-  } catch (error) {
-    if (error?.message && error.message !== "[object Object]") throw error;
-    AlertToast("فشل في إرسال الاختيار", "error", "خطأ");
-    throw error;
-  }
-}
-
-/**
- * Normalizes API response choices (A, B, C, D) into an array of UI nodes.
- */
-export function mapApiChoicesToNodes(data) {
-  if (!data) return [];
-
-  return ["A", "B", "C", "D"]
-    .filter((key) => data[key])
-    .map((key) => ({
-      nodeId: key,
-      nodeText: data[key].text,
-      nodeDescription: "",
-    }));
-}

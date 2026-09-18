@@ -19,6 +19,17 @@ export const ARABIC_TAG_MAP = {
   third_person: "الغائب",
   psychological: "نفسي",
   PSYCHOLOGICAL: "نفسي",
+  survival: "بقاء",
+  SURVIVAL: "بقاء",
+  political: "سياسي",
+  POLITICAL: "سياسي",
+  moral: "أخلاقي",
+  MORAL: "أخلاقي",
+  CINEMATIC_STORYBOOK: "سينمائي قصصي",
+  DIGITAL_ART: "فن رقمي",
+  DARK_GRAPHIC_NOVEL: "رواية مصورة",
+  WATERCOLOR: "ألوان مائية",
+  OIL_PAINTING: "رسم زيتي",
   adventure: "مغامرة",
   ADVENTURE: "مغامرة",
   fantasy: "خيال",
@@ -36,6 +47,7 @@ export const ARABIC_TAG_MAP = {
   anime: "أنمي",
   ANIME: "أنمي",
 };
+
 
 export const ARABIC_MODAL_TAG_MAP = {
   second_person: "أنت (المخاطب)",

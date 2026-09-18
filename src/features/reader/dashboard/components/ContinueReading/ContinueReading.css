@@ -1,0 +1,289 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   CONTINUE READING COMPONENT
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.ktab-continue-reading {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  direction: rtl;
+  font-family: var(--font-arabic), sans-serif;
+  box-sizing: border-box;
+}
+
+.ktab-continue-reading__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ktab-continue-reading__heading {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--brand-black);
+  letter-spacing: -0.015em;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.ktab-continue-reading__list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+.ktab-continue-card {
+  position: relative;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 1.25rem;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  box-shadow: var(--shadow-card);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+@media (min-width: 768px) {
+  .ktab-continue-card {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.75rem;
+  }
+}
+
+.ktab-continue-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card-hover);
+  border-color: var(--glass-border);
+}
+
+.ktab-continue-card__main {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex: 1;
+  min-width: 0;
+}
+
+/* 3D Book Cover Depth */
+.ktab-continue-card__cover-wrap {
+  position: relative;
+  flex-shrink: 0;
+  width: 4.5rem;
+  height: 6.25rem;
+  border-radius: 0.65rem;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border-subtle);
+  background-color: var(--bg-secondary);
+  transition: transform 0.3s ease;
+}
+
+.ktab-continue-card:hover .ktab-continue-card__cover-wrap {
+  transform: scale(1.03) rotate(-1deg);
+}
+
+.ktab-continue-card__cover-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.ktab-continue-card__cover-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, #e2e8f0 100%);
+  color: var(--text-subtle);
+}
+
+.ktab-continue-card__info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.ktab-continue-card__title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--brand-black);
+  letter-spacing: -0.015em;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.35;
+}
+
+.ktab-continue-card__author {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-subtle);
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.3;
+}
+
+/* Reading Progress Bar */
+.ktab-continue-card__progress-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin-top: 0.45rem;
+  width: 100%;
+  max-width: 32rem;
+}
+
+.ktab-continue-card__track {
+  position: relative;
+  width: 100%;
+  height: 0.5rem;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.ktab-continue-card__fill {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--gradient);
+  border-radius: 9999px;
+  box-shadow: 0 0 10px var(--brand-teal-ambient);
+  transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ktab-continue-card__stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-subtle);
+  line-height: 1;
+}
+
+.ktab-continue-card__percentage {
+  font-family: var(--font-english), sans-serif;
+  font-weight: 750;
+  color: var(--brand-teal-deep);
+}
+
+.ktab-continue-card__pages {
+  font-family: var(--font-english), var(--font-arabic), sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Action Button (Matching Author Editorial Action Button Design) */
+.ktab-continue-card__action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 2.35rem;
+  padding: 0 1.15rem;
+  border-radius: 0.625rem;
+  background-color: var(--btn-action-bg);
+  color: var(--btn-action-text);
+  border: 1px solid var(--btn-action-border);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  font-family: var(--font-arabic), sans-serif;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  box-shadow: var(--btn-action-shadow);
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+  white-space: nowrap;
+  user-select: none;
+  text-decoration: none;
+  outline: none;
+  align-self: stretch;
+}
+
+@media (min-width: 768px) {
+  .ktab-continue-card__action-btn {
+    align-self: center;
+  }
+}
+
+.ktab-continue-card__action-btn svg {
+  color: var(--btn-action-icon);
+  transition: transform 0.2s ease, color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.ktab-continue-card__action-btn:hover {
+  background-color: var(--btn-action-bg-hover);
+  border-color: var(--btn-action-border-hover);
+  color: var(--btn-action-text);
+  transform: translateY(-1px);
+  box-shadow: var(--btn-action-shadow-hover);
+}
+
+.ktab-continue-card__action-btn:hover svg {
+  color: var(--btn-action-text);
+  transform: translateX(-3px);
+}
+
+.ktab-continue-card__action-btn:active {
+  transform: translateY(0) scale(0.98);
+  background-color: var(--btn-action-bg-active);
+}
+
+/* Dark Mode Support */
+.ktab-layout--dark .ktab-continue-card {
+  background-color: var(--brand-black-surface);
+  border-color: var(--border-card);
+}
+
+.ktab-layout--dark .ktab-continue-reading__heading,
+.ktab-layout--dark .ktab-continue-card__title {
+  color: var(--brand-white);
+}
+
+.ktab-layout--dark .ktab-continue-card__author,
+.ktab-layout--dark .ktab-continue-card__stats {
+  color: var(--text-subtle);
+}
+
+.ktab-layout--dark .ktab-continue-card__track {
+  background-color: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.ktab-layout--dark .ktab-continue-card__action-btn {
+  background-color: var(--btn-action-dark-bg);
+  border-color: var(--btn-action-dark-border);
+  color: var(--btn-action-dark-text);
+  box-shadow: none;
+}
+
+.ktab-layout--dark .ktab-continue-card__action-btn svg {
+  color: var(--btn-action-dark-icon);
+}
+
+.ktab-layout--dark .ktab-continue-card__action-btn:hover {
+  background-color: var(--btn-action-dark-bg-hover);
+  border-color: var(--btn-action-dark-border-hover);
+  color: var(--brand-white);
+}
+
+.ktab-layout--dark .ktab-continue-card__action-btn:hover svg {
+  color: var(--brand-white);
+}

@@ -1,10 +1,12 @@
-import React, { useRef, useMemo, useEffect, useState, memo } from "react";
+import React, { memo } from "react";
 import { UploadCloud, ImagePlus, Trash2 } from "lucide-react";
+import { useCoverImageUploader } from "./useCoverImageUploader";
 import "./CoverImageUploader.css";
 
 /**
  * Editorial Apple / Eleven Reader cover image uploader.
  * Supports drag-and-drop, book ratio preview, and clean object URL disposal.
+ * Pure declarative JSX using useCoverImageUploader hook for all state and DOM logic.
  */
 export const CoverImageUploader = memo(function CoverImageUploader({
   coverFile,
@@ -13,78 +15,38 @@ export const CoverImageUploader = memo(function CoverImageUploader({
   onRemoveFile,
   error,
 }) {
-  const fileInputRef = useRef(null);
-  const [isDragOver, setIsDragOver] = useState(false);
-
-  // Generate preview URL safely
-  const previewSrc = useMemo(() => {
-    if (coverFile) {
-      return URL.createObjectURL(coverFile);
-    }
-    return coverUrl || null;
-  }, [coverFile, coverUrl]);
-
-  // Clean up object URL when changed or unmounted to prevent memory leaks
-  useEffect(() => {
-    return () => {
-      if (previewSrc && previewSrc.startsWith("blob:")) {
-        URL.revokeObjectURL(previewSrc);
-      }
-    };
-  }, [previewSrc]);
-
-  const handleSelect = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      onFileChange(file);
-    }
-    e.target.value = "";
-  };
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    setIsDragOver(true);
-  };
-
-  const handleDragLeave = (e) => {
-    e.preventDefault();
-    setIsDragOver(false);
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    setIsDragOver(false);
-    const files = e.dataTransfer?.files;
-    if (files && files.length > 0) {
-      onFileChange(files[0]);
-    }
-  };
-
-  const handleRemove = (e) => {
-    e.stopPropagation();
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-    onRemoveFile();
-  };
-
-  const handleClick = () => {
-    fileInputRef.current?.click();
-  };
+  const {
+    fileInputRef,
+    isDragOver,
+    previewSrc,
+    handleSelect,
+    handleDragOver,
+    handleDragLeave,
+    handleDrop,
+    handleRemove,
+    handleClick,
+    handleKeyDown,
+  } = useCoverImageUploader({
+    coverFile,
+    coverUrl,
+    onFileChange,
+    onRemoveFile,
+  });
 
   return (
     <div className="book-cover-uploader">
       <div className="book-cover-uploader__header">
         <label className="book-cover-uploader__label">
-          غلاف الكتاب
+          صورة الغلاف
           <span className="book-cover-uploader__required">*</span>
         </label>
+        <span className="book-cover-uploader__hint">النسبة المثالية 1:1.6 (حتى 10MB)</span>
       </div>
 
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/png, image/jpeg, image/jpg, image/webp"
+        accept="image/jpeg,image/png,image/webp"
         onChange={handleSelect}
         className="book-cover-uploader__input"
         aria-label="رفع صورة غلاف الكتاب"
@@ -102,14 +64,10 @@ export const CoverImageUploader = memo(function CoverImageUploader({
         onDrop={handleDrop}
         role="button"
         tabIndex={0}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            handleClick();
-          }
-        }}
+        onKeyDown={handleKeyDown}
       >
         {previewSrc ? (
+          /* Book cover preview mockup */
           <div className="book-cover-uploader__preview-wrap">
             <img
               src={previewSrc}
@@ -119,37 +77,33 @@ export const CoverImageUploader = memo(function CoverImageUploader({
             <div className="book-cover-uploader__preview-overlay">
               <button
                 type="button"
-                className="book-cover-uploader__btn-remove"
                 onClick={handleRemove}
-                title="حذف الغلاف"
-                aria-label="حذف الغلاف"
+                className="book-cover-uploader__btn-remove"
+                title="إزالة الغلاف"
+                aria-label="إزالة الغلاف"
               >
                 <Trash2 size={16} />
                 <span>حذف</span>
               </button>
               <div className="book-cover-uploader__change-hint">
                 <UploadCloud size={16} />
-                <span>انقر للتغيير</span>
+                <span>انقر لتغيير الصورة</span>
               </div>
             </div>
           </div>
         ) : (
+          /* Empty dropzone state */
           <div className="book-cover-uploader__empty">
             <div className="book-cover-uploader__icon-badge">
-              <ImagePlus size={22} />
+              <ImagePlus size={24} />
             </div>
             <div className="book-cover-uploader__cta-text">
-              <span className="book-cover-uploader__cta-action">اسحب الغلاف هنا</span>
-              <span className="book-cover-uploader__cta-sub">أو اضغط لتصفح الملفات</span>
+              <span className="book-cover-uploader__cta-action">اسحب صورة الغلاف هنا</span>
+              <span className="book-cover-uploader__cta-sub">أو اضغط للتصفح من جهازك (JPG, PNG, WebP)</span>
             </div>
           </div>
         )}
       </div>
-
-      {/* Format note under the dropzone */}
-      <p className="book-cover-uploader__note">
-        صيغ الصور المدعومة: JPG، PNG، WebP (حتى 10MB) · النسبة المقترحة: 1.6:1
-      </p>
 
       {error && <span className="book-cover-uploader__error-text">{error}</span>}
     </div>

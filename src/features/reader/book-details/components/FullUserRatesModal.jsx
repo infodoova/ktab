@@ -1,81 +1,113 @@
 import React from "react";
-import { Star, X, Loader2 } from "lucide-react";
+import { Star, X } from "lucide-react";
+import "./FullUserRatesModal.css";
 
 /**
- * Pure presentation modal for browsing all user reviews.
- * Receives reviews and loading state via props.
+ * Editorial Apple Books-style full customer reviews dialog.
+ * On mobile, presents as a full-height bottom sheet with grab handle.
  */
 export function FullUserRatesModal({ isOpen, onClose, reviews = [], loading = false }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl animate-in fade-in duration-200">
+    <div className="apple-full-rates-backdrop" onClick={onClose}>
       <div
-        className="bg-[#0d0d0d] w-full max-w-3xl max-h-[85vh] rounded-[3rem] shadow-2xl flex flex-col overflow-hidden border border-white/10 relative"
+        className="apple-full-rates-dialog"
         dir="rtl"
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label="جميع آراء وتقييمات القراء"
       >
+        {/* Mobile Drag Handle */}
+        <div className="apple-full-rates-dialog__handle-wrap">
+          <div className="apple-full-rates-dialog__handle" />
+        </div>
+
         {/* Header */}
-        <div className="flex items-center justify-between p-6 md:p-8 border-b border-white/5 bg-white/[0.02] shrink-0">
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-2xl bg-gradient-to-br from-[#5de3ba] to-[#76debf] shadow-lg">
-              <Star size={24} className="text-white fill-white" />
-            </div>
-            <div>
-              <h3 className="text-xl md:text-2xl font-black text-white tracking-tight">
-                جميع آراء وتقييمات القراء
-              </h3>
-              <p className="text-white/40 text-xs font-bold uppercase tracking-widest mt-0.5">
-                تجارب حقيقية ({reviews.length} تقييم)
-              </p>
-            </div>
+        <div className="apple-full-rates-dialog__header">
+          <div>
+            <h3 className="apple-full-rates-dialog__title">جميع آراء وتقييمات القراء</h3>
+            <p className="apple-full-rates-dialog__subtitle">
+              تجارب ومراجعات موثّقة ({reviews.length} تقييم)
+            </p>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="p-2.5 bg-white/5 hover:bg-white/10 rounded-full text-white/60 hover:text-white transition-all active:scale-90"
+            className="apple-full-rates-dialog__close-btn"
             aria-label="إغلاق"
           >
-            <X size={20} />
+            <X size={16} strokeWidth={2.4} />
           </button>
         </div>
 
         {/* Content List */}
-        <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-4">
+        <div className="apple-full-rates-dialog__body">
           {loading ? (
-            <div className="flex flex-col items-center justify-center py-20 text-[#5de3ba]">
-              <Loader2 className="w-10 h-10 animate-spin mb-4" />
-              <p className="text-white/40 font-bold uppercase tracking-widest text-xs">
-                جاري جلب الآراء...
-              </p>
+            <div className="apple-full-rates-dialog__loading">
+              <span className="apple-full-rates-dialog__spinner" />
+              <span>جاري تحميل الآراء...</span>
             </div>
           ) : reviews.length === 0 ? (
-            <div className="text-center py-20">
-              <p className="text-white/30 text-lg font-bold">لا توجد مراجعات مسجلة حتى الآن.</p>
+            <div className="apple-full-rates-dialog__empty">
+              <p>لا توجد مراجعات مسجلة حتى الآن.</p>
             </div>
           ) : (
-            reviews.map((review, index) => (
-              <div
-                key={review.id || index}
-                className="bg-white/[0.03] p-6 rounded-2xl border border-white/5 space-y-3"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center font-bold text-sm text-white">
-                      {review.userName?.[0] || "ق"}
+            reviews.map((review, index) => {
+              const ratingVal = Number(review.rating || review.rate || 5);
+              let formattedDate = "";
+              if (review.createdAt) {
+                try {
+                  formattedDate = new Date(review.createdAt).toLocaleDateString("ar-EG", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  });
+                } catch {
+                  formattedDate = "";
+                }
+              }
+
+              return (
+                <div key={review.id || index} className="apple-full-rates-card">
+                  <div className="apple-full-rates-card__top">
+                    <div className="apple-full-rates-card__user">
+                      <div className="apple-full-rates-card__avatar">
+                        {review.userName?.[0] || "ق"}
+                      </div>
+                      <div className="apple-full-rates-card__user-info">
+                        <span className="apple-full-rates-card__name">
+                          {review.userName || "قارئ كِتَاب"}
+                        </span>
+                        {formattedDate && (
+                          <span className="apple-full-rates-card__date">{formattedDate}</span>
+                        )}
+                      </div>
                     </div>
-                    <span className="font-bold text-sm text-white">{review.userName || "قارئ كِتَاب"}</span>
+
+                    <div className="apple-full-rates-card__stars">
+                      {[1, 2, 3, 4, 5].map((starIndex) => (
+                        <Star
+                          key={starIndex}
+                          size={13}
+                          className={`apple-full-rates-card__star ${
+                            starIndex <= ratingVal ? "is-filled" : ""
+                          }`}
+                        />
+                      ))}
+                    </div>
                   </div>
 
-                  <div className="flex items-center gap-1 bg-black/40 px-3 py-1.5 rounded-full border border-white/5 text-xs text-yellow-500 font-black">
-                    <Star size={14} className="fill-yellow-500" />
-                    <span>{review.rating || review.rate || 5}</span>
-                  </div>
+                  {review.comment && review.comment.trim() ? (
+                    <p className="apple-full-rates-card__comment">
+                      {review.comment.trim()}
+                    </p>
+                  ) : null}
                 </div>
 
-                <p className="text-white/70 text-sm leading-relaxed pr-13">
-                  {review.comment || "مراجعة مميزة..."}
-                </p>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </div>

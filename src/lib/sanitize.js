@@ -165,3 +165,141 @@ export function validateFile(file, { allowedTypes = [], maxSizeBytes = 50 * 1024
 
   return { valid: true };
 }
+
+/**
+ * Known dangerous executable and script extensions that must never appear in filenames.
+ */
+const DANGEROUS_EXTENSIONS = new Set([
+  "php", "php3", "php4", "php5", "phtml", "phar", "phps",
+  "exe", "bat", "cmd", "sh", "bash", "js", "vbs", "vbe", "wsf", "wsh",
+  "py", "pyc", "pyo", "pl", "cgi", "jar", "war", "jsp", "jspx",
+  "asp", "aspx", "cer", "csr", "htm", "html", "xhtml", "svg", "shtml",
+  "htaccess", "htpasswd", "env", "config", "dll", "bin", "msi", "apk",
+  "ps1", "scr", "com", "hta", "cpl", "inf", "reg", "vb"
+]);
+
+/**
+ * Validates that a file is strictly a legitimate PDF or Word Document (.docx, .doc),
+ * defending against double extension attacks (e.g. .pdf.php), null-byte injections,
+ * spoofed MIME types, and mismatched magic bytes.
+ *
+ * @param {File} file
+ * @param {Object} [options]
+ * @param {number} [options.maxSizeBytes=100*1024*1024] - default 100MB
+ * @returns {Promise<{ valid: boolean, error?: string, fileType?: 'pdf' | 'word', extension?: string }>}
+ */
+export async function validateSecureBookDocument(file, { maxSizeBytes = 100 * 1024 * 1024 } = {}) {
+  if (!file || !file.name) {
+    return { valid: false, error: "لم يتم اختيار أي ملف" };
+  }
+
+  const rawName = file.name.trim();
+
+  // 1. Null-byte injection check
+  if (rawName.includes("\0") || rawName.includes("%00")) {
+    return { valid: false, error: "اسم الملف غير آمن (يحتوي على محارف مشبوهة)." };
+  }
+
+  // 2. Traversal and path separator check
+  if (rawName.includes("/") || rawName.includes("\\") || rawName.includes("..")) {
+    return { valid: false, error: "اسم الملف يحتوي على مسارات غير مسموح بها." };
+  }
+
+  // 3. Extension extraction and multi-dot / double-extension analysis
+  const parts = rawName.split(".").filter(Boolean);
+  if (parts.length < 2) {
+    return { valid: false, error: "الملف لا يحتوي على امتداد صالح (مطلوب PDF أو Word)." };
+  }
+
+  const finalExt = parts[parts.length - 1].toLowerCase().trim();
+  const allowedExts = ["pdf", "docx", "doc"];
+
+  if (!allowedExts.includes(finalExt)) {
+    return {
+      valid: false,
+      error: `امتداد الملف (.${finalExt}) غير مدعوم. الصيغ المقبولة للكتاب هي: PDF أو Word (.docx, .doc).`,
+    };
+  }
+
+  // 4. Double-extension attack check:
+  // Check all segments preceding the final extension to ensure no executable/script extensions exist.
+  // E.g. "book.php.pdf", "novel.docx.exe"
+  for (let i = 0; i < parts.length - 1; i++) {
+    const part = parts[i].toLowerCase().trim();
+    if (DANGEROUS_EXTENSIONS.has(part)) {
+      return {
+        valid: false,
+        error: `تم رفض الملف لأسباب أمنية (اسم الملف يحتوي على امتداد مشبوه: .${part}).`,
+      };
+    }
+    // Also forbid stacking multiple document extensions, e.g. "book.docx.pdf"
+    if (allowedExts.includes(part)) {
+      return {
+        valid: false,
+        error: `تم رفض الملف لأسباب أمنية (امتداد مكرر غير مسموح: .${part}).`,
+      };
+    }
+  }
+
+  // 5. Size check
+  if (file.size > maxSizeBytes) {
+    const maxMb = Math.round(maxSizeBytes / (1024 * 1024));
+    return {
+      valid: false,
+      error: `حجم ملف الكتاب يتجاوز الحد الأقصى المسموح به (${maxMb} ميغابايت).`,
+    };
+  }
+
+  if (file.size === 0) {
+    return { valid: false, error: "ملف الكتاب فارغ (0 بايت)." };
+  }
+
+  // 6. Magic Bytes Header Verification (reading first 8 bytes)
+  try {
+    const headerBuffer = await file.slice(0, 8).arrayBuffer();
+    const bytes = new Uint8Array(headerBuffer);
+
+    if (finalExt === "pdf") {
+      // PDF starts with "%PDF" -> 0x25, 0x50, 0x44, 0x46
+      const isPdfHeader =
+        bytes[0] === 0x25 && bytes[1] === 0x50 && bytes[2] === 0x44 && bytes[3] === 0x46;
+      if (!isPdfHeader) {
+        return {
+          valid: false,
+          error: "محتوى الملف لا يتطابق مع ملف PDF صالح (فحص ترويسة الملف الأمني).",
+        };
+      }
+      return { valid: true, fileType: "pdf", extension: finalExt };
+    }
+
+    if (finalExt === "docx") {
+      // DOCX is a zip archive, starts with PK\x03\x04 -> 0x50, 0x4B, 0x03, 0x04
+      const isDocxHeader =
+        bytes[0] === 0x50 && bytes[1] === 0x4B && bytes[2] === 0x03 && bytes[3] === 0x04;
+      if (!isDocxHeader) {
+        return {
+          valid: false,
+          error: "محتوى الملف لا يتطابق مع مستند Word DOCX صالح (فحص ترويسة الملف).",
+        };
+      }
+      return { valid: true, fileType: "word", extension: finalExt };
+    }
+
+    if (finalExt === "doc") {
+      // Legacy DOC binary is OLE Compound file: 0xD0, 0xCF, 0x11, 0xE0
+      const isDocHeader =
+        bytes[0] === 0xd0 && bytes[1] === 0xcf && bytes[2] === 0x11 && bytes[3] === 0xe0;
+      if (!isDocHeader) {
+        return {
+          valid: false,
+          error: "محتوى الملف لا يتطابق مع مستند Word DOC صالح (فحص ترويسة الملف).",
+        };
+      }
+      return { valid: true, fileType: "word", extension: finalExt };
+    }
+  } catch (err) {
+    return { valid: false, error: "تعذر قراءة بيانات الملف للتحقق الأمني." };
+  }
+
+  return { valid: true, fileType: finalExt === "pdf" ? "pdf" : "word", extension: finalExt };
+}

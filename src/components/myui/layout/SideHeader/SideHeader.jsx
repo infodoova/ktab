@@ -1,6 +1,6 @@
 import React from "react";
-import { motion } from "framer-motion";
-import { Search, X, PanelLeft, ChevronLeft } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Search, X, PanelLeft, ChevronLeft, SlidersHorizontal } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useSideHeader } from "./useSideHeader";
 import "./SideHeader.css";
@@ -17,6 +17,8 @@ export function SideHeader({
   searchPlaceholder = "ابحث عن كتاب، مؤلف، أو موضوع...",
   searchQuery,
   onSearchChange,
+  onFilterClick,
+  activeFiltersCount = 0,
   children,
   isDark = false,
   collapsed = false,
@@ -77,56 +79,84 @@ export function SideHeader({
       {/* Left Side: Actions + Minimalist Expandable Search */}
       <div className="ktab-topbar__actions" dir="ltr">
         {showSearch && (
-          <motion.div
-            initial={false}
-            animate={{ width: isExpanded ? 300 : 38 }}
-            transition={{ type: "spring", stiffness: 450, damping: 35 }}
-            onClick={() => {
-              if (!isExpanded) handleOpenSearch();
-            }}
-            className={`ktab-topbar__search ${searchStateClass}`}
-          >
-            <button
-              type="button"
+          <div className="ktab-topbar__search-group">
+            <motion.div
+              initial={false}
+              animate={{ width: isExpanded ? 300 : 38 }}
+              transition={{ type: "spring", stiffness: 450, damping: 35 }}
               onClick={() => {
                 if (!isExpanded) handleOpenSearch();
               }}
-              className="ktab-topbar__search-btn"
-              aria-label="البحث"
+              className={`ktab-topbar__search ${searchStateClass}`}
             >
-              <Search size={18} strokeWidth={2} />
-            </button>
-
-            {isExpanded && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.15 }}
-                className="ktab-topbar__search-inner"
+              <button
+                type="button"
+                onClick={() => {
+                  if (!isExpanded) handleOpenSearch();
+                }}
+                className="ktab-topbar__search-btn"
+                aria-label="البحث"
               >
-                <input
-                  ref={inputRef}
-                  type="text"
-                  value={query}
-                  onChange={(e) => handleQueryChange(e.target.value)}
-                  placeholder={searchPlaceholder}
-                  className="ktab-topbar__search-input"
-                  dir="rtl"
-                />
-                <button
-                  type="button"
-                  onClick={handleCloseSearch}
-                  className="ktab-topbar__search-close"
-                  aria-label="إغلاق البحث"
+                <Search size={18} strokeWidth={2} />
+                {!isExpanded && activeFiltersCount > 0 && (
+                  <span className="ktab-topbar__search-dot" />
+                )}
+              </button>
+
+              {isExpanded && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.15 }}
+                  className="ktab-topbar__search-inner"
                 >
-                  <X size={15} strokeWidth={2.2} />
-                </button>
-              </motion.div>
-            )}
-          </motion.div>
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    value={query}
+                    onChange={(e) => handleQueryChange(e.target.value)}
+                    placeholder={searchPlaceholder}
+                    className="ktab-topbar__search-input"
+                    dir="rtl"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleCloseSearch}
+                    className="ktab-topbar__search-close"
+                    aria-label="إغلاق البحث"
+                  >
+                    <X size={15} strokeWidth={2.2} />
+                  </button>
+                </motion.div>
+              )}
+            </motion.div>
+
+            {/* Filter button that smoothly animates into view when search is open */}
+            <AnimatePresence>
+              {isExpanded && onFilterClick && (
+                <motion.button
+                  key="topbar-filter-btn"
+                  type="button"
+                  initial={{ opacity: 0, scale: 0.85, x: 8 }}
+                  animate={{ opacity: 1, scale: 1, x: 0 }}
+                  exit={{ opacity: 0, scale: 0.85, x: 8 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 28 }}
+                  onClick={onFilterClick}
+                  className="ktab-topbar__btn-filter"
+                  title="تصفية متقدمة"
+                  aria-label="تصفية متقدمة"
+                >
+                  <SlidersHorizontal size={16} strokeWidth={2.2} />
+                  {activeFiltersCount > 0 && (
+                    <span className="ktab-topbar__filter-badge">{activeFiltersCount}</span>
+                  )}
+                </motion.button>
+              )}
+            </AnimatePresence>
+          </div>
         )}
 
-        {/* Custom Actions (filters, buttons, etc.) */}
+        {/* Custom Actions (buttons, etc.) */}
         {children && <div className="ktab-topbar__custom-actions">{children}</div>}
       </div>
     </header>

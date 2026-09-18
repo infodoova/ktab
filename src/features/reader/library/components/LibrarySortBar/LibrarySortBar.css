@@ -1,0 +1,169 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   LIBRARY SORT & FILTER TOOLBAR (Matching Author Controls & Tokens)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.ktab-lib-sortbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1rem;
+  width: 100%;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--border-subtle);
+  direction: rtl;
+  font-family: var(--font-arabic), sans-serif;
+  box-sizing: border-box;
+}
+
+.ktab-lib-sortbar__controls-group {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.ktab-lib-sortbar__label {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+/* Styled Select */
+.ktab-lib-sortbar__select-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.ktab-lib-sortbar__select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: var(--btn-action-bg);
+  border: 1px solid var(--btn-action-border);
+  border-radius: 0.625rem;
+  padding: 0 1.75rem 0 0.85rem;
+  height: 2.35rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  font-family: var(--font-arabic), sans-serif;
+  color: var(--btn-action-text);
+  box-shadow: var(--btn-action-shadow);
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  outline: none;
+}
+
+.ktab-lib-sortbar__select:hover {
+  background-color: var(--btn-action-bg-hover);
+  border-color: var(--btn-action-border-hover);
+}
+
+.ktab-lib-sortbar__select:focus-visible {
+  border-color: var(--brand-teal);
+  box-shadow: 0 0 0 2px var(--brand-teal-ambient);
+}
+
+.ktab-lib-sortbar__select-icon {
+  position: absolute;
+  left: 0.65rem;
+  pointer-events: none;
+  color: var(--btn-action-icon);
+}
+
+/* Direction Toggle Button (Author Design System) */
+.ktab-lib-sortbar__btn-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  height: 2.35rem;
+  padding: 0 0.85rem;
+  border-radius: 0.625rem;
+  background-color: var(--btn-action-bg);
+  border: 1px solid var(--btn-action-border);
+  color: var(--btn-action-text);
+  box-shadow: var(--btn-action-shadow);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  font-family: var(--font-arabic), sans-serif;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  outline: none;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.ktab-lib-sortbar__btn-action svg {
+  color: var(--btn-action-icon);
+  transition: color 0.18s ease;
+  flex-shrink: 0;
+}
+
+.ktab-lib-sortbar__btn-action:hover {
+  background-color: var(--btn-action-bg-hover);
+  border-color: var(--btn-action-border-hover);
+  color: var(--btn-action-text);
+  transform: translateY(-1px);
+  box-shadow: var(--btn-action-shadow-hover);
+}
+
+.ktab-lib-sortbar__btn-action:hover svg {
+  color: var(--btn-action-text);
+}
+
+.ktab-lib-sortbar__btn-action:active {
+  transform: translateY(0) scale(0.98);
+  background-color: var(--btn-action-bg-active);
+}
+
+/* Filter Badge Count */
+.ktab-lib-sortbar__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.15rem;
+  height: 1.15rem;
+  padding: 0 0.3rem;
+  border-radius: 9999px;
+  background-color: var(--brand-teal);
+  color: var(--brand-black);
+  font-size: 0.6875rem;
+  font-weight: 800;
+  font-family: var(--font-english), sans-serif;
+  line-height: 1;
+}
+
+/* Dark Mode */
+.ktab-layout--dark .ktab-lib-sortbar {
+  border-bottom-color: var(--border-card);
+}
+
+.ktab-layout--dark .ktab-lib-sortbar__label {
+  color: var(--text-subtle);
+}
+
+.ktab-layout--dark .ktab-lib-sortbar__select,
+.ktab-layout--dark .ktab-lib-sortbar__btn-action {
+  background-color: var(--btn-action-dark-bg);
+  border-color: var(--btn-action-dark-border);
+  color: var(--btn-action-dark-text);
+  box-shadow: none;
+}
+
+.ktab-layout--dark .ktab-lib-sortbar__select-icon,
+.ktab-layout--dark .ktab-lib-sortbar__btn-action svg {
+  color: var(--btn-action-dark-icon);
+}
+
+.ktab-layout--dark .ktab-lib-sortbar__select:hover,
+.ktab-layout--dark .ktab-lib-sortbar__btn-action:hover {
+  background-color: var(--btn-action-dark-bg-hover);
+  border-color: var(--btn-action-dark-border-hover);
+  color: var(--brand-white);
+}
+
+.ktab-layout--dark .ktab-lib-sortbar__btn-action:hover svg {
+  color: var(--brand-white);
+}

@@ -1,0 +1,555 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   ASSIGNED / FAVORITE BOOKS SHELF (Matching Author Card System & Tokens)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.ktab-assigned-shelf {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  width: 100%;
+  max-width: 100%;
+  direction: rtl;
+  font-family: var(--font-arabic), sans-serif;
+  box-sizing: border-box;
+}
+
+.ktab-assigned-shelf__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0.25rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.ktab-assigned-shelf__title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.ktab-assigned-shelf__heading {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--brand-black);
+  letter-spacing: -0.015em;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.ktab-assigned-shelf__count {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--text-subtle);
+  font-family: var(--font-english), var(--font-arabic), sans-serif;
+}
+
+/* Nav Controls */
+.ktab-assigned-shelf__controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ktab-assigned-shelf__arrow-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.125rem;
+  height: 2.125rem;
+  border-radius: 0.55rem;
+  background-color: var(--btn-action-bg);
+  border: 1px solid var(--btn-action-border);
+  color: var(--btn-action-text);
+  box-shadow: var(--btn-action-shadow);
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  outline: none;
+  user-select: none;
+}
+
+.ktab-assigned-shelf__arrow-btn svg {
+  color: var(--btn-action-icon);
+  transition: color 0.18s ease;
+}
+
+.ktab-assigned-shelf__arrow-btn:hover:not(:disabled) {
+  background-color: var(--btn-action-bg-hover);
+  border-color: var(--btn-action-border-hover);
+  color: var(--btn-action-text);
+  transform: translateY(-1px);
+  box-shadow: var(--btn-action-shadow-hover);
+}
+
+.ktab-assigned-shelf__arrow-btn:hover:not(:disabled) svg {
+  color: var(--btn-action-text);
+}
+
+.ktab-assigned-shelf__arrow-btn:active:not(:disabled) {
+  transform: translateY(0) scale(0.96);
+  background-color: var(--btn-action-bg-active);
+}
+
+.ktab-assigned-shelf__arrow-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Horizontal Track */
+.ktab-assigned-shelf__track {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.25rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.5rem 0.25rem 1.25rem 0.25rem;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.ktab-assigned-shelf__track::-webkit-scrollbar {
+  display: none;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   ASSIGNED BOOK CARD (Strictly Enforced Sizing & 3:4 Proportion)
+   ───────────────────────────────────────────────────────────── */
+.ktab-assigned-card {
+  position: relative;
+  flex: 0 0 10.5rem;
+  width: 10.5rem;
+  min-width: 10.5rem;
+  max-width: 10.5rem;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  user-select: none;
+  box-sizing: border-box;
+  background: transparent;
+  border: none;
+  padding: 0;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (min-width: 768px) {
+  .ktab-assigned-card {
+    flex: 0 0 11.5rem;
+    width: 11.5rem;
+    min-width: 11.5rem;
+    max-width: 11.5rem;
+  }
+}
+
+.ktab-assigned-card:hover {
+  transform: translateY(-4px);
+}
+
+/* Cover Wrapper (Fixed 3:4 Proportion Matching Author) */
+.ktab-assigned-card__cover-wrap {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  aspect-ratio: 3 / 4;
+  border-radius: 0.85rem;
+  overflow: hidden;
+  background-color: var(--bg-secondary);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.ktab-assigned-card:hover .ktab-assigned-card__cover-wrap {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+.ktab-assigned-card__image-container {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--bg-secondary);
+}
+
+.ktab-assigned-card__cover-shimmer {
+  position: absolute;
+  inset: 0;
+  background-color: var(--bg-secondary);
+  overflow: hidden;
+  z-index: 2;
+}
+
+.ktab-assigned-card__cover-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 15%,
+    rgba(255, 255, 255, 0.45) 45%,
+    rgba(255, 255, 255, 0.8) 50%,
+    rgba(255, 255, 255, 0.45) 55%,
+    transparent 85%
+  );
+  animation: ktabCardShimmer 1.6s infinite cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ktab-assigned-card__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ktab-assigned-card__img--loading {
+  opacity: 0;
+  filter: blur(12px);
+  transform: scale(1.06);
+}
+
+.ktab-assigned-card__img--loaded {
+  opacity: 1;
+  filter: blur(0);
+  transform: scale(1);
+}
+
+.ktab-assigned-card:hover .ktab-assigned-card__img--loaded {
+  transform: scale(1.04);
+}
+
+/* Fallback Cover */
+.ktab-assigned-card__fallback-cover {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(145deg, var(--bg-secondary) 0%, var(--btn-action-bg-hover) 100%);
+  border-radius: inherit;
+  box-sizing: border-box;
+}
+
+.ktab-assigned-card__fallback-logo {
+  width: 3.25rem;
+  height: 3.25rem;
+  object-fit: contain;
+  filter: grayscale(100%);
+  opacity: 0.6;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+  user-select: none;
+  pointer-events: none;
+}
+
+.ktab-assigned-card:hover .ktab-assigned-card__fallback-logo {
+  opacity: 0.85;
+  transform: scale(1.08);
+}
+
+/* More Options Button (Matching Author Book Card Menu Anchor) */
+.ktab-assigned-card__menu-area {
+  position: absolute;
+  top: 0.55rem;
+  left: 0.55rem;
+  z-index: 10;
+}
+
+.ktab-assigned-card__menu-btn {
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: var(--brand-black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ktab-assigned-card__menu-btn:hover {
+  background: #ffffff;
+  transform: scale(1.06);
+}
+
+/* Popover Menu */
+.ktab-assigned-card__menu-popover {
+  position: absolute;
+  top: 2.35rem;
+  left: 0;
+  z-index: 30;
+  width: 10rem;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-card);
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.14);
+  padding: 0.3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  animation: ktabMenuFadeIn 0.15s ease-out;
+}
+
+@keyframes ktabMenuFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.ktab-assigned-card__menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.45rem 0.6rem;
+  border-radius: 0.5rem;
+  background: transparent;
+  border: none;
+  font-size: 0.775rem;
+  font-weight: 700;
+  font-family: var(--font-arabic), sans-serif;
+  color: var(--brand-black);
+  cursor: pointer;
+  text-align: right;
+  transition: all 0.15s ease;
+}
+
+.ktab-assigned-card__menu-item:hover {
+  background-color: var(--bg-secondary);
+}
+
+.ktab-assigned-card__menu-item--danger {
+  color: var(--color-danger);
+}
+
+.ktab-assigned-card__menu-item--danger:hover {
+  background-color: rgba(239, 68, 68, 0.08);
+}
+
+/* Info Labels */
+.ktab-assigned-card__body {
+  padding: 0.25rem 0.15rem 0 0.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.ktab-assigned-card__title {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  font-size: 0.875rem;
+  font-weight: 750;
+  color: var(--brand-black);
+  letter-spacing: -0.01em;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.35;
+  transition: color 0.2s ease;
+}
+
+.ktab-assigned-card:hover .ktab-assigned-card__title {
+  color: var(--brand-teal-deep);
+}
+
+.ktab-assigned-card__author {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.25;
+}
+
+/* Editorial Empty State */
+.ktab-assigned-empty {
+  background-color: var(--bg-primary);
+  border: 1px dashed var(--border-subtle);
+  border-radius: 1.25rem;
+  padding: 3rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0.875rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.ktab-assigned-empty__icon-wrap {
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 1rem;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+.ktab-assigned-empty__text {
+  font-size: 0.925rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.ktab-assigned-empty__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 2.35rem;
+  padding: 0 1.15rem;
+  border-radius: 0.625rem;
+  background-color: var(--btn-action-bg);
+  color: var(--btn-action-text);
+  border: 1px solid var(--btn-action-border);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  font-family: var(--font-arabic), sans-serif;
+  cursor: pointer;
+  box-shadow: var(--btn-action-shadow);
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-top: 0.25rem;
+  user-select: none;
+  text-decoration: none;
+  outline: none;
+}
+
+.ktab-assigned-empty__btn svg {
+  color: var(--btn-action-icon);
+  transition: color 0.18s ease;
+}
+
+.ktab-assigned-empty__btn:hover {
+  background-color: var(--btn-action-bg-hover);
+  border-color: var(--btn-action-border-hover);
+  color: var(--btn-action-text);
+  transform: translateY(-1px);
+  box-shadow: var(--btn-action-shadow-hover);
+}
+
+.ktab-assigned-empty__btn:hover svg {
+  color: var(--btn-action-text);
+}
+
+.ktab-assigned-empty__btn:active {
+  transform: translateY(0) scale(0.98);
+  background-color: var(--btn-action-bg-active);
+}
+
+/* Dark Mode Support */
+.ktab-layout--dark .ktab-assigned-shelf__heading {
+  color: var(--brand-white);
+}
+
+.ktab-layout--dark .ktab-assigned-shelf__arrow-btn {
+  background-color: var(--btn-action-dark-bg);
+  border-color: var(--btn-action-dark-border);
+  color: var(--btn-action-dark-text);
+  box-shadow: none;
+}
+
+.ktab-layout--dark .ktab-assigned-shelf__arrow-btn svg {
+  color: var(--btn-action-dark-icon);
+}
+
+.ktab-layout--dark .ktab-assigned-shelf__arrow-btn:hover:not(:disabled) {
+  background-color: var(--btn-action-dark-bg-hover);
+  border-color: var(--btn-action-dark-border-hover);
+  color: var(--brand-white);
+}
+
+.ktab-layout--dark .ktab-assigned-card__cover-wrap {
+  background-color: var(--brand-black-surface);
+  border-color: var(--border-card);
+}
+
+.ktab-layout--dark .ktab-assigned-card__menu-btn {
+  background: rgba(20, 20, 20, 0.9);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: var(--brand-white);
+}
+
+.ktab-layout--dark .ktab-assigned-card__menu-popover {
+  background-color: var(--brand-black-surface);
+  border-color: var(--border-card);
+}
+
+.ktab-layout--dark .ktab-assigned-card__menu-item {
+  color: var(--brand-white);
+}
+
+.ktab-layout--dark .ktab-assigned-card__menu-item:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.ktab-layout--dark .ktab-assigned-card__title {
+  color: var(--brand-white);
+}
+
+.ktab-layout--dark .ktab-assigned-card:hover .ktab-assigned-card__title {
+  color: var(--brand-teal);
+}
+
+.ktab-layout--dark .ktab-assigned-empty {
+  background-color: var(--brand-black-surface);
+  border-color: var(--border-card);
+}
+
+.ktab-layout--dark .ktab-assigned-empty__icon-wrap {
+  background-color: rgba(255, 255, 255, 0.06);
+  border-color: var(--border-card);
+  color: var(--brand-white);
+}
+
+.ktab-layout--dark .ktab-assigned-empty__btn {
+  background-color: var(--btn-action-dark-bg);
+  border-color: var(--btn-action-dark-border);
+  color: var(--brand-white);
+}

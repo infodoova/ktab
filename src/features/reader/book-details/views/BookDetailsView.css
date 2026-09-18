@@ -1,0 +1,158 @@
+/* ==========================================================================
+   Apple Books Details View Stylesheet
+   Pure CSS implementation for reader book details page in Light Mode.
+   ========================================================================== */
+
+.apple-book-details-view {
+  min-height: 100vh;
+  background-color: var(--bg-primary);
+  color: var(--primary-text);
+  font-family: var(--font-arabic);
+  direction: rtl;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --------------------------------------------------------------------------
+   Top Navigation & Breadcrumbs Bar
+   -------------------------------------------------------------------------- */
+.apple-book-details-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.apple-book-details-nav-inner {
+  max-width: 62rem;
+  margin: 0 auto;
+  padding: 0.85rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.apple-book-details-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.45rem 0.95rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--primary-text);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  text-decoration: none;
+}
+
+.apple-book-details-back-btn:hover {
+  background: var(--brand-black);
+  color: var(--brand-white);
+  border-color: var(--brand-black);
+}
+
+.apple-book-details-back-btn svg {
+  transition: transform 0.2s ease;
+}
+
+.apple-book-details-back-btn:hover svg {
+  transform: translateX(3px);
+}
+
+.apple-book-details-nav-title {
+  font-size: 0.925rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 320px;
+}
+
+/* --------------------------------------------------------------------------
+   Main Content Layout Container
+   -------------------------------------------------------------------------- */
+.apple-book-details-container {
+  width: 100%;
+  max-width: 62rem;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+  flex: 1;
+}
+
+/* --------------------------------------------------------------------------
+   Loading & Fallback States
+   -------------------------------------------------------------------------- */
+.apple-book-details-loading,
+.apple-book-details-empty {
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  text-align: center;
+  padding: 3rem 1.5rem;
+}
+
+.apple-book-details-spinner {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 3px solid var(--border-subtle);
+  border-top-color: var(--brand-teal);
+  border-radius: 50%;
+  animation: appleDetailsSpin 0.75s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+}
+
+@keyframes appleDetailsSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.apple-book-details-empty-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--primary-text);
+  margin: 0;
+}
+
+.apple-book-details-empty-desc {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  max-width: 24rem;
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* --------------------------------------------------------------------------
+   Footer Wrapper
+   -------------------------------------------------------------------------- */
+.apple-book-details-footer-wrap {
+  background: var(--bg-primary);
+  border-top: 1px solid var(--border-subtle);
+  margin-top: auto;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive Adjustments
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .apple-book-details-container {
+    padding: 1.25rem 1rem 3.5rem;
+    gap: 2.25rem;
+  }
+
+  .apple-book-details-nav-title {
+    display: none;
+  }
+}

@@ -1,0 +1,23 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   READER LIBRARY VIEW
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.ktab-lib-view {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 1.25rem 1.25rem 4rem 1.25rem;
+  box-sizing: border-box;
+  direction: rtl;
+  font-family: var(--font-arabic), sans-serif;
+}
+
+@media (min-width: 768px) {
+  .ktab-lib-view {
+    padding: 2rem 2.5rem 5rem 2.5rem;
+    gap: 2rem;
+  }
+}

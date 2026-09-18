@@ -1,0 +1,84 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   APPLE BOOKS PUBLISHER DESCRIPTION
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.apple-book-desc {
+  width: 100%;
+  max-width: 54rem;
+  margin-bottom: 2rem;
+  direction: rtl;
+  font-family: var(--font-arabic), sans-serif;
+  box-sizing: border-box;
+}
+
+@media (min-width: 768px) {
+  .apple-book-desc {
+    margin-bottom: 3rem;
+  }
+}
+
+.apple-book-desc__heading {
+  font-size: 1.25rem;
+  font-weight: 850;
+  color: var(--brand-black);
+  margin: 0 0 0.85rem;
+  letter-spacing: -0.01em;
+}
+
+@media (min-width: 640px) {
+  .apple-book-desc__heading {
+    font-size: 1.45rem;
+    margin-bottom: 1.15rem;
+  }
+}
+
+.apple-book-desc__content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  transition: max-height 0.3s ease;
+}
+
+.apple-book-desc__content--clamped {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.apple-book-desc__paragraph {
+  font-size: 1rem;
+  line-height: 1.8;
+  color: var(--brand-black);
+  opacity: 0.85;
+  margin: 0;
+  text-align: justify;
+}
+
+.apple-book-desc__toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.85rem;
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 750;
+  color: var(--brand-black);
+  cursor: pointer;
+  outline: none;
+  transition: color 0.15s ease;
+}
+
+.apple-book-desc__toggle-btn:hover {
+  text-decoration: underline;
+}
+
+.apple-book-desc__empty {
+  font-size: 0.95rem;
+  color: var(--text-subtle);
+  margin: 0;
+  font-style: italic;
+}

@@ -94,11 +94,8 @@ export function useNavbar({
   }, [userMenuOpen]);
 
   const handleMobileSearchClick = () => {
-    if (onSearchClick) {
-      onSearchClick();
-    } else {
-      setInternalMobileSearchOpen(true);
-    }
+    setInternalMobileSearchOpen(true);
+    onSearchClick?.();
   };
 
   const handleCloseMobileSearch = (e) => {

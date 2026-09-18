@@ -3,7 +3,7 @@ export { LibraryView } from "./library/views/LibraryView";
 export { BookDetailsView } from "./book-details/views/BookDetailsView";
 export { BookDisplayView } from "./book-reader/views/BookDisplayView";
 export { InteractiveStoriesView } from "./interactive-stories/views/InteractiveStoriesView";
-export { InteractivePlayView } from "./interactive-stories/views/InteractivePlayView";
+export { InteractivePlayView } from "./interactive-play/views/InteractivePlayView";
 export { AchievementsView } from "./achievements/views/AchievementsView";
 export { ReaderProfileView } from "./profile/views/ReaderProfileView";
 export { ReaderSettingsView } from "./settings/views/ReaderSettingsView";

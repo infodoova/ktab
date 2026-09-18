@@ -1,21 +1,26 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { createNewInteractiveStory } from "../services/newStoryService";
 import { AlertToast } from "@/components/myui/AlertToast";
 import {
   GENRE_PRESETS,
+  LENS_OPTIONS,
   LENS_SELECT_OPTIONS,
+  ART_STYLES,
   ART_STYLE_SELECT_OPTIONS,
   SCENE_COUNT_CONFIG,
   LOCAL_STORY_DRAFT_KEY,
   MAX_COVER_SIZE_BYTES,
+  INITIAL_CONSTITUTION,
+  CONSTITUTION_FIELDS,
 } from "../constants/newStoryConstants";
 
 function getCachedStoryDraft() {
   try {
     const cached = localStorage.getItem(LOCAL_STORY_DRAFT_KEY);
     if (!cached) return null;
-    return JSON.parse(cached);
+    const parsed = JSON.parse(cached);
+    return parsed;
   } catch {
     return null;
   }
@@ -23,33 +28,30 @@ function getCachedStoryDraft() {
 
 /**
  * Custom hook managing interactive story creation, autosave, file handling,
- * and multipart submission.
+ * and multipart submission strictly adhering to the schema:
+ * {
+ *   title, genre, lens, maxScenes, visualStyle, visualStyleNotes,
+ *   constitution: { settingTime, settingPlace, coreTheme, tone, philosophy, mainConflict, forbiddenElements, pacing }
+ * }
  */
 export function useNewInteractiveStory() {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState(() => {
     const cached = getCachedStoryDraft();
-    if (cached) {
-      return {
-        title: cached.title || "",
-        genre: cached.genre || GENRE_PRESETS[0].id,
-        lens: cached.lens || LENS_SELECT_OPTIONS[0].value,
-        sceneCount: cached.sceneCount || SCENE_COUNT_CONFIG.DEFAULT,
-        constitution: cached.constitution || "",
-        artStyle: cached.artStyle || ART_STYLE_SELECT_OPTIONS[0].value,
-        description: cached.description || "",
-        cover: null,
-      };
-    }
+    const constitutionDraft = {
+      ...INITIAL_CONSTITUTION,
+      ...(cached?.constitution || {}),
+    };
+
     return {
-      title: "",
-      genre: GENRE_PRESETS[0].id,
-      lens: LENS_SELECT_OPTIONS[0].value,
-      sceneCount: SCENE_COUNT_CONFIG.DEFAULT,
-      constitution: "",
-      artStyle: ART_STYLE_SELECT_OPTIONS[0].value,
-      description: "",
+      title: cached?.title || "",
+      genre: cached?.genre || "fantasy",
+      lens: cached?.lens || "SURVIVAL",
+      sceneCount: cached?.sceneCount || cached?.maxScenes || SCENE_COUNT_CONFIG.DEFAULT,
+      visualStyle: cached?.visualStyle || "CINEMATIC_STORYBOOK",
+      visualStyleNotes: cached?.visualStyleNotes || "",
+      constitution: constitutionDraft,
       cover: null,
     };
   });
@@ -60,6 +62,98 @@ export function useNewInteractiveStory() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
 
+  // Clean error when field updates
+  const clearFieldError = useCallback((field) => {
+    setErrors((prev) => {
+      if (!prev[field]) return prev;
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+  }, []);
+
+  // Handlers for inputs - pure event consumption
+  const handleTitleChange = useCallback(
+    (e) => {
+      const val = e.target.value;
+      setFormData((prev) => ({ ...prev, title: val }));
+      clearFieldError("title");
+    },
+    [clearFieldError]
+  );
+
+  const handleGenreClick = useCallback((e) => {
+    const id = e.currentTarget.dataset.id;
+    if (id) {
+      setFormData((prev) => ({ ...prev, genre: id }));
+    }
+  }, []);
+
+  const handleConstitutionChange = useCallback(
+    (e) => {
+      const { name, value } = e.target;
+      setFormData((prev) => ({
+        ...prev,
+        constitution: {
+          ...prev.constitution,
+          [name]: value,
+        },
+      }));
+      clearFieldError(`constitution_${name}`);
+    },
+    [clearFieldError]
+  );
+
+  const handleLensChange = useCallback((e) => {
+    const val = typeof e === "string" ? e : e?.target?.value;
+    setFormData((prev) => ({ ...prev, lens: val }));
+  }, []);
+
+  const handleSceneCountChange = useCallback((e) => {
+    const val = Number(e?.target?.value ?? e);
+    setFormData((prev) => ({ ...prev, sceneCount: val }));
+  }, []);
+
+  const handleVisualStyleChange = useCallback((e) => {
+    const val = typeof e === "string" ? e : e?.target?.value;
+    setFormData((prev) => ({ ...prev, visualStyle: val }));
+  }, []);
+
+  const handleVisualStyleNotesChange = useCallback((e) => {
+    const val = e.target.value;
+    setFormData((prev) => ({ ...prev, visualStyleNotes: val }));
+  }, []);
+
+  const handleCoverSelect = useCallback(
+    (file) => {
+      if (coverPreviewRef.current) {
+        URL.revokeObjectURL(coverPreviewRef.current);
+        coverPreviewRef.current = null;
+      }
+
+      if (!file) {
+        setFormData((prev) => ({ ...prev, cover: null }));
+        setCoverPreview(null);
+        return;
+      }
+
+      if (file.size > MAX_COVER_SIZE_BYTES) {
+        const msg = "الحد الأقصى لحجم صورة الغلاف هو 5 ميغابايت.";
+        setErrors((prev) => ({ ...prev, cover: msg }));
+        AlertToast(msg, "ERROR");
+        return;
+      }
+
+      clearFieldError("cover");
+      const objUrl = URL.createObjectURL(file);
+      coverPreviewRef.current = objUrl;
+      setFormData((prev) => ({ ...prev, cover: file }));
+      setCoverPreview(objUrl);
+    },
+    [clearFieldError]
+  );
+
+  // Step validation
   const validateStep = useCallback(
     (step) => {
       const stepErrors = {};
@@ -71,8 +165,17 @@ export function useNewInteractiveStory() {
           stepErrors.cover = "يرجى اختيار صورة غلاف للقصة.";
         }
       } else if (step === 2) {
-        if (!formData.constitution.trim()) {
-          stepErrors.constitution = "يرجى كتابة تمهيد وقوانين عالم القصة.";
+        if (!formData.constitution.settingTime.trim()) {
+          stepErrors.constitution_settingTime = "يرجى تحديد زمن القصة.";
+        }
+        if (!formData.constitution.settingPlace.trim()) {
+          stepErrors.constitution_settingPlace = "يرجى تحديد مكان القصة وبيئتها.";
+        }
+        if (!formData.constitution.coreTheme.trim()) {
+          stepErrors.constitution_coreTheme = "يرجى كتابة الفكرة الجوهرية للقصة.";
+        }
+        if (!formData.constitution.mainConflict.trim()) {
+          stepErrors.constitution_mainConflict = "يرجى توضيح الصراع الأساسي.";
         }
       }
 
@@ -109,9 +212,23 @@ export function useNewInteractiveStory() {
     [currentStep, validateStep]
   );
 
-  // Debounced autosave story fields to localStorage
+  const handleStepBtnClick = useCallback(
+    (e) => {
+      const step = Number(e.currentTarget.dataset.step);
+      if (step) {
+        handleStepClick(step);
+      }
+    },
+    [handleStepClick]
+  );
+
+  // Autosave to localStorage
   useEffect(() => {
-    const hasContent = Boolean(formData.title.trim()) || Boolean(formData.constitution.trim());
+    const hasContent =
+      Boolean(formData.title.trim()) ||
+      Boolean(formData.constitution.coreTheme.trim()) ||
+      Boolean(formData.constitution.settingPlace.trim());
+
     if (!hasContent) return;
 
     const timer = setTimeout(() => {
@@ -123,24 +240,26 @@ export function useNewInteractiveStory() {
             genre: formData.genre,
             lens: formData.lens,
             sceneCount: formData.sceneCount,
+            visualStyle: formData.visualStyle,
+            visualStyleNotes: formData.visualStyleNotes,
             constitution: formData.constitution,
-            artStyle: formData.artStyle,
-            description: formData.description,
           })
         );
       } catch {
-        // LocalStorage quota or access error handled gracefully
+        // Handled silently
       }
     }, 700);
 
     return () => clearTimeout(timer);
   }, [formData]);
 
-  // Protect against accidental tab close or page reload when unsaved changes exist
+  // Prevent navigation loss
   useEffect(() => {
     const handleBeforeUnload = (e) => {
       const isDirty =
-        formData.title.trim() || formData.constitution.trim() || formData.cover;
+        formData.title.trim() ||
+        formData.constitution.coreTheme.trim() ||
+        formData.cover;
       if (isDirty && !isSubmitting) {
         e.preventDefault();
         e.returnValue = "";
@@ -151,7 +270,7 @@ export function useNewInteractiveStory() {
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [formData, isSubmitting]);
 
-  // Cleanup object URL on unmount to prevent browser memory leaks
+  // Clean preview URL on unmount
   useEffect(() => {
     return () => {
       if (coverPreviewRef.current) {
@@ -160,47 +279,7 @@ export function useNewInteractiveStory() {
     };
   }, []);
 
-  const handleInputChange = useCallback((field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    setErrors((prev) => {
-      if (!prev[field]) return prev;
-      const next = { ...prev };
-      delete next[field];
-      return next;
-    });
-  }, []);
-
-  const handleCoverSelect = useCallback((file) => {
-    if (coverPreviewRef.current) {
-      URL.revokeObjectURL(coverPreviewRef.current);
-      coverPreviewRef.current = null;
-    }
-
-    if (!file) {
-      setFormData((prev) => ({ ...prev, cover: null }));
-      setCoverPreview(null);
-      return;
-    }
-
-    if (file.size > MAX_COVER_SIZE_BYTES) {
-      const msg = "الحد الأقصى لحجم صورة الغلاف هو 5 ميغابايت.";
-      setErrors((prev) => ({ ...prev, cover: msg }));
-      AlertToast(msg, "ERROR");
-      return;
-    }
-
-    setErrors((prev) => {
-      const next = { ...prev };
-      delete next.cover;
-      return next;
-    });
-
-    const objUrl = URL.createObjectURL(file);
-    coverPreviewRef.current = objUrl;
-    setFormData((prev) => ({ ...prev, cover: file }));
-    setCoverPreview(objUrl);
-  }, []);
-
+  // Submit Handler
   const handleSubmit = useCallback(
     async (e) => {
       if (e) e.preventDefault();
@@ -209,16 +288,25 @@ export function useNewInteractiveStory() {
       if (!formData.title.trim()) {
         newErrors.title = "يرجى إدخال عنوان القصة.";
       }
-      if (!formData.constitution.trim()) {
-        newErrors.constitution = "يرجى كتابة تمهيد وقوانين عالم القصة.";
-      }
       if (!formData.cover) {
         newErrors.cover = "يرجى اختيار صورة غلاف للقصة.";
+      }
+      if (!formData.constitution.settingTime.trim()) {
+        newErrors.constitution_settingTime = "يرجى إدخال الزمان.";
+      }
+      if (!formData.constitution.settingPlace.trim()) {
+        newErrors.constitution_settingPlace = "يرجى إدخال المكان.";
+      }
+      if (!formData.constitution.coreTheme.trim()) {
+        newErrors.constitution_coreTheme = "يرجى إدخال الفكرة الجوهرية.";
+      }
+      if (!formData.constitution.mainConflict.trim()) {
+        newErrors.constitution_mainConflict = "يرجى إدخال الصراع الأساسي.";
       }
 
       if (Object.keys(newErrors).length > 0) {
         setErrors(newErrors);
-        AlertToast(newErrors.title || newErrors.constitution || newErrors.cover, "ERROR");
+        AlertToast(Object.values(newErrors)[0], "ERROR");
         return;
       }
 
@@ -232,9 +320,18 @@ export function useNewInteractiveStory() {
           genre: formData.genre,
           lens: formData.lens,
           maxScenes: Number(formData.sceneCount),
-          constitution: formData.constitution.trim(),
-          visualStyle: formData.artStyle,
-          visualStyleNotes: formData.description,
+          visualStyle: formData.visualStyle,
+          visualStyleNotes: formData.visualStyleNotes.trim(),
+          constitution: {
+            settingTime: formData.constitution.settingTime.trim(),
+            settingPlace: formData.constitution.settingPlace.trim(),
+            coreTheme: formData.constitution.coreTheme.trim(),
+            tone: formData.constitution.tone.trim(),
+            philosophy: formData.constitution.philosophy.trim(),
+            mainConflict: formData.constitution.mainConflict.trim(),
+            forbiddenElements: formData.constitution.forbiddenElements.trim(),
+            pacing: formData.constitution.pacing.trim(),
+          },
         };
 
         payload.append(
@@ -249,7 +346,7 @@ export function useNewInteractiveStory() {
           try {
             localStorage.removeItem(LOCAL_STORY_DRAFT_KEY);
           } catch {
-            // LocalStorage error handled gracefully
+            // Handled
           }
           AlertToast("تم إنشاء القصة التفاعلية بنجاح!", "SUCCESS");
           navigate("/author/my-stories");
@@ -265,23 +362,55 @@ export function useNewInteractiveStory() {
     [formData, navigate]
   );
 
+  // Pre-calculated labels to keep JSX 100% declarative with zero logic
+  const selectedGenreLabel = useMemo(() => {
+    const found = GENRE_PRESETS.find((g) => g.id === formData.genre);
+    return found?.label || formData.genre;
+  }, [formData.genre]);
+
+  const selectedLensLabel = useMemo(() => {
+    const found = LENS_OPTIONS.find((l) => l.id === formData.lens);
+    return found?.label || formData.lens;
+  }, [formData.lens]);
+
+  const selectedStyleLabel = useMemo(() => {
+    const found = ART_STYLES.find((s) => s.id === formData.visualStyle);
+    return found?.label || formData.visualStyle;
+  }, [formData.visualStyle]);
+
+  const filledConstitutionCount = useMemo(() => {
+    return Object.values(formData.constitution).filter((v) => Boolean(v && v.trim())).length;
+  }, [formData.constitution]);
+
   return {
     formData,
     coverPreview,
     isSubmitting,
     errors,
     currentStep,
-    setCurrentStep,
-    goToNextStep,
-    goToPrevStep,
-    handleStepClick,
     genrePresets: GENRE_PRESETS,
     lensOptions: LENS_SELECT_OPTIONS,
     artStyleOptions: ART_STYLE_SELECT_OPTIONS,
     sceneCountConfig: SCENE_COUNT_CONFIG,
-    handleInputChange,
+    constitutionFields: CONSTITUTION_FIELDS,
+    selectedGenreLabel,
+    selectedLensLabel,
+    selectedStyleLabel,
+    filledConstitutionCount,
+    handleTitleChange,
+    handleGenreClick,
+    handleStepBtnClick,
+    handleConstitutionChange,
+    handleLensChange,
+    handleSceneCountChange,
+    handleVisualStyleChange,
+    handleVisualStyleNotesChange,
     handleCoverSelect,
+    goToNextStep,
+    goToPrevStep,
+    handleStepClick,
     handleSubmit,
+
   };
 }
 

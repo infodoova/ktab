@@ -1,0 +1,215 @@
+.choice-cards {
+  direction: rtl;
+  text-align: right;
+}
+
+.choice-cards__label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-subtle);
+  margin-bottom: 12px;
+}
+
+@media (min-width: 768px) {
+  .choice-cards__label {
+    font-size: 12px;
+    margin-bottom: 16px;
+  }
+}
+
+.choice-cards__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+@media (min-width: 480px) {
+  .choice-cards__grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+}
+
+/* Individual choice button */
+.choice-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1.5px solid var(--border-subtle);
+  background: var(--bg-primary);
+  text-align: right;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  min-height: 56px;
+}
+
+@media (min-width: 768px) {
+  .choice-card {
+    padding: 18px 20px;
+    border-radius: 16px;
+    min-height: 64px;
+  }
+}
+
+.choice-card:hover:not(:disabled):not(.choice-card--selected):not(.choice-card--faded) {
+  border-color: var(--brand-teal);
+  background: var(--brand-teal-soft);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(93, 227, 186, 0.12);
+}
+
+.choice-card:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Selected state */
+.choice-card--selected {
+  background: var(--brand-teal);
+  border-color: var(--brand-teal);
+  color: var(--brand-black);
+  box-shadow: 0 4px 20px var(--brand-teal-glow);
+}
+
+.choice-card--selected .choice-card__key {
+  background: rgba(0, 0, 0, 0.15);
+  color: var(--brand-black);
+}
+
+.choice-card--selected .choice-card__text {
+  color: var(--brand-black);
+}
+
+/* Non-selected options after a choice has been made */
+.choice-card--faded {
+  opacity: 0.35;
+  filter: grayscale(0.4);
+  pointer-events: none;
+}
+
+.choice-card--disabled {
+  cursor: default;
+}
+
+/* Node letter key badge */
+.choice-card__key {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--brand-teal-deep);
+  text-transform: uppercase;
+}
+
+.choice-card__text {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary-text);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .choice-card__text {
+    font-size: 13px;
+  }
+}
+
+/* Generating skeleton */
+.choice-cards__generating {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+}
+
+.choice-cards__generating-dots {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.choice-cards__generating-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--brand-teal);
+}
+
+.choice-cards__generating-dot:nth-child(1) { animation: bounce-dot 1.2s ease-in-out infinite; }
+.choice-cards__generating-dot:nth-child(2) { animation: bounce-dot 1.2s ease-in-out 0.15s infinite; }
+.choice-cards__generating-dot:nth-child(3) { animation: bounce-dot 1.2s ease-in-out 0.3s infinite; }
+
+@keyframes bounce-dot {
+  0%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-6px); }
+}
+
+.choice-cards__generating-text {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--brand-teal-deep);
+  letter-spacing: 0.08em;
+}
+
+.choice-cards__generating-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  width: 100%;
+}
+
+@media (min-width: 480px) {
+  .choice-cards__generating-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+}
+
+.choice-cards__generating-card {
+  height: 56px;
+  border-radius: 14px;
+  border: 1.5px solid var(--border-subtle);
+  background: var(--bg-secondary);
+  animation: pulse-card 1.8s ease-in-out infinite;
+  position: relative;
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .choice-cards__generating-card {
+    height: 64px;
+    border-radius: 16px;
+  }
+}
+
+.choice-cards__generating-shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(93,227,186,0.06) 50%, transparent 100%);
+  animation: shimmer-slide 2s infinite;
+}
+
+@keyframes pulse-card {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes shimmer-slide {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}

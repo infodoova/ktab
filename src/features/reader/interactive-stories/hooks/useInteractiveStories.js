@@ -19,6 +19,8 @@ export function useInteractiveStories() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedGenre, setSelectedGenre] = useState("ALL");
+  const [selectedLens, setSelectedLens] = useState("ALL");
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
 
@@ -54,26 +56,36 @@ export function useInteractiveStories() {
     loadStories(0, true);
   }, [loadStories]);
 
-  const loadMoreStories = () => {
+  const loadMoreStories = useCallback(() => {
     if (!loading && !loadingMore && hasMore) {
       loadStories(page + 1, false);
     }
-  };
+  }, [loading, loadingMore, hasMore, loadStories, page]);
 
   // Filtered stories in UI
   const filteredStories = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     return stories.filter((story) => {
-      const matchTitle = !q || story.title?.toLowerCase().includes(q);
+      const matchQuery =
+        !q ||
+        story.title?.toLowerCase().includes(q) ||
+        story.authorName?.toLowerCase().includes(q) ||
+        story.constitution?.coreTheme?.toLowerCase().includes(q);
+
       const matchGenre =
         selectedGenre === "ALL" ||
         story.genre?.toLowerCase() === selectedGenre.toLowerCase();
-      return matchTitle && matchGenre;
+
+      const matchLens =
+        selectedLens === "ALL" ||
+        story.lens?.toUpperCase() === selectedLens.toUpperCase();
+
+      return matchQuery && matchGenre && matchLens;
     });
-  }, [stories, searchQuery, selectedGenre]);
+  }, [stories, searchQuery, selectedGenre, selectedLens]);
 
   // Details Modal Handlers
-  const handleOpenDetails = async (story) => {
+  const handleOpenDetails = useCallback(async (story) => {
     setSelectedStory(story);
     setStoryDetails(null);
     setDetailsOpen(true);
@@ -93,37 +105,81 @@ export function useInteractiveStories() {
         setDetailsLoading(false);
       }
     }
-  };
+  }, []);
 
-  const handleCloseDetails = () => {
+  const handleCloseDetails = useCallback(() => {
     setDetailsOpen(false);
     setSelectedStory(null);
     setStoryDetails(null);
     setDetailsLoading(false);
     detailsReqIdRef.current += 1;
-  };
+  }, []);
 
-  const handleStartSession = (storyId) => {
+  const handleStartSession = useCallback((storyId) => {
     handleCloseDetails();
     navigate(`/reader/interactive-stories/play?storyId=${storyId}`);
-  };
+  }, [handleCloseDetails, navigate]);
 
-  const handleApplySearch = ({ query, genre }) => {
-    setSearchQuery(query || "");
-    setSelectedGenre(genre || "ALL");
-    setIsSearchOpen(false);
-  };
+  const openFilterModal = useCallback(() => {
+    setIsFilterModalOpen(true);
+  }, []);
+
+  const closeFilterModal = useCallback(() => {
+    setIsFilterModalOpen(false);
+  }, []);
+
+  const handleApplyFilters = useCallback(({ genre, lens }) => {
+    if (genre !== undefined) setSelectedGenre(genre);
+    if (lens !== undefined) setSelectedLens(lens);
+    setIsFilterModalOpen(false);
+  }, []);
+
+  const handleResetFilters = useCallback(() => {
+    setSearchQuery("");
+    setSelectedGenre("ALL");
+    setSelectedLens("ALL");
+  }, []);
+
+  const activeFiltersCount = useMemo(() => {
+    let count = 0;
+    if (selectedGenre !== "ALL") count += 1;
+    if (selectedLens !== "ALL") count += 1;
+    return count;
+  }, [selectedGenre, selectedLens]);
+
+  const handleClearGenre = useCallback(() => {
+    setSelectedGenre("ALL");
+  }, []);
+
+  const handleClearLens = useCallback(() => {
+    setSelectedLens("ALL");
+  }, []);
+
+  const isFilteringActive = useMemo(() => {
+    return Boolean(searchQuery?.trim()) || selectedGenre !== "ALL" || selectedLens !== "ALL";
+  }, [searchQuery, selectedGenre, selectedLens]);
 
   return {
     stories: filteredStories,
-    rawStories: stories,
+    rawStoriesCount: stories.length,
+    isFilteringActive,
     loading,
     loadingMore,
     hasMore,
-    isSearchOpen,
-    setIsSearchOpen,
+    isFilterModalOpen,
+    openFilterModal,
+    closeFilterModal,
+    activeFiltersCount,
     searchQuery,
     selectedGenre,
+    selectedLens,
+    setSearchQuery,
+    setSelectedGenre,
+    setSelectedLens,
+    handleApplyFilters,
+    handleResetFilters,
+    handleClearGenre,
+    handleClearLens,
     detailsOpen,
     selectedStory,
     storyDetails,
@@ -132,6 +188,7 @@ export function useInteractiveStories() {
     handleOpenDetails,
     handleCloseDetails,
     handleStartSession,
-    handleApplySearch,
   };
 }
+
+export default useInteractiveStories;

@@ -1,24 +1,39 @@
 import React from "react";
+import { X, Sparkles, Layers } from "lucide-react";
 import { AppLayout } from "@/components/myui/layout";
-import { FeaturedCarousel } from "../components/FeaturedCarousel";
-import { StoryCard } from "../components/StoryCard";
-import { StorySkeletonLoader } from "../components/StorySkeletonLoader";
-import { StoryDetailsModal } from "../components/StoryDetailsModal";
-import { StorySearchModal } from "../components/StorySearchModal";
+import {
+  StoryCard,
+  StoryDetailsModal,
+  StoryFilterModal,
+  StoriesSkeleton,
+} from "../components";
 import { useInteractiveStories } from "../hooks/useInteractiveStories";
+import "./InteractiveStoriesView.css";
 
 /**
- * Pure presentation view for the Interactive Stories browse page.
+ * Editorial Apple Books-inspired presentation view for Interactive Stories.
+ * Strictly Light Mode with standard CSS, top-bar search & filters, and pure declarative JSX.
  */
 export function InteractiveStoriesView({ pageName = "قصص تفاعلية" }) {
   const {
     stories,
-    rawStories,
+    rawStoriesCount,
+    isFilteringActive,
     loading,
     loadingMore,
     hasMore,
-    isSearchOpen,
-    setIsSearchOpen,
+    isFilterModalOpen,
+    openFilterModal,
+    closeFilterModal,
+    activeFiltersCount,
+    searchQuery,
+    selectedGenre,
+    selectedLens,
+    setSearchQuery,
+    handleApplyFilters,
+    handleResetFilters,
+    handleClearGenre,
+    handleClearLens,
     detailsOpen,
     selectedStory,
     storyDetails,
@@ -27,58 +42,99 @@ export function InteractiveStoriesView({ pageName = "قصص تفاعلية" }) {
     handleOpenDetails,
     handleCloseDetails,
     handleStartSession,
-    handleApplySearch,
   } = useInteractiveStories();
 
   return (
     <AppLayout
       pageName={pageName}
-      isDark={true}
-      onSearchClick={() => setIsSearchOpen(true)}
-      className="p-0 max-w-full"
+      showSearch={true}
+      searchQuery={searchQuery}
+      onSearchChange={setSearchQuery}
+      searchPlaceholder="ابحث عن قصة تفاعلية، مؤلف، أو موضوع..."
+      onFilterClick={openFilterModal}
+      activeFiltersCount={activeFiltersCount}
+      isDark={false}
     >
-      <div className="w-full min-h-screen bg-[#0a0a0a] text-white">
-        {/* Featured Stories Hero Carousel */}
-        <FeaturedCarousel
-          stories={rawStories.slice(0, 5)}
-          onStoryClick={handleOpenDetails}
-          isDark={true}
-        />
+      <div className="ktab-stories-view" dir="rtl">
+        <div className="ktab-stories-view__container">
+          {/* Active Filters Bar */}
+          {isFilteringActive && (
+            <div className="ktab-stories-view__active-chips" role="region" aria-label="الفلاتر المطبقة">
+              {selectedGenre !== "ALL" && (
+                <button
+                  type="button"
+                  onClick={handleClearGenre}
+                  className="ktab-stories-view__active-chip"
+                  title="إزالة فلتر التصنيف"
+                >
+                  <Sparkles size={12} strokeWidth={2.2} />
+                  <span>التصنيف: {selectedGenre}</span>
+                  <X size={13} strokeWidth={2.4} />
+                </button>
+              )}
 
-        {/* Stories Grid Section */}
-        <section className="px-6 md:px-12 py-16 max-w-7xl mx-auto space-y-12">
-          <div className="flex items-center justify-between border-b border-white/10 pb-6">
-            <div>
-              <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight">
-                جميع المغامرات التفاعلية
-              </h2>
-              <p className="text-white/40 text-xs font-bold uppercase tracking-widest mt-1">
-                اختر مسارك وحدد مصير القصة بنفسك
-              </p>
+              {selectedLens !== "ALL" && (
+                <button
+                  type="button"
+                  onClick={handleClearLens}
+                  className="ktab-stories-view__active-chip"
+                  title="إزالة فلتر المنظور"
+                >
+                  <Layers size={12} strokeWidth={2.2} />
+                  <span>منظور: {selectedLens}</span>
+                  <X size={13} strokeWidth={2.4} />
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={handleResetFilters}
+                className="ktab-stories-view__clear-all-btn"
+              >
+                مسح الكل
+              </button>
             </div>
-          </div>
+          )}
 
+          {/* 2. Content: Loading Skeleton vs Empty State vs Grid */}
           {loading ? (
-            <StorySkeletonLoader count={8} />
+            <StoriesSkeleton count={8} />
           ) : stories.length === 0 ? (
-            <div className="text-center py-24 text-white/40 font-bold">
-              لا توجد قصص تفاعلية متطابقة مع البحث.
+            <div className="ktab-stories-view__empty">
+              <h3 className="ktab-stories-view__empty-title">لا توجد مغامرات مطابقة</h3>
+              <p className="ktab-stories-view__empty-desc">
+                لم نعثر على أي قصة تفاعلية تطابق معايير التصفية والبحث الحالية.
+              </p>
+              {isFilteringActive && (
+                <button
+                  type="button"
+                  onClick={handleResetFilters}
+                  className="ktab-stories-view__reset-btn"
+                >
+                  إعادة ضبط التصفية
+                </button>
+              )}
             </div>
           ) : (
             <>
-              <StoryCard
-                stories={stories}
-                onStoryClick={handleOpenDetails}
-                isDark={true}
-              />
+              <div className="ktab-stories-view__grid">
+                {stories.map((story) => (
+                  <StoryCard
+                    key={story.id}
+                    story={story}
+                    onClick={handleOpenDetails}
+                  />
+                ))}
+              </div>
 
               {/* Load More Button */}
               {hasMore && (
-                <div className="flex justify-center pt-10">
+                <div className="ktab-stories-view__load-more-wrap">
                   <button
+                    type="button"
                     onClick={loadMoreStories}
                     disabled={loadingMore}
-                    className="btn-premium px-12 py-4 rounded-2xl text-white font-black text-xs uppercase tracking-widest active:scale-95 transition-all shadow-xl disabled:opacity-50"
+                    className="ktab-stories-view__load-more-btn"
                   >
                     {loadingMore ? "جاري التحميل..." : "عرض المزيد من القصص"}
                   </button>
@@ -86,22 +142,25 @@ export function InteractiveStoriesView({ pageName = "قصص تفاعلية" }) {
               )}
             </>
           )}
-        </section>
+        </div>
 
-        {/* Story Details Dialog */}
+        {/* 3. Filter Modal (Triggered by Top Bar Filter Button) */}
+        <StoryFilterModal
+          isOpen={isFilterModalOpen}
+          selectedGenre={selectedGenre}
+          selectedLens={selectedLens}
+          onApply={handleApplyFilters}
+          onReset={handleResetFilters}
+          onClose={closeFilterModal}
+        />
+
+        {/* 4. Story Details Apple Sheet Dialog */}
         <StoryDetailsModal
           isOpen={detailsOpen}
           onClose={handleCloseDetails}
           story={storyDetails || selectedStory}
           loading={detailsLoading}
           onStartSession={handleStartSession}
-        />
-
-        {/* Search & Filter Dialog */}
-        <StorySearchModal
-          isOpen={isSearchOpen}
-          onClose={() => setIsSearchOpen(false)}
-          onApply={handleApplySearch}
         />
       </div>
     </AppLayout>

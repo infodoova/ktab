@@ -23,11 +23,8 @@ export function useSideHeader({
   }, [isExpanded]);
 
   const handleOpenSearch = () => {
-    if (onSearchClick) {
-      onSearchClick();
-    } else {
-      setInternalExpanded(true);
-    }
+    setInternalExpanded(true);
+    onSearchClick?.();
   };
 
   const handleCloseSearch = (e) => {

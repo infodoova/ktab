@@ -28,7 +28,7 @@ const LibraryView = lazy(() => import("../../features/reader/library/views/Libra
 const BookDetailsView = lazy(() => import("../../features/reader/book-details/views/BookDetailsView"));
 const BookDisplayView = lazy(() => import("../../features/reader/book-reader/views/BookDisplayView"));
 const InteractiveStoriesView = lazy(() => import("../../features/reader/interactive-stories/views/InteractiveStoriesView"));
-const InteractivePlayView = lazy(() => import("../../features/reader/interactive-stories/views/InteractivePlayView"));
+const InteractivePlayView = lazy(() => import("../../features/reader/interactive-play/views/InteractivePlayView"));
 const AchievementsView = lazy(() => import("../../features/reader/achievements/views/AchievementsView"));
 const ReaderProfileView = lazy(() => import("../../features/reader/profile/views/ReaderProfileView"));
 const ReaderSettingsView = lazy(() => import("../../features/reader/settings/views/ReaderSettingsView"));

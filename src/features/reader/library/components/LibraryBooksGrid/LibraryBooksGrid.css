@@ -1,0 +1,247 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   READER LIBRARY BOOKS GRID (Matching Author Grid Architecture)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.ktab-lib-grid-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  width: 100%;
+  direction: rtl;
+  font-family: var(--font-arabic), sans-serif;
+  box-sizing: border-box;
+}
+
+.ktab-lib-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  width: 100%;
+  align-items: start;
+  box-sizing: border-box;
+}
+
+@media (min-width: 640px) {
+  .ktab-lib-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+}
+
+@media (min-width: 900px) {
+  .ktab-lib-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.35rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  .ktab-lib-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   SKELETON SHIMMER CARDS (Exact 3:4 Proportions)
+   ───────────────────────────────────────────────────────────── */
+.ktab-lib-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.ktab-lib-skeleton__cover {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border-radius: 0.85rem;
+  background-color: var(--bg-secondary);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.ktab-lib-skeleton__cover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 15%,
+    rgba(255, 255, 255, 0.5) 45%,
+    rgba(255, 255, 255, 0.8) 50%,
+    rgba(255, 255, 255, 0.5) 55%,
+    transparent 85%
+  );
+  animation: ktabSkeletonSweep 1.8s infinite cubic-bezier(0.4, 0, 0.2, 1);
+  animation-delay: calc(var(--skel-idx, 0) * 0.1s);
+}
+
+@keyframes ktabSkeletonSweep {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.ktab-lib-skeleton__line {
+  position: relative;
+  border-radius: 0.45rem;
+  background-color: var(--bg-secondary);
+  overflow: hidden;
+}
+
+.ktab-lib-skeleton__line::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 15%,
+    rgba(255, 255, 255, 0.6) 45%,
+    rgba(255, 255, 255, 0.9) 50%,
+    rgba(255, 255, 255, 0.6) 55%,
+    transparent 85%
+  );
+  animation: ktabSkeletonSweep 1.8s infinite cubic-bezier(0.4, 0, 0.2, 1);
+  animation-delay: calc(var(--skel-idx, 0) * 0.1s + 0.05s);
+}
+
+.ktab-lib-skeleton__line--title {
+  width: 75%;
+  height: 0.95rem;
+}
+
+.ktab-lib-skeleton__line--author {
+  width: 45%;
+  height: 0.75rem;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   EDITORIAL EMPTY STATE
+   ───────────────────────────────────────────────────────────── */
+.ktab-lib-empty {
+  background-color: var(--bg-primary);
+  border: 1px dashed var(--border-subtle);
+  border-radius: 1.25rem;
+  padding: 4rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.ktab-lib-empty__icon-wrap {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 1rem;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+.ktab-lib-empty__title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--brand-black);
+  margin: 0;
+}
+
+.ktab-lib-empty__desc {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-subtle);
+  margin: 0;
+}
+
+.ktab-lib-empty__action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 2.35rem;
+  padding: 0 1.15rem;
+  border-radius: 0.625rem;
+  background-color: var(--btn-action-bg);
+  color: var(--btn-action-text);
+  border: 1px solid var(--btn-action-border);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  font-family: var(--font-arabic), sans-serif;
+  cursor: pointer;
+  box-shadow: var(--btn-action-shadow);
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-top: 0.5rem;
+}
+
+.ktab-lib-empty__action-btn:hover {
+  background-color: var(--btn-action-bg-hover);
+  border-color: var(--btn-action-border-hover);
+  color: var(--btn-action-text);
+  transform: translateY(-1px);
+  box-shadow: var(--btn-action-shadow-hover);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   LOAD MORE ACTION BUTTON (Matching Author Action Buttons)
+   ───────────────────────────────────────────────────────────── */
+.ktab-lib-loadmore-wrap {
+  display: flex;
+  justify-content: center;
+  padding-top: 1.5rem;
+  padding-bottom: 2rem;
+  width: 100%;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   INFINITE SCROLL SENTINEL & PROGRESSIVE SKELETON ROW
+   ───────────────────────────────────────────────────────────── */
+.ktab-lib-scroll-sentinel {
+  width: 100%;
+  height: 1px;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.ktab-lib-grid--loading-more {
+  margin-top: 0.5rem;
+  opacity: 0.85;
+}
+
+/* Dark Mode */
+.ktab-layout--dark .ktab-lib-empty {
+  background-color: var(--brand-black-surface);
+  border-color: var(--border-card);
+}
+
+.ktab-layout--dark .ktab-lib-empty__title {
+  color: var(--brand-white);
+}
+
+.ktab-layout--dark .ktab-lib-empty__action-btn,
+.ktab-layout--dark .ktab-lib-loadmore-btn {
+  background-color: var(--btn-action-dark-bg);
+  border-color: var(--btn-action-dark-border);
+  color: var(--btn-action-dark-text);
+  box-shadow: none;
+}
+
+.ktab-layout--dark .ktab-lib-empty__action-btn:hover,
+.ktab-layout--dark .ktab-lib-loadmore-btn:hover:not(:disabled) {
+  background-color: var(--btn-action-dark-bg-hover);
+  border-color: var(--btn-action-dark-border-hover);
+  color: var(--brand-white);
+}

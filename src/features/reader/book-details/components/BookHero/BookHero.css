@@ -1,0 +1,456 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   APPLE BOOKS HERO COMPONENT
+   Unified layout matching Apple Books Preview: compact lockup on desktop,
+   single-line actions on mobile.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.apple-book-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  direction: rtl;
+  font-family: var(--font-arabic), sans-serif;
+  box-sizing: border-box;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   MAIN HERO WRAPPER
+   ───────────────────────────────────────────────────────────── */
+.apple-book-hero__main {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 2.75rem;
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  .apple-book-hero__main {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 1.15rem 0.85rem;
+    align-items: flex-start;
+    width: 100%;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   COVER ARTWORK CARD
+   ───────────────────────────────────────────────────────────── */
+.apple-book-hero__artwork-wrap {
+  flex-shrink: 0;
+  width: 290px;
+  max-width: 290px;
+}
+
+@media (max-width: 640px) {
+  .apple-book-hero__artwork-wrap {
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
+    width: 110px;
+    max-width: 110px;
+  }
+}
+
+.apple-book-hero__artwork-card {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1.18;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 1.25rem;
+  overflow: hidden;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.04);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+}
+
+@media (max-width: 640px) {
+  .apple-book-hero__artwork-card {
+    aspect-ratio: 1 / 1.35;
+    border-radius: 0.85rem;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.04);
+  }
+}
+
+.apple-book-hero__artwork-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 22px 48px rgba(0, 0, 0, 0.15), 0 6px 16px rgba(0, 0, 0, 0.06);
+}
+
+.apple-book-hero__cover-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  background-color: var(--bg-secondary);
+}
+
+.apple-book-hero__audio-badge {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.55rem;
+  border-radius: 9999px;
+  background-color: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: var(--brand-black);
+  font-size: 0.6875rem;
+  font-weight: 800;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   CONTENT & METADATA COLUMN
+   ───────────────────────────────────────────────────────────── */
+.apple-book-hero__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: right;
+  min-width: 0;
+  gap: 1.5rem;
+}
+
+@media (max-width: 640px) {
+  .apple-book-hero__content {
+    display: contents;
+  }
+}
+
+.apple-book-hero__text-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: right;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  .apple-book-hero__text-meta {
+    grid-column: 2 / 3;
+    grid-row: 1 / 2;
+    gap: 0.25rem;
+  }
+}
+
+.apple-book-hero__genre-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--text-subtle);
+  margin-bottom: 0.15rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 640px) {
+  .apple-book-hero__genre-tag {
+    font-size: 0.75rem;
+    margin-bottom: 0;
+  }
+}
+
+.apple-book-hero__genre-sep {
+  opacity: 0.45;
+}
+
+.apple-book-hero__title {
+  font-size: 2.25rem;
+  font-weight: 850;
+  color: var(--brand-black);
+  margin: 0;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  word-break: break-word;
+}
+
+@media (max-width: 640px) {
+  .apple-book-hero__title {
+    font-size: 1.25rem;
+    line-height: 1.25;
+  }
+}
+
+.apple-book-hero__author {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.15rem 0;
+}
+
+.apple-book-hero__author-by {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-subtle);
+}
+
+.apple-book-hero__author-name {
+  font-size: 1.1rem;
+  font-weight: 750;
+  color: var(--brand-black);
+}
+
+@media (max-width: 640px) {
+  .apple-book-hero__author-by {
+    font-size: 0.8125rem;
+  }
+  .apple-book-hero__author-name {
+    font-size: 0.875rem;
+  }
+}
+
+/* Rating Summary */
+.apple-book-hero__rating-row {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  margin-top: 0.15rem;
+}
+
+.apple-book-hero__stars {
+  display: flex;
+  align-items: center;
+  gap: 0.12rem;
+}
+
+.apple-book-hero__star {
+  color: var(--border-card);
+}
+
+.apple-book-hero__star.is-filled {
+  color: #f59e0b;
+  fill: #f59e0b;
+}
+
+.apple-book-hero__rating-score {
+  font-size: 0.875rem;
+  font-weight: 800;
+  color: var(--brand-black);
+  font-family: var(--font-english), sans-serif;
+}
+
+.apple-book-hero__rating-dot {
+  color: var(--text-subtle);
+  font-size: 0.75rem;
+  opacity: 0.5;
+}
+
+.apple-book-hero__rating-count {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-subtle);
+}
+
+@media (max-width: 640px) {
+  .apple-book-hero__rating-score {
+    font-size: 0.8125rem;
+  }
+  .apple-book-hero__rating-count {
+    font-size: 0.75rem;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   ACTIONS ROW & BUTTONS
+   ───────────────────────────────────────────────────────────── */
+.apple-book-hero__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  .apple-book-hero__actions {
+    grid-column: 1 / 3;
+    grid-row: 2 / 3;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.45rem;
+    width: 100%;
+    margin-top: 0.45rem;
+  }
+
+  .apple-book-hero__btn--primary {
+    flex: 1;
+    min-width: 0;
+    height: 2.75rem;
+    padding: 0 0.85rem;
+    font-size: 0.875rem;
+    justify-content: center;
+  }
+
+  .apple-book-hero__btn-text {
+    display: none;
+  }
+
+  .apple-book-hero__btn--secondary {
+    width: 2.75rem;
+    height: 2.75rem;
+    min-width: 2.75rem;
+    padding: 0;
+    border-radius: 9999px;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .apple-book-hero__icon-btn {
+    width: 2.75rem;
+    height: 2.75rem;
+    min-width: 2.75rem;
+    border-radius: 9999px;
+    flex-shrink: 0;
+  }
+}
+
+@media (min-width: 641px) {
+  .apple-book-hero__btn-text {
+    display: inline;
+  }
+
+  .apple-book-hero__btn--secondary {
+    padding: 0 1.35rem;
+  }
+}
+
+.apple-book-hero__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  height: 2.75rem;
+  border-radius: 9999px;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 750;
+  cursor: pointer;
+  outline: none;
+  user-select: none;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.apple-book-hero__btn--primary {
+  background-color: var(--brand-black);
+  border: 1px solid var(--brand-black);
+  color: var(--brand-white);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  padding: 0 1.5rem;
+}
+
+.apple-book-hero__btn--primary:hover {
+  background-color: rgba(10, 10, 10, 0.88);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+}
+
+.apple-book-hero__btn--primary:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.apple-book-hero__btn--secondary {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  color: var(--brand-black);
+}
+
+.apple-book-hero__btn--secondary:hover {
+  background-color: var(--bg-primary);
+  border-color: var(--border-card);
+  transform: translateY(-1px);
+}
+
+.apple-book-hero__btn--secondary:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Active states: kept completely professional without colored badge wash; icon only is filled */
+.apple-book-hero__btn--secondary.is-assigned,
+.apple-book-hero__btn--secondary.is-reviewed {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-subtle);
+  color: var(--brand-black);
+}
+
+.apple-book-hero__btn--secondary.is-assigned:hover,
+.apple-book-hero__btn--secondary.is-reviewed:hover {
+  background-color: var(--bg-primary);
+  border-color: var(--border-card);
+}
+
+.apple-book-hero__btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.apple-book-hero__btn-spinner {
+  animation: appleBtnSpin 0.75s linear infinite;
+}
+
+@keyframes appleBtnSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.apple-book-hero__icon-btn {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 9999px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  color: var(--brand-black);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+.apple-book-hero__icon-btn:hover {
+  background-color: var(--bg-primary);
+  border-color: var(--border-card);
+  transform: translateY(-1px);
+}
+
+.apple-book-hero__icon-btn:active {
+  transform: translateY(0) scale(0.96);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   EDITORIAL DIVIDER
+   ───────────────────────────────────────────────────────────── */
+.apple-book-hero__divider {
+  width: 100%;
+  height: 1px;
+  background-color: var(--border-subtle);
+  margin-top: 2rem;
+  border: none;
+}
+
+@media (min-width: 768px) {
+  .apple-book-hero__divider {
+    margin-top: 3rem;
+  }
+}

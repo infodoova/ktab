@@ -1,0 +1,224 @@
+/* ─────────────────────────────────────────────────────────────
+   StoryFilterModal.css - Apple Editorial Filter Modal
+   ───────────────────────────────────────────────────────────── */
+
+.ktab-story-filter-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background-color: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+}
+
+@media (max-width: 639px) {
+  .ktab-story-filter-backdrop {
+    padding: 0;
+    align-items: flex-end;
+  }
+}
+
+.ktab-story-filter-dialog {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-card);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.16), 0 4px 16px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+.ktab-story-filter-dialog--desktop {
+  width: 100%;
+  max-width: 520px;
+  border-radius: 1.5rem;
+  max-height: 85vh;
+}
+
+.ktab-story-filter-dialog--mobile {
+  width: 100%;
+  border-top-left-radius: 1.75rem;
+  border-top-right-radius: 1.75rem;
+  border-bottom: none;
+  border-left: none;
+  border-right: none;
+  max-height: 88vh;
+}
+
+.ktab-story-filter-handle {
+  width: 36px;
+  height: 4px;
+  border-radius: 9999px;
+  background-color: var(--border-subtle);
+  margin: 0.75rem auto 0;
+}
+
+/* Header */
+.ktab-story-filter-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.ktab-story-filter-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.ktab-story-filter-badge {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.65rem;
+  background-color: var(--brand-teal-soft);
+  color: var(--brand-teal-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ktab-story-filter-title {
+  font-size: 1.0625rem;
+  font-weight: 800;
+  color: var(--brand-black);
+  margin: 0;
+}
+
+.ktab-story-filter-close-btn {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 9999px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.ktab-story-filter-close-btn:hover {
+  background-color: var(--bg-card);
+  color: var(--brand-black);
+}
+
+/* Body */
+.ktab-story-filter-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.ktab-story-filter-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.ktab-story-filter-label {
+  font-size: 0.875rem;
+  font-weight: 750;
+  color: var(--brand-black);
+}
+
+.ktab-story-filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.ktab-story-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.95rem;
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  font-weight: 650;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  outline: none;
+}
+
+.ktab-story-filter-chip:hover {
+  background-color: var(--bg-card);
+  border-color: var(--border-card);
+  color: var(--brand-black);
+}
+
+.ktab-story-filter-chip--active {
+  background-color: var(--brand-black);
+  border-color: var(--brand-black);
+  color: var(--brand-white);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.ktab-story-filter-chip--active:hover {
+  background-color: rgba(10, 10, 10, 0.9);
+  color: var(--brand-white);
+}
+
+/* Footer */
+.ktab-story-filter-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1.15rem 1.5rem;
+  border-top: 1px solid var(--border-subtle);
+  background-color: var(--bg-secondary);
+}
+
+.ktab-story-filter-btn-reset {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.65rem 1.15rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  background-color: transparent;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.ktab-story-filter-btn-reset:hover {
+  background-color: var(--bg-primary);
+  color: var(--brand-black);
+}
+
+.ktab-story-filter-btn-apply {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.65rem 1.35rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 750;
+  background-color: var(--brand-black);
+  border: 1px solid var(--brand-black);
+  color: var(--brand-white);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.ktab-story-filter-btn-apply:hover {
+  background-color: rgba(10, 10, 10, 0.88);
+  transform: translateY(-1px);
+}

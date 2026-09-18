@@ -187,6 +187,12 @@
   direction: rtl;
 }
 
+.ktab-topbar__search-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .ktab-topbar__search {
   height: 2.25rem;
   border-radius: 0.5rem;
@@ -229,6 +235,7 @@
 }
 
 .ktab-topbar__search-btn {
+  position: relative;
   flex-shrink: 0;
   width: 2.25rem;
   height: 2.25rem;
@@ -242,11 +249,110 @@
   transition: color 0.2s ease, transform 0.2s ease;
 }
 
+.ktab-topbar__search-dot {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.35rem;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background-color: var(--brand-teal);
+  box-shadow: 0 0 4px var(--brand-teal);
+}
+
 .ktab-topbar__search-btn:hover {
   transform: scale(1.06);
 }
 
 .ktab-topbar--dark .ktab-topbar__search-btn {
+  color: var(--brand-white);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   ANIMATED TOPBAR FILTER BUTTON (Icon-Only, Matching Search)
+   ───────────────────────────────────────────────────────────── */
+.ktab-topbar__btn-filter {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border-radius: 0.5rem;
+  background-color: var(--btn-action-bg);
+  color: var(--btn-action-text);
+  border: 1px solid var(--btn-action-border);
+  cursor: pointer;
+  box-shadow: var(--btn-action-shadow);
+  outline: none;
+  flex-shrink: 0;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ktab-topbar__btn-filter:hover {
+  background-color: var(--btn-action-bg-hover);
+  border-color: var(--btn-action-border-hover);
+  box-shadow: var(--btn-action-shadow-hover);
+  transform: scale(1.05);
+}
+
+.ktab-topbar__btn-filter:active {
+  background-color: var(--btn-action-bg-active);
+  transform: scale(0.96);
+}
+
+.ktab-topbar__btn-filter svg {
+  color: var(--btn-action-icon);
+  flex-shrink: 0;
+  transition: color 0.18s ease;
+}
+
+.ktab-topbar__btn-filter:hover svg {
+  color: var(--btn-action-text);
+}
+
+.ktab-topbar__filter-badge {
+  position: absolute;
+  top: -0.25rem;
+  right: -0.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.1rem;
+  height: 1.1rem;
+  padding: 0 0.25rem;
+  border-radius: 9999px;
+  background-color: var(--brand-teal);
+  color: var(--brand-black);
+  font-size: 0.65rem;
+  font-weight: 800;
+  line-height: 1;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+.ktab-topbar--dark .ktab-topbar__btn-filter,
+.ktab-layout--dark .ktab-topbar__btn-filter {
+  background-color: var(--btn-action-dark-bg);
+  border-color: var(--btn-action-dark-border);
+  color: var(--btn-action-dark-text);
+  box-shadow: none;
+}
+
+.ktab-topbar--dark .ktab-topbar__btn-filter svg,
+.ktab-layout--dark .ktab-topbar__btn-filter svg {
+  color: var(--btn-action-dark-icon);
+}
+
+.ktab-topbar--dark .ktab-topbar__btn-filter:hover,
+.ktab-layout--dark .ktab-topbar__btn-filter:hover {
+  background-color: var(--btn-action-dark-bg-hover);
+  border-color: var(--btn-action-dark-border-hover);
+  color: var(--brand-white);
+}
+
+.ktab-topbar--dark .ktab-topbar__btn-filter:hover svg,
+.ktab-layout--dark .ktab-topbar__btn-filter:hover svg {
   color: var(--brand-white);
 }
 

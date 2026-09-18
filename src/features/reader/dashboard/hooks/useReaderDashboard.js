@@ -20,35 +20,30 @@ export function useReaderDashboard() {
   const [loadingRecommended, setLoadingRecommended] = useState(true);
 
   const [continueReadingBooks, setContinueReadingBooks] = useState([]);
-  const [openMenuId, setOpenMenuId] = useState(null);
-
-  // Close book action popover when clicking outside
-  useEffect(() => {
-    const handleOutsideClick = (e) => {
-      if (!e.target.closest(".book-menu-area")) {
-        setOpenMenuId(null);
-      }
-    };
-    document.addEventListener("click", handleOutsideClick);
-    return () => document.removeEventListener("click", handleOutsideClick);
-  }, []);
 
   const loadAssignedBooks = useCallback(async () => {
     setLoadingAssigned(true);
     try {
-      const res = await fetchMyLibraryBooks({ page: 0, size: 8 });
+      const res = await fetchMyLibraryBooks({ page: 0, size: 12 });
 
-      if (res?.messageStatus !== "SUCCESS") {
+      if (res?.messageStatus && res.messageStatus !== "SUCCESS") {
         setAssignedBooks([]);
         setContinueReadingBooks([]);
       } else {
-        const books = res.data?.content ?? [];
+        const books = res?.data?.content ?? [];
         setAssignedBooks(books);
         useLibraryStore.getState().setAssignedBookIds(books.map((b) => b.id));
-        const inProgress = books.filter((b) => (b.progress && b.progress > 0) || (b.lastReadPage && b.lastReadPage > 0));
+
+        // Filter books that have active reading progress; if none, show top recent books
+        const inProgress = books.filter(
+          (b) =>
+            (typeof b.progress === "number" && b.progress > 0) ||
+            (typeof b.lastReadPage === "number" && b.lastReadPage > 0)
+        );
         setContinueReadingBooks(inProgress.length > 0 ? inProgress : books.slice(0, 3));
       }
-    } catch {
+    } catch (error) {
+      logger.error("Failed to load library books:", error);
       setAssignedBooks([]);
       setContinueReadingBooks([]);
     } finally {
@@ -59,7 +54,7 @@ export function useReaderDashboard() {
   const loadRecommendedBooks = useCallback(async () => {
     setLoadingRecommended(true);
     try {
-      const res = await fetchRecommendedBooks({ page: 0, size: 8 });
+      const res = await fetchRecommendedBooks({ page: 0, size: 12 });
       if (res?.messageStatus === "SUCCESS" && Array.isArray(res.data?.content)) {
         setRecommendedBooks(res.data.content);
       } else {
@@ -78,23 +73,24 @@ export function useReaderDashboard() {
     loadRecommendedBooks();
   }, [loadAssignedBooks, loadRecommendedBooks]);
 
-  const handleRemoveAssignedBook = async (bookId) => {
+  const handleRemoveAssignedBook = useCallback(async (bookId) => {
     try {
       const res = await removeBookFromLibrary(bookId);
 
-      if (res?.messageStatus !== "SUCCESS") {
-        AlertToast(res?.message || "تم حذف الكتاب بنجاح", "SUCCESS");
-        setAssignedBooks((prev) => prev.filter((b) => b.id !== bookId));
-        useLibraryStore.getState().markBookUnassigned(bookId);
-      } else {
-        AlertToast(res?.message || "حاول مرة أخرى لاحقاً.", "ERROR");
+      if (res?.messageStatus && res.messageStatus !== "SUCCESS") {
+        AlertToast(res?.message || "تعذر حذف الكتاب من المفضلة.", "ERROR");
+        return;
       }
+
+      AlertToast("تمت إزالة الكتاب من المفضلة بنجاح.", "SUCCESS");
+      setAssignedBooks((prev) => prev.filter((b) => b.id !== bookId));
+      setContinueReadingBooks((prev) => prev.filter((b) => b.id !== bookId));
+      useLibraryStore.getState().markBookUnassigned(bookId);
     } catch (err) {
       logger.error("Failed to remove book:", err);
       AlertToast("فشل حذف الكتاب من المفضلة.", "ERROR");
     }
-  };
-
+  }, []);
 
   return {
     assignedBooks,
@@ -102,8 +98,7 @@ export function useReaderDashboard() {
     recommendedBooks,
     loadingRecommended,
     continueReadingBooks,
-    openMenuId,
-    setOpenMenuId,
+    isLoading: loadingAssigned && loadingRecommended,
     loadAssignedBooks,
     loadRecommendedBooks,
     handleRemoveAssignedBook,

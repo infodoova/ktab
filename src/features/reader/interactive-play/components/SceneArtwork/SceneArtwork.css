@@ -1,0 +1,135 @@
+.scene-artwork {
+  position: relative;
+  width: 100%;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-secondary);
+  cursor: zoom-in;
+  aspect-ratio: 16 / 10;
+}
+
+@media (min-width: 768px) {
+  .scene-artwork {
+    border-radius: 24px;
+  }
+}
+
+.scene-artwork__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.8s ease, transform 0.6s ease;
+}
+
+.scene-artwork__image--loading {
+  opacity: 0;
+  transform: scale(1.03);
+}
+
+.scene-artwork__image--loaded {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.scene-artwork:hover .scene-artwork__image--loaded {
+  transform: scale(1.04);
+}
+
+/* Skeleton / generating state */
+.scene-artwork__skeleton {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-secondary);
+}
+
+.scene-artwork__spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border-subtle);
+  border-top-color: var(--brand-teal);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Error fallback */
+.scene-artwork__error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  gap: 8px;
+  background: var(--bg-secondary);
+}
+
+.scene-artwork__error-icon {
+  font-size: 28px;
+  opacity: 0.2;
+}
+
+.scene-artwork__error-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-subtle);
+}
+
+/* Bottom gradient overlay for depth */
+.scene-artwork__gradient {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(to top, rgba(0,0,0,0.25), transparent);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.scene-artwork:hover .scene-artwork__gradient {
+  opacity: 1;
+}
+
+/* Zoom icon overlay */
+.scene-artwork__zoom-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.15);
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.scene-artwork:hover .scene-artwork__zoom-overlay {
+  opacity: 1;
+}
+
+.scene-artwork__zoom-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.25);
+  border: 1px solid rgba(255,255,255,0.4);
+  color: #fff;
+  transform: scale(0.6);
+  transition: transform 0.3s ease;
+}
+
+.scene-artwork:hover .scene-artwork__zoom-icon {
+  transform: scale(1);
+}

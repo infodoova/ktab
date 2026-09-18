@@ -1,0 +1,186 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   STORIES SKELETON (Apple Light Mode Shimmer Wave)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.ktab-stories-skeleton {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  box-sizing: border-box;
+}
+
+/* Shimmer Animation Base */
+.ktab-stories-skeleton__pill,
+.ktab-stories-skeleton__title,
+.ktab-stories-skeleton__desc,
+.ktab-stories-skeleton__btn,
+.ktab-stories-skeleton__hero-artwork,
+.ktab-stories-skeleton__card-cover,
+.ktab-stories-skeleton__card-genre,
+.ktab-stories-skeleton__card-title,
+.ktab-stories-skeleton__card-desc {
+  position: relative;
+  background-color: var(--bg-secondary);
+  overflow: hidden;
+}
+
+.ktab-stories-skeleton__pill::after,
+.ktab-stories-skeleton__title::after,
+.ktab-stories-skeleton__desc::after,
+.ktab-stories-skeleton__btn::after,
+.ktab-stories-skeleton__hero-artwork::after,
+.ktab-stories-skeleton__card-cover::after,
+.ktab-stories-skeleton__card-genre::after,
+.ktab-stories-skeleton__card-title::after,
+.ktab-stories-skeleton__card-desc::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.45) 50%,
+    transparent 100%
+  );
+  animation: storiesSkelWave 1.6s infinite cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes storiesSkelWave {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+/* Hero Skeleton */
+.ktab-stories-skeleton__hero {
+  width: 100%;
+  padding: 2.5rem 1.5rem;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  gap: 2rem;
+  background-color: var(--bg-primary);
+  border-bottom: 1px solid var(--border-subtle);
+  box-sizing: border-box;
+}
+
+@media (min-width: 860px) {
+  .ktab-stories-skeleton__hero {
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 3rem 2rem;
+  }
+}
+
+.ktab-stories-skeleton__hero-content {
+  flex: 1;
+  width: 100%;
+  max-width: 550px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.ktab-stories-skeleton__pill {
+  width: 7rem;
+  height: 1.5rem;
+  border-radius: 9999px;
+}
+
+.ktab-stories-skeleton__title {
+  width: 90%;
+  height: 2.5rem;
+  border-radius: 0.75rem;
+}
+
+.ktab-stories-skeleton__desc {
+  width: 100%;
+  height: 4rem;
+  border-radius: 0.75rem;
+}
+
+.ktab-stories-skeleton__btn {
+  width: 11rem;
+  height: 2.8rem;
+  border-radius: 9999px;
+  margin-top: 0.5rem;
+}
+
+.ktab-stories-skeleton__hero-artwork {
+  width: 240px;
+  height: 320px;
+  border-radius: 1.25rem;
+  flex-shrink: 0;
+}
+
+@media (min-width: 640px) {
+  .ktab-stories-skeleton__hero-artwork {
+    width: 280px;
+    height: 375px;
+  }
+}
+
+/* Grid Skeleton */
+.ktab-stories-skeleton__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (min-width: 640px) {
+  .ktab-stories-skeleton__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+}
+
+@media (min-width: 900px) {
+  .ktab-stories-skeleton__grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.35rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  .ktab-stories-skeleton__grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+}
+
+.ktab-stories-skeleton__card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.ktab-stories-skeleton__card-cover {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border-radius: 0.95rem;
+}
+
+.ktab-stories-skeleton__card-genre {
+  width: 40%;
+  height: 0.7rem;
+  border-radius: 4px;
+}
+
+.ktab-stories-skeleton__card-title {
+  width: 85%;
+  height: 1rem;
+  border-radius: 4px;
+}
+
+.ktab-stories-skeleton__card-desc {
+  width: 95%;
+  height: 1.5rem;
+  border-radius: 4px;
+}

@@ -1,0 +1,106 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   APPLE BOOKS METADATA STRIP
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.apple-meta-strip {
+  width: 100%;
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 1.75rem 0;
+  margin: 1.5rem 0 3.5rem;
+  direction: rtl;
+  font-family: var(--font-arabic), sans-serif;
+  box-sizing: border-box;
+}
+
+.apple-meta-strip__container {
+  display: flex;
+  align-items: stretch;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  gap: 0;
+}
+
+.apple-meta-strip__container::-webkit-scrollbar {
+  display: none;
+}
+
+.apple-meta-strip__item {
+  flex: 1;
+  min-width: 110px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: center;
+  padding: 0 1rem;
+  border-left: 1px solid var(--border-subtle);
+  box-sizing: border-box;
+}
+
+.apple-meta-strip__item:first-child {
+  border-right: none;
+}
+
+.apple-meta-strip__item:last-child {
+  border-left: none;
+}
+
+/* Label on top */
+.apple-meta-strip__label {
+  font-size: 0.6875rem;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-subtle);
+  margin-bottom: 0.6rem;
+  white-space: nowrap;
+}
+
+/* Mid Icon / Badge Slot */
+.apple-meta-strip__mid {
+  height: 2.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.35rem;
+}
+
+.apple-meta-strip__badge {
+  font-size: 1.15rem;
+  font-weight: 850;
+  color: var(--brand-black);
+  font-family: var(--font-english), sans-serif;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+
+.apple-meta-strip__icon {
+  color: var(--brand-black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Text on bottom */
+.apple-meta-strip__primary {
+  font-size: 0.8125rem;
+  font-weight: 750;
+  color: var(--brand-black);
+  margin-bottom: 0.15rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.apple-meta-strip__secondary {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--text-subtle);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}

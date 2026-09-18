@@ -1,0 +1,175 @@
+.interactive-play {
+  min-height: 100dvh;
+  background: var(--bg-secondary);
+  display: flex;
+  flex-direction: column;
+  direction: rtl;
+}
+
+/* Main game stage */
+.interactive-play__stage {
+  flex: 1;
+  max-width: 1120px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 20px 16px;
+}
+
+@media (min-width: 768px) {
+  .interactive-play__stage {
+    padding: 32px 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .interactive-play__stage {
+    padding: 40px 32px;
+  }
+}
+
+/* Two-column layout for desktop */
+.interactive-play__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (min-width: 1024px) {
+  .interactive-play__grid {
+    grid-template-columns: 5fr 7fr;
+    gap: 32px;
+  }
+}
+
+/* Left column on desktop: artwork + timeline */
+.interactive-play__left {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Timeline hidden on mobile, shown via a separate mobile slot */
+.interactive-play__left .scene-timeline {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .interactive-play__left .scene-timeline {
+    display: block;
+  }
+}
+
+/* Right column: narrative + choices */
+.interactive-play__right {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .interactive-play__right {
+    gap: 20px;
+  }
+}
+
+/* Mobile-only timeline (below artwork, above narrative on mobile) */
+.interactive-play__mobile-timeline {
+  display: block;
+}
+
+@media (min-width: 1024px) {
+  .interactive-play__mobile-timeline {
+    display: none;
+  }
+}
+
+/* Image preview overlay */
+.interactive-play__preview-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding: 16px;
+  animation: preview-fade-in 0.3s ease;
+}
+
+@keyframes preview-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.interactive-play__preview-container {
+  position: relative;
+  max-width: 960px;
+  max-height: 85vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.interactive-play__preview-img {
+  max-height: 80vh;
+  max-width: 100%;
+  object-fit: contain;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 32px 64px rgba(0, 0, 0, 0.4);
+}
+
+.interactive-play__preview-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.interactive-play__preview-close:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.interactive-play__preview-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 18px;
+  transition: background 0.2s ease;
+}
+
+.interactive-play__preview-nav:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.interactive-play__preview-nav--prev {
+  left: 12px;
+}
+
+.interactive-play__preview-nav--next {
+  right: 12px;
+}

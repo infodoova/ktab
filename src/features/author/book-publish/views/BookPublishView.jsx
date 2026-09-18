@@ -11,22 +11,9 @@ import "./BookPublishView.css";
  */
 export function BookPublishView({ pageName = "نشر كتاب جديد" }) {
   const location = useLocation();
-  const {
-    formData,
-    existingData,
-    genres,
-    subGenres,
-    loading,
-    progress,
-    isEditingDraft,
-    handleInputChange,
-    handleGenreChange,
-    handlePdfChange,
-    handleSaveDraft,
-    handlePublish,
-  } = useBookPublish();
+  const publishHook = useBookPublish();
 
-  const currentTitle = isEditingDraft ? "تعديل مسودة الكتاب" : pageName;
+  const currentTitle = publishHook.isEditingDraft ? "تعديل مسودة الكتاب" : pageName;
 
   // Dynamically resolve breadcrumb based on referrer state (Dashboard vs Library/My-Books)
   const breadcrumb = location.state?.from || {
@@ -38,23 +25,32 @@ export function BookPublishView({ pageName = "نشر كتاب جديد" }) {
     <AppLayout pageName={currentTitle} breadcrumb={breadcrumb} showSearch={false}>
       <div className="book-publish-page">
         <BookPublishForm
-          formData={formData}
-          existingData={existingData}
-          genres={genres}
-          subGenres={subGenres}
-          isEditingDraft={isEditingDraft}
-          loading={loading}
-          onInputChange={handleInputChange}
-          onGenreChange={handleGenreChange}
-          onPdfChange={handlePdfChange}
-          onSaveDraft={handleSaveDraft}
-          onPublish={handlePublish}
+          formData={publishHook.formData}
+          existingData={publishHook.existingData}
+          categoryOptions={publishHook.categoryOptions}
+          subCategoryOptions={publishHook.subCategoryOptions}
+          ageGroupOptions={publishHook.ageGroupOptions}
+          languageOptions={publishHook.languageOptions}
+          isEditingDraft={publishHook.isEditingDraft}
+          loading={publishHook.loading}
+          handleTitleChange={publishHook.handleTitleChange}
+          handleDescriptionChange={publishHook.handleDescriptionChange}
+          handleCategoryChange={publishHook.handleCategoryChange}
+          handleSubCategoryChange={publishHook.handleSubCategoryChange}
+          handleAgeGroupChange={publishHook.handleAgeGroupChange}
+          handleLanguageChange={publishHook.handleLanguageChange}
+          handleDocumentChange={publishHook.handleDocumentChange}
+          handleRemoveDocument={publishHook.handleRemoveDocument}
+          handleCoverChange={publishHook.handleCoverChange}
+          handleRemoveCover={publishHook.handleRemoveCover}
+          handleSaveDraft={publishHook.handleSaveDraft}
+          handleFormSubmit={publishHook.handleFormSubmit}
         />
 
         <UploadProgressModal
-          isOpen={loading}
-          progress={progress}
-          title={isEditingDraft ? "جاري تحديث الكتاب..." : "جاري نشر وتجهيز الكتاب..."}
+          isOpen={publishHook.loading}
+          progress={publishHook.progress}
+          title={publishHook.isEditingDraft ? "جاري تحديث الكتاب..." : "جاري نشر وتجهيز الكتاب..."}
         />
       </div>
     </AppLayout>

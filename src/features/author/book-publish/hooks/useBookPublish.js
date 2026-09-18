@@ -1,14 +1,15 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   fetchBookDraft,
   publishNewBook,
   saveBookDraft,
   updateBookDraft,
+  updateAuthorBook,
 } from "../services/bookPublishService";
 import { useGenreStore } from "@/core/store";
 import { AlertToast } from "@/components/myui/AlertToast";
-import { sanitizeText, sanitizeId, validateFile } from "@/lib/sanitize";
+import { sanitizeText, sanitizeId, validateFile, validateSecureBookDocument } from "@/lib/sanitize";
 import logger from "@/lib/logger";
 import * as pdfjsLib from "pdfjs-dist";
 
@@ -335,7 +336,7 @@ export function useBookPublish() {
     [genres]
   );
 
-  // Memoized PDF selection handler that reads page count asynchronously immediately
+  // Memoized PDF/Word selection handler with strict security and magic byte validation
   const handlePdfChange = useCallback(
     async (file) => {
       if (!file) {
@@ -344,17 +345,29 @@ export function useBookPublish() {
         return;
       }
 
+      // 1. Strict security validation (extension, double-extension, magic bytes, size)
+      const docValidation = await validateSecureBookDocument(file, {
+        maxSizeBytes: 100 * 1024 * 1024,
+      });
+
+      if (!docValidation.valid) {
+        AlertToast(docValidation.error || "ملف الكتاب غير صالح أمنياً", "ERROR");
+        return;
+      }
+
       handleInputChange("pdfFile", file);
       setExistingData((prev) => ({ ...prev, pdfName: file.name }));
 
-      // Parse page count in the background without blocking submit
-      try {
-        const count = await getPdfPageCount(file);
-        if (count > 0) {
-          setExistingData((prev) => ({ ...prev, pageCount: count }));
+      // Parse page count in the background only for PDF files
+      if (docValidation.fileType === "pdf") {
+        try {
+          const count = await getPdfPageCount(file);
+          if (count > 0) {
+            setExistingData((prev) => ({ ...prev, pageCount: count }));
+          }
+        } catch (err) {
+          logger.warn("Could not read PDF page count on select:", err);
         }
-      } catch (err) {
-        logger.warn("Could not read PDF page count on select:", err);
       }
     },
     [handleInputChange]
@@ -402,7 +415,7 @@ export function useBookPublish() {
       return false;
     }
     if (!hasPdf) {
-      AlertToast("يرجى رفع ملف PDF للكتاب.", "ERROR");
+      AlertToast("يرجى رفع ملف الكتاب (PDF أو Word).", "ERROR");
       return false;
     }
 
@@ -424,12 +437,11 @@ export function useBookPublish() {
     }
 
     if (pdfFile) {
-      const pdfValidation = validateFile(pdfFile, {
-        allowedTypes: ["application/pdf"],
+      const docValidation = await validateSecureBookDocument(pdfFile, {
         maxSizeBytes: 100 * 1024 * 1024, // 100 MB
       });
-      if (!pdfValidation.valid) {
-        AlertToast(pdfValidation.error || "ملف الكتاب غير صالح", "ERROR");
+      if (!docValidation.valid) {
+        AlertToast(docValidation.error || "ملف الكتاب غير صالح أمنياً", "ERROR");
         return false;
       }
     }
@@ -445,36 +457,55 @@ export function useBookPublish() {
     try {
       let finalPageCount = existingData.pageCount || 0;
       if (formData.pdfFile && !finalPageCount) {
-        const count = await getPdfPageCount(formData.pdfFile);
-        if (count > 0) finalPageCount = count;
+        const isPdf = formData.pdfFile.name.toLowerCase().endsWith(".pdf");
+        if (isPdf) {
+          const count = await getPdfPageCount(formData.pdfFile);
+          if (count > 0) finalPageCount = count;
+        }
       }
 
       const { min, max } = getAgeRangeValues(formData.ageGroup);
       const apiFormData = new FormData();
 
+      // Standard BookRequestDto according to OpenAPI spec with status = 'DRAFT'
+      const bookDto = {
+        title: sanitizeText(formData.title),
+        description: sanitizeText(formData.description) || "",
+        mainGenreId: Number(sanitizeId(formData.category)) || 1,
+        subGenreId: Number(sanitizeId(formData.subCategory)) || 0,
+        language: sanitizeText(formData.language) || "arabic",
+        ageRangeMin: min,
+        ageRangeMax: max,
+        pageCount: Math.max(1, finalPageCount || 1),
+        hasAudio: false,
+        status: "DRAFT",
+      };
+
       if (isEditingDraft) {
-        apiFormData.append("bookId", sanitizeId(draftId || draft?.id));
+        bookDto.id = Number(sanitizeId(draftId || draft?.id));
       }
-      apiFormData.append("title", sanitizeText(formData.title));
-      apiFormData.append("description", sanitizeText(formData.description));
-      if (formData.category) apiFormData.append("mainGenreId", sanitizeId(formData.category));
-      if (formData.subCategory) apiFormData.append("subGenreId", sanitizeId(formData.subCategory));
-      if (formData.language) apiFormData.append("language", sanitizeText(formData.language));
-      if (min) apiFormData.append("ageRangeMin", min);
-      if (max) apiFormData.append("ageRangeMax", max);
-      if (finalPageCount) apiFormData.append("pageCount", finalPageCount);
-      if (formData.coverFile) apiFormData.append("coverImage", formData.coverFile);
-      if (formData.pdfFile) apiFormData.append("pdfFile", formData.pdfFile);
+
+      apiFormData.append(
+        "bookDto",
+        new Blob([JSON.stringify(bookDto)], { type: "application/json" })
+      );
+
+      if (formData.coverFile) {
+        apiFormData.append("coverImage", formData.coverFile);
+      }
+      if (formData.pdfFile) {
+        apiFormData.append("pdfFile", formData.pdfFile);
+      }
 
       const res = isEditingDraft
-        ? await updateBookDraft(draftId || draft?.id, apiFormData, (p) => setProgress(p))
+        ? await updateAuthorBook(draftId || draft?.id, apiFormData)
         : await saveBookDraft(apiFormData, (p) => setProgress(p));
 
       if (res?.messageStatus === "SUCCESS" || res?.status === 200) {
         try {
           localStorage.removeItem(LOCAL_DRAFT_KEY);
         } catch {
-          // Ignored
+          // Handled
         }
         AlertToast("تم حفظ المسودة بنجاح", "SUCCESS");
         navigate("/author/my-books");
@@ -508,34 +539,55 @@ export function useBookPublish() {
     try {
       let finalPageCount = existingData.pageCount || 0;
       if (formData.pdfFile && !finalPageCount) {
-        const count = await getPdfPageCount(formData.pdfFile);
-        if (count > 0) finalPageCount = count;
+        const isPdf = formData.pdfFile.name.toLowerCase().endsWith(".pdf");
+        if (isPdf) {
+          const count = await getPdfPageCount(formData.pdfFile);
+          if (count > 0) finalPageCount = count;
+        }
       }
 
       const { min, max } = getAgeRangeValues(formData.ageGroup);
       const apiFormData = new FormData();
 
-      if (isEditingDraft) {
-        apiFormData.append("bookId", sanitizeId(draftId || draft?.id));
-      }
-      apiFormData.append("title", sanitizeText(formData.title));
-      apiFormData.append("description", sanitizeText(formData.description));
-      apiFormData.append("mainGenreId", sanitizeId(formData.category));
-      if (formData.subCategory) apiFormData.append("subGenreId", sanitizeId(formData.subCategory));
-      apiFormData.append("language", sanitizeText(formData.language));
-      apiFormData.append("ageRangeMin", min);
-      apiFormData.append("ageRangeMax", max);
-      apiFormData.append("pageCount", finalPageCount);
-      if (formData.coverFile) apiFormData.append("coverImage", formData.coverFile);
-      if (formData.pdfFile) apiFormData.append("pdfFile", formData.pdfFile);
+      // Standard BookRequestDto according to OpenAPI spec with status = 'PUBLISHED'
+      const bookDto = {
+        title: sanitizeText(formData.title),
+        description: sanitizeText(formData.description),
+        mainGenreId: Number(sanitizeId(formData.category)),
+        subGenreId: Number(sanitizeId(formData.subCategory)) || 0,
+        language: sanitizeText(formData.language) || "arabic",
+        ageRangeMin: min,
+        ageRangeMax: max,
+        pageCount: Math.max(1, finalPageCount || 1),
+        hasAudio: false,
+        status: "PUBLISHED",
+      };
 
-      const res = await publishNewBook(apiFormData, (p) => setProgress(p));
+      if (isEditingDraft) {
+        bookDto.id = Number(sanitizeId(draftId || draft?.id));
+      }
+
+      apiFormData.append(
+        "bookDto",
+        new Blob([JSON.stringify(bookDto)], { type: "application/json" })
+      );
+
+      if (formData.coverFile) {
+        apiFormData.append("coverImage", formData.coverFile);
+      }
+      if (formData.pdfFile) {
+        apiFormData.append("pdfFile", formData.pdfFile);
+      }
+
+      const res = isEditingDraft
+        ? await updateAuthorBook(draftId || draft?.id, apiFormData)
+        : await publishNewBook(apiFormData, (p) => setProgress(p));
 
       if (res?.messageStatus === "SUCCESS" || res?.status === 200) {
         try {
           localStorage.removeItem(LOCAL_DRAFT_KEY);
         } catch {
-          // Ignored
+          // Handled
         }
         AlertToast("تم نشر الكتاب بنجاح!", "SUCCESS");
         navigate("/author/my-books");
@@ -559,6 +611,89 @@ export function useBookPublish() {
     navigate,
   ]);
 
+  // Precomputed Select options so JSX contains zero mapping logic
+  const categoryOptions = useMemo(() => {
+    return genres.map((g) => ({
+      value: String(g.id),
+      label: g.name || g.arabicName || g.nameAr || String(g.id),
+    }));
+  }, [genres]);
+
+  const subCategoryOptions = useMemo(() => {
+    return subGenres.map((sg) => ({
+      value: String(sg.id),
+      label: sg.name || sg.arabicName || sg.nameAr || String(sg.id),
+    }));
+  }, [subGenres]);
+
+  const ageGroupOptions = useMemo(() => {
+    return AGE_GROUPS.map((ag) => ({
+      value: ag,
+      label: ag,
+    }));
+  }, []);
+
+  const languageOptions = useMemo(() => {
+    return LANG_OPTIONS.map((lang) => ({
+      value: lang.id,
+      label: lang.label,
+    }));
+  }, []);
+
+  // Pre-bound declarative event handlers (zero inline functions in JSX)
+  const handleTitleChange = useCallback(
+    (e) => handleInputChange("title", e.target.value),
+    [handleInputChange]
+  );
+
+  const handleDescriptionChange = useCallback(
+    (e) => handleInputChange("description", e.target.value),
+    [handleInputChange]
+  );
+
+  const handleCategoryChange = useCallback(
+    (value) => handleGenreChange(value),
+    [handleGenreChange]
+  );
+
+  const handleSubCategoryChange = useCallback(
+    (value) => handleInputChange("subCategory", value),
+    [handleInputChange]
+  );
+
+  const handleAgeGroupChange = useCallback(
+    (value) => handleInputChange("ageGroup", value),
+    [handleInputChange]
+  );
+
+  const handleLanguageChange = useCallback(
+    (value) => handleInputChange("language", value),
+    [handleInputChange]
+  );
+
+  const handleCoverChange = useCallback(
+    (file) => handleInputChange("coverFile", file),
+    [handleInputChange]
+  );
+
+  const handleRemoveCover = useCallback(
+    () => handleInputChange("coverFile", null),
+    [handleInputChange]
+  );
+
+  const handleRemoveDocument = useCallback(
+    () => handlePdfChange(null),
+    [handlePdfChange]
+  );
+
+  const handleFormSubmit = useCallback(
+    (e) => {
+      if (e) e.preventDefault();
+      handlePublish();
+    },
+    [handlePublish]
+  );
+
   return {
     formData,
     existingData,
@@ -568,9 +703,24 @@ export function useBookPublish() {
     loading,
     progress,
     isEditingDraft,
+    categoryOptions,
+    subCategoryOptions,
+    ageGroupOptions,
+    languageOptions,
     handleInputChange,
     handleGenreChange,
     handlePdfChange,
+    handleDocumentChange: handlePdfChange,
+    handleTitleChange,
+    handleDescriptionChange,
+    handleCategoryChange,
+    handleSubCategoryChange,
+    handleAgeGroupChange,
+    handleLanguageChange,
+    handleCoverChange,
+    handleRemoveCover,
+    handleRemoveDocument,
+    handleFormSubmit,
     handleSaveDraft,
     handlePublish,
   };

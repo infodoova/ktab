@@ -1,56 +1,28 @@
-import React, { useRef, useState } from "react";
+import React from "react";
 import { ImagePlus, Trash2, UploadCloud } from "lucide-react";
+import { useStoryCoverUploader } from "./useStoryCoverUploader";
 import "./StoryCoverUploader.css";
 
 /**
  * Editorial Apple / Eleven Reader interactive story cover uploader.
- * Streamlined horizontal dropzone with crisp borders, clean preview, and helper note underneath.
+ * Pure declarative JSX using useStoryCoverUploader hook for all DOM and state operations.
  */
 export function StoryCoverUploader({
   coverPreview,
   onCoverSelect,
   error,
 }) {
-  const fileInputRef = useRef(null);
-  const [isDragOver, setIsDragOver] = useState(false);
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    setIsDragOver(true);
-  };
-
-  const handleDragLeave = (e) => {
-    e.preventDefault();
-    setIsDragOver(false);
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    setIsDragOver(false);
-    const files = e.dataTransfer?.files;
-    if (files && files.length > 0) {
-      onCoverSelect(files[0]);
-    }
-  };
-
-  const handleFileChange = (e) => {
-    const files = e.target.files;
-    if (files && files.length > 0) {
-      onCoverSelect(files[0]);
-    }
-  };
-
-  const handleRemoveCover = (e) => {
-    e.stopPropagation();
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-    onCoverSelect(null);
-  };
-
-  const handleTriggerClick = () => {
-    fileInputRef.current?.click();
-  };
+  const {
+    fileInputRef,
+    isDragOver,
+    handleDragOver,
+    handleDragLeave,
+    handleDrop,
+    handleFileChange,
+    handleRemoveCover,
+    handleTriggerClick,
+    handleKeyDown,
+  } = useStoryCoverUploader({ onCoverSelect });
 
   return (
     <div className="new-story-cover-uploader">
@@ -82,12 +54,7 @@ export function StoryCoverUploader({
         onDrop={handleDrop}
         role="button"
         tabIndex={0}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            handleTriggerClick();
-          }
-        }}
+        onKeyDown={handleKeyDown}
       >
         {coverPreview ? (
           <div className="new-story-cover-uploader__preview-wrap">
@@ -126,7 +93,6 @@ export function StoryCoverUploader({
         )}
       </div>
 
-      {/* Helper note placed underneath */}
       <p className="new-story-cover-uploader__note">
         صيغ الصور المدعومة: PNG، JPG، WebP (حتى 5MB) · النسبة المقترحة: 3:4
       </p>

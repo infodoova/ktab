@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuthStore, useLibraryStore } from "@/core/store";
 
 import {
@@ -19,16 +20,19 @@ import { AlertToast } from "@/components/myui/AlertToast";
  * Hook managing Book Details data, reviews state, similar books, and library assignment.
  */
 export function useBookDetails(bookId) {
+  const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
   const [bookData, setBookData] = useState(null);
   const [loadingBook, setLoadingBook] = useState(true);
 
   // Review State
   const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
+  const [isFullRatesOpen, setIsFullRatesOpen] = useState(false);
   const [userRating, setUserRating] = useState(0);
   const [userReview, setUserReview] = useState("");
   const [isReviewed, setIsReviewed] = useState(false);
   const [reviewId, setReviewId] = useState(null);
+  const [isReviewLoading, setIsReviewLoading] = useState(false);
 
   // Reviews List & Similar Books State
   const [reviews, setReviews] = useState([]);
@@ -54,18 +58,24 @@ export function useBookDetails(bookId) {
         id: b.id,
         title: b.title ?? "كتاب",
         description: b.description ?? "",
-        genre: b.mainGenreName ?? null,
-        subgenre: b.subGenreName ?? null,
-        language: b.language ?? null,
+        genre: b.mainGenreName ?? b.genre ?? null,
+        mainGenreName: b.mainGenreName ?? b.genre ?? null,
+        subgenre: b.subGenreName ?? b.subgenre ?? null,
+        subGenreName: b.subGenreName ?? b.subgenre ?? null,
+        language: b.language ?? "ar",
         pageCount: b.pageCount ?? null,
         ageRangeMin: b.ageRangeMin ?? null,
         ageRangeMax: b.ageRangeMax ?? null,
-        hasAudio: b.hasAudio ?? false,
-        averageRating: b.averageRating ?? 0,
-        totalReviews: b.totalReviews ?? 0,
+        hasAudio: Boolean(b.hasAudio),
+        averageRating: typeof b.averageRating === "number" ? b.averageRating : Number(b.averageRating || 0),
+        totalReviews: typeof b.totalReviews === "number" ? b.totalReviews : Number(b.totalReviews || 0),
         coverImageUrl: b.coverImageUrl ?? "",
         pdfDownloadUrl: b.pdfDownloadUrl ?? null,
-        authorName: b.authorName ?? null,
+        authorName: b.customAuthorName || b.authorName || "مؤلف غير معروف",
+        customAuthorName: b.customAuthorName || null,
+        publishDate: b.publishDate ?? null,
+        bookSource: b.bookSource ?? null,
+        libraryOrganizationName: b.libraryOrganizationName ?? null,
       });
 
       if (res?.messageStatus && res.messageStatus !== "SUCCESS") {
@@ -78,10 +88,26 @@ export function useBookDetails(bookId) {
     }
   }, [bookId]);
 
+  // Share action: copies direct link to clipboard
+  const handleShareBook = useCallback(() => {
+    if (typeof window === "undefined") return;
+    try {
+      if (navigator.clipboard?.writeText) {
+        navigator.clipboard.writeText(window.location.href);
+        AlertToast("تم نسخ رابط الكتاب إلى الحافظة بنجاح.", "SUCCESS");
+      } else {
+        AlertToast("يرجى نسخ الرابط من شريط العنوان.", "INFO");
+      }
+    } catch {
+      AlertToast("تعذر نسخ الرابط.", "ERROR");
+    }
+  }, []);
+
   // 2. Fetch Review State
   const fetchReviewState = useCallback(async () => {
     if (!user?.userId || !bookId) return;
 
+    setIsReviewLoading(true);
     try {
       const res = await checkBookReviewed(bookId);
       const data = res?.data ?? res;
@@ -104,6 +130,8 @@ export function useBookDetails(bookId) {
       }
     } catch {
       // Ignored non-blocking
+    } finally {
+      setIsReviewLoading(false);
     }
   }, [bookId, user?.userId]);
 
@@ -131,15 +159,27 @@ export function useBookDetails(bookId) {
     if (!bookId) return;
     setLoadingReviews(true);
     try {
-      const revs = await fetchBookReviews(bookId);
-      setReviews(revs);
+      const res = await fetchBookReviews(bookId, { page: 0, size: 10 });
+      const list = res?.content ?? (Array.isArray(res) ? res : []);
+      setReviews(list);
+
+      // Fallback: Check if current user has an entry in this book's reviews to resolve reviewId
+      if (user?.userId) {
+        const myReview = list.find((r) => String(r.userId) === String(user.userId));
+        if (myReview && myReview.id) {
+          setIsReviewed(true);
+          setReviewId(myReview.id);
+          if (myReview.rating) setUserRating(Number(myReview.rating));
+          if (myReview.comment) setUserReview(myReview.comment);
+        }
+      }
     } catch (err) {
       console.error("Failed to load reviews:", err);
       setReviews([]);
     } finally {
       setLoadingReviews(false);
     }
-  }, [bookId]);
+  }, [bookId, user?.userId]);
 
   // 5. Fetch Similar Books
   const loadSimilarBooks = useCallback(async () => {
@@ -167,27 +207,34 @@ export function useBookDetails(bookId) {
   // Handle Review Submit / Edit
   const handleSubmitReview = async () => {
     if (!userRating) {
-      AlertToast("يرجى تحديد التقييم بالنجوم.", "ERROR");
+      AlertToast("يرجى اختيار تقييم بالنجوم أولاً.", "WARNING");
       return;
     }
 
     try {
+      const payload = {
+        rating: Math.max(1, Math.min(5, parseInt(userRating, 10) || 5)),
+        comment: typeof userReview === "string" ? userReview.trim() : "",
+      };
+
       if (isReviewed && reviewId) {
-        const res = await updateBookReview(reviewId, { rate: userRating, comment: userReview });
+        const res = await updateBookReview(bookId, reviewId, payload);
         if (res?.messageStatus && res.messageStatus !== "SUCCESS") {
           AlertToast(res?.message, res?.messageStatus);
           return;
         }
         AlertToast("تم تحديث التقييم بنجاح.", "SUCCESS");
       } else {
-        const res = await submitBookReview(bookId, { rate: userRating, comment: userReview });
+        const res = await submitBookReview(bookId, payload);
         if (res?.messageStatus && res.messageStatus !== "SUCCESS") {
           AlertToast(res?.message, res?.messageStatus);
           return;
         }
         AlertToast("تمت إضافة تقييمك بنجاح.", "SUCCESS");
         setIsReviewed(true);
-        if (res?.data?.reviewId) setReviewId(res.data.reviewId);
+        if (res?.data?.reviewId || res?.data?.id) {
+          setReviewId(res.data.reviewId || res.data.id);
+        }
       }
 
       setIsRatingModalOpen(false);
@@ -198,12 +245,12 @@ export function useBookDetails(bookId) {
     }
   };
 
-  // Handle Review Deletion
+  // Handle Review Deletion via DELETE /api/v1/reviews/books/{bookId}/reviews/{reviewId}
   const handleDeleteReview = async () => {
-    if (!reviewId) return;
+    if (!reviewId || !bookId) return;
 
     try {
-      const res = await deleteBookReview(reviewId);
+      const res = await deleteBookReview(bookId, reviewId);
       if (res?.messageStatus && res.messageStatus !== "SUCCESS") {
         AlertToast(res?.message, res?.messageStatus);
         return;
@@ -222,7 +269,7 @@ export function useBookDetails(bookId) {
     }
   };
 
-  // Toggle Library Assignment
+  // Toggle Library Assignment via POST /api/v1/library/assignBook
   const handleToggleAssign = async () => {
     if (isAssignLoading) return;
     setIsAssignLoading(true);
@@ -254,21 +301,33 @@ export function useBookDetails(bookId) {
     }
   };
 
+  // Declarative UI Event Handlers (Zero JS in JSX)
+  const handleOpenReviewModal = useCallback(() => setIsRatingModalOpen(true), []);
+  const handleCloseReviewModal = useCallback(() => setIsRatingModalOpen(false), []);
+  const handleOpenFullRatesModal = useCallback(() => setIsFullRatesOpen(true), []);
+  const handleCloseFullRatesModal = useCallback(() => setIsFullRatesOpen(false), []);
+  const handleToggleDescription = useCallback(() => setIsDescriptionExpanded((p) => !p), []);
+  const handleStartReading = useCallback(() => {
+    if (bookId) navigate(`/reader/display/${bookId}`);
+  }, [navigate, bookId]);
+  const handleNavigateBack = useCallback(() => navigate(-1), [navigate]);
+  const handleNavigateToReader = useCallback(() => navigate("/reader"), [navigate]);
 
   return {
     bookData,
     loadingBook,
     isRatingModalOpen,
     setIsRatingModalOpen,
+    isFullRatesOpen,
     userRating,
     setUserRating,
     userReview,
     setUserReview,
     isReviewed,
+    isReviewLoading,
     isAssigned,
     isAssignLoading,
     isDescriptionExpanded,
-    setIsDescriptionExpanded,
     reviews,
     loadingReviews,
     similarBooks,
@@ -276,6 +335,15 @@ export function useBookDetails(bookId) {
     handleSubmitReview,
     handleDeleteReview,
     handleToggleAssign,
+    handleShareBook,
+    handleOpenReviewModal,
+    handleCloseReviewModal,
+    handleOpenFullRatesModal,
+    handleCloseFullRatesModal,
+    handleToggleDescription,
+    handleStartReading,
+    handleNavigateBack,
+    handleNavigateToReader,
   };
 }
 

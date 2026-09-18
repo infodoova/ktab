@@ -1,37 +1,42 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import React from "react";
+import { useParams } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
-import { BookData } from "../components/BookData";
-import { UserRates } from "../components/UserRates";
-import { SimilarBooks } from "../components/SimilarBooks";
-import { FullUserRatesModal } from "../components/FullUserRatesModal";
-import { Footer } from "@/components/myui/layout";
+import {
+  BookHero,
+  BookMetadataStrip,
+  BookDescription,
+  BookReviews,
+  BookReviewModal,
+  SimilarBooks,
+  FullUserRatesModal,
+  BookDetailsSkeleton,
+} from "../components";
+import Footer from "@/features/home/components/Footer";
 import { useBookDetails } from "../hooks/useBookDetails";
+import "./BookDetailsView.css";
 
 /**
- * Pure presentation view for the Book Details & Reviews page.
+ * Editorial Apple Books-inspired Book Details & Customer Reviews View.
+ * Pure declarative JSX with zero inline functions or calculations.
  */
 export function BookDetailsView() {
-  const navigate = useNavigate();
   const { id } = useParams();
   const bookId = id;
-  const [isFullRatesOpen, setIsFullRatesOpen] = useState(false);
 
   const {
     bookData,
     loadingBook,
     isRatingModalOpen,
-    setIsRatingModalOpen,
+    isFullRatesOpen,
     userRating,
     setUserRating,
     userReview,
     setUserReview,
     isReviewed,
-    reviewId,
+    isReviewLoading,
     isAssigned,
     isAssignLoading,
     isDescriptionExpanded,
-    setIsDescriptionExpanded,
     reviews,
     loadingReviews,
     similarBooks,
@@ -39,93 +44,147 @@ export function BookDetailsView() {
     handleSubmitReview,
     handleDeleteReview,
     handleToggleAssign,
+    handleShareBook,
+    handleOpenReviewModal,
+    handleCloseReviewModal,
+    handleOpenFullRatesModal,
+    handleCloseFullRatesModal,
+    handleToggleDescription,
+    handleStartReading,
+    handleNavigateBack,
+    handleNavigateToReader,
   } = useBookDetails(bookId);
 
-  // Sync background color with dark presentation mode
-  useEffect(() => {
-    const originalBodyBg = document.body.style.backgroundColor;
-    document.body.style.backgroundColor = "#000000";
-    return () => {
-      document.body.style.backgroundColor = originalBodyBg;
-    };
-  }, []);
-
+  // Missing Book ID State
   if (!bookId) {
     return (
-      <div className="flex items-center justify-center h-screen bg-black text-white font-bold">
-        لا توجد بيانات للكتاب
+      <div className="apple-book-details-view" dir="rtl">
+        <div className="apple-book-details-empty">
+          <h2 className="apple-book-details-empty-title">معرف الكتاب غير صالح</h2>
+          <p className="apple-book-details-empty-desc">
+            لم يتم العثور على الكتاب المطلوب، يرجى العودة إلى المكتبة وتحديد كتاب آخر.
+          </p>
+          <button
+            type="button"
+            onClick={handleNavigateToReader}
+            className="apple-book-details-back-btn"
+          >
+            <ArrowRight size={16} />
+            <span>العودة للمكتبة</span>
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div
-      dir="rtl"
-      className="relative min-h-screen bg-black text-white overflow-x-hidden selection:bg-[#5de3ba] selection:text-black"
-    >
-      <div className="relative z-10 max-w-[1600px] mx-auto px-6 md:px-16 pb-16">
-        {/* Top Back Navigation Button */}
-        <div className="pt-12 mb-10 relative z-20">
+    <div className="apple-book-details-view" dir="rtl">
+      {/* 1. Sticky Navigation & Breadcrumbs Bar */}
+      <header className="apple-book-details-header">
+        <div className="apple-book-details-nav-inner">
           <button
-            onClick={() => navigate(-1)}
-            className="flex items-center gap-4 text-white hover:text-black hover:bg-[#5de3ba] transition-all group font-bold uppercase text-sm tracking-[0.2em] bg-black/40 backdrop-blur-md px-6 py-3 rounded-full border border-white/20 shadow-lg"
+            type="button"
+            onClick={handleNavigateBack}
+            className="apple-book-details-back-btn"
+            aria-label="الرجوع إلى الصفحة السابقة"
           >
-            <ArrowRight
-              className="w-5 h-5 group-hover:-translate-x-2 transition-transform"
-              strokeWidth={3}
-            />
-            <span>العودة للمكتبة</span>
+            <ArrowRight size={16} />
+            <span>المكتبة</span>
           </button>
+
+          {bookData?.title && (
+            <span className="apple-book-details-nav-title" title={bookData.title}>
+              {bookData.title}
+            </span>
+          )}
         </div>
+      </header>
 
-        {/* Content Modules */}
-        <div className="space-y-24">
-          <BookData
-            bookData={bookData}
-            loadingBook={loadingBook}
-            isRatingModalOpen={isRatingModalOpen}
-            setIsRatingModalOpen={setIsRatingModalOpen}
-            userRating={userRating}
-            setUserRating={setUserRating}
-            userReview={userReview}
-            setUserReview={setUserReview}
-            isReviewed={isReviewed}
-            reviewId={reviewId}
-            isAssigned={isAssigned}
-            isAssignLoading={isAssignLoading}
-            isDescriptionExpanded={isDescriptionExpanded}
-            setIsDescriptionExpanded={setIsDescriptionExpanded}
-            onSubmitReview={handleSubmitReview}
-            onDeleteReview={handleDeleteReview}
-            onToggleAssign={handleToggleAssign}
-            navigate={navigate}
-          />
+      {/* 2. Main Details Content Container */}
+      <main className="apple-book-details-container">
+        {loadingBook ? (
+          <BookDetailsSkeleton />
+        ) : bookData ? (
+          <>
+            {/* Apple Books Hero Section (Artwork, Title, Author, Rating Summary & CTAs) */}
+            <BookHero
+              book={bookData}
+              isAssigned={isAssigned}
+              isAssignLoading={isAssignLoading}
+              isReviewed={isReviewed}
+              isReviewLoading={isReviewLoading}
+              onToggleAssign={handleToggleAssign}
+              onOpenReviewModal={handleOpenReviewModal}
+              onStartReading={handleStartReading}
+              onShare={handleShareBook}
+            />
 
-          <UserRates
-            reviews={reviews}
-            loading={loadingReviews}
-            onOpenFullModal={() => setIsFullRatesOpen(true)}
-          />
+            {/* Publisher / Author Description with Clamped Toggle */}
+            <BookDescription
+              description={bookData.description}
+              isExpanded={isDescriptionExpanded}
+              onToggleExpand={handleToggleDescription}
+            />
 
-          <SimilarBooks
-            books={similarBooks}
-            loading={loadingSimilar}
-            navigate={navigate}
-          />
-        </div>
-      </div>
+            {/* Apple Books Metadata Strip (Genre, Author, Language, Pages, Age, Released, Publisher) */}
+            <BookMetadataStrip book={bookData} />
 
-      {/* Full Reviews Modal */}
+            {/* Customer Reviews Section */}
+            <BookReviews
+              reviews={reviews}
+              loading={loadingReviews}
+              isReviewed={isReviewed}
+              onOpenReviewModal={handleOpenReviewModal}
+              onOpenFullModal={handleOpenFullRatesModal}
+            />
+
+            {/* Similar Books Recommendation Grid */}
+            <SimilarBooks
+              books={similarBooks}
+              loading={loadingSimilar}
+              onSelectBook={handleStartReading}
+            />
+          </>
+        ) : (
+          <div className="apple-book-details-empty">
+            <h2 className="apple-book-details-empty-title">لم يتم العثور على تفاصيل الكتاب</h2>
+            <p className="apple-book-details-empty-desc">
+              قد يكون الكتاب غير متاح حالياً أو تم حذفه من قبل الناشر.
+            </p>
+            <button
+              type="button"
+              onClick={handleNavigateToReader}
+              className="apple-book-details-back-btn"
+            >
+              <ArrowRight size={16} />
+              <span>العودة للمكتبة</span>
+            </button>
+          </div>
+        )}
+      </main>
+
+      {/* 3. Modal Dialogs */}
+      <BookReviewModal
+        isOpen={isRatingModalOpen}
+        onClose={handleCloseReviewModal}
+        isReviewed={isReviewed}
+        userRating={userRating}
+        setUserRating={setUserRating}
+        userReview={userReview}
+        setUserReview={setUserReview}
+        onSubmitReview={handleSubmitReview}
+        onDeleteReview={handleDeleteReview}
+      />
+
       <FullUserRatesModal
         isOpen={isFullRatesOpen}
-        onClose={() => setIsFullRatesOpen(false)}
+        onClose={handleCloseFullRatesModal}
         reviews={reviews}
         loading={loadingReviews}
       />
 
-      <div className="bg-black relative border-t border-white/10">
-        <Footer />
-      </div>
+      {/* 4. Editorial Landing Page Footer */}
+      <Footer />
     </div>
   );
 }
