@@ -28,8 +28,8 @@ export function HomeView() {
       <RolesSection />
       <BooksMasonry />
       <InteractiveStories />
-      <PricingSection />
       <ReadAnywhere />
+      <PricingSection />
       <FAQ />
       <Footer />
 

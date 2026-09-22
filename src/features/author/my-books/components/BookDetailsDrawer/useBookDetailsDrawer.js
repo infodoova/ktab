@@ -1,14 +1,46 @@
 import { useState, useEffect, useCallback } from "react";
+import { fetchAuthorBookById } from "../../services/myBooksService";
 
 /**
  * Custom hook encapsulating BookDetailsDrawer state, lifecycle, and scroll locks.
  */
 export function useBookDetailsDrawer({ isOpen, onClose, book }) {
+  const [details, setDetails] = useState(null);
+  const [loadingDetails, setLoadingDetails] = useState(false);
   const [coverLoaded, setCoverLoaded] = useState(false);
   const [hasCoverError, setHasCoverError] = useState(false);
 
-  const coverUrl = book?.coverImageUrl || book?.cover;
-  const isDraft = book?.status === "DRAFT" || book?.isDraft;
+  useEffect(() => {
+    if (!isOpen || !book?.id) {
+      setDetails(null);
+      return;
+    }
+
+    let active = true;
+    async function loadFullDetails() {
+      setLoadingDetails(true);
+      try {
+        const res = await fetchAuthorBookById(book.id);
+        const data = res?.data || res;
+        if (active && data && typeof data === "object") {
+          setDetails(data);
+        }
+      } catch (err) {
+        console.error("Failed to load author book details:", err);
+      } finally {
+        if (active) setLoadingDetails(false);
+      }
+    }
+
+    loadFullDetails();
+    return () => {
+      active = false;
+    };
+  }, [isOpen, book?.id]);
+
+  const activeBook = details || book;
+  const coverUrl = activeBook?.coverImageUrl || activeBook?.cover;
+  const isDraft = activeBook?.status === "DRAFT" || activeBook?.isDraft;
 
   useEffect(() => {
     setCoverLoaded(false);
@@ -46,32 +78,32 @@ export function useBookDetailsDrawer({ isOpen, onClose, book }) {
   }, [isOpen, onClose]);
 
   // Derived presentation values
-  const title = book?.title || "كتاب بدون عنوان";
-  const author = book?.authorName || book?.customAuthorName || "مؤلف مستقل";
-  const description = book?.description || "";
+  const title = activeBook?.title || "كتاب بدون عنوان";
+  const author = activeBook?.authorName || activeBook?.customAuthorName || "مؤلف مستقل";
+  const description = activeBook?.description || "";
   const statusLabel = isDraft ? "مسودة" : "منشور";
-  const mainGenre = book?.mainGenreName || book?.mainGenre?.name || book?.genreName || "عام";
-  const subGenre = book?.subGenreName || book?.subGenre?.name || null;
-  const pageCountText = book?.pageCount ? `${book.pageCount} صفحة` : "غير محدد";
+  const mainGenre = activeBook?.mainGenreName || activeBook?.mainGenre?.name || activeBook?.genreName || "عام";
+  const subGenre = activeBook?.subGenreName || activeBook?.subGenre?.name || null;
+  const pageCountText = activeBook?.pageCount ? `${activeBook.pageCount} صفحة` : "غير محدد";
   
-  const langCode = (book?.language || "ar").toLowerCase();
+  const langCode = (activeBook?.language || "ar").toLowerCase();
   const languageText =
     langCode === "ar" ? "العربية" : langCode === "en" ? "الإنجليزية" : langCode === "fr" ? "الفرنسية" : langCode.toUpperCase();
 
-  const ageRangeText = book?.ageRangeMin
-    ? (book?.ageRangeMax && book?.ageRangeMax < 99
-        ? `${book.ageRangeMin} - ${book.ageRangeMax} سنة`
-        : `+${book.ageRangeMin} سنة`)
+  const ageRangeText = activeBook?.ageRangeMin
+    ? (activeBook?.ageRangeMax && activeBook?.ageRangeMax < 99
+        ? `${activeBook.ageRangeMin} - ${activeBook.ageRangeMax} سنة`
+        : `+${activeBook.ageRangeMin} سنة`)
     : "لكافة الأعمار";
 
-  const hasAudio = Boolean(book?.hasAudio);
+  const hasAudio = Boolean(activeBook?.hasAudio);
   const audioText = hasAudio ? "متوفر صوتياً" : "نسخة نصية فقط";
-  const ratingText = Number(book?.averageRating ?? 0).toFixed(1);
-  const totalReviews = book?.totalReviews ?? 0;
+  const ratingText = Number(activeBook?.averageRating ?? 0).toFixed(1);
+  const totalReviews = activeBook?.totalReviews ?? 0;
   const reviewsText = `${totalReviews} ${totalReviews === 1 ? "تقييم" : totalReviews === 2 ? "تقييمان" : "تقييمات"}`;
   
   let publishDateText = "غير محدد";
-  const rawDate = book?.publishDate || book?.createdAt;
+  const rawDate = activeBook?.publishDate || activeBook?.createdAt;
   if (rawDate) {
     try {
       const d = new Date(rawDate);
@@ -87,15 +119,15 @@ export function useBookDetailsDrawer({ isOpen, onClose, book }) {
     }
   }
 
-  const pdfUrl = book?.pdfDownloadUrl || null;
-  const pdfName = book?.pdfFileName || (book?.title ? `${book.title}.pdf` : "ملف_الكتاب.pdf");
+  const pdfUrl = activeBook?.pdfDownloadUrl || null;
+  const pdfName = activeBook?.pdfFileName || (activeBook?.title ? `${activeBook.title}.pdf` : "ملف_الكتاب.pdf");
   const sourceText =
-    book?.bookSource === "AUTHOR"
+    activeBook?.bookSource === "AUTHOR"
       ? "مؤلف مستقل"
-      : book?.libraryOrganizationName
-      ? `مكتبة ${book.libraryOrganizationName}`
+      : activeBook?.libraryOrganizationName
+      ? `مكتبة ${activeBook.libraryOrganizationName}`
       : "منصة كِتاب";
-  const readCount = book?.readCount ?? book?.totalReads ?? 0;
+  const readCount = activeBook?.readCount ?? activeBook?.totalReads ?? 0;
   const readCountText = `${readCount} ${readCount === 1 ? "قراءة" : readCount === 2 ? "قراءتان" : "قراءات"}`;
 
   const handlePreview = useCallback(() => {
@@ -213,6 +245,7 @@ export function useBookDetailsDrawer({ isOpen, onClose, book }) {
     hasCoverError,
     handleCoverLoad,
     handleCoverError,
+    loadingDetails,
   };
 }
 

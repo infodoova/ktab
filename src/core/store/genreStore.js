@@ -34,7 +34,7 @@ export const useGenreStore = create((set, get) => ({
     set({ isLoading: true, error: null });
 
     try {
-      const res = await getHelper({ url: `${API_BASE}/genres/viewAll` });
+      const res = await getHelper({ url: `${API_BASE}/genres` });
       const fetchedGenres = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
 
       set({

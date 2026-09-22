@@ -1,0 +1,143 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   ADMIN CREATE LIBRARY & ADMIN VIEW STYLES
+   Eleven Reader + Apple Editorial Light Aesthetic
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.ktab-admin-create-view {
+  width: 100%;
+  padding: 24px 32px 80px;
+  direction: rtl;
+  box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
+  .ktab-admin-create-view {
+    padding: 16px 16px 80px;
+  }
+}
+
+/* Header & Back Action */
+.ktab-admin-create-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.06));
+}
+
+.ktab-admin-create-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--brand-black, #0a0a0a);
+  margin: 0 0 4px;
+}
+
+.ktab-admin-create-desc {
+  font-size: 14px;
+  color: var(--text-muted, #64748b);
+  margin: 0;
+}
+
+.ktab-admin-create-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+
+/* Form Card Sections */
+.ktab-admin-form-section {
+  background-color: var(--bg-primary, #ffffff);
+  border: 1px solid var(--border-card, rgba(0, 0, 0, 0.08));
+  border-radius: 18px;
+  padding: 26px 28px;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03);
+  box-sizing: border-box;
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  .ktab-admin-form-section {
+    padding: 18px 16px;
+    border-radius: 14px;
+  }
+}
+
+.ktab-admin-form-section__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 22px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.05));
+}
+
+.ktab-admin-form-section__icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background-color: var(--bg-secondary, #f4f4f6);
+  border: 1px solid var(--border-card, rgba(0, 0, 0, 0.06));
+  color: var(--brand-black, #0a0a0a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ktab-admin-form-section__title {
+  font-size: 16.5px;
+  font-weight: 700;
+  color: var(--brand-black, #0a0a0a);
+  margin: 0 0 2px;
+}
+
+.ktab-admin-form-section__desc {
+  font-size: 13px;
+  color: var(--text-muted, #64748b);
+  margin: 0;
+}
+
+.ktab-admin-form-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.ktab-admin-form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.ktab-admin-form-grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 680px) {
+  .ktab-admin-form-grid-2,
+  .ktab-admin-form-grid-3 {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+}
+
+/* Submit Actions Bar */
+.ktab-admin-form-submit-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+  padding-top: 10px;
+}
+
+@media (max-width: 640px) {
+  .ktab-admin-form-submit-bar {
+    flex-direction: column-reverse;
+  }
+  .ktab-admin-form-submit-bar > * {
+    width: 100%;
+  }
+}

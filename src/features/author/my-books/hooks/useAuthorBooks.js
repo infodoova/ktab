@@ -42,8 +42,6 @@ export function useAuthorBooks() {
 
   const loadBooks = useCallback(
     async (targetPage = 0, targetStatus = status, isInitial = false) => {
-      if (!user?.userId) return;
-
       const currentReqId = ++reqIdRef.current;
 
       if (isInitial) setLoading(true);
@@ -51,7 +49,7 @@ export function useAuthorBooks() {
 
       try {
         const res = await fetchAuthorBooks({
-          authorId: user.userId,
+          authorId: user?.userId || user?.id,
           status: targetStatus,
           page: targetPage,
           size: 8,
@@ -92,7 +90,7 @@ export function useAuthorBooks() {
         }
       }
     },
-    [user?.userId, status]
+    [status, user?.userId, user?.id]
   );
 
   useEffect(() => {

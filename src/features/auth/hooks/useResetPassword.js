@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { sendPasswordResetApi, resetPasswordApi } from "@/core/api/authApi";
 import { AlertToast } from "@/components/myui/AlertToast";
+import { validateStrongPassword } from "@/lib/passwordValidation";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
 
 /**
  * Hook managing the 3-step Password Reset state machine and cooldown timers.
@@ -108,9 +108,11 @@ export function useResetPassword({ onClose } = {}) {
 
     if (!newPw) {
       nextErrors.newPw = "كلمة المرور مطلوبة";
-    } else if (!PASSWORD_REGEX.test(newPw)) {
-      nextErrors.newPw =
-        "يجب أن تحتوي على 8 أحرف على الأقل، حرف كبير، حرف صغير، رقم ورمز.";
+    } else {
+      const pwError = validateStrongPassword(newPw);
+      if (pwError) {
+        nextErrors.newPw = pwError;
+      }
     }
 
     if (!confirmPw) {

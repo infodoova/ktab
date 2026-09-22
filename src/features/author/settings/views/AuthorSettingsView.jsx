@@ -12,9 +12,12 @@ export function AuthorSettingsView({ pageName = "الإعدادات" }) {
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
 
-  const handleLogout = () => {
-    logout();
-    navigate("/", { replace: true });
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } finally {
+      navigate("/", { replace: true });
+    }
   };
 
   return (

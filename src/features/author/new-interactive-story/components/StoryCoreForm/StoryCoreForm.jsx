@@ -132,10 +132,7 @@ export function StoryCoreForm({
               <span>جاري تشييد القصة...</span>
             </>
           ) : (
-            <>
-              <Sparkles size={17} />
-              <span>إنشاء القصة وبدء المشاهد</span>
-            </>
+            <span>إنشاء القصة وبدء المشاهد</span>
           )}
         </button>
       </div>

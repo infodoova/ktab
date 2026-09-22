@@ -1,32 +1,56 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { ShieldAlert, ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ShieldAlert, ArrowLeft, LogOut } from "lucide-react";
+import { useAuthStore } from "@/core/store/authStore";
+import "./RoleErrorView.css";
 
 export function RoleErrorView() {
   const navigate = useNavigate();
+  const logout = useAuthStore((state) => state.logout);
+
+  const handleLogoutAndSwitch = async () => {
+    try {
+      await logout();
+    } finally {
+      navigate("/login?switch=true", { replace: true });
+    }
+  };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center text-center p-6 bg-slate-50" dir="rtl">
-      <div className="w-20 h-20 bg-red-100 rounded-3xl flex items-center justify-center text-red-600 mb-6 shadow-sm">
-        <ShieldAlert size={40} />
-      </div>
+    <div className="role-error-container" dir="rtl">
+      <main className="role-error-card">
+        <div className="role-error-icon-wrap" aria-hidden="true">
+          <ShieldAlert size={34} strokeWidth={2} />
+        </div>
 
-      <h1 className="text-3xl md:text-4xl font-black text-slate-900 mb-3">
-        لا تملك صلاحية للدخول
-      </h1>
+        <h1 className="role-error-title">
+          لا تملك صلاحية للدخول
+        </h1>
 
-      <p className="text-base text-slate-500 font-bold max-w-md leading-relaxed mb-8">
-        هذا القسم غير متوفر حسب دور الحساب الخاص بك.
-      </p>
+        <p className="role-error-desc">
+          هذا القسم غير متوفر حسب صلاحيات الحساب الحالي المسجل.
+        </p>
 
-      <Button
-        onClick={() => navigate("/")}
-        className="btn-premium px-8 py-6 rounded-2xl text-white font-black text-xs uppercase tracking-widest active:scale-95 shadow-xl flex items-center gap-3"
-      >
-        <span>العودة إلى الصفحة الرئيسية</span>
-        <ArrowRight size={16} />
-      </Button>
+        <div className="role-error-actions">
+          <button
+            type="button"
+            onClick={() => navigate("/")}
+            className="role-error-btn-primary"
+          >
+            <span>العودة إلى الصفحة الرئيسية</span>
+            <ArrowLeft size={16} strokeWidth={2.4} />
+          </button>
+
+          <button
+            type="button"
+            onClick={handleLogoutAndSwitch}
+            className="role-error-btn-secondary"
+          >
+            <LogOut size={16} strokeWidth={2.2} />
+            <span>تسجيل الخروج والتبديل لحساب آخر</span>
+          </button>
+        </div>
+      </main>
     </div>
   );
 }

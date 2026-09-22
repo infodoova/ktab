@@ -42,42 +42,12 @@
 .arch-bento-grid {
   display: grid;
   grid-template-columns: 1.25fr 1fr 1fr;
-  grid-template-rows: 270px 270px;
+  grid-template-rows: 280px 290px;
   gap: 20px;
   width: 100%;
-  transition:
-    grid-template-columns 0.48s cubic-bezier(0.16, 1, 0.3, 1),
-    grid-template-rows 0.48s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Dynamic Grid Transitions on Hover (Desktop) */
-@media (min-width: 1025px) {
-  /* When Reader Hero is hovered: Column 1 expands, other 2 columns gracefully compress */
-  .arch-bento-grid[data-hovered="reader"] {
-    grid-template-columns: 1.55fr 0.85fr 0.85fr;
-    grid-template-rows: 270px 270px;
-  }
-
-  /* When Author Wide is hovered: Row 1 expands to give Author more room, Row 2 contracts slightly */
-  .arch-bento-grid[data-hovered="author"] {
-    grid-template-columns: 1.15fr 1fr 1fr;
-    grid-template-rows: 325px 215px;
-  }
-
-  /* When Educator is hovered: Column 2 and Row 2 expand */
-  .arch-bento-grid[data-hovered="educator"] {
-    grid-template-columns: 1fr 1.35fr 0.85fr;
-    grid-template-rows: 215px 325px;
-  }
-
-  /* When Student is hovered: Column 3 and Row 2 expand */
-  .arch-bento-grid[data-hovered="student"] {
-    grid-template-columns: 1fr 0.85fr 1.35fr;
-    grid-template-rows: 215px 325px;
-  }
-}
-
-/* Subtle dimming for inactive cards during active hover */
+/* Dimming for inactive cards during active card hover */
 .arch-bento-grid:not([data-hovered="idle"]) .arch-card:not([data-active="true"]) {
   opacity: 0.82;
   filter: saturate(0.92);
@@ -106,7 +76,7 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   FULL-BLEED ARCHITECTURAL CARD STYLING
+   CARD CONTAINER AND ELEVATION
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .arch-card {
@@ -116,22 +86,20 @@
   border-radius: 24px;
   overflow: hidden;
   background-color: var(--brand-black, #0a0a0a);
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.06));
   box-shadow:
     0 4px 20px rgba(0, 0, 0, 0.05),
     0 1px 3px rgba(0, 0, 0, 0.02);
   transition:
-    transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
     border-color 0.3s ease;
-  transform: translateZ(0);
   box-sizing: border-box;
 }
 
 .arch-card:hover {
   border-color: rgba(0, 0, 0, 0.12);
   box-shadow:
-    0 22px 45px -10px rgba(0, 0, 0, 0.18),
+    0 20px 45px -10px rgba(0, 0, 0, 0.18),
     0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
@@ -196,7 +164,7 @@
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 24px 26px;
+  padding: 22px 24px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -206,16 +174,15 @@
 }
 
 .arch-hero-content {
-  padding: 34px 30px;
+  padding: 32px 28px;
 }
 
 .arch-card-title {
   font-family: var(--font-arabic);
   font-size: 18px;
   font-weight: 800;
-  color: #ffffff;
+  color: var(--brand-white, #ffffff);
   margin: 0 0 6px;
-  letter-spacing: -0.01em;
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
 }
 
@@ -226,9 +193,9 @@
 
 .arch-card-text {
   font-family: var(--font-arabic);
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 500;
-  line-height: 1.5;
+  line-height: 1.45;
   color: rgba(255, 255, 255, 0.92);
   margin: 0;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
@@ -253,12 +220,13 @@
   gap: 7px;
   width: 100%;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .arch-feature-item {
   display: flex;
-  align-items: center;
-  gap: 9px;
+  align-items: flex-start;
+  gap: 8px;
   font-family: var(--font-arabic);
   font-size: 12px;
   font-weight: 500;
@@ -280,6 +248,7 @@
   background-color: var(--brand-teal, #5de3ba);
   flex-shrink: 0;
   box-shadow: 0 0 6px var(--shadow-teal, rgba(93, 227, 186, 0.5));
+  margin-top: 5px;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════

@@ -9,6 +9,7 @@ const defaultHeaders = {
 
 /**
  * Standard fetch helper for Auth API endpoints.
+ * Includes credentials so browser sets/sends HttpOnly session cookies.
  */
 async function postRequest(endpoint, body, customHeaders = {}) {
   const url = `${API_BASE_URL}${endpoint}`;
@@ -19,32 +20,76 @@ async function postRequest(endpoint, body, customHeaders = {}) {
         ...defaultHeaders,
         ...customHeaders,
       },
+      credentials: "include",
       body: body !== undefined ? JSON.stringify(body) : undefined,
     });
 
     const text = await response.text();
     if (!text || !text.trim()) {
-      return { success: response.ok, messageStatus: response.ok ? "SUCCESS" : "ERROR" };
+      return {
+        success: response.ok,
+        ok: response.ok,
+        httpStatus: response.status,
+        messageStatus: response.ok ? "SUCCESS" : "ERROR",
+      };
     }
-    return JSON.parse(text);
+
+    const json = JSON.parse(text);
+    return {
+      ...json,
+      ok: response.ok,
+      httpStatus: response.status,
+    };
   } catch (error) {
     logger.error(`Auth request failed for ${endpoint}:`, error);
     return {
+      success: false,
+      ok: false,
       messageStatus: "ERROR",
       message: "تعذر الاتصال بخدمة المصادقة",
     };
   }
 }
 
-
 /**
  * Logs in a user.
+ * Dispatches POST /auth/login with only email and password in request body.
  *
  * @param {{ email: string, password: string }} credentials
- * @returns {Promise<{ messageStatus: string, message: string, data?: string }>}
+ * @returns {Promise<{ ok: boolean, success: boolean, messageStatus: string, message: string, data?: any }>}
  */
-export async function loginApi(credentials) {
-  return postRequest("/auth/login", credentials);
+export async function loginApi({ email, password }) {
+  return postRequest("/auth/login", {
+    email,
+    password,
+  });
+}
+
+/**
+ * Logs in or registers a user via Google OAuth2 ID token.
+ * Sets ACCESS_TOKEN and REFRESH_TOKEN as HttpOnly cookies on the backend.
+ *
+ * @param {{ idToken: string }} payload
+ * @returns {Promise<{ ok: boolean, success: boolean, messageStatus: string, message: string, data?: any }>}
+ */
+export async function googleLoginApi({ idToken }) {
+  return postRequest("/auth/google", {
+    idToken,
+  });
+}
+
+/**
+ * Completes Google registration for a new user with chosen role.
+ * Issues session cookies and returns user profile data.
+ *
+ * @param {{ pendingToken: string, role: string }} payload
+ * @returns {Promise<{ ok: boolean, success: boolean, messageStatus: string, message: string, data?: any }>}
+ */
+export async function completeGoogleRegistrationApi({ pendingToken, role }) {
+  return postRequest("/auth/google/complete", {
+    pendingToken,
+    role,
+  });
 }
 
 /**
@@ -98,18 +143,27 @@ export async function resetPasswordApi(payload) {
 }
 
 /**
- * Refreshes an existing access token.
+ * Refreshes an existing access token using HttpOnly cookie or optional token string.
  *
- * @param {string} token
- * @returns {Promise<Response>}
+ * @param {string} [refreshToken]
+ * @returns {Promise<{ ok: boolean, success: boolean, messageStatus: string, message: string, data?: any }>}
  */
-export async function refreshTokenApi(token) {
-  const url = `${API_BASE_URL}/auth/refresh-token`;
-  return fetch(url, {
-    method: "POST",
-    headers: {
-      ...defaultHeaders,
-      Authorization: `Bearer ${token}`,
-    },
-  });
+export async function refreshTokenApi(refreshToken) {
+  return postRequest(
+    "/auth/refresh-token",
+    refreshToken ? { refreshToken } : undefined
+  );
+}
+
+/**
+ * Logs out the user on the server, revoking the session and clearing HttpOnly cookies.
+ *
+ * @param {string} [refreshToken]
+ * @returns {Promise<{ ok: boolean, success: boolean, messageStatus: string, message: string, data?: any }>}
+ */
+export async function logoutApi(refreshToken) {
+  return postRequest(
+    "/auth/logout",
+    refreshToken ? { refreshToken } : undefined
+  );
 }

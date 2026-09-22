@@ -1,0 +1,166 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   AUTH LAYOUT STYLES (Cinematic Video + Apple Light Mode Form)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.auth-layout-container {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: row;
+  background-color: var(--bg-primary, #ffffff);
+  direction: rtl;
+  overflow: hidden;
+  font-family: var(--font-arabic, sans-serif);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   FORM PANEL (Right Side in RTL)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.auth-form-panel {
+  position: relative;
+  width: 50%;
+  height: 100%;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-primary, #ffffff);
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+  -webkit-overflow-scrolling: touch;
+  z-index: 10;
+}
+
+.auth-form-panel::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+/* Back Button (Apple Circular Icon Button) */
+.auth-back-btn {
+  position: absolute;
+  top: 32px;
+  right: 32px;
+  z-index: 30;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-primary, #ffffff);
+  border: 1px solid var(--border-card, rgba(0, 0, 0, 0.08));
+  color: var(--brand-black, #0a0a0a);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+  outline: none;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.auth-back-btn:hover {
+  background-color: #f8fafc;
+  border-color: rgba(0, 0, 0, 0.16);
+  color: var(--brand-black, #0a0a0a);
+  transform: translateX(2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.auth-back-btn svg {
+  display: block;
+}
+
+/* Form Content Wrapper (Gold-standard margin: auto prevents top scroll clipping) */
+.auth-form-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 84px 48px 60px;
+  box-sizing: border-box;
+  min-height: 100%;
+}
+
+.auth-form-content > * {
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CINEMATIC VIDEO SHOWCASE PANEL (Left Side in RTL)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.auth-visual-panel {
+  position: relative;
+  width: 50%;
+  height: 100%;
+  display: flex;
+  background-color: #000000;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.auth-video-element {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.95;
+}
+
+.auth-video-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to left,
+    rgba(0, 0, 0, 0.25) 0%,
+    transparent 40%
+  );
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   RESPONSIVE DESIGN
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 1024px) {
+  .auth-form-content {
+    padding: 76px 32px 50px;
+  }
+}
+
+@media (max-width: 900px) {
+  .auth-visual-panel {
+    display: none;
+  }
+
+  .auth-form-panel {
+    width: 100%;
+    height: 100%;
+    height: 100dvh;
+  }
+
+  .auth-form-content {
+    padding: 72px 20px 36px;
+    min-height: 100%;
+    min-height: 100dvh;
+  }
+
+  .auth-form-content > * {
+    margin-top: 0;
+    margin-bottom: auto;
+  }
+
+  .auth-back-btn {
+    top: 16px;
+    right: 16px;
+    width: 38px;
+    height: 38px;
+  }
+}

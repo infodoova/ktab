@@ -9,6 +9,7 @@ export { useCodeVerify } from "./hooks/useCodeVerify";
 export { AuthLayout } from "./components/AuthLayout";
 export { ResetPasswordModal } from "./components/ResetPasswordModal";
 export { CodeVerifyModal } from "./components/CodeVerifyModal";
+export { GoogleRoleModal } from "./components/GoogleRoleModal";
 
 // Views
 export { LoginView } from "./views/LoginView";

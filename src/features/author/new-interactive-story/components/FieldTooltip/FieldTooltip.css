@@ -1,0 +1,159 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   FIELD TOOLTIP COMPONENT
+   Portal-rendered tooltip that escapes parent overflow containers.
+   Desktop: fixed-position popover near the trigger icon.
+   Mobile: fixed bottom-sheet with backdrop scrim.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.field-tooltip-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  margin-right: 0.35rem;
+}
+
+/* ── Trigger button ── */
+.field-tooltip-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  padding: 3px;
+  cursor: pointer;
+  color: var(--text-subtle, #94a3b8);
+  border-radius: 9999px;
+  transition: color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
+  line-height: 1;
+}
+
+.field-tooltip-trigger:hover,
+.field-tooltip-trigger.is-active {
+  color: var(--brand-black, #0a0a0a);
+  background-color: rgba(0, 0, 0, 0.06);
+  transform: scale(1.1);
+}
+
+.field-tooltip-trigger:focus-visible {
+  outline: 2px solid var(--brand-black, #0a0a0a);
+  outline-offset: 2px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   POPOVER (Portal-rendered at document.body)
+   Positioned via inline fixed styles computed from trigger bounding rect.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.field-tooltip-popover {
+  z-index: 10000;
+  width: max-content;
+  max-width: 260px;
+  background-color: var(--brand-black, #0a0a0a);
+  color: #ffffff;
+  font-family: var(--font-arabic, sans-serif);
+  font-size: 0.8rem;
+  font-weight: 500;
+  line-height: 1.5;
+  padding: 0.6rem 0.85rem;
+  border-radius: 10px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.18), 0 2px 8px rgba(0, 0, 0, 0.1);
+  pointer-events: auto;
+  text-align: right;
+  direction: rtl;
+  animation: fieldTooltipFadeIn 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  white-space: normal;
+  word-break: break-word;
+}
+
+/* ── Caret arrows ── */
+.field-tooltip-popover--above::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: var(--brand-black, #0a0a0a) transparent transparent transparent;
+}
+
+.field-tooltip-popover--below::after {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent var(--brand-black, #0a0a0a) transparent;
+}
+
+@keyframes fieldTooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MOBILE: Bottom-sheet style
+   ═══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+  .field-tooltip-popover {
+    position: fixed !important;
+    right: 12px !important;
+    left: 12px !important;
+    bottom: 16px !important;
+    top: auto !important;
+    max-width: none;
+    width: auto;
+    transform: none !important;
+    font-size: 0.82rem;
+    padding: 0.75rem 1rem;
+    border-radius: 14px;
+    box-shadow: 0 -4px 40px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(255, 255, 255, 0.06);
+    animation: fieldTooltipSlideUp 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .field-tooltip-popover--above::after,
+  .field-tooltip-popover--below::after {
+    display: none;
+  }
+}
+
+@keyframes fieldTooltipSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Mobile backdrop scrim ── */
+.field-tooltip-backdrop {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .field-tooltip-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background-color: rgba(0, 0, 0, 0.15);
+    animation: fieldTooltipBackdropIn 0.2s ease;
+  }
+}
+
+@keyframes fieldTooltipBackdropIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

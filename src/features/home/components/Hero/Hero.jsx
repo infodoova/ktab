@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Play } from "lucide-react";
 import { useHero } from "../../hooks/useHero";
-import EarlyAccess from "../EarlyAccess";
 import "./Hero.css";
 
 /**
@@ -26,8 +25,6 @@ export default function Hero() {
     toggleFlip,
     handleDragEnd,
     openVoiceModal,
-    isEarlyAccessOpen,
-    closeEarlyAccess,
     handleStartNow,
   } = useHero();
 
@@ -161,14 +158,6 @@ export default function Hero() {
           ابدأ الآن
         </motion.button>
       </div>
-
-
-
-      {/* Early Access Modal */}
-      <EarlyAccess
-        isOpen={isEarlyAccessOpen}
-        onClose={closeEarlyAccess}
-      />
     </section>
   );
 }

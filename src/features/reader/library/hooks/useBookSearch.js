@@ -1,12 +1,12 @@
 import { useState, useEffect, useMemo } from "react";
-import { useGenreStore } from "@/core/store";
+import { useGenreStore, useEnumStore } from "@/core/store";
 
 export const AGE_BRACKETS = [
   { value: "", label: "جميع الفئات العمرية", minAge: null, maxAge: null, repAge: null },
-  { value: "children", label: "أطفال (5 - 12 سنة)", minAge: 5, maxAge: 12, repAge: 8 },
-  { value: "teens", label: "يافعين (13 - 17 سنة)", minAge: 13, maxAge: 17, repAge: 15 },
-  { value: "adults", label: "بالغين (18 - 45 سنة)", minAge: 18, maxAge: 45, repAge: 25 },
-  { value: "seniors", label: "كبار السن (46 - 80 سنة)", minAge: 46, maxAge: 80, repAge: 60 },
+  { value: "CHILDREN", label: "أطفال (3-8 سنوات)", minAge: 3, maxAge: 8, repAge: 5 },
+  { value: "EARLY_TEENS", label: "ناشئة (9-15 سنة)", minAge: 9, maxAge: 15, repAge: 12 },
+  { value: "YOUTH", label: "شباب (16-24 سنة)", minAge: 16, maxAge: 24, repAge: 20 },
+  { value: "ADULTS", label: "كبار (+25)", minAge: 25, maxAge: null, repAge: 25 },
 ];
 
 /**
@@ -16,6 +16,7 @@ export function useBookSearch({ isOpen, onClose, onApply }) {
   const [selectedRating, setSelectedRating] = useState(0);
   const [selectedAgeBracket, setSelectedAgeBracket] = useState("");
   const { genres, fetchGenres } = useGenreStore();
+  const { ages, fetchAges } = useEnumStore();
 
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedSubGenre, setSelectedSubGenre] = useState("");
@@ -46,12 +47,13 @@ export function useBookSearch({ isOpen, onClose, onApply }) {
     }
   }, [isOpen]);
 
-  // Load genres from global Zustand cache when modal opens
+  // Load genres and age categories from global Zustand cache when modal opens
   useEffect(() => {
     if (isOpen) {
       fetchGenres();
+      fetchAges();
     }
-  }, [isOpen, fetchGenres]);
+  }, [isOpen, fetchGenres, fetchAges]);
 
   // Current selected category object and its related subgenres
   const currentCategory = useMemo(() => {
@@ -84,11 +86,15 @@ export function useBookSearch({ isOpen, onClose, onApply }) {
   }, [availableSubGenres]);
 
   const ageOptions = useMemo(() => {
-    return AGE_BRACKETS.map((b) => ({
-      value: b.value,
-      label: b.label,
-    }));
-  }, []);
+    const list = ages && ages.length > 0 ? ages : AGE_BRACKETS.slice(1);
+    return [
+      { value: "", label: "جميع الفئات العمرية" },
+      ...list.map((b) => ({
+        value: b.key || b.value,
+        label: b.labelAr || b.label,
+      })),
+    ];
+  }, [ages]);
 
   const handleCategoryChange = (catId) => {
     setSelectedCategory(catId);
@@ -108,15 +114,18 @@ export function useBookSearch({ isOpen, onClose, onApply }) {
   };
 
   const handleApplyFilters = () => {
-    const bracket = AGE_BRACKETS.find((b) => b.value === selectedAgeBracket);
+    const bracket = (ages || []).find(
+      (b) => (b.key || b.value) === selectedAgeBracket
+    ) || AGE_BRACKETS.find((b) => b.value === selectedAgeBracket);
+
     onApply?.({
       mainGenreIds: selectedCategory ? [Number(selectedCategory)] : [],
       subGenreIds: selectedSubGenre ? [Number(selectedSubGenre)] : [],
       ageBracket: selectedAgeBracket || null,
       minAge: bracket?.minAge ?? null,
       maxAge: bracket?.maxAge ?? null,
-      ageRange: bracket?.minAge ? `${bracket.minAge}-${bracket.maxAge}` : null,
-      age: bracket?.repAge ?? null,
+      ageRange: bracket?.minAge != null ? `${bracket.minAge}-${bracket.maxAge ?? ""}` : null,
+      age: bracket?.minAge ?? bracket?.repAge ?? null,
       minAverageRating: selectedRating,
       page: 0,
       size: 8,

@@ -8,13 +8,14 @@ export function useAuthorBookCard({
   book,
   openMenuId,
   setOpenMenuId,
+  isMenuOpen,
   onClick,
   onDelete,
 }) {
   const navigate = useNavigate();
   const coverUrl = book?.coverImageUrl || book?.cover;
   const isDraft = book?.status === "DRAFT" || book?.isDraft;
-  const isOpen = openMenuId === book?.id;
+  const isOpen = isMenuOpen !== undefined ? isMenuOpen : openMenuId === book?.id;
 
   const [coverLoaded, setCoverLoaded] = useState(false);
   const [hasCoverError, setHasCoverError] = useState(false);
@@ -36,13 +37,17 @@ export function useAuthorBookCard({
   const toggleMenu = useCallback(
     (e) => {
       e.stopPropagation();
-      setOpenMenuId(isOpen ? null : book.id);
+      if (typeof setOpenMenuId === "function") {
+        setOpenMenuId(isOpen ? null : book?.id);
+      }
     },
     [isOpen, book?.id, setOpenMenuId]
   );
 
   const handleDetailsClick = useCallback(() => {
-    setOpenMenuId(null);
+    if (typeof setOpenMenuId === "function") {
+      setOpenMenuId(null);
+    }
     onClick?.(book);
   }, [book, onClick, setOpenMenuId]);
 

@@ -8,6 +8,7 @@ import "./Select.css";
  */
 export function Select({
   label,
+  labelExtra,
   options = [],
   value,
   onChange,
@@ -51,8 +52,16 @@ export function Select({
   }, [isOpen]);
 
   const handleSelect = (val) => {
-    // Dispatch standard change event object
-    onChange?.({ target: { value: val, name } });
+    // Provide standard change event object with string primitive fallback and dual arguments
+    const event = {
+      target: { value: val, name },
+      currentTarget: { value: val, name },
+      value: val,
+      toString: () => String(val),
+      valueOf: () => val,
+      [Symbol.toPrimitive]: () => val,
+    };
+    onChange?.(event, val);
     setIsOpen(false);
   };
 
@@ -68,6 +77,7 @@ export function Select({
         <label htmlFor={selectId} className="myui-select-label">
           <span>{label}</span>
           {required && <span className="myui-select-required">*</span>}
+          {labelExtra}
         </label>
       )}
 

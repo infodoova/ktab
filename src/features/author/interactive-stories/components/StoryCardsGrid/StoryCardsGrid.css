@@ -71,12 +71,12 @@
   box-sizing: border-box;
 }
 
-/* Cover Wrapper (Fixed 3:4 Aspect Ratio, Elevated Cover) */
+/* Cover Wrapper (Fixed 1:1 Square Ratio, Elevated Cover) */
 .ktab-story-card__cover-wrap {
   position: relative;
   width: 100%;
   min-width: 0;
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 1 / 1;
   border-radius: 0.85rem;
   overflow: hidden;
   background-color: var(--bg-secondary);

@@ -64,16 +64,13 @@ export function useBookReader() {
         }
 
         const data = res.data;
-        if (data?.isTextReady && data.text) {
-          if (active) {
-            setBookText(data.text);
-            setLoadingText(false);
-          }
-          return;
-        }
+        const textContent =
+          typeof data === "string"
+            ? data
+            : (data?.text || data?.content || (typeof res?.data === "string" ? res.data : ""));
 
         if (active) {
-          setBookText(data?.text || "");
+          setBookText(textContent || "");
           setLoadingText(false);
         }
       } catch (err) {

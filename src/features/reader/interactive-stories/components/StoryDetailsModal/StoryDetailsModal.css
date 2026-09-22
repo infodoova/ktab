@@ -146,8 +146,9 @@
 
 .ktab-story-drawer__cover-wrap {
   position: relative;
-  width: 5.5rem;
-  height: 7.75rem;
+  width: 6rem;
+  height: 6rem;
+  aspect-ratio: 1 / 1;
   border-radius: 0.75rem;
   overflow: hidden;
   background-color: var(--bg-secondary);

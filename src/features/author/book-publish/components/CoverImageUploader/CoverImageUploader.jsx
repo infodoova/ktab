@@ -40,7 +40,7 @@ export const CoverImageUploader = memo(function CoverImageUploader({
           صورة الغلاف
           <span className="book-cover-uploader__required">*</span>
         </label>
-        <span className="book-cover-uploader__hint">النسبة المثالية 1:1.6 (حتى 10MB)</span>
+        <span className="book-cover-uploader__hint">النسبة المطلوبة 1:1.6 (حتى 10MB)</span>
       </div>
 
       <input

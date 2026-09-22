@@ -3,8 +3,9 @@ import tokenManager from "./tokenManager";
 
 export default function TokenRefreshWrapper({ children }) {
   useEffect(() => {
-    tokenManager.refreshIfNeeded();
+    tokenManager.initSession();
   }, []);
 
   return <>{children}</>;
 }
+

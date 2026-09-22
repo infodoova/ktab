@@ -5,42 +5,46 @@ import createImg from "@/assets/images/interactive/create_screen.webp";
 import playImg from "@/assets/images/interactive/play_screen.webp";
 
 /**
- * 3 Core Pillars for Interactive Stories:
- * Each pillar = Title + Description + Action + App Screenshot.
+ * Editorial content configuration for the Apple Books-style Interactive Stories showcase.
+ * Separated into a full-width hero persona and two companion sub-cards.
  */
-export const INTERACTIVE_PILLARS = [
-  {
-    id: "discover",
-    title: "استكشف",
-    description:
-      "تصفح آلاف القصص التفاعلية والروايات عبر مختلف التصنيفات — من الفانتازيا والدراما إلى الغموض والخيال العلمي. كل قصة تمثل عالماً فريداً ينبض بالتفاصيل والشخصيات بانتظار استكشافك.",
-    image: discoverImg,
-    actionLabel: "استكشف الآن",
-    route: "/login",
-  },
+export const HERO_STORY = {
+  id: "experience",
+  eyebrow: "تجربة القراءة الغامرة",
+  title: "ضع نفسك في قلب الأحداث وقُد مسار القصة",
+  description:
+    "في القصص التفاعلية، أنت لست مجرد قارئ صامت. كل قرار تتخذه يرسم واقعاً جديداً ويفتح مسارات سردية غير متوقعة تقود إلى نهايات تصنعها باختياراتك الحرة.",
+  image: playImg,
+  actionLabel: "عش التجربة الآن",
+  route: "/login",
+};
+
+export const SUB_STORIES = [
   {
     id: "create",
-    title: "ألّف واصنع",
+    eyebrow: "استوديو التأليف",
+    title: "ألّف واصنع مسارات تفاعلية متشعبة",
     description:
-      "حوّل أفكارك وخيالك إلى قصص تفاعلية متكاملة. ابنِ شخصياتك وصمم المشاهد والمسارات المتشعبة بكل سهولة عبر أدوات الذكاء الاصطناعي وشارك إبداعك مع مجتمع القراء.",
+      "حوّل أفكارك إلى عوالم سردية متعددة المسارات عبر محرر بصري ذكي. ابنِ الشخصيات، اربط المشاهد، ووجّه القراء نحو نهايات تصنعها بيدك.",
     image: createImg,
     actionLabel: "ابدأ التأليف",
     route: "/login",
   },
   {
-    id: "experience",
-    title: "عش التجربة",
+    id: "discover",
+    eyebrow: "مكتبة العوالم",
+    title: "استكشف مكتبة متنامية من العوالم والأنماط",
     description:
-      "ضع نفسك في قلب الأحداث واختبر تجربة قراءة تفاعلية حيث تقود قراراتك كل فصل ومسار. كل خيار تتخذه يرسم واقعاً جديداً ويوجه القصة نحو نهاية تصنعها بيدك.",
-    image: playImg,
-    actionLabel: "عش القصة",
+      "تصفح آلاف الروايات والقصص التفاعلية عبر مختلف التصنيفات — من الفانتازيا والدراما إلى الغموض والخيال العلمي مع إصدارات متجددة باستمرار.",
+    image: discoverImg,
+    actionLabel: "استكشف المكتبة",
     route: "/login",
   },
 ];
 
 /**
- * Hook providing data and action handling for InteractiveStories showcase.
- * Zero business logic inside JSX.
+ * Custom hook managing interactive stories data and navigation routes.
+ * Encapsulates all event handlers; zero business logic in markup.
  */
 export function useInteractiveStories() {
   const navigate = useNavigate();
@@ -53,7 +57,9 @@ export function useInteractiveStories() {
   );
 
   return {
-    pillars: INTERACTIVE_PILLARS,
+    heroStory: HERO_STORY,
+    subStories: SUB_STORIES,
+    pillars: SUB_STORIES,
     handlePillarAction,
   };
 }

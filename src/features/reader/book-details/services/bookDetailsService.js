@@ -16,20 +16,20 @@ const API_BASE = import.meta.env.VITE_API_URL || "";
 export async function fetchBookDetailsById(bookId) {
   const safeId = encodeURIComponent(sanitizeId(bookId));
   return getHelper({
-    url: `${API_BASE}/reader/viewBook/${safeId}`,
+    url: `${API_BASE}/books/${safeId}`,
   });
 }
 
 /**
  * Checks if user has already reviewed the book.
- * Matches Swagger: GET /api/v1/reviews/books/{bookId}/reviews/status
+ * Matches Swagger: GET /api/v1/books/{bookId}/reviews/status
  *
  * @param {string|number} bookId
  */
 export async function checkBookReviewed(bookId) {
   const safeId = encodeURIComponent(sanitizeId(bookId));
   return getHelper({
-    url: `${API_BASE}/reviews/books/${safeId}/reviews/status`,
+    url: `${API_BASE}/books/${safeId}/reviews/status`,
   });
 }
 
@@ -41,7 +41,7 @@ export async function checkBookReviewed(bookId) {
 export async function checkBookAssigned(bookId) {
   const safeId = encodeURIComponent(sanitizeId(bookId));
   return getHelper({
-    url: `${API_BASE}/library/isAssigned/${safeId}`,
+    url: `${API_BASE}/library/books/${safeId}/status`,
   });
 }
 
@@ -56,7 +56,7 @@ export async function checkBookAssigned(bookId) {
 export async function fetchBookReviews(bookId, { page = 0, size = 10 } = {}) {
   const safeId = encodeURIComponent(sanitizeId(bookId));
   const res = await getHelper({
-    url: `${API_BASE}/reader/books/${safeId}/reviews`,
+    url: `${API_BASE}/books/${safeId}/reviews`,
     pagination: true,
     page,
     size,
@@ -84,7 +84,7 @@ export async function fetchBookReviews(bookId, { page = 0, size = 10 } = {}) {
 
 /**
  * Submits a new user review and rating for a book.
- * Matches Swagger: POST /api/v1/reviews/books/{bookId}/addReview
+ * Matches Swagger: POST /api/v1/books/{bookId}/reviews
  *
  * @param {string|number} bookId
  * @param {{ rating: number, comment?: string }} payload
@@ -93,7 +93,7 @@ export async function submitBookReview(bookId, { rating, comment = "" } = {}) {
   const safeId = encodeURIComponent(sanitizeId(bookId));
   const numericRating = Math.max(1, Math.min(5, parseInt(rating, 10) || 5));
   return postHelper({
-    url: `${API_BASE}/reviews/books/${safeId}/addReview`,
+    url: `${API_BASE}/books/${safeId}/reviews`,
     body: {
       rating: numericRating,
       comment: typeof comment === "string" ? comment.trim() : "",
@@ -103,7 +103,7 @@ export async function submitBookReview(bookId, { rating, comment = "" } = {}) {
 
 /**
  * Updates an existing review for a book.
- * Matches Swagger: PATCH /api/v1/reviews/books/{bookId}/reviews/{reviewId}
+ * Matches Swagger: PATCH /api/v1/books/{bookId}/reviews/{reviewId}
  *
  * @param {string|number} bookId
  * @param {string|number} reviewId
@@ -114,7 +114,7 @@ export async function updateBookReview(bookId, reviewId, { rating, comment = "" 
   const safeReviewId = encodeURIComponent(sanitizeId(reviewId));
   const numericRating = Math.max(1, Math.min(5, parseInt(rating, 10) || 5));
   return patchHelper({
-    url: `${API_BASE}/reviews/books/${safeBookId}/reviews/${safeReviewId}`,
+    url: `${API_BASE}/books/${safeBookId}/reviews/${safeReviewId}`,
     body: {
       rating: numericRating,
       comment: typeof comment === "string" ? comment.trim() : "",
@@ -132,7 +132,7 @@ export async function deleteBookReview(bookId, reviewId) {
   const safeBookId = encodeURIComponent(sanitizeId(bookId));
   const safeReviewId = encodeURIComponent(sanitizeId(reviewId));
   return deleteHelper({
-    url: `${API_BASE}/reviews/books/${safeBookId}/reviews/${safeReviewId}`,
+    url: `${API_BASE}/books/${safeBookId}/reviews/${safeReviewId}`,
   });
 }
 
@@ -144,7 +144,7 @@ export async function deleteBookReview(bookId, reviewId) {
 export async function fetchSimilarBooks(bookId) {
   const safeId = encodeURIComponent(sanitizeId(bookId));
   const res = await getHelper({
-    url: `${API_BASE}/reader/similar/${safeId}`,
+    url: `${API_BASE}/books/${safeId}/similar`,
     pagination: true,
     page: 0,
     size: 4,
@@ -160,7 +160,7 @@ export async function fetchSimilarBooks(bookId) {
 export async function assignBookToLibrary(bookId) {
   const cleanId = Number(sanitizeId(bookId));
   return postHelper({
-    url: `${API_BASE}/library/assignBook`,
+    url: `${API_BASE}/library/books`,
     body: {
       bookId: cleanId,
     },
@@ -175,7 +175,7 @@ export async function assignBookToLibrary(bookId) {
 export async function removeBookFromLibrary(bookId) {
   const safeId = encodeURIComponent(sanitizeId(bookId));
   return deleteHelper({
-    url: `${API_BASE}/library/removeBook/${safeId}`,
+    url: `${API_BASE}/library/books/${safeId}`,
   });
 }
 

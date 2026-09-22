@@ -31,9 +31,6 @@ export function useHero() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Early Access Modal State
-  const [isEarlyAccessOpen, setIsEarlyAccessOpen] = useState(false);
-
   const currentBook = books[activeIndex] || books[0];
 
   // Carousel navigation handlers with flip reset
@@ -184,16 +181,8 @@ export function useHero() {
 
   // Navigation handlers
   const handleStartNow = useCallback(() => {
-    navigate("/signup");
+    navigate("/login");
   }, [navigate]);
-
-  const openEarlyAccess = useCallback(() => {
-    setIsEarlyAccessOpen(true);
-  }, []);
-
-  const closeEarlyAccess = useCallback(() => {
-    setIsEarlyAccessOpen(false);
-  }, []);
 
   return {
     books,
@@ -209,10 +198,6 @@ export function useHero() {
     // Voice Sample Modal Controls
     openVoiceModal,
     closeVoiceModal,
-    // Other Modals & Nav
-    isEarlyAccessOpen,
-    openEarlyAccess,
-    closeEarlyAccess,
     handleStartNow,
   };
 }

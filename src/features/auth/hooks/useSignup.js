@@ -2,10 +2,10 @@ import { useState, useEffect, useCallback } from "react";
 import { registerApi } from "@/core/api/authApi";
 import { AlertToast } from "@/components/myui/AlertToast";
 import { sanitizeText, sanitizeEmail } from "@/lib/sanitize";
+import { validateStrongPassword } from "@/lib/passwordValidation";
 import logger from "@/lib/logger";
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,128}$/;
 const NAME_REGEX = /^[\p{L}\s'-]{1,50}$/u;
 
 const INITIAL_FORM_STATE = {
@@ -100,12 +100,13 @@ export function useSignup() {
 
     if (!form.password) {
       nextErrors.password = "كلمة المرور مطلوبة";
-    } else if (form.password.length < 8) {
-      nextErrors.password = "كلمة المرور يجب أن لا تقل عن 8 أحرف.";
     } else if (form.password.length > 128) {
       nextErrors.password = "كلمة المرور طويلة جداً (أقصى حد 128 حرفاً).";
-    } else if (!PASSWORD_REGEX.test(form.password)) {
-      nextErrors.password = "يجب أن تشمل رقماً وحرفاً كبيراً وصغيراً ورمزاً خاصاً.";
+    } else {
+      const pwError = validateStrongPassword(form.password);
+      if (pwError) {
+        nextErrors.password = pwError;
+      }
     }
 
     if (!form.confirmPassword) {

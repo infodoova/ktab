@@ -32,6 +32,7 @@ export function NewInteractiveStoryView({ pageName = "إنشاء قصة تفاع
           artStyleOptions={storyHook.artStyleOptions}
           sceneCountConfig={storyHook.sceneCountConfig}
           constitutionFields={storyHook.constitutionFields}
+          maxLengths={storyHook.maxLengths}
           selectedGenreLabel={storyHook.selectedGenreLabel}
           selectedLensLabel={storyHook.selectedLensLabel}
           selectedStyleLabel={storyHook.selectedStyleLabel}

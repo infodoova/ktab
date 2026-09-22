@@ -59,7 +59,7 @@ export async function fetchBookMostReadStats(bookId) {
  */
 export async function fetchAllGenres() {
   const res = await getHelper({
-    url: `${API_BASE}/genres/viewAll`,
+    url: `${API_BASE}/genres`,
   });
   return Array.isArray(res?.data) ? res.data : [];
 }

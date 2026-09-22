@@ -33,6 +33,7 @@ export function Navbar({
 }) {
   const {
     firstName,
+    roleLabel,
     sub,
     isUserLoaded,
     links,
@@ -231,10 +232,19 @@ export function Navbar({
                   ) : (
                     <>
                       {userMenuOpen && (
-                        <div className="ktab-user-menu-popover">
+                        <div
+                          className="ktab-user-menu-popover"
+                          onMouseDown={(e) => e.stopPropagation()}
+                          onTouchStart={(e) => e.stopPropagation()}
+                        >
                           <div className="ktab-user-menu-header">
                             <div className="ktab-user-menu-header__details">
-                              <span className="ktab-user-menu-header__name">{firstName}</span>
+                              <div className="ktab-user-menu-header__top-row">
+                                <span className="ktab-user-menu-header__name">{firstName}</span>
+                                {roleLabel && (
+                                  <span className="ktab-user-menu-role-badge">{roleLabel}</span>
+                                )}
+                              </div>
                               <span className="ktab-user-menu-header__email">{sub}</span>
                             </div>
                           </div>
@@ -242,6 +252,7 @@ export function Navbar({
                           <button
                             type="button"
                             onClick={handleLogout}
+                            onMouseDown={(e) => e.stopPropagation()}
                             className="ktab-user-menu-item ktab-user-menu-item--danger"
                           >
                             <LogOut size={15} strokeWidth={2} />
@@ -358,10 +369,17 @@ export function Navbar({
                     className={`ktab-user-menu-popover ${
                       collapsed ? "ktab-user-menu-popover--collapsed" : ""
                     }`}
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onTouchStart={(e) => e.stopPropagation()}
                   >
                     <div className="ktab-user-menu-header">
                       <div className="ktab-user-menu-header__details">
-                        <span className="ktab-user-menu-header__name">{firstName}</span>
+                        <div className="ktab-user-menu-header__top-row">
+                          <span className="ktab-user-menu-header__name">{firstName}</span>
+                          {roleLabel && (
+                            <span className="ktab-user-menu-role-badge">{roleLabel}</span>
+                          )}
+                        </div>
                         <span className="ktab-user-menu-header__email">{sub}</span>
                       </div>
                     </div>
@@ -369,6 +387,7 @@ export function Navbar({
                     <button
                       type="button"
                       onClick={handleLogout}
+                      onMouseDown={(e) => e.stopPropagation()}
                       className="ktab-user-menu-item ktab-user-menu-item--danger"
                     >
                       <LogOut size={15} strokeWidth={2} />

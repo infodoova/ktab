@@ -73,7 +73,11 @@ export function AiToolsView({ pageName = "أدوات الذكاء الاصطنا
         >
           <div className="ktab-ai-sheet-content">
             <ErrorBoundary variant="card" title="تعذر عرض نموذج رفع الكتاب">
-              <PdfInputCard onGenerate={handleGenerate} loading={loading} />
+              <PdfInputCard
+                onGenerate={handleGenerate}
+                loading={loading}
+                showHeader={false}
+              />
             </ErrorBoundary>
           </div>
         </BottomSheet>

@@ -1,0 +1,62 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   LIBRARY DELETE CONFIRMATION MODAL & BOTTOMSHEET STYLES
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.ktab-lib-del-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 10px 4px 6px;
+  gap: 16px;
+  direction: rtl;
+}
+
+.ktab-lib-del-icon-box {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: rgba(239, 68, 68, 0.12);
+  color: #dc2626;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ktab-lib-del-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--brand-black, #0a0a0a);
+  margin: 0;
+}
+
+.ktab-lib-del-desc {
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--text-muted, #64748b);
+  margin: 0;
+  max-width: 380px;
+}
+
+.ktab-lib-del-highlight {
+  font-weight: 700;
+  color: var(--brand-black, #0a0a0a);
+}
+
+.ktab-lib-del-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  margin-top: 10px;
+}
+
+@media (max-width: 640px) {
+  .ktab-lib-del-actions {
+    flex-direction: column-reverse;
+  }
+  .ktab-lib-del-actions > * {
+    width: 100%;
+  }
+}

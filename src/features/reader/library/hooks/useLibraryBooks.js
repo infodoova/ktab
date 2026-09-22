@@ -107,7 +107,6 @@ export function useLibraryBooks() {
 
   const loadBooks = useCallback(
     async (targetPage = 0, isInitial = false) => {
-      if (!user?.userId) return;
       if (isFetchingRef.current) return;
       isFetchingRef.current = true;
 
@@ -134,7 +133,7 @@ export function useLibraryBooks() {
         else setLoadingMore(false);
       }
     },
-    [user?.userId, hasActiveFilters, activeFilters, sortOptions]
+    [hasActiveFilters, activeFilters, sortOptions]
   );
 
   useEffect(() => {

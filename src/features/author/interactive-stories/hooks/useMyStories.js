@@ -1,11 +1,32 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { fetchMyStories, deleteStory } from "../services/authorStoriesService";
 import { AlertToast } from "@/components/myui/AlertToast";
+import { useEnumStore } from "@/core/store";
+import { INTERACTIVE_STORIES_GENRE_OPTIONS } from "../constants/interactiveStoriesConstants";
 
 /**
  * Hook for managing author's interactive stories list.
  */
 export function useMyStories() {
+  const { storyGenres, fetchStoryEnums } = useEnumStore();
+
+  useEffect(() => {
+    fetchStoryEnums();
+  }, [fetchStoryEnums]);
+
+  const genreOptions = useMemo(() => {
+    if (storyGenres && storyGenres.length > 0) {
+      return [
+        { value: "ALL", label: "جميع التصنيفات" },
+        ...storyGenres.map((g) => ({
+          value: g.key,
+          label: g.labelAr,
+        })),
+      ];
+    }
+    return INTERACTIVE_STORIES_GENRE_OPTIONS;
+  }, [storyGenres]);
+
   const [stories, setStories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -115,8 +136,32 @@ export function useMyStories() {
     })
     .filter((story) => {
       if (selectedGenre === "ALL") return true;
-      const g = (story.genre || "").toLowerCase();
-      return g.includes(selectedGenre.toLowerCase());
+      const storyGenre = (story.genre || "").trim().toLowerCase();
+      const filterVal = selectedGenre.trim().toLowerCase();
+      if (!storyGenre) return false;
+
+      // Exact match or substring inclusion
+      if (storyGenre === filterVal || storyGenre.includes(filterVal) || filterVal.includes(storyGenre)) {
+        return true;
+      }
+
+      // Normalized match without underscores (e.g. "scifi" vs "sci_fi")
+      const normStory = storyGenre.replace(/_/g, "");
+      const normFilter = filterVal.replace(/_/g, "");
+      if (normStory === normFilter || normStory.includes(normFilter) || normFilter.includes(normStory)) {
+        return true;
+      }
+
+      // Match against backend enum labels (Arabic or English)
+      const genreObj = storyGenres?.find(
+        (g) => g.key?.toLowerCase() === filterVal || g.key?.replace(/_/g, "").toLowerCase() === normFilter
+      );
+      if (genreObj) {
+        if (genreObj.labelAr && storyGenre.includes(genreObj.labelAr.toLowerCase())) return true;
+        if (genreObj.labelEn && storyGenre.includes(genreObj.labelEn.toLowerCase())) return true;
+      }
+
+      return false;
     })
     .sort((a, b) => {
       if (sortBy === "scenes") {
@@ -144,6 +189,7 @@ export function useMyStories() {
     setSearchQuery,
     selectedGenre,
     setSelectedGenre,
+    genreOptions,
     sortBy,
     setSortBy,
     isFilterSheetOpen,

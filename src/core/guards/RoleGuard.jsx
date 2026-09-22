@@ -1,71 +1,52 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useNavigate, Outlet } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 import { tokenManager } from "../services/tokenManager";
-import { isJwtExpired } from "../services/jwtDecoder";
 
 /**
  * Route guard protecting pages requiring specific user roles.
+ * Waits for HttpOnly cookie session initialization before evaluating permissions.
  *
  * @param {{ allowedRoles: string[], children?: React.ReactNode }} props
  */
+import { isRoleAuthorized } from "../constants/roles";
+
 export function RoleGuard({ allowedRoles = [], children }) {
   const navigate = useNavigate();
-  // Prevent blank flicker if already authenticated with valid role in memory
-  const [checking, setChecking] = useState(() => {
-    const token = tokenManager.getToken();
-    const user = useAuthStore.getState().user;
-    if (!token || isJwtExpired(token)) return true;
-    if (!user) return true;
-    if (allowedRoles.length > 0 && !allowedRoles.includes(user.role)) return true;
-    return false;
-  });
+  const isInitialized = useAuthStore((state) => state.isInitialized);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const user = useAuthStore((state) => state.user);
 
   useEffect(() => {
-    let isMounted = true;
-
     const validate = async () => {
-      const token = tokenManager.getToken();
+      // If store is not initialized yet, verify session via HttpOnly cookies
+      if (!useAuthStore.getState().isInitialized) {
+        await tokenManager.initSession({ force: true });
+      }
 
-      if (!token || isJwtExpired(token)) {
-        useAuthStore.getState().clearAuth();
+      const currentUser = useAuthStore.getState().user;
+      const isAuth = useAuthStore.getState().isAuthenticated;
+
+      if (!isAuth || !currentUser) {
         navigate("/login", { replace: true });
         return;
       }
 
-      try {
-        await tokenManager.refreshIfNeeded();
-
-        const user = useAuthStore.getState().user;
-        if (!user) {
-          navigate("/login", { replace: true });
-          return;
-        }
-
-        if (allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
-          navigate("/role-error", { replace: true });
-          return;
-        }
-
-        if (isMounted) {
-          setChecking(false);
-        }
-      } catch {
-        useAuthStore.getState().clearAuth();
-        navigate("/login", { replace: true });
+      if (!isRoleAuthorized(currentUser.role, allowedRoles)) {
+        navigate("/role-error", { replace: true });
+        return;
       }
     };
 
     validate();
+  }, [allowedRoles, navigate, isInitialized, isAuthenticated]);
 
-    return () => {
-      isMounted = false;
-    };
-  }, [allowedRoles, navigate]);
-
-  if (checking) return null;
+  if (!isInitialized) return null;
+  if (!isAuthenticated || !user) return null;
+  if (!isRoleAuthorized(user.role, allowedRoles)) return null;
 
   return children || <Outlet />;
 }
 
 export default RoleGuard;
+

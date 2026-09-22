@@ -208,16 +208,16 @@ export async function validateSecureBookDocument(file, { maxSizeBytes = 100 * 10
   // 3. Extension extraction and multi-dot / double-extension analysis
   const parts = rawName.split(".").filter(Boolean);
   if (parts.length < 2) {
-    return { valid: false, error: "الملف لا يحتوي على امتداد صالح (مطلوب PDF أو Word)." };
+    return { valid: false, error: "الملف لا يحتوي على امتداد صالح (مطلوب ملف PDF بصيغة .pdf)." };
   }
 
   const finalExt = parts[parts.length - 1].toLowerCase().trim();
-  const allowedExts = ["pdf", "docx", "doc"];
+  const allowedExts = ["pdf"];
 
   if (!allowedExts.includes(finalExt)) {
     return {
       valid: false,
-      error: `امتداد الملف (.${finalExt}) غير مدعوم. الصيغ المقبولة للكتاب هي: PDF أو Word (.docx, .doc).`,
+      error: `امتداد الملف (.${finalExt}) غير مدعوم. الصيغة المقبولة للكتاب هي ملف PDF (.pdf) فقط.`,
     };
   }
 

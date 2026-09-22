@@ -1,40 +1,59 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   TEXTAREA COMPONENT STYLES (Light Mode Apple / Eleven Reader Aesthetic)
+   TEXTAREA — Modern Outlined Floating Label
+   Same animation system as Input: uses transform (translateY + scale)
+   for GPU-composited smooth label float.
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .myui-textarea-wrap {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
   direction: rtl;
   text-align: right;
   font-family: var(--font-arabic, sans-serif);
   box-sizing: border-box;
+  padding-top: 10px;
 }
 
-.myui-textarea-label {
-  font-size: 13px;
-  font-weight: 750;
-  color: var(--brand-black, #0a0a0a);
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  user-select: none;
+/* ── Field Container ── */
+.myui-textarea-field-wrap {
+  position: relative;
+  width: 100%;
+  border-radius: 12px;
+  background-color: var(--bg-primary, #ffffff);
+  border: 1.5px solid var(--border-card, rgba(0, 0, 0, 0.16));
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  box-sizing: border-box;
+  min-height: 88px;
 }
 
-.myui-textarea-required {
-  color: var(--brand-teal-dark, #4ed4ab);
-  font-size: 14px;
-  line-height: 1;
+.myui-textarea-field-wrap:hover {
+  border-color: rgba(0, 0, 0, 0.36);
 }
 
+/* Focus ring: black border, subtle black glow */
+.myui-textarea-wrap.is-focused .myui-textarea-field-wrap {
+  border-color: var(--brand-black, #0a0a0a);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
+}
+
+/* Error states */
+.myui-textarea-wrap.has-error .myui-textarea-field-wrap {
+  border-color: #ef4444;
+}
+
+.myui-textarea-wrap.has-error.is-focused .myui-textarea-field-wrap {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+}
+
+/* ── The actual <textarea> ── */
 .myui-textarea {
   width: 100%;
-  background-color: var(--bg-primary, #ffffff);
-  border: 1px solid var(--border-card, rgba(0, 0, 0, 0.12));
-  border-radius: 12px;
-  padding: 12px 16px;
+  background-color: transparent;
+  border: none;
+  padding: 14px 16px;
   font-family: var(--font-arabic, sans-serif);
   font-size: 14.5px;
   font-weight: 500;
@@ -42,22 +61,14 @@
   box-sizing: border-box;
   outline: none;
   resize: vertical;
-  min-height: 100px;
-  transition: all 0.2s ease;
+  min-height: 84px;
+  line-height: 1.6;
 }
 
 .myui-textarea::placeholder {
   color: #94a3b8;
   font-size: 13.5px;
-}
-
-.myui-textarea:hover:not(:disabled) {
-  border-color: rgba(0, 0, 0, 0.25);
-}
-
-.myui-textarea:focus {
-  border-color: var(--brand-black, #0a0a0a);
-  box-shadow: 0 0 0 3px rgba(10, 10, 10, 0.08);
+  transition: opacity 0.2s ease;
 }
 
 .myui-textarea:disabled {
@@ -66,20 +77,142 @@
   cursor: not-allowed;
 }
 
-.myui-textarea.has-error {
-  border-color: #ef4444;
+/* ═══════════════════════════════════════════════════════════════════════════
+   FLOATING LABEL
+
+   Default: label sits near the top of the textarea content area (16px down).
+   On focus / has-value: label scales down and translates up to sit on the
+   top border (notch effect).
+   ═══════════════════════════════════════════════════════════════════════════ */
+.myui-textarea-floating-label {
+  position: absolute;
+  right: 12px;
+  top: 16px;
+  transform: translateY(0) scale(1);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #94a3b8;
+  pointer-events: none;
+  transform-origin: right top;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+              color 0.2s ease,
+              background-color 0.2s ease,
+              padding 0.2s ease;
+  will-change: transform;
+  user-select: none;
+  z-index: 3;
+  padding: 0 4px;
+  border-radius: 4px;
+  background-color: transparent;
+  line-height: 1;
+}
+
+/*
+  Floating (notch) state:
+  - translateY(-16px) cancels the initial top:16px offset.
+  - Subtracting another 50% of the label's own height centers it on the border.
+  - scale(0.82) shrinks it for mini label look.
+  - White bg masks the border to create the notch.
+*/
+.myui-textarea-floating-label.is-floating {
+  transform: translateY(calc(-16px - 50%)) scale(0.82);
+  color: #64748b;
+  font-weight: 600;
+  background-color: var(--bg-primary, #ffffff);
+  padding: 1px 8px;
+}
+
+/* Focused + floating: label turns black */
+.myui-textarea-floating-label.is-floating.is-focused {
+  color: var(--brand-black, #0a0a0a);
+}
+
+/* Error + floating: label turns red */
+.myui-textarea-wrap.has-error .myui-textarea-floating-label.is-floating {
+  color: #ef4444;
+}
+
+/* ── Required asterisk ── */
+.myui-textarea-required {
+  color: #ef4444;
+  font-size: 13px;
+  line-height: 1;
+  font-weight: 700;
+}
+
+/* ── Optional badge (اختياري) — muted, smaller ── */
+.myui-textarea-optional {
+  color: #b0b8c4;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.myui-textarea-floating-label.is-floating .myui-textarea-optional {
+  color: #94a3b8;
+}
+
+.myui-textarea-extra-inline {
+  display: inline-flex;
+  align-items: center;
+  pointer-events: none;
+  line-height: 1;
+  opacity: 0;
+  transform: scale(0.7);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* Only show tooltip icon when label is floating (focused or has value) */
+.myui-textarea-floating-label.is-floating .myui-textarea-extra-inline {
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1);
+}
+
+/* ── Footer: Error, Helper & Counter ── */
+.myui-textarea-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 18px;
+  padding: 0 4px;
+  box-sizing: border-box;
+}
+
+.myui-textarea-message {
+  flex: 1;
+  min-width: 0;
 }
 
 .myui-textarea-error {
   font-size: 11.5px;
   font-weight: 600;
   color: #ef4444;
-  margin: 2px 0 0;
+  margin: 0;
 }
 
 .myui-textarea-helper {
   font-size: 11.5px;
   font-weight: 500;
   color: var(--text-subtle, #64748b);
-  margin: 2px 0 0;
+  margin: 0;
+}
+
+.myui-textarea-char-count {
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  font-variant-numeric: tabular-nums;
+  direction: ltr;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+
+.myui-textarea-char-count.is-limit-reached {
+  color: #ef4444;
+  font-weight: 750;
 }

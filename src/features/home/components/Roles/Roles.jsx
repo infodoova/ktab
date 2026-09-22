@@ -62,7 +62,6 @@ export default function Roles() {
               className="arch-card arch-card-hero"
               data-active={hoveredRoleId === "reader"}
               variants={cardVariants}
-              whileHover={{ y: -6 }}
               onMouseEnter={() => handleCardMouseEnter("reader")}
               onMouseLeave={handleCardMouseLeave}
             >
@@ -121,7 +120,6 @@ export default function Roles() {
               className="arch-card arch-card-wide"
               data-active={hoveredRoleId === "author"}
               variants={cardVariants}
-              whileHover={{ y: -6 }}
               onMouseEnter={() => handleCardMouseEnter("author")}
               onMouseLeave={handleCardMouseLeave}
             >
@@ -180,7 +178,6 @@ export default function Roles() {
               className="arch-card arch-card-educator"
               data-active={hoveredRoleId === "educator"}
               variants={cardVariants}
-              whileHover={{ y: -6 }}
               onMouseEnter={() => handleCardMouseEnter("educator")}
               onMouseLeave={handleCardMouseLeave}
             >
@@ -239,7 +236,6 @@ export default function Roles() {
               className="arch-card arch-card-student"
               data-active={hoveredRoleId === "student"}
               variants={cardVariants}
-              whileHover={{ y: -6 }}
               onMouseEnter={() => handleCardMouseEnter("student")}
               onMouseLeave={handleCardMouseLeave}
             >

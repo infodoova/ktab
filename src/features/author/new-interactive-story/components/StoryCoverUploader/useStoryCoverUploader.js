@@ -38,6 +38,10 @@ export function useStoryCoverUploader({ onCoverSelect }) {
       if (files && files.length > 0) {
         onCoverSelect(files[0]);
       }
+      // Reset input value so selecting the same file again triggers onChange
+      if (e.target) {
+        e.target.value = "";
+      }
     },
     [onCoverSelect]
   );

@@ -11,9 +11,12 @@ export function ReaderSettingsView({ pageName = "الإعدادات" }) {
   const navigate = useNavigate();
   const logout = useAuthStore((state) => state.logout);
 
-  const handleLogout = () => {
-    logout();
-    navigate("/", { replace: true });
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } finally {
+      navigate("/", { replace: true });
+    }
   };
 
   return (

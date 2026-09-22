@@ -1,0 +1,276 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   LIBRARY DETAILS SLIDE-OVER DRAWER (Left side / Apple style popup)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.ktab-lib-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.ktab-lib-drawer-backdrop-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(10, 10, 10, 0.45);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 1;
+}
+
+/* Drawer always anchored to physical left edge, regardless of RTL context */
+.ktab-lib-drawer {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 10;
+  width: 100%;
+  max-width: 32rem;
+  height: 100%;
+  background-color: var(--bg-primary, #ffffff);
+  box-shadow: 6px 0 35px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  direction: rtl;
+  font-family: var(--font-arabic), sans-serif;
+  box-sizing: border-box;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.16) transparent;
+}
+
+@media (min-width: 768px) {
+  .ktab-lib-drawer {
+    top: 1.25rem;
+    bottom: 1.25rem;
+    left: 1.25rem;
+    height: auto;
+    border-radius: 1.5rem;
+    border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.22);
+  }
+}
+
+.ktab-lib-drawer__header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background-color: var(--bg-primary, #ffffff);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.06));
+}
+
+.ktab-lib-drawer__title {
+  font-size: 17.5px;
+  font-weight: 700;
+  color: var(--brand-black, #0a0a0a);
+  margin: 0;
+}
+
+.ktab-lib-drawer__close-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted, #64748b);
+  padding: 6px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.ktab-lib-drawer__close-btn:hover {
+  background-color: var(--bg-secondary, #f1f5f9);
+  color: var(--brand-black, #0a0a0a);
+}
+
+.ktab-lib-drawer__body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* Organization Hero banner inside drawer */
+.ktab-lib-drawer__hero {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.06));
+}
+
+.ktab-lib-drawer__logo-box {
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  background-color: rgba(93, 227, 186, 0.14);
+  color: var(--brand-teal, #4ed4ab);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ktab-lib-drawer__org-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--brand-black, #0a0a0a);
+  margin: 0 0 4px;
+}
+
+.ktab-lib-drawer__org-loc {
+  font-size: 13.5px;
+  color: var(--text-muted, #64748b);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+}
+
+/* Drawer Section */
+.ktab-lib-drawer__section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ktab-lib-drawer__section-title {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--brand-black, #0a0a0a);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ktab-lib-drawer__description {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-muted, #4b5563);
+  margin: 0;
+  background-color: var(--bg-secondary, #f8fafc);
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.04));
+}
+
+/* Specs List */
+.ktab-lib-drawer__specs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+@media (max-width: 500px) {
+  .ktab-lib-drawer__specs-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ktab-lib-drawer__spec-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background-color: var(--bg-secondary, #f8fafc);
+  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.04));
+}
+
+.ktab-lib-drawer__spec-icon {
+  color: var(--brand-teal, #4ed4ab);
+  display: flex;
+  align-items: center;
+  margin-top: 2px;
+}
+
+.ktab-lib-drawer__spec-data {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.ktab-lib-drawer__spec-label {
+  font-size: 11.5px;
+  color: var(--text-muted, #64748b);
+  margin-bottom: 2px;
+}
+
+.ktab-lib-drawer__spec-value {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--brand-black, #0a0a0a);
+  word-break: break-all;
+}
+
+/* Admin Card in Drawer */
+.ktab-lib-drawer__admin-card {
+  padding: 16px;
+  border-radius: 14px;
+  background-color: rgba(93, 227, 186, 0.06);
+  border: 1px solid rgba(93, 227, 186, 0.25);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.ktab-lib-drawer__admin-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background-color: var(--brand-teal, #4ed4ab);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ktab-lib-drawer__admin-details {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.ktab-lib-drawer__admin-role {
+  font-size: 11px;
+  font-weight: 700;
+  color: #0f766e;
+}
+
+.ktab-lib-drawer__admin-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--brand-black, #0a0a0a);
+  margin: 2px 0;
+}
+
+.ktab-lib-drawer__admin-email {
+  font-size: 12.5px;
+  color: var(--text-muted, #64748b);
+  direction: ltr;
+  text-align: right;
+}
+
+/* Footer Actions */
+.ktab-lib-drawer__footer {
+  margin-top: auto;
+  padding: 18px 24px;
+  background-color: var(--bg-primary, #ffffff);
+  border-top: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.06));
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ktab-lib-drawer__footer > * {
+  flex: 1;
+}

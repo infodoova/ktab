@@ -58,12 +58,12 @@ export const ARABIC_MODAL_TAG_MAP = {
 
 export const INTERACTIVE_STORIES_GENRE_OPTIONS = [
   { value: "ALL", label: "جميع التصنيفات" },
-  { value: "scifi", label: "خيال علمي" },
-  { value: "adventure", label: "مغامرة" },
-  { value: "fantasy", label: "خيال" },
-  { value: "mystery", label: "غموض" },
-  { value: "drama", label: "دراما" },
-  { value: "horror", label: "رعب" },
+  { value: "SCI_FI", label: "خيال علمي" },
+  { value: "ADVENTURE", label: "مغامرة" },
+  { value: "FANTASY", label: "خيال" },
+  { value: "MYSTERY", label: "غموض" },
+  { value: "DRAMA", label: "دراما" },
+  { value: "HORROR", label: "رعب" },
 ];
 
 export const INTERACTIVE_STORIES_SORT_OPTIONS = [

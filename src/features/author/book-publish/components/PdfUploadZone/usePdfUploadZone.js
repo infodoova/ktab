@@ -1,7 +1,7 @@
 import { useRef, useState, useCallback, useMemo } from "react";
 
 /**
- * Custom hook encapsulating PDF/Word document uploader DOM interactions and events.
+ * Custom hook encapsulating PDF document uploader DOM interactions and events.
  *
  * @param {Object} params
  * @param {File|null} params.pdfFile
@@ -19,11 +19,6 @@ export function usePdfUploadZone({
   const [isDragOver, setIsDragOver] = useState(false);
 
   const displayName = pdfFile?.name || existingPdfName || "";
-
-  const isWordDoc = useMemo(() => {
-    const lower = displayName.toLowerCase();
-    return lower.endsWith(".docx") || lower.endsWith(".doc");
-  }, [displayName]);
 
   const fileSizeMB = useMemo(() => {
     return pdfFile?.size ? (pdfFile.size / (1024 * 1024)).toFixed(1) : null;
@@ -91,7 +86,6 @@ export function usePdfUploadZone({
     fileInputRef,
     isDragOver,
     displayName,
-    isWordDoc,
     fileSizeMB,
     handleSelect,
     handleDragOver,

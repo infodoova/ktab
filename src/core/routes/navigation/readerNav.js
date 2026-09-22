@@ -1,0 +1,45 @@
+import {
+  SquareLibrary,
+  BookOpen,
+  FolderOpen,
+  ArchiveIcon,
+  Settings,
+} from "lucide-react";
+
+/**
+ * Global Navigation Definitions for Reader Role
+ */
+export const READER_NAV_ITEMS = [
+  {
+    name: "ReaderHome",
+    label: "الصفحة الرئيسية",
+    icon: SquareLibrary,
+    path: "/reader/home",
+  },
+  {
+    name: "ReaderLibrary",
+    label: "المكتبة",
+    icon: BookOpen,
+    path: "/reader/library",
+  },
+  {
+    name: "ReaderInteractiveStories",
+    label: "القصص التفاعلية",
+    icon: FolderOpen,
+    path: "/reader/interactive-stories",
+  },
+  {
+    name: "ReaderAchievements",
+    label: "الإنجازات والشارات",
+    icon: ArchiveIcon,
+    path: "/reader/Achievements",
+  },
+  {
+    name: "ReaderSettings",
+    label: "الإعدادات",
+    icon: Settings,
+    path: "/reader/settings",
+  },
+];
+
+export default READER_NAV_ITEMS;

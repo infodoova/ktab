@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getNavItemsByRole } from "@/core/routes/navigation";
+import { getRoleLabel } from "@/core/constants/roles";
 import { useAuthStore } from "@/core/store/authStore";
 import logoImg from "@/assets/logo/logo.png";
 import logoDarkImg from "@/assets/logo/logo2.png";
@@ -77,9 +78,15 @@ export function useNavbar({
   // Click outside listener for user menu popover
   useEffect(() => {
     function handleClickOutside(event) {
-      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
-        setUserMenuOpen(false);
+      // Ignore clicks inside user popover or the menu trigger buttons
+      if (
+        event.target.closest(".ktab-user-menu-popover") ||
+        event.target.closest(".ktab-nav-profile__options-btn") ||
+        event.target.closest(".ktab-nav-profile--collapsed")
+      ) {
+        return;
       }
+      setUserMenuOpen(false);
     }
 
     if (userMenuOpen) {
@@ -120,17 +127,27 @@ export function useNavbar({
     setUserMenuOpen((prev) => !prev);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     setUserMenuOpen(false);
-    logout();
-    navigate("/login");
+    setMobileOpen(false);
+    try {
+      await logout();
+    } finally {
+      navigate("/", { replace: true });
+    }
   };
 
   // Nav links: use explicit override or role-based links
   const links = navLinks || getNavItemsByRole(role);
 
   const isLinkActive = (path) => {
-    if (path === "/reader/home" || path === "/author/control") {
+    if (
+      path === "/reader/home" ||
+      path === "/author/control" ||
+      path === "/admin/dashboard" ||
+      path === "/library-admin/dashboard" ||
+      path === "/librarian/dashboard"
+    ) {
       return location.pathname === path;
     }
     return location.pathname.startsWith(path);
@@ -138,13 +155,13 @@ export function useNavbar({
 
   const logo = isDark ? logoDarkImg : logoImg;
 
-  const firstName = user?.firstName || user?.fullName || "";
-  const roleLabel =
-    user?.role === "AUTHOR"
-      ? "مؤلف"
-      : user?.role === "READER"
-      ? "قارئ"
-      : user?.role || "";
+  const firstName =
+    user?.name ||
+    user?.fullName ||
+    user?.displayName ||
+    (user?.firstName ? `${user.firstName}${user.lastName ? " " + user.lastName : ""}` : "") ||
+    "";
+  const roleLabel = getRoleLabel(user?.role);
   const sub = user?.sub || user?.email || "";
   const initial = firstName ? firstName.charAt(0).toUpperCase() : "";
   const isUserLoaded = Boolean(user && (firstName || sub));

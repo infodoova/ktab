@@ -1,4 +1,5 @@
 import tokenManager from "../services/tokenManager";
+import { useAuthStore } from "../store/authStore";
 import logger from "@/lib/logger";
 
 const defaultHeaders = {
@@ -30,10 +31,15 @@ function buildQuery(pagination, page, size, url) {
  * Safely parses response as JSON, falling back to structured error object on failure.
  */
 async function parseResponse(res) {
+  if (res.status === 401) {
+    logger.warn("Received 401 Unauthorized from API. Invaliding session.");
+    useAuthStore.getState().clearAuth();
+  }
+
   try {
     const text = await res.text();
     if (!text || !text.trim()) {
-      return { success: res.ok, messageStatus: res.ok ? "SUCCESS" : "ERROR" };
+      return { success: res.ok, status: res.status, messageStatus: res.ok ? "SUCCESS" : "ERROR" };
     }
     return JSON.parse(text);
   } catch (err) {
@@ -55,6 +61,7 @@ export async function getHelper({ url, headers = {}, pagination, page, size }) {
     const res = await fetch(url + query, {
       method: "GET",
       headers: buildHeaders(headers),
+      credentials: "include",
     });
 
     return await parseResponse(res);
@@ -72,6 +79,7 @@ export async function postHelper({ url, body, headers = {} }) {
       method: "POST",
       headers: buildHeaders(headers),
       body: body !== undefined ? JSON.stringify(body) : undefined,
+      credentials: "include",
     });
 
     return await parseResponse(res);
@@ -89,6 +97,7 @@ export async function putHelper({ url, body, headers = {} }) {
       method: "PUT",
       headers: buildHeaders(headers),
       body: body !== undefined ? JSON.stringify(body) : undefined,
+      credentials: "include",
     });
 
     return await parseResponse(res);
@@ -105,6 +114,7 @@ export async function deleteHelper({ url, headers = {} }) {
     const res = await fetch(url, {
       method: "DELETE",
       headers: buildHeaders(headers),
+      credentials: "include",
     });
 
     return await parseResponse(res);
@@ -126,6 +136,7 @@ export async function patchHelper({ url, body, headers = {} }) {
   const fetchOptions = {
     method: "PATCH",
     headers: finalHeaders,
+    credentials: "include",
   };
 
   if (body instanceof FormData) {
@@ -151,7 +162,6 @@ export async function postFormDataHelper({ url, formData }) {
 
   const token = tokenManager.getToken();
 
-
   try {
     const response = await fetch(url, {
       method: "POST",
@@ -159,6 +169,7 @@ export async function postFormDataHelper({ url, formData }) {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
         "ngrok-skip-browser-warning": "true",
       },
+      credentials: "include",
       body: formData,
     });
 

@@ -15,7 +15,7 @@ export async function fetchAuthorBooks({ authorId, status = "PUBLISHED", page = 
   const safeSize = Math.max(1, Math.min(50, parseInt(size, 10) || 8));
 
   const res = await getHelper({
-    url: `${API_BASE}/authors/getBooksByAuthor/${safeAuthorId}?status=${safeStatus}`,
+    url: `${API_BASE}/authors/me/books?status=${safeStatus}`,
     pagination: true,
     page: safePage,
     size: safeSize,
@@ -61,7 +61,20 @@ export async function fetchAuthorBooks({ authorId, status = "PUBLISHED", page = 
 export async function deleteAuthorBook(bookId) {
   const safeBookId = encodeURIComponent(sanitizeId(bookId));
   return deleteHelper({
-    url: `${API_BASE}/authors/deleteBook/${safeBookId}`,
+    url: `${API_BASE}/authors/me/books/${safeBookId}`,
+  });
+}
+
+/**
+ * Fetches specific author book details by ID.
+ * Matches: GET /api/v1/authors/me/books/{id}
+ *
+ * @param {string|number} bookId
+ */
+export async function fetchAuthorBookById(bookId) {
+  const safeBookId = encodeURIComponent(sanitizeId(bookId));
+  return getHelper({
+    url: `${API_BASE}/authors/me/books/${safeBookId}`,
   });
 }
 

@@ -11,7 +11,7 @@ const API_BASE = import.meta.env.VITE_API_URL || "";
 export async function fetchBookReviews(bookId) {
   const safeId = encodeURIComponent(sanitizeId(bookId));
   const res = await getHelper({
-    url: `${API_BASE}/reader/books/${safeId}/reviews`,
+    url: `${API_BASE}/books/${safeId}/reviews`,
   });
   return Array.isArray(res?.data || res) ? (res.data || res) : [];
 }

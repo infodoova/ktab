@@ -1,14 +1,14 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { useEnumStore } from "@/core/store";
 
 export const STORY_GENRES = [
   { id: "ALL", label: "جميع التصنيفات" },
-  { id: "خيال علمي", label: "خيال علمي" },
-  { id: "فانتازيا", label: "فانتازيا" },
-  { id: "غموض وتشويق", label: "غموض وتشويق" },
-  { id: "رعب", label: "رعب" },
-  { id: "مغامرة", label: "مغامرة" },
-  { id: "تاريخي", label: "تاريخي" },
-  { id: "دراما", label: "دراما" },
+  { id: "SCI_FI", label: "خيال علمي" },
+  { id: "FANTASY", label: "خيال" },
+  { id: "MYSTERY", label: "غموض" },
+  { id: "HORROR", label: "رعب" },
+  { id: "ADVENTURE", label: "مغامرة" },
+  { id: "DRAMA", label: "دراما" },
 ];
 
 export const STORY_LENSES = [
@@ -30,6 +30,34 @@ export function useStoryFilterModal({
   onReset,
   onClose,
 }) {
+  const { storyGenres, storyLenses, fetchStoryEnums } = useEnumStore();
+
+  useEffect(() => {
+    fetchStoryEnums();
+  }, [fetchStoryEnums]);
+
+  const genres = useMemo(() => {
+    if (storyGenres && storyGenres.length > 0) {
+      return [
+        { id: "ALL", label: "جميع التصنيفات" },
+        ...storyGenres.map((g) => ({ id: g.key, label: g.labelAr })),
+      ];
+    }
+    return STORY_GENRES;
+  }, [storyGenres]);
+
+  const lenses = useMemo(() => {
+    if (storyLenses && storyLenses.length > 0) {
+      return [
+        { id: "ALL", label: "جميع المنظورات" },
+        ...storyLenses.map((l) => ({
+          id: l.key,
+          label: l.labelEn ? `${l.labelAr} (${l.labelEn})` : l.labelAr,
+        })),
+      ];
+    }
+    return STORY_LENSES;
+  }, [storyLenses]);
   const [draftGenre, setDraftGenre] = useState(selectedGenre);
   const [draftLens, setDraftLens] = useState(selectedLens);
   const [isMobile, setIsMobile] = useState(false);
@@ -82,8 +110,8 @@ export function useStoryFilterModal({
     draftGenre,
     draftLens,
     isMobile,
-    genres: STORY_GENRES,
-    lenses: STORY_LENSES,
+    genres,
+    lenses,
     handleGenreSelect,
     handleLensSelect,
     handleApplyClick,

@@ -1,0 +1,249 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   NOT FOUND VIEW (404) - Eleven Reader & Apple Editorial Light Mode
+   Dynamic CSS tokens only, zero hardcoded hex
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.ktab-notfound-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+  box-sizing: border-box;
+  background-color: var(--bg-primary);
+  background-image: radial-gradient(
+    circle at 50% 36%,
+    rgba(93, 227, 186, 0.09) 0%,
+    rgba(255, 255, 255, 0) 58%
+  );
+  direction: rtl;
+  font-family: var(--font-arabic), sans-serif;
+  position: relative;
+  overflow: hidden;
+}
+
+.ktab-notfound-container {
+  width: 100%;
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  z-index: 2;
+  position: relative;
+}
+
+/* Brand Logo Header */
+.ktab-notfound-logo-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 28px;
+  outline: none;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ktab-notfound-logo-link:hover {
+  transform: scale(1.03);
+}
+
+.ktab-notfound-logo-img {
+  height: 54px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+
+/* Minimalist Editorial 404 Code */
+.ktab-notfound-badge-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.ktab-notfound-code {
+  font-size: clamp(76px, 12vw, 116px);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--brand-black);
+  margin: 0;
+  user-select: none;
+}
+
+/* Title & Description */
+.ktab-notfound-title {
+  font-size: clamp(24px, 3.5vw, 32px);
+  font-weight: 850;
+  color: var(--brand-black);
+  margin: 0 0 12px;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+}
+
+.ktab-notfound-desc {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-subtle);
+  line-height: 1.65;
+  margin: 0 0 32px;
+  max-width: 440px;
+}
+
+/* Primary & Secondary Action Buttons */
+.ktab-notfound-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 420px;
+  margin-bottom: 36px;
+}
+
+.ktab-notfound-btn-primary {
+  flex: 1.2;
+  height: 48px;
+  background-color: var(--brand-black);
+  color: var(--brand-white);
+  border: 1px solid var(--brand-black);
+  border-radius: 12px;
+  font-family: var(--font-arabic), sans-serif;
+  font-size: 14.5px;
+  font-weight: 750;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.ktab-notfound-btn-primary:hover {
+  background-color: #222222;
+  border-color: var(--brand-black);
+  transform: translateY(-1.5px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+
+.ktab-notfound-btn-primary:active {
+  transform: translateY(0);
+}
+
+.ktab-notfound-btn-secondary {
+  flex: 1;
+  height: 48px;
+  background-color: var(--bg-card, #ffffff);
+  color: var(--brand-black);
+  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.12));
+  border-radius: 12px;
+  font-family: var(--font-arabic), sans-serif;
+  font-size: 14px;
+  font-weight: 650;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ktab-notfound-btn-secondary:hover {
+  background-color: var(--bg-secondary, #f8fafc);
+  border-color: var(--brand-black);
+  transform: translateY(-1.5px);
+}
+
+.ktab-notfound-btn-secondary:active {
+  transform: translateY(0);
+}
+
+/* Quick Navigation Links */
+.ktab-notfound-links-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.07));
+}
+
+.ktab-notfound-links-label {
+  font-size: 12.5px;
+  font-weight: 650;
+  color: var(--text-subtle);
+  letter-spacing: -0.01em;
+}
+
+.ktab-notfound-pills {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ktab-notfound-pill-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background-color: var(--bg-secondary, #f8fafc);
+  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
+  border-radius: 9999px;
+  color: var(--brand-black);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.ktab-notfound-pill-link:hover {
+  background-color: var(--bg-card, #ffffff);
+  border-color: var(--brand-teal, #5de3ba);
+  color: var(--brand-black);
+  transform: translateY(-1px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .ktab-notfound-page {
+    padding: 24px 16px;
+  }
+
+  .ktab-notfound-logo-img {
+    height: 48px;
+  }
+
+  .ktab-notfound-code {
+    font-size: 72px;
+  }
+
+  .ktab-notfound-title {
+    font-size: 22px;
+  }
+
+  .ktab-notfound-desc {
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+
+  .ktab-notfound-actions {
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  .ktab-notfound-btn-primary,
+  .ktab-notfound-btn-secondary {
+    width: 100%;
+    flex: none;
+    height: 46px;
+  }
+}

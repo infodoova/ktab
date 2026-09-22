@@ -1,0 +1,165 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Google Role Selection Modal Styles
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.google-role-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.google-role-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.google-role-title {
+  font-family: var(--font-arabic, sans-serif);
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--brand-black, #0a0a0a);
+  margin: 0 0 6px;
+  letter-spacing: -0.02em;
+}
+
+.google-role-subtitle {
+  font-family: var(--font-arabic, sans-serif);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-subtle, #64748b);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.google-role-cards-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.google-role-card {
+  width: 100%;
+  height: 50px;
+  padding: 0 18px;
+  background-color: #ffffff;
+  border: 1.5px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  box-shadow: none;
+  text-align: right;
+  outline: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+.google-role-card:hover {
+  border-color: rgba(0, 0, 0, 0.2);
+  background-color: #fafafa;
+}
+
+.google-role-card.is-selected {
+  border-color: var(--brand-teal-dark, #4ed4ab);
+  background-color: rgba(93, 227, 186, 0.05);
+  box-shadow: none;
+}
+
+.google-role-card-title {
+  font-family: var(--font-arabic, sans-serif);
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--brand-black, #0a0a0a);
+  margin: 0;
+}
+
+.google-role-check {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(0, 0, 0, 0.16);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: transparent;
+  background-color: transparent;
+  transition: all 0.2s ease;
+}
+
+.google-role-card.is-selected .google-role-check {
+  border-color: var(--brand-teal-dark, #4ed4ab);
+  background-color: var(--brand-teal, #5de3ba);
+  color: var(--brand-black, #0a0a0a);
+}
+
+.google-role-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.google-role-submit-btn {
+  width: 100%;
+  height: 48px;
+  background-color: var(--brand-black, #0a0a0a);
+  color: #ffffff;
+  border: 1px solid var(--brand-black, #0a0a0a);
+  border-radius: 12px;
+  font-family: var(--font-arabic, sans-serif);
+  font-size: 14.5px;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: none;
+  outline: none;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.google-role-submit-btn:hover:not(:disabled) {
+  background-color: #222222;
+  border-color: var(--brand-black, #0a0a0a);
+  transform: translateY(-1.5px);
+  box-shadow: none;
+}
+
+.google-role-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.google-role-cancel-btn {
+  width: 100%;
+  height: 42px;
+  background: transparent;
+  color: var(--text-subtle, #64748b);
+  border: none;
+  border-radius: 12px;
+  font-family: var(--font-arabic, sans-serif);
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+}
+
+.google-role-cancel-btn:hover:not(:disabled) {
+  color: var(--brand-black, #0a0a0a);
+}
+
+@media (max-width: 640px) {
+  .google-role-title {
+    font-size: 21px;
+  }
+
+  .google-role-submit-btn {
+    height: 46px;
+  }
+}

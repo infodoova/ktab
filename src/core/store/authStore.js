@@ -4,100 +4,168 @@ import {
   extractUserFromToken,
   decodeJwt,
 } from "../services/jwtDecoder";
+import { logoutApi } from "../api/authApi";
+import { setSessionHint } from "../services/sessionHint";
 import logger from "@/lib/logger";
 
-const TOKEN_KEY = "token";
+const USER_STORAGE_KEY = "ktab_user";
+
+import { normalizeRole } from "../constants/roles";
+export { normalizeRole };
 
 /**
- * Helper to get initial auth state from localStorage.
+ * Saves user profile to storage for session persistence across reloads.
+ * Contains zero tokens or passwords.
  */
-function getInitialAuthState() {
+function saveUserToStorage(user) {
   try {
-    const savedToken = localStorage.getItem(TOKEN_KEY);
-    if (!savedToken || isJwtExpired(savedToken)) {
-      if (savedToken) {
-        localStorage.removeItem(TOKEN_KEY);
-      }
-      return {
-        token: null,
-        user: null,
-        isAuthenticated: false,
-      };
+    if (user) {
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
+    } else {
+      localStorage.removeItem(USER_STORAGE_KEY);
     }
+  } catch {}
+}
 
-    const user = extractUserFromToken(savedToken);
-    return {
-      token: savedToken,
-      user,
-      isAuthenticated: Boolean(user),
-    };
+function getUserFromStorage() {
+  try {
+    const raw = localStorage.getItem(USER_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
   } catch {
-    return {
-      token: null,
-      user: null,
-      isAuthenticated: false,
-    };
+    return null;
   }
 }
 
+/**
+ * Ensures legacy localStorage tokens are completely removed.
+ * Strictly adheres to zero-localStorage policy for auth tokens.
+ */
+function purgeLegacyLocalStorage() {
+  try {
+    localStorage.removeItem("token");
+    localStorage.removeItem("refreshToken");
+  } catch (e) {
+    logger.error("Failed to purge legacy storage tokens:", e);
+  }
+}
+
+const initialUser = getUserFromStorage();
+
 export const useAuthStore = create((set, get) => ({
-  ...getInitialAuthState(),
+  token: null,
+  refreshToken: null,
+  user: initialUser,
+  isAuthenticated: Boolean(initialUser),
+  isInitialized: false,
   isLoading: false,
 
   /**
-   * Sets new authentication token and extracts user data.
+   * Sets authentication state and user data faithfully as returned by the backend.
+   * Never invents placeholder properties or default roles.
    *
-   * @param {string} token - Raw JWT token
+   * @param {string|Object} payload - Raw JWT token or response object
    */
-  setAuth: (token) => {
-    if (!token || typeof token !== "string") {
+  setAuth: (payload) => {
+    if (!payload) {
       get().clearAuth();
       return;
     }
 
-    if (isJwtExpired(token)) {
-      logger.warn("Attempted to set an expired token.");
+    let tokenStr = null;
+    let refreshTokenStr = null;
+    let userObj = null;
+
+    if (typeof payload === "string") {
+      tokenStr = payload;
+      const decoded = extractUserFromToken(payload);
+      if (decoded) {
+        userObj = {
+          ...decoded,
+          role: normalizeRole(decoded.role),
+        };
+      }
+    } else if (typeof payload === "object") {
+      const dataObj = payload.data || payload;
+      tokenStr =
+        dataObj.accessToken ||
+        dataObj.token ||
+        (typeof payload.token === "string" ? payload.token : null);
+      refreshTokenStr = dataObj.refreshToken || payload.refreshToken || null;
+
+      // Save backend user data directly as returned without fabricated defaults
+      if (dataObj && (dataObj.id !== undefined || dataObj.userId !== undefined || dataObj.email !== undefined || dataObj.role !== undefined)) {
+        userObj = {
+          ...dataObj,
+          role: normalizeRole(dataObj.role),
+        };
+      } else if (payload.user) {
+        userObj = {
+          ...payload.user,
+          role: normalizeRole(payload.user.role),
+        };
+      } else if (tokenStr) {
+        const decoded = extractUserFromToken(tokenStr);
+        if (decoded) {
+          userObj = {
+            ...decoded,
+            role: normalizeRole(decoded.role),
+          };
+        }
+      }
+    }
+
+    if (tokenStr && isJwtExpired(tokenStr)) {
+      logger.warn("Attempted to set an expired token in memory.");
       get().clearAuth();
       return;
     }
 
-    const user = extractUserFromToken(token);
-    try {
-      localStorage.setItem(TOKEN_KEY, token);
-    } catch (e) {
-      logger.error("Failed to save token to storage", e);
-    }
+    purgeLegacyLocalStorage();
+    const finalUser = userObj !== null ? userObj : get().user;
+    const isAuth = Boolean(finalUser || tokenStr);
+
+    setSessionHint(isAuth);
+    saveUserToStorage(finalUser);
 
     set({
-      token,
-      user,
-      isAuthenticated: Boolean(user),
+      token: tokenStr,
+      refreshToken: refreshTokenStr || get().refreshToken,
+      user: finalUser,
+      isAuthenticated: isAuth,
+      isInitialized: true,
+      isLoading: false,
     });
   },
 
   /**
-   * Clears authentication, deletes token from localStorage, and resets user state.
+   * Clears authentication, in-memory tokens, and resets user state.
    */
   clearAuth: () => {
-    try {
-      localStorage.removeItem(TOKEN_KEY);
-    } catch (e) {
-      logger.error("Failed to remove token from storage", e);
-    }
-
+    purgeLegacyLocalStorage();
+    setSessionHint(false);
+    saveUserToStorage(null);
     set({
       token: null,
+      refreshToken: null,
       user: null,
       isAuthenticated: false,
+      isInitialized: true,
+      isLoading: false,
     });
   },
 
-
   /**
-   * Alias for clearAuth.
+   * Logs out the user by revoking backend session and clearing local state.
    */
-  logout: () => {
-    get().clearAuth();
+  logout: async () => {
+    const refreshToken = get().refreshToken;
+    try {
+      await logoutApi(refreshToken);
+    } catch (e) {
+      logger.error("Logout API call error:", e);
+    } finally {
+      get().clearAuth();
+    }
   },
 
   /**
@@ -111,11 +179,22 @@ export const useAuthStore = create((set, get) => ({
   setLoading: (isLoading) => set({ isLoading }),
 
   /**
-   * Revalidates and initializes the authentication state.
+   * Sets initialized flag directly.
    */
-  initAuth: () => {
-    const initialState = getInitialAuthState();
-    set({ ...initialState });
+  setInitialized: (isInitialized) => set({ isInitialized }),
+
+  /**
+   * Revalidates and initializes session via tokenManager.
+   */
+  initAuth: async () => {
+    purgeLegacyLocalStorage();
+    try {
+      const { tokenManager } = await import("../services/tokenManager");
+      return await tokenManager.initSession();
+    } catch (e) {
+      logger.error("Auth initialization failed:", e);
+      get().clearAuth();
+    }
   },
 }));
 
@@ -133,7 +212,7 @@ export function clearToken() {
 }
 
 export function logout() {
-  useAuthStore.getState().clearAuth();
+  return useAuthStore.getState().logout();
 }
 
 export function isTokenExpired(rawToken) {

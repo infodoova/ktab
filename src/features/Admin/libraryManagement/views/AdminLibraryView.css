@@ -1,0 +1,246 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   ADMIN LIBRARY MANAGEMENT VIEW STYLES
+   Eleven Reader + Apple Editorial Light Aesthetic
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.ktab-admin-lib-view {
+  width: 100%;
+  padding: 24px 24px 60px;
+  direction: rtl;
+  box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
+  .ktab-admin-lib-view {
+    padding: 16px 16px 60px;
+  }
+}
+
+
+/* Header bar action elements */
+.ktab-admin-lib-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ktab-admin-lib-search-input {
+  width: 240px;
+  transition: width 0.25s ease;
+}
+
+.ktab-admin-lib-search-input:focus-within {
+  width: 300px;
+}
+
+@media (max-width: 640px) {
+  .ktab-admin-lib-search-input {
+    width: 160px;
+  }
+  .ktab-admin-lib-search-input:focus-within {
+    width: 200px;
+  }
+}
+
+/* Section Subheader Info */
+.ktab-admin-lib-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.06));
+}
+
+.ktab-admin-lib-banner__title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--brand-black, #0a0a0a);
+  margin: 0 0 6px 0;
+}
+
+.ktab-admin-lib-banner__desc {
+  font-size: 14px;
+  color: var(--text-muted, #64748b);
+  margin: 0;
+}
+
+.ktab-admin-lib-banner__count {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: var(--bg-secondary, #f8fafc);
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--brand-black, #0a0a0a);
+  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
+}
+
+/* Grid of Cards (1:1 square aspect) */
+.ktab-admin-lib-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+@media (max-width: 640px) {
+  .ktab-admin-lib-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+/* ── Dynamic Island Status Filter (Glassmorphism) ────────────────────────── */
+.ktab-lib-island-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+
+.ktab-lib-island {
+  display: inline-flex;
+  align-items: center;
+  /* Frosted glass base */
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 9999px;
+  padding: 5px;
+  gap: 3px;
+  /* Layered shadows: ambient depth + inner highlight */
+  box-shadow:
+    0 4px 24px -4px rgba(0, 0, 0, 0.1),
+    0 1px 3px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.ktab-lib-island__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  border-radius: 9999px;
+  border: none;
+  background: transparent;
+  font-family: var(--font-arabic, sans-serif);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted, #6b7280);
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.15s ease;
+  white-space: nowrap;
+}
+
+/* Active tab: elevated solid black pill */
+.ktab-lib-island__tab--active {
+  background-color: var(--brand-black, #0f0f0f);
+  color: #ffffff;
+  box-shadow:
+    0 3px 12px rgba(0, 0, 0, 0.22),
+    0 1px 3px rgba(0, 0, 0, 0.14);
+  transform: translateY(-0.5px);
+}
+
+.ktab-lib-island__tab:not(.ktab-lib-island__tab--active):hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: var(--brand-black, #0f0f0f);
+}
+
+/* Count badge inside each tab */
+.ktab-lib-island__tab-label {
+  line-height: 1;
+}
+
+.ktab-lib-island__tab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  /* Default: subtle gray pill */
+  background-color: rgba(0, 0, 0, 0.07);
+  color: var(--text-muted, #6b7280);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Active tab count badge flips to white-on-dark */
+.ktab-lib-island__tab--active .ktab-lib-island__tab-count {
+  background-color: rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+
+/* Loading Skeleton Shell */
+.ktab-admin-lib-skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.ktab-admin-lib-skeleton-card {
+  aspect-ratio: 1 / 1;
+  border-radius: 0;
+  background-color: rgba(0, 0, 0, 0.03);
+  animation: ktabPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes ktabPulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 0.3; }
+}
+
+/* Empty State */
+.ktab-admin-lib-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 64px 24px;
+  background-color: var(--bg-primary, #ffffff);
+  border: 1px solid var(--border-card, rgba(0, 0, 0, 0.08));
+  border-radius: 20px;
+  margin-top: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+}
+
+.ktab-admin-lib-empty-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+  background-color: var(--bg-secondary, #f4f4f6);
+  border: 1px solid var(--border-card, rgba(0, 0, 0, 0.06));
+  color: var(--brand-black, #0a0a0a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.ktab-admin-lib-empty-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--brand-black, #0a0a0a);
+  margin: 0 0 8px;
+}
+
+.ktab-admin-lib-empty-desc {
+  font-size: 14px;
+  color: var(--text-muted, #64748b);
+  max-width: 400px;
+  margin: 0 0 24px;
+  line-height: 1.6;
+}

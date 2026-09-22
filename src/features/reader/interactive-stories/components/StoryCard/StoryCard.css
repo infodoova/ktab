@@ -22,11 +22,11 @@
   transform: translateY(-4px);
 }
 
-/* Cover Wrapper (3:4 Aspect Ratio) */
+/* Cover Wrapper (1:1 Square Ratio) */
 .ktab-story-card__cover-wrap {
   position: relative;
   width: 100%;
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 1 / 1;
   border-radius: 0.95rem;
   overflow: hidden;
   background-color: var(--bg-secondary);

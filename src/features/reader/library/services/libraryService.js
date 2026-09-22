@@ -17,7 +17,7 @@ const formatSortParam = ({ field = "title", ascending = true } = {}) =>
 export async function fetchReaderBooks({ page = 0, size = PAGE_SIZE, sortOptions } = {}) {
   const sort = formatSortParam(sortOptions);
   const res = await getHelper({
-    url: `${API_BASE}/reader/viewBooks`,
+    url: `${API_BASE}/books`,
     pagination: true,
     page,
     size,
@@ -43,7 +43,7 @@ export async function searchReaderBooks({ filters = {}, page = 0, size = PAGE_SI
   const sort = formatSortParam(sortOptions);
 
   const res = await postHelper({
-    url: `${API_BASE}/reader/search`,
+    url: `${API_BASE}/books/search`,
     body: {
       title: filters.query || null,
       mainGenreIds: filters.mainGenreIds || [],
@@ -73,7 +73,7 @@ export async function searchReaderBooks({ filters = {}, page = 0, size = PAGE_SI
  */
 export async function fetchBookGenres() {
   const res = await getHelper({
-    url: `${API_BASE}/genres/viewAll`,
+    url: `${API_BASE}/genres`,
   });
 
   return res?.data ?? [];

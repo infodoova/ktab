@@ -10,7 +10,7 @@ const API_BASE = import.meta.env.VITE_API_URL || "";
  * Fetches all available genres and subgenres for book creation.
  */
 export async function fetchGenresList() {
-  const res = await getHelper({ url: `${API_BASE}/genres/viewAll` });
+  const res = await getHelper({ url: `${API_BASE}/genres` });
   return res?.data ?? [];
 }
 
@@ -22,7 +22,7 @@ export async function fetchGenresList() {
 export async function fetchBookDraft(draftId) {
   const safeId = encodeURIComponent(sanitizeId(draftId));
   const res = await getHelper({
-    url: `${API_BASE}/authors/book/${safeId}`,
+    url: `${API_BASE}/authors/me/books/${safeId}`,
   });
   return res?.data ?? res;
 }
@@ -38,7 +38,7 @@ export async function fetchBookDraft(draftId) {
  */
 export async function publishNewBook(formData, onProgress) {
   return postFormDataHelper({
-    url: `${API_BASE}/authors/books`,
+    url: `${API_BASE}/authors/me/books`,
     formData,
     onUploadProgress: onProgress,
   });
@@ -53,13 +53,13 @@ export async function publishNewBook(formData, onProgress) {
 export async function updateAuthorBook(bookId, formData) {
   const safeId = encodeURIComponent(sanitizeId(bookId));
   return patchHelper({
-    url: `${API_BASE}/authors/books/${safeId}`,
+    url: `${API_BASE}/authors/me/books/${safeId}`,
     body: formData,
   });
 }
 
 /**
- * Saves a book as draft (calls POST /authors/books with status: 'DRAFT').
+ * Saves a book as draft (calls POST /authors/me/books with status: 'DRAFT').
  * Kept for backward compatibility if called directly.
  *
  * @param {FormData} formData
@@ -67,7 +67,7 @@ export async function updateAuthorBook(bookId, formData) {
  */
 export async function saveBookDraft(formData, onProgress) {
   return postFormDataHelper({
-    url: `${API_BASE}/authors/books`,
+    url: `${API_BASE}/authors/me/books`,
     formData,
     onUploadProgress: onProgress,
   });

@@ -1,12 +1,12 @@
 import React, { memo } from "react";
-import { FileText, UploadCloud, X, FileCode } from "lucide-react";
+import { FileText, UploadCloud, X } from "lucide-react";
 import { usePdfUploadZone } from "./usePdfUploadZone";
 import "./PdfUploadZone.css";
 
 /**
- * Editorial Apple / Eleven Reader book document upload zone.
- * Supports both PDF and Word (.docx, .doc) documents with drag-and-drop,
- * real-time page count display, and clean file removal action.
+ * Editorial Apple / Eleven Reader book PDF document upload zone.
+ * Strictly accepts PDF files with drag-and-drop, real-time page count display,
+ * and clean file removal action.
  * Pure declarative component with state handled in usePdfUploadZone.
  */
 export const PdfUploadZone = memo(function PdfUploadZone({
@@ -21,7 +21,6 @@ export const PdfUploadZone = memo(function PdfUploadZone({
     fileInputRef,
     isDragOver,
     displayName,
-    isWordDoc,
     fileSizeMB,
     handleSelect,
     handleDragOver,
@@ -41,19 +40,19 @@ export const PdfUploadZone = memo(function PdfUploadZone({
     <div className="book-pdf-uploader">
       <div className="book-pdf-uploader__header">
         <label className="book-pdf-uploader__label">
-          ملف الكتاب (PDF أو مستند Word)
+          ملف الكتاب (PDF)
           <span className="book-pdf-uploader__required">*</span>
         </label>
-        <span className="book-pdf-uploader__hint">PDF، DOCX، DOC (حتى 100MB)</span>
+        <span className="book-pdf-uploader__hint">صيغة PDF فقط (حتى 100MB)</span>
       </div>
 
       <input
         ref={fileInputRef}
         type="file"
-        accept=".pdf,.docx,.doc,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        accept=".pdf,application/pdf"
         onChange={handleSelect}
         className="book-pdf-uploader__input"
-        aria-label="رفع ملف الكتاب بتنسيق PDF أو Word"
+        aria-label="رفع ملف الكتاب بصيغة PDF"
       />
 
       {displayName ? (
@@ -68,9 +67,7 @@ export const PdfUploadZone = memo(function PdfUploadZone({
               <span className="book-pdf-uploader__file-name" title={displayName}>
                 {displayName}
               </span>
-              <span className="book-pdf-uploader__type-badge">
-                {isWordDoc ? "Word DOC" : "PDF"}
-              </span>
+              <span className="book-pdf-uploader__type-badge">PDF</span>
             </div>
             <div className="book-pdf-uploader__file-meta">
               {pageCount > 0 && (
@@ -110,8 +107,8 @@ export const PdfUploadZone = memo(function PdfUploadZone({
             <UploadCloud size={20} />
           </div>
           <div className="book-pdf-uploader__cta-text">
-            <span className="book-pdf-uploader__cta-action">اسحب ملف الكتاب هنا (PDF أو Word)</span>
-            <span className="book-pdf-uploader__cta-sub">أو اضغط للتصفح من جهازك (.pdf, .docx, .doc)</span>
+            <span className="book-pdf-uploader__cta-action">اسحب ملف الكتاب هنا (PDF)</span>
+            <span className="book-pdf-uploader__cta-sub">أو اضغط للتصفح من جهازك (.pdf)</span>
           </div>
         </div>
       )}

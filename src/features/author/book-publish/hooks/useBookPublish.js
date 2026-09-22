@@ -4,10 +4,9 @@ import {
   fetchBookDraft,
   publishNewBook,
   saveBookDraft,
-  updateBookDraft,
   updateAuthorBook,
 } from "../services/bookPublishService";
-import { useGenreStore } from "@/core/store";
+import { useGenreStore, useEnumStore } from "@/core/store";
 import { AlertToast } from "@/components/myui/AlertToast";
 import { sanitizeText, sanitizeId, validateFile, validateSecureBookDocument } from "@/lib/sanitize";
 import logger from "@/lib/logger";
@@ -69,8 +68,11 @@ export const getPdfPageCount = async (file) => {
 
 /**
  * Validates cover image aspect ratio safely with cleanup.
+ * @param {File} file
+ * @param {number} [minRatio=1.35] - Minimum height/width ratio
+ * @param {number} [maxRatio=1.85] - Maximum height/width ratio
  */
-export const validateImageDimensions = (file) => {
+export const validateImageDimensions = (file, minRatio = 1.35, maxRatio = 1.85) => {
   return new Promise((resolve) => {
     const objectUrl = URL.createObjectURL(file);
     const img = new Image();
@@ -91,16 +93,18 @@ export const validateImageDimensions = (file) => {
 
     img.onload = () => {
       clearTimeout(timer);
-      const ratio = img.height / img.width;
-      const isValid = ratio >= 1.4 && ratio <= 1.8;
+      const { naturalWidth, naturalHeight } = img;
+      // Validate height / width ratio against caller-supplied bounds (derived from uploadSpecs)
+      const ratio = naturalHeight / naturalWidth;
+      const isValid = ratio >= minRatio && ratio <= maxRatio;
       cleanup();
-      resolve({ isValid, ratio });
+      resolve({ isValid, ratio, width: naturalWidth, height: naturalHeight });
     };
 
     img.onerror = () => {
       clearTimeout(timer);
       cleanup();
-      resolve({ isValid: false, ratio: 0 });
+      resolve({ isValid: false, ratio: 0, width: 0, height: 0 });
     };
 
     img.src = objectUrl;
@@ -220,10 +224,13 @@ export function useBookPublish() {
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [formData, loading]);
 
-  // Load genres once from global cache
+  const { ages, languages, uploadSpecs, fetchBookEnums } = useEnumStore();
+
+  // Load genres and enum metadata once from global cache
   useEffect(() => {
     fetchGenres();
-  }, [fetchGenres]);
+    fetchBookEnums();
+  }, [fetchGenres, fetchBookEnums]);
 
   // Load existing draft if draftId provided (with race-condition guard)
   useEffect(() => {
@@ -321,22 +328,27 @@ export function useBookPublish() {
 
   // Memoized genre selection handler with auto-selection of first subgenre
   const handleGenreChange = useCallback(
-    (genreId) => {
-      const selectedGenre = genres.find((g) => String(g.id) === String(genreId));
+    (input) => {
+      const genreId =
+        typeof input === "object" && input !== null && "target" in input
+          ? input.target.value
+          : input;
+      const cleanGenreId = String(genreId ?? "");
+      const selectedGenre = genres.find((g) => String(g.id) === cleanGenreId);
       const subs = selectedGenre?.subGenres || [];
       setSubGenres(subs);
       const firstSubId = subs.length > 0 ? String(subs[0].id) : "";
 
       setFormData((prev) => ({
         ...prev,
-        category: String(genreId),
+        category: cleanGenreId,
         subCategory: firstSubId,
       }));
     },
     [genres]
   );
 
-  // Memoized PDF/Word selection handler with strict security and magic byte validation
+  // Memoized PDF selection handler with strict security and magic byte validation
   const handlePdfChange = useCallback(
     async (file) => {
       if (!file) {
@@ -358,16 +370,14 @@ export function useBookPublish() {
       handleInputChange("pdfFile", file);
       setExistingData((prev) => ({ ...prev, pdfName: file.name }));
 
-      // Parse page count in the background only for PDF files
-      if (docValidation.fileType === "pdf") {
-        try {
-          const count = await getPdfPageCount(file);
-          if (count > 0) {
-            setExistingData((prev) => ({ ...prev, pageCount: count }));
-          }
-        } catch (err) {
-          logger.warn("Could not read PDF page count on select:", err);
+      // Parse page count in the background for PDF files
+      try {
+        const count = await getPdfPageCount(file);
+        if (count > 0) {
+          setExistingData((prev) => ({ ...prev, pageCount: count }));
         }
+      } catch (err) {
+        logger.warn("Could not read PDF page count on select:", err);
       }
     },
     [handleInputChange]
@@ -415,7 +425,7 @@ export function useBookPublish() {
       return false;
     }
     if (!hasPdf) {
-      AlertToast("يرجى رفع ملف الكتاب (PDF أو Word).", "ERROR");
+      AlertToast("يرجى رفع ملف الكتاب (PDF).", "ERROR");
       return false;
     }
 
@@ -429,9 +439,12 @@ export function useBookPublish() {
         return false;
       }
 
-      const { isValid } = await validateImageDimensions(coverFile);
+      const { isValid, ratio, width, height } = await validateImageDimensions(coverFile);
       if (!isValid) {
-        AlertToast("يجب أن تكون أبعاد الغلاف مناسبة لكتاب (نسبة طول إلى عرض تقارب 1.6).", "ERROR");
+        AlertToast(
+          `يجب أن تكون نسبة غلاف الكتاب 1:1.6 تقريباً (المسموح بين 1.35 و 1.85). أبعاد صورتك: ${width}×${height} (النسبة: ${ratio ? ratio.toFixed(2) : "غير صالحة"}).`,
+          "ERROR"
+        );
         return false;
       }
     }
@@ -510,7 +523,11 @@ export function useBookPublish() {
         AlertToast("تم حفظ المسودة بنجاح", "SUCCESS");
         navigate("/author/my-books");
       } else {
-        AlertToast(res?.message || "فشل حفظ المسودة", "ERROR");
+        const errorMsg =
+          res?.error === "IMAGE_INVALID_RATIO_COVER"
+            ? `نسبة غلاف الكتاب غير مطابقة لمتطلبات النظام (المطلوب 1:1.6 بين 1.35 و 1.85، نسبتك الحالية: ${res.actualRatio || ""})`
+            : res?.message || res?.error || "فشل حفظ المسودة";
+        AlertToast(errorMsg, "ERROR");
       }
     } catch (err) {
       logger.error("Save draft error:", err);
@@ -592,7 +609,11 @@ export function useBookPublish() {
         AlertToast("تم نشر الكتاب بنجاح!", "SUCCESS");
         navigate("/author/my-books");
       } else {
-        AlertToast(res?.message || "فشل نشر الكتاب", "ERROR");
+        const errorMsg =
+          res?.error === "IMAGE_INVALID_RATIO_COVER"
+            ? `نسبة غلاف الكتاب غير مطابقة لمتطلبات النظام (المطلوب 1:1.6 بين 1.35 و 1.85، نسبتك الحالية: ${res.actualRatio || ""})`
+            : res?.message || res?.error || "فشل نشر الكتاب";
+        AlertToast(errorMsg, "ERROR");
       }
     } catch (err) {
       logger.error("Publish book error:", err);
@@ -627,18 +648,26 @@ export function useBookPublish() {
   }, [subGenres]);
 
   const ageGroupOptions = useMemo(() => {
-    return AGE_GROUPS.map((ag) => ({
-      value: ag,
-      label: ag,
-    }));
-  }, []);
+    // Use backend age categories when available; fall back to local AGE_GROUPS constants
+    if (ages && ages.length > 0) {
+      return ages.map((a) => ({
+        value: a.key,
+        label: a.labelAr,
+      }));
+    }
+    return AGE_GROUPS.map((ag) => ({ value: ag, label: ag }));
+  }, [ages]);
 
   const languageOptions = useMemo(() => {
-    return LANG_OPTIONS.map((lang) => ({
-      value: lang.id,
-      label: lang.label,
-    }));
-  }, []);
+    // Use backend language list when available; fall back to local LANG_OPTIONS constants
+    if (languages && languages.length > 0) {
+      return languages.map((lang) => ({
+        value: lang.code,
+        label: lang.labelAr,
+      }));
+    }
+    return LANG_OPTIONS.map((lang) => ({ value: lang.id, label: lang.label }));
+  }, [languages]);
 
   // Pre-bound declarative event handlers (zero inline functions in JSX)
   const handleTitleChange = useCallback(
@@ -652,28 +681,78 @@ export function useBookPublish() {
   );
 
   const handleCategoryChange = useCallback(
-    (value) => handleGenreChange(value),
+    (e) => {
+      const val = typeof e === "object" && e !== null && "target" in e ? e.target.value : e;
+      handleGenreChange(val);
+    },
     [handleGenreChange]
   );
 
   const handleSubCategoryChange = useCallback(
-    (value) => handleInputChange("subCategory", value),
+    (e) => {
+      const val = typeof e === "object" && e !== null && "target" in e ? e.target.value : e;
+      handleInputChange("subCategory", String(val ?? ""));
+    },
     [handleInputChange]
   );
 
   const handleAgeGroupChange = useCallback(
-    (value) => handleInputChange("ageGroup", value),
+    (e) => {
+      const val = typeof e === "object" && e !== null && "target" in e ? e.target.value : e;
+      handleInputChange("ageGroup", String(val ?? ""));
+    },
     [handleInputChange]
   );
 
   const handleLanguageChange = useCallback(
-    (value) => handleInputChange("language", value),
+    (e) => {
+      const val = typeof e === "object" && e !== null && "target" in e ? e.target.value : e;
+      handleInputChange("language", String(val ?? ""));
+    },
     [handleInputChange]
   );
 
   const handleCoverChange = useCallback(
-    (file) => handleInputChange("coverFile", file),
-    [handleInputChange]
+    async (file) => {
+      if (!file) {
+        handleInputChange("coverFile", null);
+        return;
+      }
+
+      // Read allowed max size from uploadSpecs if available
+      const coverSpec = uploadSpecs?.bookCover || {};
+      const maxSizeBytes = coverSpec.maxSizeBytes || 10 * 1024 * 1024;
+      const maxSizeMb = coverSpec.maxSizeMb || 10;
+
+      const coverValidation = validateFile(file, {
+        allowedTypes: ["image/jpeg", "image/png", "image/webp"],
+        maxSizeBytes,
+      });
+
+      if (!coverValidation.valid) {
+        AlertToast(coverValidation.error || `ملف الغلاف غير صالح (الحجم الأقصى ${maxSizeMb} ميغابايت)`, "ERROR");
+        return;
+      }
+
+      // Derive ratio bounds from uploadSpecs; backend default is targetRatio=1.6, tolerance=0.25
+      const targetRatio = typeof coverSpec.targetRatio === "number" ? coverSpec.targetRatio : 1.6;
+      const tolerance = typeof coverSpec.tolerance === "number" ? coverSpec.tolerance : 0.25;
+      const minRatio = targetRatio - tolerance;
+      const maxRatio = targetRatio + tolerance;
+      const aspectRatioLabel = coverSpec.aspectRatio || "1:1.6";
+
+      const { isValid, ratio, width, height } = await validateImageDimensions(file, minRatio, maxRatio);
+      if (!isValid) {
+        AlertToast(
+          `يجب أن تكون نسبة غلاف الكتاب ${aspectRatioLabel} تقريباً (المسموح بين ${minRatio.toFixed(2)} و ${maxRatio.toFixed(2)}). أبعاد صورتك: ${width}×${height} (النسبة: ${ratio ? ratio.toFixed(2) : "غير صالحة"}).`,
+          "ERROR"
+        );
+        return;
+      }
+
+      handleInputChange("coverFile", file);
+    },
+    [handleInputChange, uploadSpecs]
   );
 
   const handleRemoveCover = useCallback(

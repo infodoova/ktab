@@ -11,10 +11,7 @@ import { Select, BottomSheet } from "@/components/myui";
 import { Plus, SlidersHorizontal, RotateCcw } from "lucide-react";
 import "./MyStoriesView.css";
 
-import {
-  INTERACTIVE_STORIES_GENRE_OPTIONS,
-  INTERACTIVE_STORIES_SORT_OPTIONS,
-} from "../constants/interactiveStoriesConstants";
+import { INTERACTIVE_STORIES_SORT_OPTIONS } from "../constants/interactiveStoriesConstants";
 
 /**
  * Pure presentation view for Author's Interactive Stories list.
@@ -33,6 +30,7 @@ export function MyStoriesView({ pageName = "قصصي التفاعلية" }) {
     setSearchQuery,
     selectedGenre,
     setSelectedGenre,
+    genreOptions,
     sortBy,
     setSortBy,
     isFilterSheetOpen,
@@ -93,7 +91,7 @@ export function MyStoriesView({ pageName = "قصصي التفاعلية" }) {
             <Select
               value={selectedGenre}
               onChange={(e) => setSelectedGenre(e.target.value)}
-              options={INTERACTIVE_STORIES_GENRE_OPTIONS}
+              options={genreOptions}
               placeholder="جميع التصنيفات"
               className="ktab-stories-filter-select"
               triggerClassName="ktab-stories-filter-select-trigger"
@@ -188,7 +186,7 @@ export function MyStoriesView({ pageName = "قصصي التفاعلية" }) {
               <Select
                 value={selectedGenre}
                 onChange={(e) => setSelectedGenre(e.target.value)}
-                options={INTERACTIVE_STORIES_GENRE_OPTIONS}
+                options={genreOptions}
                 placeholder="جميع التصنيفات"
                 className="ktab-stories-sheet-select"
                 triggerClassName="ktab-stories-filter-select-trigger"

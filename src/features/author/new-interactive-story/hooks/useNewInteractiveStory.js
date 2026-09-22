@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { createNewInteractiveStory } from "../services/newStoryService";
 import { AlertToast } from "@/components/myui/AlertToast";
+import { useEnumStore } from "@/core/store";
 import {
   GENRE_PRESETS,
   LENS_OPTIONS,
@@ -13,6 +14,7 @@ import {
   MAX_COVER_SIZE_BYTES,
   INITIAL_CONSTITUTION,
   CONSTITUTION_FIELDS,
+  STORY_MAX_LENGTHS,
 } from "../constants/newStoryConstants";
 
 function getCachedStoryDraft() {
@@ -36,6 +38,18 @@ function getCachedStoryDraft() {
  */
 export function useNewInteractiveStory() {
   const navigate = useNavigate();
+
+  const {
+    storyGenres,
+    storyLenses,
+    visualStyles,
+    uploadSpecs,
+    fetchStoryEnums,
+  } = useEnumStore();
+
+  useEffect(() => {
+    fetchStoryEnums();
+  }, [fetchStoryEnums]);
 
   const [formData, setFormData] = useState(() => {
     const cached = getCachedStoryDraft();
@@ -119,10 +133,14 @@ export function useNewInteractiveStory() {
     setFormData((prev) => ({ ...prev, visualStyle: val }));
   }, []);
 
-  const handleVisualStyleNotesChange = useCallback((e) => {
-    const val = e.target.value;
-    setFormData((prev) => ({ ...prev, visualStyleNotes: val }));
-  }, []);
+  const handleVisualStyleNotesChange = useCallback(
+    (e) => {
+      const val = e.target.value;
+      setFormData((prev) => ({ ...prev, visualStyleNotes: val }));
+      clearFieldError("visualStyleNotes");
+    },
+    [clearFieldError]
+  );
 
   const handleCoverSelect = useCallback(
     (file) => {
@@ -137,20 +155,59 @@ export function useNewInteractiveStory() {
         return;
       }
 
-      if (file.size > MAX_COVER_SIZE_BYTES) {
-        const msg = "الحد الأقصى لحجم صورة الغلاف هو 5 ميغابايت.";
+      const spec = uploadSpecs?.storyCover || {};
+      const maxBytes = spec.maxSizeBytes || MAX_COVER_SIZE_BYTES;
+      const maxSizeMb = spec.maxSizeMb || 5;
+
+      if (file.size > maxBytes) {
+        const msg = `الحد الأقصى لحجم صورة الغلاف هو ${maxSizeMb} ميغابايت.`;
         setErrors((prev) => ({ ...prev, cover: msg }));
         AlertToast(msg, "ERROR");
         return;
       }
 
-      clearFieldError("cover");
-      const objUrl = URL.createObjectURL(file);
-      coverPreviewRef.current = objUrl;
-      setFormData((prev) => ({ ...prev, cover: file }));
-      setCoverPreview(objUrl);
+      // Validate aspect ratio dynamically based on uploadSpecs (target 1.0, tolerance 0.2)
+      const targetRatio = typeof spec.targetRatio === "number" ? spec.targetRatio : 1.0;
+      const tolerance = typeof spec.tolerance === "number" ? spec.tolerance : 0.2;
+      const minRatio = targetRatio - tolerance;
+      const maxRatio = targetRatio + tolerance;
+
+      const tempUrl = URL.createObjectURL(file);
+      const img = new Image();
+
+      img.onload = () => {
+        const { naturalWidth, naturalHeight } = img;
+        const ratio = naturalWidth / naturalHeight;
+        const isAcceptableRatio = ratio >= minRatio && ratio <= maxRatio;
+
+        if (!isAcceptableRatio) {
+          URL.revokeObjectURL(tempUrl);
+          const ratioDesc = spec.aspectRatio || "1:1";
+          const msg = `يجب أن تكون صورة الغلاف قريبة من النسبة ${ratioDesc} (أبعاد صورتك الحالية: ${naturalWidth}×${naturalHeight}).`;
+          setErrors((prev) => ({ ...prev, cover: msg }));
+          AlertToast(msg, "ERROR");
+          setFormData((prev) => ({ ...prev, cover: null }));
+          setCoverPreview(null);
+          return;
+        }
+
+        clearFieldError("cover");
+        coverPreviewRef.current = tempUrl;
+        setFormData((prev) => ({ ...prev, cover: file }));
+        setCoverPreview(tempUrl);
+      };
+
+      img.onerror = () => {
+        URL.revokeObjectURL(tempUrl);
+        const msg = "تعذر قراءة ملف الصورة. يرجى اختيار صورة صالحة.";
+        setErrors((prev) => ({ ...prev, cover: msg }));
+        AlertToast(msg, "ERROR");
+      };
+
+      // Assign src to trigger image loading and aspect ratio check
+      img.src = tempUrl;
     },
-    [clearFieldError]
+    [clearFieldError, uploadSpecs]
   );
 
   // Step validation
@@ -160,22 +217,32 @@ export function useNewInteractiveStory() {
       if (step === 1) {
         if (!formData.title.trim()) {
           stepErrors.title = "يرجى إدخال عنوان القصة.";
+        } else if (formData.title.length > STORY_MAX_LENGTHS.TITLE) {
+          stepErrors.title = `عنوان القصة يجب ألا يتجاوز ${STORY_MAX_LENGTHS.TITLE} حرف.`;
         }
         if (!formData.cover) {
           stepErrors.cover = "يرجى اختيار صورة غلاف للقصة.";
         }
       } else if (step === 2) {
-        if (!formData.constitution.settingTime.trim()) {
-          stepErrors.constitution_settingTime = "يرجى تحديد زمن القصة.";
+        CONSTITUTION_FIELDS.forEach((field) => {
+          const val = formData.constitution[field.key]?.trim() || "";
+          if (field.required && !val) {
+            stepErrors[`constitution_${field.key}`] = `يرجى إدخال ${field.label}.`;
+          } else if ((formData.constitution[field.key]?.length || 0) > (field.maxLength || STORY_MAX_LENGTHS.CONSTITUTION_FIELD)) {
+            stepErrors[`constitution_${field.key}`] = `يجب ألا يتجاوز الحقل ${field.maxLength || STORY_MAX_LENGTHS.CONSTITUTION_FIELD} حرف.`;
+          }
+        });
+      } else if (step === 3) {
+        if (!formData.lens) {
+          stepErrors.lens = "يرجى تحديد منظور القصة.";
         }
-        if (!formData.constitution.settingPlace.trim()) {
-          stepErrors.constitution_settingPlace = "يرجى تحديد مكان القصة وبيئتها.";
+        if (!formData.visualStyle) {
+          stepErrors.visualStyle = "يرجى تحديد النمط البصري.";
         }
-        if (!formData.constitution.coreTheme.trim()) {
-          stepErrors.constitution_coreTheme = "يرجى كتابة الفكرة الجوهرية للقصة.";
-        }
-        if (!formData.constitution.mainConflict.trim()) {
-          stepErrors.constitution_mainConflict = "يرجى توضيح الصراع الأساسي.";
+        if (!formData.visualStyleNotes.trim()) {
+          stepErrors.visualStyleNotes = "يرجى كتابة ملاحظات الرؤية البصرية للقصة.";
+        } else if (formData.visualStyleNotes.length > STORY_MAX_LENGTHS.VISUAL_STYLE_NOTES) {
+          stepErrors.visualStyleNotes = `يجب ألا تتجاوز الملاحظات ${STORY_MAX_LENGTHS.VISUAL_STYLE_NOTES} حرف.`;
         }
       }
 
@@ -287,21 +354,27 @@ export function useNewInteractiveStory() {
       const newErrors = {};
       if (!formData.title.trim()) {
         newErrors.title = "يرجى إدخال عنوان القصة.";
+      } else if (formData.title.length > STORY_MAX_LENGTHS.TITLE) {
+        newErrors.title = `عنوان القصة يجب ألا يتجاوز ${STORY_MAX_LENGTHS.TITLE} حرف.`;
       }
+
       if (!formData.cover) {
         newErrors.cover = "يرجى اختيار صورة غلاف للقصة.";
       }
-      if (!formData.constitution.settingTime.trim()) {
-        newErrors.constitution_settingTime = "يرجى إدخال الزمان.";
-      }
-      if (!formData.constitution.settingPlace.trim()) {
-        newErrors.constitution_settingPlace = "يرجى إدخال المكان.";
-      }
-      if (!formData.constitution.coreTheme.trim()) {
-        newErrors.constitution_coreTheme = "يرجى إدخال الفكرة الجوهرية.";
-      }
-      if (!formData.constitution.mainConflict.trim()) {
-        newErrors.constitution_mainConflict = "يرجى إدخال الصراع الأساسي.";
+
+      CONSTITUTION_FIELDS.forEach((field) => {
+        const val = formData.constitution[field.key]?.trim() || "";
+        if (field.required && !val) {
+          newErrors[`constitution_${field.key}`] = `يرجى إدخال ${field.label}.`;
+        } else if ((formData.constitution[field.key]?.length || 0) > (field.maxLength || STORY_MAX_LENGTHS.CONSTITUTION_FIELD)) {
+          newErrors[`constitution_${field.key}`] = `يجب ألا يتجاوز الحقل ${field.maxLength || STORY_MAX_LENGTHS.CONSTITUTION_FIELD} حرف.`;
+        }
+      });
+
+      if (!formData.visualStyleNotes.trim()) {
+        newErrors.visualStyleNotes = "يرجى كتابة ملاحظات الرؤية البصرية للقصة.";
+      } else if (formData.visualStyleNotes.length > STORY_MAX_LENGTHS.VISUAL_STYLE_NOTES) {
+        newErrors.visualStyleNotes = `يجب ألا تتجاوز الملاحظات ${STORY_MAX_LENGTHS.VISUAL_STYLE_NOTES} حرف.`;
       }
 
       if (Object.keys(newErrors).length > 0) {
@@ -353,7 +426,7 @@ export function useNewInteractiveStory() {
         } else {
           AlertToast(res?.message || "فشل إنشاء القصة", "ERROR");
         }
-      } catch (err) {
+      } catch {
         AlertToast("حدث خطأ غير متوقع أثناء إنشاء القصة", "ERROR");
       } finally {
         setIsSubmitting(false);
@@ -362,21 +435,60 @@ export function useNewInteractiveStory() {
     [formData, navigate]
   );
 
+  // Dynamically derived options from backend enums
+  const dynamicGenrePresets = useMemo(() => {
+    if (storyGenres && storyGenres.length > 0) {
+      return storyGenres.map((g) => ({
+        id: g.key,
+        name: g.labelAr,
+        label: g.labelAr,
+        desc: g.labelEn || "",
+      }));
+    }
+    return GENRE_PRESETS;
+  }, [storyGenres]);
+
+  const dynamicLensOptions = useMemo(() => {
+    if (storyLenses && storyLenses.length > 0) {
+      return storyLenses.map((l) => ({
+        value: l.key,
+        label: l.labelAr,
+      }));
+    }
+    return LENS_SELECT_OPTIONS;
+  }, [storyLenses]);
+
+  const dynamicArtStyleOptions = useMemo(() => {
+    if (visualStyles && visualStyles.length > 0) {
+      return visualStyles.map((v) => ({
+        value: v.key,
+        label: v.labelAr,
+      }));
+    }
+    return ART_STYLE_SELECT_OPTIONS;
+  }, [visualStyles]);
+
   // Pre-calculated labels to keep JSX 100% declarative with zero logic
   const selectedGenreLabel = useMemo(() => {
-    const found = GENRE_PRESETS.find((g) => g.id === formData.genre);
+    const found = dynamicGenrePresets.find(
+      (g) => g.id?.toLowerCase() === formData.genre?.toLowerCase() || g.id === formData.genre
+    );
     return found?.label || formData.genre;
-  }, [formData.genre]);
+  }, [dynamicGenrePresets, formData.genre]);
 
   const selectedLensLabel = useMemo(() => {
-    const found = LENS_OPTIONS.find((l) => l.id === formData.lens);
+    const found = dynamicLensOptions.find(
+      (l) => l.value?.toLowerCase() === formData.lens?.toLowerCase() || l.value === formData.lens
+    );
     return found?.label || formData.lens;
-  }, [formData.lens]);
+  }, [dynamicLensOptions, formData.lens]);
 
   const selectedStyleLabel = useMemo(() => {
-    const found = ART_STYLES.find((s) => s.id === formData.visualStyle);
+    const found = dynamicArtStyleOptions.find(
+      (s) => s.value?.toLowerCase() === formData.visualStyle?.toLowerCase() || s.value === formData.visualStyle
+    );
     return found?.label || formData.visualStyle;
-  }, [formData.visualStyle]);
+  }, [dynamicArtStyleOptions, formData.visualStyle]);
 
   const filledConstitutionCount = useMemo(() => {
     return Object.values(formData.constitution).filter((v) => Boolean(v && v.trim())).length;
@@ -388,11 +500,12 @@ export function useNewInteractiveStory() {
     isSubmitting,
     errors,
     currentStep,
-    genrePresets: GENRE_PRESETS,
-    lensOptions: LENS_SELECT_OPTIONS,
-    artStyleOptions: ART_STYLE_SELECT_OPTIONS,
+    genrePresets: dynamicGenrePresets,
+    lensOptions: dynamicLensOptions,
+    artStyleOptions: dynamicArtStyleOptions,
     sceneCountConfig: SCENE_COUNT_CONFIG,
     constitutionFields: CONSTITUTION_FIELDS,
+    maxLengths: STORY_MAX_LENGTHS,
     selectedGenreLabel,
     selectedLensLabel,
     selectedStyleLabel,

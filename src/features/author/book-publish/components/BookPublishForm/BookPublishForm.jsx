@@ -1,13 +1,13 @@
 import React, { memo } from "react";
 import { Loader2 } from "lucide-react";
-import { Select } from "@/components/myui/forms/Select";
+import { Input, Textarea, Select } from "@/components/myui/forms";
 import { CoverImageUploader } from "../CoverImageUploader";
 import { PdfUploadZone } from "../PdfUploadZone";
 import "./BookPublishForm.css";
 
 /**
  * Unified Editorial Book Publishing Form.
- * Sequential flow: Title -> Description -> Metadata -> PDF/Word Document -> Cover Image -> Actions.
+ * Sequential flow: Title -> Description -> Metadata -> PDF Document -> Cover Image -> Actions.
  * 
  * Pure declarative component without inline calculations or business logic.
  */
@@ -38,17 +38,15 @@ export const BookPublishForm = memo(function BookPublishForm({
       <div className="book-publish-form__body">
         {/* 1. Book Title */}
         <div className="book-publish-form__field">
-          <label htmlFor="book-title-input" className="book-publish-form__label">
-            عنوان الكتاب
-            <span className="book-publish-form__required">*</span>
-          </label>
-          <input
+          <Input
             id="book-title-input"
-            type="text"
+            name="title"
+            label="عنوان الكتاب"
+            required
             value={formData.title}
             onChange={handleTitleChange}
             placeholder="أدخل عنوان الكتاب الأدبي أو المعرفي..."
-            className="book-publish-form__input"
+            maxLength={200}
             disabled={loading}
             autoComplete="off"
           />
@@ -56,17 +54,16 @@ export const BookPublishForm = memo(function BookPublishForm({
 
         {/* 2. Book Description */}
         <div className="book-publish-form__field">
-          <label htmlFor="book-desc-input" className="book-publish-form__label">
-            نبذة عن الكتاب
-            <span className="book-publish-form__required">*</span>
-          </label>
-          <textarea
+          <Textarea
             id="book-desc-input"
+            name="description"
+            label="نبذة عن الكتاب"
+            required
             rows={4}
             value={formData.description}
             onChange={handleDescriptionChange}
             placeholder="اكتب نبذة شيقة وموجزة توضح فكرة الكتاب وأهم محاوره للقراء..."
-            className="book-publish-form__textarea"
+            maxLength={5000}
             disabled={loading}
           />
         </div>
@@ -123,7 +120,7 @@ export const BookPublishForm = memo(function BookPublishForm({
           </div>
         </div>
 
-        {/* 4. Book Document (PDF or Word DOC/DOCX) */}
+        {/* 4. Book Document (PDF) */}
         <div className="book-publish-form__field">
           <PdfUploadZone
             pdfFile={formData.pdfFile}

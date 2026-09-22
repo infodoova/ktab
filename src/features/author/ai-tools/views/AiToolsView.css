@@ -104,6 +104,10 @@
     background: transparent !important;
     padding: 0.25rem 0 !important;
   }
+
+  .ktab-ai-sheet-content .ktab-pdf-input-card__title-group {
+    display: none !important;
+  }
 }
 
 /* ─────────────────────────────────────────────────────────────

@@ -26,7 +26,7 @@ export const PRICING_PLANS = [
     isFree: false,
     highlight: true,
     buttonText: "ابدأ الآن",
-    route: "/auth/signup?plan=listener",
+    route: "/login",
     features: [
       "استماع صوتي ذكي غير محدود لجميع الكتب",
       "أصوات ذكاء اصطناعي فائقة الواقعية بتعبيرات طبيعية",
@@ -43,7 +43,7 @@ export const PRICING_PLANS = [
     isFree: false,
     highlight: false,
     buttonText: "ابدأ الآن",
-    route: "/auth/signup?plan=pro",
+    route: "/login",
     features: [
       "وصول كامل وغير محدود لكافة الكتب والروايات",
       "الاستماع الصوتي الذكي غير المحدود",

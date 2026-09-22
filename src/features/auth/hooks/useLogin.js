@@ -1,26 +1,38 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/core/store/authStore";
-import { loginApi } from "@/core/api/authApi";
+import { tokenManager } from "@/core/services/tokenManager";
+import { loginApi, googleLoginApi, completeGoogleRegistrationApi } from "@/core/api/authApi";
 import { AlertToast } from "@/components/myui/AlertToast";
+import { getRoleDefaultRoute } from "@/core/constants/roles";
 import { sanitizeEmail } from "@/lib/sanitize";
 import logger from "@/lib/logger";
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 /**
- * Custom hook handling all login business logic, state, validation, and navigation.
+ * Custom hook handling all login business logic, state, validation, navigation,
+ * and Google OAuth2 Identity Services integration.
  */
 export function useLogin() {
   const navigate = useNavigate();
   const setAuth = useAuthStore((state) => state.setAuth);
+  const googleBtnRef = useRef(null);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [isGoogleReady, setIsGoogleReady] = useState(false);
   const [resetOpen, setResetOpen] = useState(false);
+
+  // Google OAuth pending registration state
+  const [googleRoleOpen, setGoogleRoleOpen] = useState(false);
+  const [pendingGoogleToken, setPendingGoogleToken] = useState(null);
+  const [selectedGoogleRole, setSelectedGoogleRole] = useState("READER");
+  const [googleCompleteLoading, setGoogleCompleteLoading] = useState(false);
 
   // Prevent scroll leakage on auth pages
   useEffect(() => {
@@ -31,6 +43,166 @@ export function useLogin() {
       document.body.style.overflow = "auto";
     };
   }, []);
+
+  const navigateAfterAuth = (user) => {
+    const destination = getRoleDefaultRoute(user?.role);
+    navigate(destination, { replace: true });
+  };
+
+  /**
+   * Dispatches the Google ID token to the backend auth endpoint.
+   */
+  const handleGoogleCredentialResponse = async (response) => {
+    if (!response || !response.credential) {
+      AlertToast("فشل استلام رمز التحقق من Google.", "ERROR");
+      return;
+    }
+
+    setGoogleLoading(true);
+
+    try {
+      const res = await googleLoginApi({ idToken: response.credential });
+
+      if (!res.ok || (res.messageStatus && res.messageStatus !== "SUCCESS")) {
+        AlertToast(res?.message || "فشل تسجيل الدخول عبر Google", res?.messageStatus || "ERROR");
+        return;
+      }
+
+      // Check if user is new and must select a role to complete registration
+      const pendingToken =
+        res.data?.pendingToken ||
+        res.pendingToken ||
+        (typeof res.data === "string" ? res.data : null);
+
+      const hasValidSession =
+        res.data &&
+        typeof res.data === "object" &&
+        (res.data.id || res.data.email) &&
+        res.data.role;
+
+      if (pendingToken && !hasValidSession) {
+        setPendingGoogleToken(pendingToken);
+        setGoogleRoleOpen(true);
+        return;
+      }
+
+      if (res.data) {
+        setAuth(res.data);
+      } else {
+        await tokenManager.callRefreshAPI();
+      }
+
+      AlertToast(res?.message || "تم تسجيل الدخول بنجاح", "SUCCESS");
+      const currentUser = useAuthStore.getState().user;
+      navigateAfterAuth(currentUser);
+    } catch (error) {
+      logger.error("Google OAuth login error:", error);
+      AlertToast("تعذر الاتصال بالخادم.", "ERROR");
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
+
+  /**
+   * Completes registration for new Google OAuth users with chosen role.
+   */
+  const handleCompleteGoogleRegistration = async () => {
+    if (!pendingGoogleToken) return;
+    if (!selectedGoogleRole) {
+      AlertToast("يرجى اختيار نوع الحساب للمتابعة.", "ERROR");
+      return;
+    }
+
+    setGoogleCompleteLoading(true);
+
+    try {
+      const res = await completeGoogleRegistrationApi({
+        pendingToken: pendingGoogleToken,
+        role: selectedGoogleRole,
+      });
+
+      if (!res.ok || (res.messageStatus && res.messageStatus !== "SUCCESS")) {
+        AlertToast(res?.message || "فشل إكمال التسجيل", res?.messageStatus || "ERROR");
+        return;
+      }
+
+      if (res.data) {
+        setAuth(res.data);
+      } else {
+        await tokenManager.callRefreshAPI();
+      }
+
+      AlertToast(res?.message || "تم إنشاء الحساب بنجاح", "SUCCESS");
+      setGoogleRoleOpen(false);
+      setPendingGoogleToken(null);
+
+      const currentUser = useAuthStore.getState().user;
+      navigateAfterAuth(currentUser);
+    } catch (error) {
+      logger.error("Complete Google registration error:", error);
+      AlertToast("تعذر الاتصال بالخادم.", "ERROR");
+    } finally {
+      setGoogleCompleteLoading(false);
+    }
+  };
+
+  const handleCredentialRef = useRef(handleGoogleCredentialResponse);
+  handleCredentialRef.current = handleGoogleCredentialResponse;
+  const isGoogleInitializedRef = useRef(false);
+
+  // Mount and initialize Google Identity Services SDK
+  useEffect(() => {
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    if (!clientId || resetOpen || googleRoleOpen) return;
+
+    const renderGoogleBtn = () => {
+      if (!window.google?.accounts?.id || !googleBtnRef.current) return;
+
+      if (!isGoogleInitializedRef.current) {
+        window.google.accounts.id.initialize({
+          client_id: clientId,
+          callback: (res) => handleCredentialRef.current?.(res),
+        });
+        isGoogleInitializedRef.current = true;
+      }
+
+      try {
+        const containerWidth = googleBtnRef.current
+          ? Math.min(400, Math.max(280, googleBtnRef.current.offsetWidth || 380))
+          : 380;
+
+        window.google.accounts.id.renderButton(googleBtnRef.current, {
+          type: "standard",
+          theme: "outline",
+          size: "large",
+          text: "continue_with",
+          shape: "rectangular",
+          logo_alignment: "left",
+          width: containerWidth,
+        });
+        setIsGoogleReady(true);
+      } catch (err) {
+        logger.error("Failed to render Google button:", err);
+      }
+    };
+
+    if (window.google?.accounts?.id) {
+      renderGoogleBtn();
+    } else {
+      const existingScript = document.getElementById("google-gsi-client");
+      if (!existingScript) {
+        const script = document.createElement("script");
+        script.id = "google-gsi-client";
+        script.src = "https://accounts.google.com/gsi/client";
+        script.async = true;
+        script.defer = true;
+        script.onload = renderGoogleBtn;
+        document.body.appendChild(script);
+      } else {
+        existingScript.addEventListener("load", renderGoogleBtn);
+      }
+    }
+  }, [resetOpen, googleRoleOpen]);
 
   const validate = () => {
     const nextErrors = {};
@@ -62,34 +234,38 @@ export function useLogin() {
 
     try {
       const cleanEmail = sanitizeEmail(email);
-      const data = await loginApi({ email: cleanEmail, password });
+      const res = await loginApi({
+        email: cleanEmail,
+        password,
+      });
 
-      if (data.messageStatus !== "SUCCESS") {
-        AlertToast(data?.message || "فشل تسجيل الدخول", data?.messageStatus || "ERROR");
+      if (!res.ok || (res.messageStatus && res.messageStatus !== "SUCCESS")) {
+        AlertToast(res?.message || "فشل تسجيل الدخول", res?.messageStatus || "ERROR");
         return;
       }
 
-      AlertToast(data?.message || "تم تسجيل الدخول بنجاح", "SUCCESS");
+      // Apply returned user profile or tokens to store
+      if (res.data) {
+        setAuth(res.data);
+      } else {
+        await tokenManager.callRefreshAPI();
+      }
 
-      // Save token to Zustand store and localStorage
-      setAuth(data.data);
+      AlertToast(res?.message || "تم تسجيل الدخول بنجاح", "SUCCESS");
 
       const currentUser = useAuthStore.getState().user;
-
-      setTimeout(() => {
-        if (currentUser?.role === "AUTHOR") {
-          navigate("/author/control");
-        } else if (currentUser?.role === "READER") {
-          navigate("/reader/home");
-        } else {
-          navigate("/");
-        }
-      }, 900);
+      navigateAfterAuth(currentUser);
     } catch (error) {
       logger.error("Login submission error:", error);
       AlertToast("تعذر الاتصال بالخادم.", "ERROR");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const triggerGooglePrompt = () => {
+    if (window.google?.accounts?.id) {
+      window.google.accounts.id.prompt(() => {});
     }
   };
 
@@ -102,8 +278,20 @@ export function useLogin() {
     setShowPassword,
     errors,
     loading,
+    googleLoading,
+    isGoogleReady,
+    googleBtnRef,
+    triggerGooglePrompt,
     resetOpen,
     setResetOpen,
+    googleRoleOpen,
+    setGoogleRoleOpen,
+    pendingGoogleToken,
+    setPendingGoogleToken,
+    selectedGoogleRole,
+    setSelectedGoogleRole,
+    googleCompleteLoading,
+    handleCompleteGoogleRegistration,
     handleSubmit,
   };
 }

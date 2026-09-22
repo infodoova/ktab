@@ -1,5 +1,6 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { AlertToast } from "@/components/myui/AlertToast";
+import { useEnumStore } from "@/core/store";
 import {
   AUDIENCE_OPTIONS,
   WORD_COUNT_CONFIG,
@@ -11,11 +12,32 @@ import {
  * word count slider, audience selection, and field-level error state.
  */
 export function usePdfInputCard({ onGenerate, loading = false }) {
+  // Load AI audience profiles and upload specifications from backend
+  const { aiAudienceProfiles, uploadSpecs, fetchAiEnums } = useEnumStore();
+
+  useEffect(() => {
+    fetchAiEnums();
+  }, [fetchAiEnums]);
+
+  const audienceOptions = aiAudienceProfiles && aiAudienceProfiles.length > 0
+    ? aiAudienceProfiles.map((p) => ({ value: p.name || p.key, label: p.labelAr }))
+    : AUDIENCE_OPTIONS;
+
+  const maxPdfBytes = uploadSpecs?.aiPdfDraft?.maxSizeBytes || MAX_PDF_SIZE_BYTES;
+  const maxPdfMb = uploadSpecs?.aiPdfDraft?.maxSizeMb || 20;
+
   const [file, setFile] = useState(null);
   const [wordCount, setWordCount] = useState(WORD_COUNT_CONFIG.DEFAULT);
-  const [audience, setAudience] = useState(AUDIENCE_OPTIONS[0].value);
+  const [audience, setAudience] = useState(audienceOptions[0]?.value ?? "");
   const [isDragging, setIsDragging] = useState(false);
   const [errors, setErrors] = useState({});
+
+  // Synchronize audience selection when dynamic options load or update
+  useEffect(() => {
+    if (audienceOptions.length > 0 && !audienceOptions.some((opt) => opt.value === audience)) {
+      setAudience(audienceOptions[0].value);
+    }
+  }, [audienceOptions, audience]);
 
   const fileInputRef = useRef(null);
 
@@ -32,8 +54,8 @@ export function usePdfInputCard({ onGenerate, loading = false }) {
       return;
     }
 
-    if (selectedFile.size > MAX_PDF_SIZE_BYTES) {
-      const msg = "الحد الأقصى لحجم الملف هو 20 ميغابايت.";
+    if (selectedFile.size > maxPdfBytes) {
+      const msg = `الحد الأقصى لحجم الملف هو ${maxPdfMb} ميغابايت.`;
       setErrors((prev) => ({ ...prev, file: msg }));
       AlertToast(msg, "ERROR");
       return;
@@ -127,9 +149,9 @@ export function usePdfInputCard({ onGenerate, loading = false }) {
         fileInputRef.current.value = "";
       }
       setWordCount(WORD_COUNT_CONFIG.DEFAULT);
-      setAudience(AUDIENCE_OPTIONS[0].value);
+      setAudience(audienceOptions[0]?.value ?? "");
     },
-    [file, wordCount, audience, onGenerate]
+    [file, wordCount, audience, onGenerate, audienceOptions]
   );
 
   const formattedFileSize = file
@@ -143,7 +165,7 @@ export function usePdfInputCard({ onGenerate, loading = false }) {
     setWordCount,
     audience,
     setAudience: handleAudienceChange,
-    audienceOptions: AUDIENCE_OPTIONS,
+    audienceOptions,
     wordCountConfig: WORD_COUNT_CONFIG,
     isDragging,
     formattedFileSize,

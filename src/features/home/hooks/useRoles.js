@@ -110,7 +110,7 @@ const headerVariants = {
 };
 
 /**
- * Coordinated spring transitions for the dynamic features list on card hover.
+ * Coordinated height and opacity animation variants for dynamic capabilities list on hover.
  */
 const featureListVariants = {
   hidden: {
@@ -121,12 +121,12 @@ const featureListVariants = {
   visible: {
     opacity: 1,
     height: "auto",
-    marginTop: 12,
+    marginTop: 10,
     transition: {
-      height: { duration: 0.38, ease: [0.16, 1, 0.3, 1] },
-      opacity: { duration: 0.32, ease: "easeOut" },
-      staggerChildren: 0.07,
-      delayChildren: 0.04,
+      height: { duration: 0.3, ease: [0.16, 1, 0.3, 1] },
+      opacity: { duration: 0.22, ease: "easeOut" },
+      staggerChildren: 0.04,
+      delayChildren: 0.03,
     },
   },
   exit: {
@@ -134,8 +134,8 @@ const featureListVariants = {
     height: 0,
     marginTop: 0,
     transition: {
-      height: { duration: 0.26, ease: [0.16, 1, 0.3, 1] },
-      opacity: { duration: 0.18 },
+      height: { duration: 0.2, ease: [0.16, 1, 0.3, 1] },
+      opacity: { duration: 0.14 },
     },
   },
 };
@@ -143,21 +143,21 @@ const featureListVariants = {
 const featureItemVariants = {
   hidden: {
     opacity: 0,
-    x: 12,
+    x: 10,
   },
   visible: {
     opacity: 1,
     x: 0,
     transition: {
-      duration: 0.28,
+      duration: 0.24,
       ease: [0.16, 1, 0.3, 1],
     },
   },
   exit: {
     opacity: 0,
-    x: 8,
+    x: 6,
     transition: {
-      duration: 0.14,
+      duration: 0.12,
     },
   },
 };

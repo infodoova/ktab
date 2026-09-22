@@ -94,10 +94,15 @@ export function AuthorBookGrid({
           <AuthorBookCard
             key={book.id || index}
             book={book}
+            openMenuId={openMenuId}
+            setOpenMenuId={setOpenMenuId}
             isMenuOpen={openMenuId === book.id}
-            onToggleMenu={(id) => setOpenMenuId((prev) => (prev === id ? null : id))}
+            onToggleMenu={(id) => setOpenMenuId?.((prev) => (prev === id ? null : id))}
+            onClick={onBookClick}
+            onBookClick={onBookClick}
             onCardClick={onBookClick}
             onDelete={onDeleteClick}
+            onDeleteClick={onDeleteClick}
           />
         ))}
       </div>

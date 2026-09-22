@@ -6,7 +6,7 @@ import "./AlertToast.css";
 /* =========================================================
    INTERNAL CONFIG
 ========================================================= */
-const AUTO_CLOSE_DELAY = 2000;
+const AUTO_CLOSE_DELAY = 5000;
 let root = null;
 let container = null;
 let closeTimer = null;

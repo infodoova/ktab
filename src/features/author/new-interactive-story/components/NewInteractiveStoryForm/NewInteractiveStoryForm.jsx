@@ -3,13 +3,13 @@ import {
   ArrowLeft,
   ArrowRight,
   Loader2,
-  Sparkles,
   Eye,
-  ScrollText,
+  Palette,
 } from "lucide-react";
-import { Select } from "@/components/myui/forms/Select";
+import { Select, Input, Textarea } from "@/components/myui/forms";
 import { StoryStepper } from "../StoryStepper/StoryStepper";
 import { StoryCoverUploader } from "../StoryCoverUploader/StoryCoverUploader";
+import { FieldTooltip } from "../FieldTooltip/FieldTooltip";
 import "./NewInteractiveStoryForm.css";
 
 /**
@@ -32,6 +32,7 @@ export const NewInteractiveStoryForm = memo(function NewInteractiveStoryForm({
   artStyleOptions = [],
   sceneCountConfig,
   constitutionFields = [],
+  maxLengths = { TITLE: 100, CONSTITUTION_FIELD: 300, VISUAL_STYLE_NOTES: 300 },
   selectedGenreLabel = "",
   selectedLensLabel = "",
   selectedStyleLabel = "",
@@ -64,34 +65,30 @@ export const NewInteractiveStoryForm = memo(function NewInteractiveStoryForm({
             ════════════════════════════════════════════════════════════ */}
         {currentStep === 1 && (
           <div className="new-story-form__step-content">
-            {/* Title */}
+            {/* Title with Modern Floating Label & Global Input */}
             <div className="new-story-form__field">
-              <label htmlFor="story-title-input" className="new-story-form__label">
-                عنوان القصة التفاعلية
-                <span className="new-story-form__required">*</span>
-              </label>
-              <input
+              <Input
                 id="story-title-input"
                 name="title"
-                type="text"
+                label="عنوان القصة التفاعلية"
+                required
                 value={formData.title}
                 onChange={handleTitleChange}
                 placeholder="مثال: سر الغرفة رقم 404"
-                className={`new-story-form__input ${
-                  errors.title ? "new-story-form__input--error" : ""
-                }`}
+                maxLength={maxLengths?.TITLE || 100}
+                error={errors.title}
                 disabled={isSubmitting}
                 autoComplete="off"
               />
-              {errors.title && (
-                <span className="new-story-form__error-text">{errors.title}</span>
-              )}
             </div>
 
             {/* Genre Presets */}
             <div className="new-story-form__field">
               <div className="new-story-form__label-row">
-                <label className="new-story-form__label">تصنيف القصة (genre)</label>
+                <label className="new-story-form__label">
+                  <span>تصنيف القصة</span>
+                  <span className="new-story-form__required">*</span>
+                </label>
                 <span className="new-story-form__subtle-hint">اختر نوع المغامرة</span>
               </div>
               <div
@@ -152,58 +149,37 @@ export const NewInteractiveStoryForm = memo(function NewInteractiveStoryForm({
             ════════════════════════════════════════════════════════════ */}
         {currentStep === 2 && (
           <div className="new-story-form__step-content">
-            <div className="new-story-form__section-header">
-              <div className="new-story-form__section-badge">
-                <ScrollText size={16} />
-                <span>دستور القصة التفاعلية (constitution)</span>
-              </div>
-              <p className="new-story-form__section-desc">
-                حدد القواعد والبيئة الثابتة للقصة. يلتزم الذكاء الاصطناعي بهذه الضوابط
-                في صياغة كل مشهد وقرار، وتم اكتمال ({filledConstitutionCount} من 8).
-              </p>
-            </div>
-
             <div className="new-story-form__constitution-grid">
               {constitutionFields.map((field) => {
                 const errorKey = `constitution_${field.key}`;
-                const hasError = Boolean(errors[errorKey]);
 
                 return (
                   <div
                     key={field.key}
-                    className={`new-story-form__field new-story-form__field--constitution ${
+                    className={`new-story-form__field ${
                       field.key === "mainConflict" || field.key === "coreTheme"
                         ? "new-story-form__field--span-2"
                         : ""
                     }`}
                   >
-                    <div className="new-story-form__label-row">
-                      <label
-                        htmlFor={`constitution-${field.key}`}
-                        className="new-story-form__label"
-                      >
-                        {field.label}
-                        <span className="new-story-form__code-key">({field.key})</span>
-                      </label>
-                    </div>
-                    <textarea
+                    <Textarea
                       id={`constitution-${field.key}`}
                       name={field.key}
+                      label={field.label}
+                      required={field.required}
+                      labelExtra={
+                        field.hint ? (
+                          <FieldTooltip text={field.hint} label={field.label} />
+                        ) : null
+                      }
                       rows={2}
                       value={formData.constitution[field.key] || ""}
                       onChange={handleConstitutionChange}
                       placeholder={field.placeholder}
-                      className={`new-story-form__textarea new-story-form__textarea--compact ${
-                        hasError ? "new-story-form__textarea--error" : ""
-                      }`}
+                      maxLength={field.maxLength || maxLengths?.CONSTITUTION_FIELD || 300}
+                      error={errors[errorKey]}
                       disabled={isSubmitting}
                     />
-                    <span className="new-story-form__field-hint">{field.hint}</span>
-                    {hasError && (
-                      <span className="new-story-form__error-text">
-                        {errors[errorKey]}
-                      </span>
-                    )}
                   </div>
                 );
               })}
@@ -240,7 +216,13 @@ export const NewInteractiveStoryForm = memo(function NewInteractiveStoryForm({
             {/* Narrative Lens (lens) */}
             <div className="new-story-form__field">
               <Select
-                label="منظور القصة (lens)"
+                label="منظور القصة"
+                labelExtra={
+                  <FieldTooltip
+                    text="يحدد نوع العواقب والمخاطر التي تتغير عند كل قرار وخيار يتخذه القارئ"
+                    label="معلومات المنظور"
+                  />
+                }
                 required
                 options={lensOptions}
                 value={formData.lens}
@@ -248,19 +230,16 @@ export const NewInteractiveStoryForm = memo(function NewInteractiveStoryForm({
                 error={errors.lens}
                 icon={<Eye size={15} />}
               />
-              <span className="new-story-form__field-hint">
-                يحدد نوع العواقب التي تتغير عند كل خيار (مثل SURVIVAL، POLITICAL، إلخ).
-              </span>
             </div>
 
-            {/* Max Scenes Slider (maxScenes) */}
+            {/* Max Scenes Slider */}
             <div className="new-story-form__field">
               <div className="new-story-form__label-row">
                 <label
                   htmlFor="story-scene-count-slider"
                   className="new-story-form__label"
                 >
-                  طول المسار التفاعلي (maxScenes)
+                  <span>طول المسار التفاعلي</span>
                 </label>
                 <span className="new-story-form__scene-count-text">
                   {formData.sceneCount} مشاهد
@@ -289,35 +268,32 @@ export const NewInteractiveStoryForm = memo(function NewInteractiveStoryForm({
               </div>
             </div>
 
-            {/* Visual Art Style (visualStyle) */}
+            {/* Visual Art Style */}
             <div className="new-story-form__field">
               <Select
-                label="النمط البصري (visualStyle)"
+                label="النمط البصري"
                 required
                 options={artStyleOptions}
                 value={formData.visualStyle}
                 onChange={handleVisualStyleChange}
                 error={errors.visualStyle}
-                icon={<Sparkles size={15} />}
+                icon={<Palette size={15} />}
               />
             </div>
 
-            {/* Visual Style Notes (visualStyleNotes) */}
+            {/* Visual Style Notes */}
             <div className="new-story-form__field">
-              <label
-                htmlFor="story-art-notes-input"
-                className="new-story-form__label"
-              >
-                ملاحظات الرؤية البصرية (visualStyleNotes)
-              </label>
-              <textarea
+              <Textarea
                 id="story-art-notes-input"
                 name="visualStyleNotes"
-                rows={3}
+                label="ملاحظات الرؤية البصرية"
+                required
+                rows={2}
                 value={formData.visualStyleNotes}
                 onChange={handleVisualStyleNotesChange}
                 placeholder="مثال: إضاءة خافتة وأجواء سينمائية غامضة"
-                className="new-story-form__textarea"
+                maxLength={maxLengths?.VISUAL_STYLE_NOTES || 300}
+                error={errors.visualStyleNotes}
                 disabled={isSubmitting}
               />
             </div>
@@ -400,10 +376,7 @@ export const NewInteractiveStoryForm = memo(function NewInteractiveStoryForm({
                     <span>جاري إطلاق القصة...</span>
                   </>
                 ) : (
-                  <>
-                    <Sparkles size={17} />
-                    <span>إطلاق القصة التفاعلية</span>
-                  </>
+                  <span>إطلاق القصة التفاعلية</span>
                 )}
               </button>
             </div>

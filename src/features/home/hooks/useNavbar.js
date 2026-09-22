@@ -10,6 +10,9 @@ const REAL_NAV_LINKS = [
   { id: "pricing", label: "الباقات والأسعار", target: "pricing" },
 ];
 
+import { useAuthStore } from "@/core/store/authStore";
+import { getRoleDefaultRoute } from "@/core/constants/roles";
+
 /**
  * Custom hook containing all stateful and navigation logic for the Navbar.
  * Keeps the JSX view pure and declarative.
@@ -18,6 +21,8 @@ export function useNavbar() {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const user = useAuthStore((state) => state.user);
 
   // Monitor scroll for sticky navbar shadow/blur effect
   useEffect(() => {
@@ -92,12 +97,28 @@ export function useNavbar() {
   }, []);
 
   const handleLogin = useCallback(() => {
-    navigate("/login");
-  }, [navigate]);
+    if (isAuthenticated && user) {
+      const destination = getRoleDefaultRoute(user.role);
+      // If user has a valid recognized dashboard, go there directly
+      if (destination && destination !== "/") {
+        navigate(destination);
+        return;
+      }
+    }
+    // If guest, invalid role, or unrecognized role: navigate with ?switch=true so GuestGuard lets them in
+    navigate("/login?switch=true");
+  }, [isAuthenticated, user, navigate]);
 
   const handleSignup = useCallback(() => {
-    navigate("/signup");
-  }, [navigate]);
+    if (isAuthenticated && user) {
+      const destination = getRoleDefaultRoute(user.role);
+      if (destination && destination !== "/") {
+        navigate(destination);
+        return;
+      }
+    }
+    navigate("/signup?switch=true");
+  }, [isAuthenticated, user, navigate]);
 
   return {
     isOpen,
@@ -109,6 +130,8 @@ export function useNavbar() {
     handleLogin,
     handleSignup,
     navLinks: REAL_NAV_LINKS,
+    isAuthenticated,
+    user,
   };
 }
 

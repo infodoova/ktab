@@ -72,9 +72,13 @@ export function useInteractiveStories() {
         story.authorName?.toLowerCase().includes(q) ||
         story.constitution?.coreTheme?.toLowerCase().includes(q);
 
+      const storyGenre = (story.genre || "").trim().toLowerCase();
+      const filterGenre = (selectedGenre || "").trim().toLowerCase();
       const matchGenre =
         selectedGenre === "ALL" ||
-        story.genre?.toLowerCase() === selectedGenre.toLowerCase();
+        storyGenre === filterGenre ||
+        storyGenre.replace(/_/g, "") === filterGenre.replace(/_/g, "") ||
+        storyGenre.includes(filterGenre);
 
       const matchLens =
         selectedLens === "ALL" ||

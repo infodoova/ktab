@@ -11,8 +11,13 @@ export const AuthorBookCard = React.memo(function AuthorBookCard({
   book,
   openMenuId,
   setOpenMenuId,
+  isMenuOpen,
+  onToggleMenu,
   onBookClick,
+  onCardClick,
+  onClick,
   onDeleteClick,
+  onDelete,
 }) {
   const {
     coverUrl,
@@ -35,9 +40,10 @@ export const AuthorBookCard = React.memo(function AuthorBookCard({
   } = useAuthorBookCard({
     book,
     openMenuId,
-    setOpenMenuId,
-    onClick: onBookClick,
-    onDelete: onDeleteClick,
+    setOpenMenuId: setOpenMenuId || (onToggleMenu ? (id) => onToggleMenu(id) : undefined),
+    isMenuOpen,
+    onClick: onBookClick || onCardClick || onClick,
+    onDelete: onDeleteClick || onDelete,
   });
 
   return (

@@ -94,7 +94,7 @@ export function StoryCoverUploader({
       </div>
 
       <p className="new-story-cover-uploader__note">
-        صيغ الصور المدعومة: PNG، JPG، WebP (حتى 5MB) · النسبة المقترحة: 3:4
+        صيغ الصور المدعومة: PNG، JPG، WebP (حتى 5MB) · النسبة المطلوبة: 1:1 (مربعة)
       </p>
 
       {error && <span className="new-story-cover-uploader__error-text">{error}</span>}

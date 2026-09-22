@@ -8,7 +8,7 @@ import "./PdfInputCard.css";
  * Pure presentation card for uploading book PDF, selecting target audience,
  * and configuring word count for AI-driven ending generation.
  */
-export function PdfInputCard({ onGenerate, loading = false }) {
+export function PdfInputCard({ onGenerate, loading = false, showHeader = true }) {
   const {
     file,
     fileInputRef,
@@ -36,12 +36,14 @@ export function PdfInputCard({ onGenerate, loading = false }) {
       dir="rtl"
       aria-label="نموذج توليد الخاتمة"
     >
-      <div className="ktab-pdf-input-card__title-group">
-        <h3 className="ktab-pdf-input-card__title">إعدادات التحليل والتوليد</h3>
-        <p className="ktab-pdf-input-card__subtitle">
-          ارفع مسودة الكتاب وحدد الخصائص لصياغة خاتمة احترافية
-        </p>
-      </div>
+      {showHeader && (
+        <div className="ktab-pdf-input-card__title-group">
+          <h3 className="ktab-pdf-input-card__title">إعدادات التحليل والتوليد</h3>
+          <p className="ktab-pdf-input-card__subtitle">
+            ارفع مسودة الكتاب وحدد الخصائص لصياغة خاتمة احترافية
+          </p>
+        </div>
+      )}
 
       {/* PDF Upload Dropzone */}
       <div className="ktab-pdf-input-field">
