@@ -41,6 +41,10 @@ export function useBookDetailsDrawer({ isOpen, onClose, book }) {
   const activeBook = details || book;
   const coverUrl = activeBook?.coverImageUrl || activeBook?.cover;
   const isDraft = activeBook?.status === "DRAFT" || activeBook?.isDraft;
+  const isPending =
+    activeBook?.status === "PENDING_APPROVAL" ||
+    activeBook?.status === "UNDER_REVIEW" ||
+    activeBook?.status === "PENDING";
 
   useEffect(() => {
     setCoverLoaded(false);
@@ -81,7 +85,7 @@ export function useBookDetailsDrawer({ isOpen, onClose, book }) {
   const title = activeBook?.title || "كتاب بدون عنوان";
   const author = activeBook?.authorName || activeBook?.customAuthorName || "مؤلف مستقل";
   const description = activeBook?.description || "";
-  const statusLabel = isDraft ? "مسودة" : "منشور";
+  const statusLabel = isDraft ? "مسودة" : isPending ? "قيد المراجعة" : "منشور";
   const mainGenre = activeBook?.mainGenreName || activeBook?.mainGenre?.name || activeBook?.genreName || "عام";
   const subGenre = activeBook?.subGenreName || activeBook?.subGenre?.name || null;
   const pageCountText = activeBook?.pageCount ? `${activeBook.pageCount} صفحة` : "غير محدد";
@@ -166,8 +170,8 @@ export function useBookDetailsDrawer({ isOpen, onClose, book }) {
       id: "status",
       label: "حالة النشر",
       value: statusLabel,
-      iconType: isDraft ? "clock" : "check",
-      highlight: isDraft ? "draft" : "published",
+      iconType: isDraft || isPending ? "clock" : "check",
+      highlight: isDraft ? "draft" : isPending ? "pending" : "published",
     },
     {
       id: "rating",
@@ -218,6 +222,7 @@ export function useBookDetailsDrawer({ isOpen, onClose, book }) {
   return {
     coverUrl,
     isDraft,
+    isPending,
     title,
     author,
     description,

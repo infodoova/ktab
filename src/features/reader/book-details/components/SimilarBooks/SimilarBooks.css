@@ -80,7 +80,7 @@
 .apple-similar-card__artwork {
   position: relative;
   width: 100%;
-  aspect-ratio: 1 / 1.35;
+  aspect-ratio: 3 / 4;
   background-color: var(--bg-primary);
   border: 1px solid var(--border-subtle);
   border-radius: 0.85rem;
@@ -106,58 +106,52 @@
   transform: scale(1.04);
 }
 
-/* Audio Badge on Cover (Top-Left) */
-.apple-similar-card__audio-badge {
-  position: absolute;
-  top: 0.5rem;
-  left: 0.5rem;
-  z-index: 5;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.22rem 0.5rem;
-  border-radius: 9999px;
-  background-color: rgba(15, 23, 42, 0.78);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #ffffff;
-  font-size: 0.6875rem;
-  font-weight: 750;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-  line-height: 1;
-}
-
-/* Floating Specs Pill on Cover (Bottom-Right) */
-.apple-similar-card__cover-specs {
+/* Floating Cover Footer */
+.apple-similar-card__cover-footer {
   position: absolute;
   bottom: 0.55rem;
+  left: 0.55rem;
   right: 0.55rem;
-  z-index: 5;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  pointer-events: none;
+}
+
+.apple-similar-card__footer-pill {
   display: inline-flex;
   align-items: center;
   gap: 0.28rem;
+  height: 24px;
   background-color: rgba(15, 23, 42, 0.78);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   color: #ffffff;
   font-size: 0.6875rem;
   font-weight: 750;
-  padding: 0.22rem 0.5rem;
+  padding: 0 0.5rem;
   border-radius: 9999px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
   font-family: var(--font-english), var(--font-arabic), sans-serif;
   font-variant-numeric: tabular-nums;
   line-height: 1;
-  pointer-events: none;
 }
 
-.apple-similar-card__spec-item {
+.apple-similar-card__footer-pill svg {
+  display: block;
+  flex-shrink: 0;
+  width: 11px;
+  height: 11px;
+}
+
+.apple-similar-card__footer-pill span {
   display: inline-flex;
   align-items: center;
-  gap: 0.2rem;
-  font-weight: 600;
+  line-height: 1;
+  padding-top: 2px;
 }
 
 .apple-similar-card__star-icon {
@@ -165,8 +159,13 @@
   fill: #fbbf24;
 }
 
-.apple-similar-card__spec-dot {
-  opacity: 0.5;
+.apple-similar-card__footer-pill--audio-active {
+  color: var(--brand-teal);
+  border-color: rgba(93, 227, 186, 0.35);
+}
+
+.apple-similar-card__footer-pill--audio-inactive {
+  color: rgba(255, 255, 255, 0.65);
 }
 
 /* Text Body UNDER Card */
@@ -178,11 +177,10 @@
 }
 
 .apple-similar-card__genre {
-  font-size: 0.6875rem;
+  font-size: 0.656rem;
   font-weight: 750;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: var(--text-subtle);
+  letter-spacing: 0.02em;
+  color: var(--brand-teal-deep);
   line-height: 1.2;
 }
 

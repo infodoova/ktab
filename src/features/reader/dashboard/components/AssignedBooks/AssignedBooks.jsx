@@ -8,6 +8,9 @@ import {
   Trash2,
   Eye,
   Compass,
+  Headphones,
+  FileText,
+  Star,
 } from "lucide-react";
 import brandIconImg from "@/assets/logo/BrandIcon.png";
 import { useAssignedBooks } from "./useAssignedBooks";
@@ -15,6 +18,7 @@ import "./AssignedBooks.css";
 
 /**
  * Individual Assigned Book Card with independent cover loading & error handling.
+ * Standardized with unified 3:4 cover, floating footer pills, and 3-line body.
  */
 function AssignedBookCard({
   book,
@@ -29,7 +33,22 @@ function AssignedBookCard({
 
   const coverSrc = book.coverImageUrl || book.cover;
   const bookTitle = book.title || "بدون عنوان";
-  const authorName = book.author || book.authorName || "مؤلف غير محدد";
+  const authorName =
+    (book.customAuthorName && book.customAuthorName.trim()) ||
+    (book.authorName && book.authorName.trim()) ||
+    (book.author && book.author.trim()) ||
+    "مؤلف غير محدد";
+  const genreLabel =
+    book.mainGenreName && book.subGenreName && book.mainGenreName.trim() !== book.subGenreName.trim()
+      ? `${book.mainGenreName.trim()} / ${book.subGenreName.trim()}`
+      : (book.mainGenreName && book.mainGenreName.trim()) ||
+        (book.subGenreName && book.subGenreName.trim()) ||
+        (book.genre && book.genre.trim()) ||
+        "";
+  const hasAudio = Boolean(book.hasAudio);
+  const pageCount = book.pageCount || null;
+  const rating = Number(book.averageRating) || 0;
+  const isDraft = String(book.status || "").toUpperCase() === "DRAFT" || Boolean(book.isDraft);
 
   return (
     <article className="ktab-assigned-card">
@@ -69,51 +88,85 @@ function AssignedBookCard({
             />
           </div>
         )}
-      </div>
 
-      {/* More Options Button & Dropdown */}
-      <div className="ktab-assigned-card__menu-area">
-        <button
-          type="button"
-          onClick={(e) => onToggleMenu(book.id, e)}
-          className="ktab-assigned-card__menu-btn"
-          aria-label="خيارات إضافية"
-          title="خيارات إضافية"
-        >
-          <MoreVertical size={14} strokeWidth={2.4} />
-        </button>
-
-        {isMenuOpen && (
-          <div className="ktab-assigned-card__menu-popover" role="menu">
-            <button
-              type="button"
-              onClick={() => onReadBook(book)}
-              className="ktab-assigned-card__menu-item"
-              role="menuitem"
-            >
-              <BookOpen size={14} strokeWidth={2.2} />
-              <span>قراءة الكتاب</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => onSelectBook(book)}
-              className="ktab-assigned-card__menu-item"
-              role="menuitem"
-            >
-              <Eye size={14} strokeWidth={2.2} />
-              <span>عرض التفاصيل</span>
-            </button>
-            <button
-              type="button"
-              onClick={(e) => onRemoveBook(book.id, e)}
-              className="ktab-assigned-card__menu-item ktab-assigned-card__menu-item--danger"
-              role="menuitem"
-            >
-              <Trash2 size={14} strokeWidth={2.2} />
-              <span>إزالة من المفضلة</span>
-            </button>
+        {/* Top-Right: Draft Badge */}
+        {isDraft && (
+          <div className="ktab-assigned-card__top-badges">
+            <span className="ktab-assigned-card__draft-badge">مسودة</span>
           </div>
         )}
+
+        {/* More Options Button & Dropdown */}
+        <div className="ktab-assigned-card__menu-area" onClick={(e) => e.stopPropagation()}>
+          <button
+            type="button"
+            onClick={(e) => onToggleMenu(book.id, e)}
+            className="ktab-assigned-card__menu-btn"
+            aria-label="خيارات إضافية"
+            title="خيارات إضافية"
+          >
+            <MoreVertical size={14} strokeWidth={2.4} />
+          </button>
+
+          {isMenuOpen && (
+            <div className="ktab-assigned-card__menu-popover" role="menu">
+              <button
+                type="button"
+                onClick={() => onReadBook(book)}
+                className="ktab-assigned-card__menu-item"
+                role="menuitem"
+              >
+                <BookOpen size={14} strokeWidth={2.2} />
+                <span>قراءة الكتاب</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => onSelectBook(book)}
+                className="ktab-assigned-card__menu-item"
+                role="menuitem"
+              >
+                <Eye size={14} strokeWidth={2.2} />
+                <span>عرض التفاصيل</span>
+              </button>
+              <button
+                type="button"
+                onClick={(e) => onRemoveBook(book.id, e)}
+                className="ktab-assigned-card__menu-item ktab-assigned-card__menu-item--danger"
+                role="menuitem"
+              >
+                <Trash2 size={14} strokeWidth={2.2} />
+                <span>إزالة من المفضلة</span>
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Floating Cover Footer */}
+        <div className="ktab-assigned-card__cover-footer">
+          {pageCount ? (
+            <div className="ktab-assigned-card__footer-pill" title={`${pageCount} صفحة`}>
+              <FileText size={11} />
+              <span>{pageCount} صفحة</span>
+            </div>
+          ) : rating > 0 ? (
+            <div className="ktab-assigned-card__footer-pill" title={`التقييم: ${rating.toFixed(1)}`}>
+              <Star size={11} className="ktab-assigned-card__star-icon" />
+              <span>{rating.toFixed(1)}</span>
+            </div>
+          ) : null}
+
+          <div
+            className={`ktab-assigned-card__footer-pill ${
+              hasAudio
+                ? "ktab-assigned-card__footer-pill--audio-active"
+                : "ktab-assigned-card__footer-pill--audio-inactive"
+            }`}
+            title={hasAudio ? "يتوفر نسخة صوتية" : "نسخة نصية فقط"}
+          >
+            {hasAudio ? <Headphones size={11} /> : <BookOpen size={11} />}
+            <span>{hasAudio ? "صوتي" : "نصي"}</span>
+          </div>
+        </div>
       </div>
 
       {/* Info Text */}
@@ -121,6 +174,11 @@ function AssignedBookCard({
         className="ktab-assigned-card__body"
         onClick={() => onSelectBook(book)}
       >
+        {genreLabel && (
+          <span className="ktab-assigned-card__genre" title={genreLabel}>
+            {genreLabel}
+          </span>
+        )}
         <h3 className="ktab-assigned-card__title" title={bookTitle}>
           {bookTitle}
         </h3>

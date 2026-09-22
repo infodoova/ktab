@@ -1,0 +1,284 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   UNIFIED DELETE CONFIRMATION MODAL STYLES
+   Standard Apple / Eleven Reader Editorial Design across all app roles
+   Zero hardcoded colors — pure dynamic tokens from src/index.css
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.ktab-confirm-del-modal {
+  max-width: 440px !important;
+  position: relative !important;
+  padding: 0 !important;
+  overflow: visible !important;
+}
+
+.ktab-confirm-del-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 28px 24px 24px;
+  direction: rtl;
+  box-sizing: border-box;
+}
+
+/* Close (X) button at top corner */
+.ktab-confirm-del__close-btn {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
+  background: var(--bg-secondary, #f8fafc);
+  color: var(--text-muted, #64748b);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  z-index: 5;
+}
+
+.ktab-confirm-del__close-btn:hover:not(:disabled) {
+  background: var(--bg-primary, #ffffff);
+  color: var(--brand-black, #0a0a0a);
+  border-color: var(--border-card, rgba(0, 0, 0, 0.15));
+  transform: scale(1.05);
+}
+
+.ktab-confirm-del__close-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Red Alert Icon Box */
+.ktab-confirm-del__icon-box {
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--color-danger, #ef4444);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+  flex-shrink: 0;
+  border: 1px solid rgba(239, 68, 68, 0.15);
+}
+
+/* Content Typography */
+.ktab-confirm-del__body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.ktab-confirm-del__title {
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--brand-black, #0a0a0a);
+  margin: 0;
+  letter-spacing: -0.015em;
+  line-height: 1.35;
+}
+
+.ktab-confirm-del__desc {
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--text-muted, #64748b);
+  margin: 0;
+}
+
+.ktab-confirm-del__highlight {
+  font-weight: 700;
+  color: var(--brand-black, #0a0a0a);
+}
+
+.ktab-confirm-del__warning-note {
+  display: block;
+  margin-top: 6px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--text-muted, #64748b);
+}
+
+/* Form Container */
+.ktab-confirm-del__form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+/* Strict Verification Input Block */
+.ktab-confirm-del__verify-block {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  text-align: right;
+  gap: 8px;
+  margin-bottom: 22px;
+  width: 100%;
+}
+
+.ktab-confirm-del__verify-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted, #475569);
+  line-height: 1.5;
+  text-align: right;
+}
+
+.ktab-confirm-del__verify-target {
+  display: inline-block;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--brand-black, #0a0a0a);
+  background: var(--bg-secondary, #f8fafc);
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px dashed var(--border-card, rgba(0, 0, 0, 0.15));
+  user-select: all;
+  word-break: break-word;
+}
+
+.ktab-confirm-del__input-wrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.ktab-confirm-del__input {
+  width: 100%;
+  height: 44px;
+  padding: 0 14px 0 38px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border-card, rgba(0, 0, 0, 0.12));
+  background: var(--bg-primary, #ffffff);
+  color: var(--brand-black, #0a0a0a);
+  font-family: var(--font-arabic), sans-serif;
+  font-size: 13.5px;
+  outline: none;
+  box-sizing: border-box;
+  transition: all 0.18s ease;
+}
+
+.ktab-confirm-del__input:focus {
+  border-color: var(--color-danger, #ef4444);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+}
+
+.ktab-confirm-del__input--matched {
+  border-color: var(--brand-teal-dark, #4ed4ab) !important;
+  background-color: var(--brand-teal-soft, #e6faf4) !important;
+  box-shadow: 0 0 0 3px var(--brand-teal-ambient, rgba(93, 227, 186, 0.15)) !important;
+}
+
+.ktab-confirm-del__matched-icon {
+  position: absolute;
+  left: 12px;
+  color: var(--brand-teal-deep, #0d9488);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.ktab-confirm-del__mismatch-hint {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--color-danger, #ef4444);
+  margin-top: -2px;
+  text-align: right;
+}
+
+/* Actions Row */
+.ktab-confirm-del__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.ktab-confirm-del__btn-cancel {
+  flex: 1;
+  height: 44px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: var(--font-arabic), sans-serif;
+  background-color: var(--bg-secondary, #f1f5f9);
+  color: var(--brand-black, #0a0a0a);
+  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.18s ease;
+}
+
+.ktab-confirm-del__btn-cancel:hover:not(:disabled) {
+  background-color: #e2e8f0;
+  border-color: rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px);
+}
+
+.ktab-confirm-del__btn-cancel:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.ktab-confirm-del__btn-confirm {
+  flex: 1;
+  height: 44px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: var(--font-arabic), sans-serif;
+  background-color: var(--color-danger, #ef4444);
+  color: #ffffff;
+  border: 1px solid var(--color-danger, #ef4444);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.28);
+  transition: all 0.18s ease;
+}
+
+.ktab-confirm-del__btn-confirm:hover:not(:disabled) {
+  background-color: #dc2626;
+  border-color: #dc2626;
+  box-shadow: 0 6px 18px rgba(239, 68, 68, 0.38);
+  transform: translateY(-1px);
+}
+
+.ktab-confirm-del__btn-confirm:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+  background-color: #cbd5e1;
+  border-color: #cbd5e1;
+  color: #475569;
+}
+
+@media (max-width: 480px) {
+  .ktab-confirm-del__actions {
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
+
+  .ktab-confirm-del__btn-cancel,
+  .ktab-confirm-del__btn-confirm {
+    width: 100%;
+  }
+}

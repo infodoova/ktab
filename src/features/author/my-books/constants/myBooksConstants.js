@@ -11,5 +11,6 @@ export const MY_BOOKS_SORT_OPTIONS = [
 
 export const MY_BOOKS_STATUS = {
   PUBLISHED: "PUBLISHED",
+  UNDER_REVIEW: "UNDER_REVIEW",
   DRAFT: "DRAFT",
 };

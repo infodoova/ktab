@@ -67,6 +67,7 @@ export function BookDetailsDrawer({ isOpen, onClose, book }) {
   const {
     coverUrl,
     isDraft,
+    isPending,
     title,
     author,
     description,
@@ -79,6 +80,9 @@ export function BookDetailsDrawer({ isOpen, onClose, book }) {
     handleCoverLoad,
     handleCoverError,
   } = useBookDetailsDrawer({ isOpen, onClose, book });
+
+  const isMobile =
+    typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches;
 
   return (
     <AnimatePresence>
@@ -99,20 +103,34 @@ export function BookDetailsDrawer({ isOpen, onClose, book }) {
             className="ktab-book-drawer-backdrop-overlay"
           />
 
-          {/* Drawer Panel */}
+          {/* Drawer Panel (Bottom Sheet on mobile, Left Card on desktop) */}
           <motion.div
-            initial={{ opacity: 0, x: -50, scale: 0.98 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            exit={{ opacity: 0, x: -50, scale: 0.98 }}
+            initial={
+              isMobile
+                ? { opacity: 0, y: "100%" }
+                : { opacity: 0, x: -50, scale: 0.98 }
+            }
+            animate={
+              isMobile
+                ? { opacity: 1, y: 0 }
+                : { opacity: 1, x: 0, scale: 1 }
+            }
+            exit={
+              isMobile
+                ? { opacity: 0, y: "100%" }
+                : { opacity: 0, x: -50, scale: 0.98 }
+            }
             transition={{
               type: "spring",
-              damping: 30,
-              stiffness: 350,
+              damping: isMobile ? 32 : 30,
+              stiffness: isMobile ? 320 : 350,
               mass: 0.8,
             }}
             className="ktab-book-drawer"
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Mobile BottomSheet Drag Handle */}
+            <div className="ktab-book-drawer-handle" />
             {/* Header */}
             <div className="ktab-book-drawer__header">
               <h3 id="book-drawer-title" className="ktab-book-drawer__title">
@@ -173,10 +191,12 @@ export function BookDetailsDrawer({ isOpen, onClose, book }) {
                       className={`ktab-book-drawer__status-pill ${
                         isDraft
                           ? "ktab-book-drawer__status-pill--draft"
+                          : isPending
+                          ? "ktab-book-drawer__status-pill--pending"
                           : "ktab-book-drawer__status-pill--published"
                       }`}
                     >
-                      {isDraft ? <Clock size={12} /> : <CheckCircle2 size={12} />}
+                      {isDraft || isPending ? <Clock size={12} /> : <CheckCircle2 size={12} />}
                       <span>{statusLabel}</span>
                     </span>
                   </div>

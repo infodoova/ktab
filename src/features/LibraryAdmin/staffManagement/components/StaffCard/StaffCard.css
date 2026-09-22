@@ -1,0 +1,188 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   LIBRARY ADMIN STAFF CARD STYLES (Compact, Editorial, Zero Border Radius)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.ktab-staff-card {
+  position: relative;
+  background-color: var(--bg-primary, #ffffff);
+  border: 1px solid var(--border-card, rgba(0, 0, 0, 0.08));
+  border-radius: 0;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.2s ease;
+  direction: rtl;
+  box-sizing: border-box;
+}
+
+.ktab-staff-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.08);
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+.ktab-staff-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+}
+
+.ktab-staff-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.ktab-staff-card__title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+
+.ktab-staff-card__icon-wrapper {
+  width: 36px;
+  height: 36px;
+  border-radius: 0;
+  background-color: var(--bg-secondary, #f8fafc);
+  color: var(--brand-black, #0a0a0a);
+  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.06));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ktab-staff-card__meta {
+  min-width: 0;
+  flex: 1;
+}
+
+.ktab-staff-card__name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--brand-black, #0a0a0a);
+  margin: 0 0 2px 0;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ktab-staff-card__role {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  color: var(--text-muted, #64748b);
+  margin: 0;
+}
+
+.ktab-staff-card__menu-container {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.ktab-staff-card__menu-btn {
+  background: transparent;
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 0;
+  color: var(--text-muted, #64748b);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.ktab-staff-card__menu-btn:hover {
+  background-color: var(--bg-secondary, #f1f5f9);
+  color: var(--brand-black, #0a0a0a);
+}
+
+.ktab-staff-card__dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 150px;
+  background-color: var(--bg-primary, #ffffff);
+  border: 1px solid var(--border-card, rgba(0, 0, 0, 0.08));
+  border-radius: 0;
+  box-shadow: 0 8px 20px -3px rgba(0, 0, 0, 0.12);
+  padding: 4px;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ktab-staff-card__dropdown-item {
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  font-size: 12.5px;
+  font-weight: 600;
+  border-radius: 0;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  width: 100%;
+  text-align: right;
+}
+
+.ktab-staff-card__dropdown-item--delete {
+  color: #dc2626;
+}
+
+.ktab-staff-card__dropdown-item--delete:hover {
+  background-color: rgba(239, 68, 68, 0.08);
+}
+
+/* Info Section */
+.ktab-staff-card__info-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.05));
+}
+
+.ktab-staff-card__info-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12.5px;
+  color: var(--text-muted, #4b5563);
+}
+
+.ktab-staff-card__info-row svg {
+  flex-shrink: 0;
+  color: var(--text-muted, #94a3b8);
+}
+
+.ktab-staff-card__email,
+.ktab-staff-card__lib-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .ktab-staff-card {
+    padding: 14px 16px;
+  }
+
+  .ktab-staff-card__name {
+    font-size: 14px;
+  }
+}

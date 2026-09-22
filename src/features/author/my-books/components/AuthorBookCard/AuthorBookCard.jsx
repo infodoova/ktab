@@ -1,5 +1,14 @@
 import React from "react";
-import { MoreVertical, Trash2, Edit, Eye, Star, Headphones } from "lucide-react";
+import {
+  MoreVertical,
+  Trash2,
+  Edit,
+  Eye,
+  Star,
+  Headphones,
+  BookOpen,
+  FileText,
+} from "lucide-react";
 import brandIconImg from "@/assets/logo/BrandIcon.png";
 import { useAuthorBookCard } from "./useAuthorBookCard";
 import "./AuthorBookCard.css";
@@ -22,12 +31,13 @@ export const AuthorBookCard = React.memo(function AuthorBookCard({
   const {
     coverUrl,
     isDraft,
+    isPendingApproval,
     isOpen,
     coverLoaded,
     hasCoverError,
     ratingText,
     hasAudio,
-    languageLabel,
+    pageCount,
     genreLabel,
     authorDisplayName,
     handleCoverLoad,
@@ -47,55 +57,62 @@ export const AuthorBookCard = React.memo(function AuthorBookCard({
   });
 
   return (
-    <div
-      onClick={handleDetailsClick}
-      className="ktab-book-card"
-      dir="rtl"
-      role="button"
+    <article
       tabIndex={0}
+      role="button"
+      aria-label={`كتاب: ${book.title || "بدون عنوان"}`}
+      className={`ktab-book-card ${isDraft ? "ktab-book-card--draft" : ""}`}
+      onClick={handleDetailsClick}
       onKeyDown={handleKeyDown}
     >
-      {/* Cover Image + Floating Menu Actions */}
-      <div className="ktab-book-card__cover-wrap">
-        {!coverUrl || hasCoverError ? (
-          <div
-            className="ktab-book-card__fallback-cover"
-            role="img"
-            aria-label={book?.title || "كتاب"}
-          >
-            <img
-              src={brandIconImg}
-              alt=""
-              className="ktab-book-card__fallback-logo"
-              aria-hidden="true"
-            />
-          </div>
-        ) : (
-          <div className="ktab-book-card__image-container">
-            {!coverLoaded && <div className="ktab-book-card__cover-shimmer" />}
+      {/* Visual Cover Stage */}
+      <div className="ktab-book-card__stage">
+        <div className="ktab-book-card__media">
+          {coverUrl && !hasCoverError ? (
             <img
               src={coverUrl}
-              alt={book?.title || "كتاب"}
+              alt={book.title || "غلاف الكتاب"}
+              className={`ktab-book-card__img ${coverLoaded ? "is-loaded" : ""}`}
+              loading="lazy"
+              decoding="async"
               onLoad={handleCoverLoad}
               onError={handleCoverError}
-              className={`ktab-book-card__cover-img ${
-                coverLoaded
-                  ? "ktab-book-card__cover-img--loaded"
-                  : "ktab-book-card__cover-img--loading"
-              }`}
+            />
+          ) : (
+            <div className="ktab-book-card__placeholder">
+              <BookOpen size={36} className="ktab-book-card__placeholder-icon" />
+              <span className="ktab-book-card__placeholder-title">
+                {book.title || "كتاب"}
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* Ambient Glow */}
+        {coverUrl && !hasCoverError && (
+          <div className="ktab-book-card__ambient">
+            <img
+              src={coverUrl}
+              alt=""
+              aria-hidden="true"
+              className="ktab-book-card__ambient-img"
               loading="lazy"
               decoding="async"
             />
           </div>
         )}
 
-        {/* Top-Right: Draft and Language Badges */}
-        <div className="ktab-book-card__top-badges">
-          {isDraft && (
+        {/* Top-Right: Status Badge */}
+        {isDraft && (
+          <div className="ktab-book-card__top-badges">
             <span className="ktab-book-card__draft-badge">مسودة</span>
-          )}
-          <span className="ktab-book-card__lang-badge">{languageLabel}</span>
-        </div>
+          </div>
+        )}
+        {isPendingApproval && (
+          <div className="ktab-book-card__top-badges">
+            <span className="ktab-book-card__pending-badge">قيد المراجعة</span>
+          </div>
+        )}
 
         {/* Top-Left: Menu Actions */}
         <div className="ktab-book-card__menu-anchor book-menu-area">
@@ -146,12 +163,19 @@ export const AuthorBookCard = React.memo(function AuthorBookCard({
           )}
         </div>
 
-        {/* Bottom Floating Cover Bar: Rating & Audio */}
+        {/* Bottom Floating Cover Bar: Specs & Audio */}
         <div className="ktab-book-card__cover-footer">
-          <div className="ktab-book-card__footer-pill" title={`التقييم: ${ratingText}`}>
-            <Star size={11} className="ktab-book-card__star-icon" />
-            <span>{ratingText}</span>
-          </div>
+          {pageCount ? (
+            <div className="ktab-book-card__footer-pill" title={`${pageCount} صفحة`}>
+              <FileText size={11} />
+              <span>{pageCount} صفحة</span>
+            </div>
+          ) : Number(ratingText) > 0 ? (
+            <div className="ktab-book-card__footer-pill" title={`التقييم: ${ratingText}`}>
+              <Star size={11} className="ktab-book-card__star-icon" />
+              <span>{ratingText}</span>
+            </div>
+          ) : null}
 
           <div
             className={`ktab-book-card__footer-pill ${
@@ -161,7 +185,7 @@ export const AuthorBookCard = React.memo(function AuthorBookCard({
             }`}
             title={hasAudio ? "يتوفر نسخة صوتية" : "نسخة نصية فقط"}
           >
-            <Headphones size={11} />
+            {hasAudio ? <Headphones size={11} /> : <BookOpen size={11} />}
             <span>{hasAudio ? "صوتي" : "نصي"}</span>
           </div>
         </div>
@@ -169,17 +193,19 @@ export const AuthorBookCard = React.memo(function AuthorBookCard({
 
       {/* Card Body */}
       <div className="ktab-book-card__body">
+        {genreLabel && (
+          <span className="ktab-book-card__genre" title={genreLabel}>
+            {genreLabel}
+          </span>
+        )}
         <h4 className="ktab-book-card__title" title={book?.title}>
           {book?.title}
         </h4>
-        <p
-          className="ktab-book-card__author"
-          title={`${authorDisplayName} • ${genreLabel}`}
-        >
-          {genreLabel} • {authorDisplayName}
+        <p className="ktab-book-card__author" title={authorDisplayName}>
+          {authorDisplayName}
         </p>
       </div>
-    </div>
+    </article>
   );
 });
 

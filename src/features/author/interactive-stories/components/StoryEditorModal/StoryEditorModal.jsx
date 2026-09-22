@@ -34,6 +34,9 @@ export function StoryEditorModal({ isOpen, onClose, story }) {
     constitutionEntries,
   } = useStoryEditorModal({ isOpen, onClose, story });
 
+  const isMobile =
+    typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches;
+
   return (
     <AnimatePresence>
       {isOpen && story && (
@@ -53,20 +56,34 @@ export function StoryEditorModal({ isOpen, onClose, story }) {
             className="ktab-story-drawer-backdrop-overlay"
           />
 
-          {/* Drawer Panel */}
+          {/* Drawer Panel (Bottom Sheet on mobile, Left Card on desktop) */}
           <motion.div
-            initial={{ opacity: 0, x: -50, scale: 0.98 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            exit={{ opacity: 0, x: -50, scale: 0.98 }}
+            initial={
+              isMobile
+                ? { opacity: 0, y: "100%" }
+                : { opacity: 0, x: -50, scale: 0.98 }
+            }
+            animate={
+              isMobile
+                ? { opacity: 1, y: 0 }
+                : { opacity: 1, x: 0, scale: 1 }
+            }
+            exit={
+              isMobile
+                ? { opacity: 0, y: "100%" }
+                : { opacity: 0, x: -50, scale: 0.98 }
+            }
             transition={{
               type: "spring",
-              damping: 30,
-              stiffness: 350,
+              damping: isMobile ? 32 : 30,
+              stiffness: isMobile ? 320 : 350,
               mass: 0.8,
             }}
             className="ktab-story-drawer"
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Mobile BottomSheet Drag Handle */}
+            <div className="ktab-story-drawer-handle" />
             {/* Header */}
             <div className="ktab-story-drawer__header">
               <h3 id="story-drawer-title" className="ktab-story-drawer__title">

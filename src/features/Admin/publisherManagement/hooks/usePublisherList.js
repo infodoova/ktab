@@ -74,7 +74,8 @@ export function usePublisherList() {
     return list.filter((pub) => {
       const fullName = (pub.fullName || `${pub.firstName || ""} ${pub.lastName || ""}`).toLowerCase();
       const email = (pub.email || "").toLowerCase();
-      return fullName.includes(query) || email.includes(query);
+      const id = String(pub.id || "");
+      return fullName.includes(query) || email.includes(query) || id.includes(query);
     });
   }, [publishers, searchQuery, statusFilter]);
 

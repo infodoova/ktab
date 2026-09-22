@@ -89,7 +89,11 @@ export function MyBooksView({ pageName = "كتبي" }) {
         <div className="ktab-mybooks-section-header">
           <div className="ktab-mybooks-section-meta">
             <h2 className="ktab-mybooks-section-title">
-              {status === "DRAFT" ? "المسودات" : "الكتب المنشورة"}
+              {status === "DRAFT"
+                ? "المسودات"
+                : status === "UNDER_REVIEW"
+                ? "قيد المراجعة"
+                : "الكتب المنشورة"}
             </h2>
             <span className="ktab-mybooks-section-count">
               {totalElements}{" "}
@@ -113,6 +117,15 @@ export function MyBooksView({ pageName = "كتبي" }) {
               }`}
             >
               الكتب المنشورة
+            </button>
+            <button
+              type="button"
+              onClick={() => handleStatusChange("UNDER_REVIEW")}
+              className={`ktab-mybooks-status-tab ${
+                status === "UNDER_REVIEW" ? "ktab-mybooks-status-tab--active" : ""
+              }`}
+            >
+              قيد المراجعة
             </button>
             <button
               type="button"
@@ -174,6 +187,7 @@ export function MyBooksView({ pageName = "كتبي" }) {
           loadingMore={loadingMore}
           page={page}
           totalPages={totalPages}
+          status={status}
           openMenuId={openMenuId}
           setOpenMenuId={setOpenMenuId}
           onBookClick={setSelectedBookForDetails}
@@ -206,7 +220,19 @@ export function MyBooksView({ pageName = "كتبي" }) {
                   }`}
                   style={{ flex: 1, textAlign: "center" }}
                 >
-                  الكتب المنشورة
+                  المنشورة
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleStatusChange("UNDER_REVIEW");
+                  }}
+                  className={`ktab-mybooks-status-tab ${
+                    status === "UNDER_REVIEW" ? "ktab-mybooks-status-tab--active" : ""
+                  }`}
+                  style={{ flex: 1, textAlign: "center" }}
+                >
+                  قيد المراجعة
                 </button>
                 <button
                   type="button"

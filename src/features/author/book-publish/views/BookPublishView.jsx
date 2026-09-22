@@ -2,6 +2,7 @@ import React from "react";
 import { useLocation } from "react-router-dom";
 import { AppLayout } from "@/components/myui/layout";
 import { BookPublishForm, UploadProgressModal } from "../components";
+import { PublishConfirmModal } from "@/components/common/PublishConfirmModal";
 import { useBookPublish } from "../hooks/useBookPublish";
 import "./BookPublishView.css";
 
@@ -45,6 +46,15 @@ export function BookPublishView({ pageName = "نشر كتاب جديد" }) {
           handleRemoveCover={publishHook.handleRemoveCover}
           handleSaveDraft={publishHook.handleSaveDraft}
           handleFormSubmit={publishHook.handleFormSubmit}
+        />
+
+        <PublishConfirmModal
+          isOpen={publishHook.isConfirmModalOpen}
+          expectedTitle={publishHook.formData.title}
+          isAuthor={true}
+          loading={publishHook.loading}
+          onConfirm={publishHook.handleConfirmPublish}
+          onClose={publishHook.closePublishConfirmModal}
         />
 
         <UploadProgressModal

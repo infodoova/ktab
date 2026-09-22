@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { ChevronRight, ChevronLeft, Headphones, Star } from "lucide-react";
+import { ChevronRight, ChevronLeft, Headphones, BookOpen, FileText, Star } from "lucide-react";
 import brandIconImg from "@/assets/logo/BrandIcon.png";
 import { useRecommendedBooks } from "./useRecommendedBooks";
 import "./RecommendedBooks.css";
 
 /**
  * Individual Recommended Book Card with independent cover loading & fallback state.
- * Renders minimal important details: cover, audio badge, genre, title, author, rating, and page count.
+ * Standardized across all roles with unified 3:4 cover, footer pills, and 3-line body.
  */
 function RecommendedBookCard({ book, onSelect }) {
   const [coverLoaded, setCoverLoaded] = useState(false);
@@ -15,14 +15,20 @@ function RecommendedBookCard({ book, onSelect }) {
   const coverSrc = book?.coverImageUrl || book?.cover || "";
   const bookTitle = book?.title || "بدون عنوان";
   const authorName =
-    book?.customAuthorName ||
-    book?.authorName ||
-    book?.author ||
+    (book?.customAuthorName && book.customAuthorName.trim()) ||
+    (book?.authorName && book.authorName.trim()) ||
+    (book?.author && book.author.trim()) ||
     "مؤلف غير محدد";
-  const genre = book?.mainGenreName || book?.genre || null;
+  const genre =
+    book?.mainGenreName && book?.subGenreName && book.mainGenreName.trim() !== book.subGenreName.trim()
+      ? `${book.mainGenreName.trim()} / ${book.subGenreName.trim()}`
+      : (book?.mainGenreName && book.mainGenreName.trim()) ||
+        (book?.subGenreName && book.subGenreName.trim()) ||
+        (book?.genre && book.genre.trim()) ||
+        null;
+  const isDraft = String(book?.status || "").toUpperCase() === "DRAFT" || Boolean(book?.isDraft);
   const hasAudio = Boolean(book?.hasAudio);
   const rating = Number(book?.averageRating) || 0;
-  const totalReviews = Number(book?.totalReviews) || 0;
   const pageCount = book?.pageCount || null;
 
   return (
@@ -67,38 +73,48 @@ function RecommendedBookCard({ book, onSelect }) {
           </div>
         )}
 
-        {/* Audio Badge on Cover (Top-Left) */}
-        {hasAudio && (
-          <div className="ktab-book-shelf-card__audio-badge" title="يتضمن نسخة صوتية">
-            <Headphones size={11} strokeWidth={2.4} />
-            <span>صوتي</span>
+        {/* Top-Right: Draft Badge */}
+        {isDraft && (
+          <div className="ktab-book-shelf-card__top-badges">
+            <span className="ktab-book-shelf-card__draft-badge">مسودة</span>
           </div>
         )}
 
-        {/* Specs Floating Pill on Cover (Bottom-Right) */}
-        {(rating > 0 || totalReviews > 0 || pageCount) && (
-          <div className="ktab-book-shelf-card__cover-specs">
-            <span className="ktab-book-shelf-card__spec-item">
-              <Star size={10} className="ktab-book-shelf-card__star-icon" />
-              <span>
-                {rating > 0 ? rating.toFixed(1) : "جديد"}
-                {totalReviews > 0 ? ` (${totalReviews})` : ""}
-              </span>
-            </span>
+        {/* Floating Cover Footer */}
+        <div className="ktab-book-shelf-card__cover-footer">
+          {pageCount ? (
+            <div className="ktab-book-shelf-card__footer-pill" title={`${pageCount} صفحة`}>
+              <FileText size={11} />
+              <span>{pageCount} صفحة</span>
+            </div>
+          ) : rating > 0 ? (
+            <div className="ktab-book-shelf-card__footer-pill" title={`التقييم: ${rating.toFixed(1)}`}>
+              <Star size={11} className="ktab-book-shelf-card__star-icon" />
+              <span>{rating.toFixed(1)}</span>
+            </div>
+          ) : null}
 
-            {pageCount && (
-              <>
-                <span className="ktab-book-shelf-card__spec-dot">•</span>
-                <span className="ktab-book-shelf-card__spec-item">{pageCount} ص</span>
-              </>
-            )}
+          <div
+            className={`ktab-book-shelf-card__footer-pill ${
+              hasAudio
+                ? "ktab-book-shelf-card__footer-pill--audio-active"
+                : "ktab-book-shelf-card__footer-pill--audio-inactive"
+            }`}
+            title={hasAudio ? "يتوفر نسخة صوتية" : "نسخة نصية فقط"}
+          >
+            {hasAudio ? <Headphones size={11} /> : <BookOpen size={11} />}
+            <span>{hasAudio ? "صوتي" : "نصي"}</span>
           </div>
-        )}
+        </div>
       </div>
 
       {/* Text Body UNDER Card: Category, Title, Author */}
       <div className="ktab-book-shelf-card__body">
-        {genre && <span className="ktab-book-shelf-card__genre">{genre}</span>}
+        {genre && (
+          <span className="ktab-book-shelf-card__genre" title={genre}>
+            {genre}
+          </span>
+        )}
 
         <h3 className="ktab-book-shelf-card__title" title={bookTitle}>
           {bookTitle}

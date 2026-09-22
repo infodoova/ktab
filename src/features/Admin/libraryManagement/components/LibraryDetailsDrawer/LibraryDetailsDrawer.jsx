@@ -36,6 +36,9 @@ export function LibraryDetailsDrawer({
   const statusStr = String(library.status ?? "1").toUpperCase();
   const isActive = statusStr === "1" || statusStr === "ACTIVE";
 
+  const isMobile =
+    typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches;
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -54,21 +57,23 @@ export function LibraryDetailsDrawer({
             className="ktab-lib-drawer-backdrop-overlay"
           />
 
-          {/* Slide-over Drawer Panel on Left Side */}
+          {/* Slide-over Drawer Panel on Left Side (Bottom Sheet on mobile) */}
           <motion.div
-            initial={{ opacity: 0, x: -100 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -100 }}
+            initial={isMobile ? { opacity: 0, y: "100%" } : { opacity: 0, x: -100 }}
+            animate={isMobile ? { opacity: 1, y: 0 } : { opacity: 1, x: 0 }}
+            exit={isMobile ? { opacity: 0, y: "100%" } : { opacity: 0, x: -100 }}
             transition={{
               type: "spring",
-              damping: 30,
-              stiffness: 350,
+              damping: isMobile ? 32 : 30,
+              stiffness: isMobile ? 320 : 350,
               mass: 0.8,
             }}
             className="ktab-lib-drawer"
             onClick={(e) => e.stopPropagation()}
             dir="rtl"
           >
+            {/* Mobile BottomSheet Grab Handle */}
+            <div className="ktab-lib-drawer-handle" />
             {/* Header */}
             <div className="ktab-lib-drawer__header">
               <h3 className="ktab-lib-drawer__title">تفاصيل المكتبة</h3>

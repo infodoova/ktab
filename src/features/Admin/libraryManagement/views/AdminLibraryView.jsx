@@ -83,23 +83,25 @@ export default function AdminLibraryView() {
     >
       <div className="ktab-admin-lib-view" dir="rtl">
         {/* Dynamic Island Status Filter */}
-        <div className="ktab-lib-island-wrap">
-          <div className="ktab-lib-island" role="tablist" aria-label="تصفية حسب الحالة">
-            {filterOptions.map(({ key, label, count }) => (
-              <button
-                key={key}
-                type="button"
-                role="tab"
-                aria-selected={statusFilter === key}
-                className={`ktab-lib-island__tab${
-                  statusFilter === key ? " ktab-lib-island__tab--active" : ""
-                }`}
-                onClick={() => setStatusFilter(key)}
-              >
-                <span className="ktab-lib-island__tab-label">{label}</span>
-                <span className="ktab-lib-island__tab-count">{count}</span>
-              </button>
-            ))}
+        <div className="ktab-lib-controls">
+          <div className="ktab-lib-island-wrap">
+            <div className="ktab-lib-island" role="tablist" aria-label="تصفية حسب الحالة">
+              {filterOptions.map(({ key, label, count }) => (
+                <button
+                  key={key}
+                  type="button"
+                  role="tab"
+                  aria-selected={statusFilter === key}
+                  className={`ktab-lib-island__tab${
+                    statusFilter === key ? " ktab-lib-island__tab--active" : ""
+                  }`}
+                  onClick={() => setStatusFilter(key)}
+                >
+                  <span className="ktab-lib-island__tab-label">{label}</span>
+                  <span className="ktab-lib-island__tab-count">{count}</span>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 

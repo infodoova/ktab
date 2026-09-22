@@ -1,9 +1,6 @@
 import { lazy } from "react";
 import { ROLES, ROLE_CODES } from "@/core/constants/roles";
 
-const PublisherDashboardView = lazy(() =>
-  import("../../../features/publisher/dashboard/views/PublisherDashboardView")
-);
 const PublisherLibraryView = lazy(() =>
   import("../../../features/publisher/libraryManagement/views/PublisherLibraryView")
 );
@@ -14,13 +11,6 @@ const PublisherLibraryView = lazy(() =>
  */
 export const publisherRoutes = [
   {
-    name: "PublisherDashboard",
-    path: "/publisher/dashboard",
-    component: PublisherDashboardView,
-    guard: "role",
-    roles: [ROLES.PUBLISHER, ROLE_CODES.PUBLISHER],
-  },
-  {
     name: "PublisherLibrary",
     path: "/publisher/library-management",
     component: PublisherLibraryView,
@@ -28,8 +18,12 @@ export const publisherRoutes = [
     roles: [ROLES.PUBLISHER, ROLE_CODES.PUBLISHER],
   },
   {
+    path: "/publisher/dashboard",
+    redirect: "/publisher/library-management",
+  },
+  {
     path: "/publisher",
-    redirect: "/publisher/dashboard",
+    redirect: "/publisher/library-management",
   },
 ];
 

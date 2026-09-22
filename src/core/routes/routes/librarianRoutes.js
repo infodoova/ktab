@@ -1,11 +1,11 @@
 import { lazy } from "react";
 import { ROLES, ROLE_CODES } from "@/core/constants/roles";
 
-const LibrarianDashboardView = lazy(() =>
-  import("../../../features/Librarian/dashboard/views/LibrarianDashboardView")
+const LibrarianBooksView = lazy(() =>
+  import("../../../features/Librarian/bookManagement/views/LibrarianBooksView")
 );
-const LibrarianLibraryView = lazy(() =>
-  import("../../../features/Librarian/libraryManagement/views/LibrarianLibraryView")
+const LibrarianBookCreateView = lazy(() =>
+  import("../../../features/Librarian/bookManagement/views/LibrarianBookCreateView")
 );
 
 /**
@@ -14,22 +14,43 @@ const LibrarianLibraryView = lazy(() =>
  */
 export const librarianRoutes = [
   {
-    name: "LibrarianDashboard",
-    path: "/librarian/dashboard",
-    component: LibrarianDashboardView,
+    name: "LibrarianBooks",
+    path: "/librarian/books",
+    component: LibrarianBooksView,
     guard: "role",
     roles: [ROLES.LIBRARIAN, ROLE_CODES.LIBRARIAN],
   },
   {
-    name: "LibrarianLibrary",
-    path: "/librarian/library-management",
-    component: LibrarianLibraryView,
+    name: "LibrarianBookCreate",
+    path: "/librarian/books/create",
+    component: LibrarianBookCreateView,
     guard: "role",
     roles: [ROLES.LIBRARIAN, ROLE_CODES.LIBRARIAN],
+  },
+  {
+    name: "LibrarianBookEdit",
+    path: "/librarian/books/:id/edit",
+    component: LibrarianBookCreateView,
+    guard: "role",
+    roles: [ROLES.LIBRARIAN, ROLE_CODES.LIBRARIAN],
+  },
+
+  {
+    name: "LibrarianManageBooks",
+    path: "/librarian/manage-books",
+    redirect: "/librarian/books",
   },
   {
     path: "/librarian",
-    redirect: "/librarian/dashboard",
+    redirect: "/librarian/books",
+  },
+  {
+    path: "/librarian/dashboard",
+    redirect: "/librarian/books",
+  },
+  {
+    path: "/librarian/library-management",
+    redirect: "/librarian/books",
   },
 ];
 

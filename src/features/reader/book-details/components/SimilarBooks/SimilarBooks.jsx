@@ -1,5 +1,5 @@
 import React from "react";
-import { Headphones, Star } from "lucide-react";
+import { Headphones, BookOpen, FileText, Star } from "lucide-react";
 import { useSimilarBooks } from "./useSimilarBooks";
 import "./SimilarBooks.css";
 
@@ -37,11 +37,20 @@ export function SimilarBooks({ books = [], loading = false }) {
       <div className="apple-similar-books__grid">
         {books.map((simBook) => {
           const cover = simBook.coverImageUrl || simBook.cover || "";
-          const genre = simBook.mainGenreName || simBook.genre || null;
-          const author = simBook.customAuthorName || simBook.authorName || "";
+          const genre =
+            simBook.mainGenreName && simBook.subGenreName && simBook.mainGenreName.trim() !== simBook.subGenreName.trim()
+              ? `${simBook.mainGenreName.trim()} / ${simBook.subGenreName.trim()}`
+              : (simBook.mainGenreName && simBook.mainGenreName.trim()) ||
+                (simBook.subGenreName && simBook.subGenreName.trim()) ||
+                (simBook.genre && simBook.genre.trim()) ||
+                null;
+          const author =
+            (simBook.customAuthorName && simBook.customAuthorName.trim()) ||
+            (simBook.authorName && simBook.authorName.trim()) ||
+            (simBook.author && simBook.author.trim()) ||
+            "مؤلف غير محدد";
           const hasAudio = Boolean(simBook.hasAudio);
           const rating = Number(simBook.averageRating) || 0;
-          const totalReviews = Number(simBook.totalReviews) || 0;
           const pageCount = simBook.pageCount;
 
           return (
@@ -53,7 +62,7 @@ export function SimilarBooks({ books = [], loading = false }) {
               role="button"
               tabIndex={0}
             >
-              {/* Cover Artwork with Floating Specs & Audio Badge UP */}
+              {/* Cover Artwork (Strict 3:4 Proportions) */}
               <div className="apple-similar-card__artwork">
                 <img
                   src={cover}
@@ -63,33 +72,32 @@ export function SimilarBooks({ books = [], loading = false }) {
                   className="apple-similar-card__img"
                 />
 
-                {/* Audio Badge (Top-Left) */}
-                {hasAudio && (
-                  <div className="apple-similar-card__audio-badge" title="يتضمن نسخة صوتية">
-                    <Headphones size={11} strokeWidth={2.4} />
-                    <span>صوتي</span>
-                  </div>
-                )}
+                {/* Floating Cover Footer */}
+                <div className="apple-similar-card__cover-footer">
+                  {pageCount ? (
+                    <div className="apple-similar-card__footer-pill" title={`${pageCount} صفحة`}>
+                      <FileText size={11} />
+                      <span>{pageCount} صفحة</span>
+                    </div>
+                  ) : rating > 0 ? (
+                    <div className="apple-similar-card__footer-pill" title={`التقييم: ${rating.toFixed(1)}`}>
+                      <Star size={11} className="apple-similar-card__star-icon" />
+                      <span>{rating.toFixed(1)}</span>
+                    </div>
+                  ) : null}
 
-                {/* Specs Floating Pill (Bottom of Cover) */}
-                {(rating > 0 || totalReviews > 0 || pageCount) && (
-                  <div className="apple-similar-card__cover-specs">
-                    <span className="apple-similar-card__spec-item">
-                      <Star size={10} className="apple-similar-card__star-icon" />
-                      <span>
-                        {rating > 0 ? rating.toFixed(1) : "جديد"}
-                        {totalReviews > 0 ? ` (${totalReviews})` : ""}
-                      </span>
-                    </span>
-
-                    {pageCount && (
-                      <>
-                        <span className="apple-similar-card__spec-dot">•</span>
-                        <span className="apple-similar-card__spec-item">{pageCount} ص</span>
-                      </>
-                    )}
+                  <div
+                    className={`apple-similar-card__footer-pill ${
+                      hasAudio
+                        ? "apple-similar-card__footer-pill--audio-active"
+                        : "apple-similar-card__footer-pill--audio-inactive"
+                    }`}
+                    title={hasAudio ? "يتوفر نسخة صوتية" : "نسخة نصية فقط"}
+                  >
+                    {hasAudio ? <Headphones size={11} /> : <BookOpen size={11} />}
+                    <span>{hasAudio ? "صوتي" : "نصي"}</span>
                   </div>
-                )}
+                </div>
               </div>
 
               {/* Text Body UNDER Card: Category, Title, Author */}

@@ -14,6 +14,8 @@ export function PlayConfirmModal({ title, message, confirmText, onConfirm, onCan
   return (
     <div className="play-confirm-overlay" onClick={onCancel}>
       <div className="play-confirm-dialog" onClick={(e) => e.stopPropagation()}>
+        {/* Mobile BottomSheet Drag Handle */}
+        <div className="play-confirm-dialog__handle" />
         <h3 className="play-confirm-dialog__title">{title}</h3>
         <p className="play-confirm-dialog__message">{message}</p>
         <div className="play-confirm-dialog__actions">

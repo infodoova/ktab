@@ -13,6 +13,7 @@ export function AuthorBookGrid({
   loadingMore = false,
   page = 0,
   totalPages = 1,
+  status = "PUBLISHED",
   openMenuId,
   setOpenMenuId,
   onBookClick,
@@ -24,6 +25,16 @@ export function AuthorBookGrid({
   isFiltered = false,
 }) {
   const sentinelRef = useRef(null);
+  // Guard: prevents IntersectionObserver from firing loadMore immediately on mount
+  // before the user has scrolled. The observer fires as soon as it's attached if
+  // the sentinel is within the rootMargin, which caused automatic page-1 loading.
+  const hasScrolledRef = useRef(false);
+
+  useEffect(() => {
+    const handleScroll = () => { hasScrolledRef.current = true; };
+    window.addEventListener("scroll", handleScroll, { passive: true, once: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // Automatic infinite scroll trigger on viewport intersection
   useEffect(() => {
@@ -31,16 +42,23 @@ export function AuthorBookGrid({
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && !loading && !loadingMore && page + 1 < totalPages) {
+        if (
+          entries[0].isIntersecting &&
+          hasScrolledRef.current &&
+          !loading &&
+          !loadingMore &&
+          page + 1 < totalPages
+        ) {
           onLoadMore?.();
         }
       },
-      { rootMargin: "350px" }
+      { rootMargin: "100px" }
     );
 
     observer.observe(sentinelRef.current);
     return () => observer.disconnect();
   }, [loading, loadingMore, page, totalPages, onLoadMore]);
+
 
   if (loading) {
     return <BooksSkeleton count={8} />;
@@ -49,18 +67,28 @@ export function AuthorBookGrid({
   if (books.length === 0) {
     const isSearchOrFilter = Boolean((searchQuery && searchQuery.trim()) || isFiltered);
 
+    const emptyTitle = isSearchOrFilter
+      ? "لا توجد نتائج مطابقة"
+      : status === "UNDER_REVIEW" || status === "PENDING_APPROVAL"
+      ? "لا توجد كتب قيد المراجعة حالياً"
+      : status === "DRAFT"
+      ? "لا توجد مسودات محفوظة"
+      : "لم تنشئ أي كتاب بعد";
+
+    const emptyDesc = isSearchOrFilter
+      ? searchQuery.trim()
+        ? `لم نتمكن من العثور على أي كتاب يطابق «${searchQuery.trim()}».`
+        : "لا توجد كتب ضمن هذا التصنيف حالياً."
+      : status === "UNDER_REVIEW" || status === "PENDING_APPROVAL"
+      ? "الكتب التي ترسلها للنشر ستظهر هنا أثناء مراجعتها وتدقيقها من قبل إدارة النشر."
+      : status === "DRAFT"
+      ? "يمكنك حفظ مسودات أعمالك أثناء الكتابة والعودة إليها في أي وقت."
+      : "ابدأ بنشر أول كتاب رقمي وشاركه مع قراء المنصة بكل سهولة.";
+
     return (
       <div className="ktab-books-empty" dir="rtl">
-        <h3 className="ktab-books-empty__title">
-          {isSearchOrFilter ? "لا توجد نتائج مطابقة" : "لم تنشئ أي كتاب بعد"}
-        </h3>
-        <p className="ktab-books-empty__desc">
-          {isSearchOrFilter
-            ? searchQuery.trim()
-              ? `لم نتمكن من العثور على أي كتاب يطابق «${searchQuery.trim()}».`
-              : "لا توجد كتب ضمن هذا التصنيف حالياً."
-            : "ابدأ بنشر أول كتاب رقمي وشاركه مع قراء المنصة بكل سهولة."}
-        </p>
+        <h3 className="ktab-books-empty__title">{emptyTitle}</h3>
+        <p className="ktab-books-empty__desc">{emptyDesc}</p>
 
         {isSearchOrFilter ? (
           onResetFilters && (
@@ -73,13 +101,15 @@ export function AuthorBookGrid({
             </button>
           )
         ) : (
-          onCreateNew && (
+          onCreateNew &&
+          status !== "UNDER_REVIEW" &&
+          status !== "PENDING_APPROVAL" && (
             <button
               type="button"
               onClick={onCreateNew}
               className="ktab-books-empty__action-btn"
             >
-              نشر أول كتاب
+              {status === "DRAFT" ? "إنشاء مسودة جديدة" : "نشر أول كتاب"}
             </button>
           )
         )}

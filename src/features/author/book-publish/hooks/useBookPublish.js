@@ -29,19 +29,26 @@ export const LANG_OPTIONS = [
 
 export const getAgeRangeValues = (ageString) => {
   if (!ageString) return { min: 0, max: 0 };
-  if (ageString.includes("3-8")) return { min: 3, max: 8 };
-  if (ageString.includes("9-15")) return { min: 9, max: 15 };
-  if (ageString.includes("16-24")) return { min: 16, max: 24 };
-  if (ageString.includes("25+")) return { min: 25, max: 100 };
+  // Handle backend enum keys (value set by ageGroupOptions when ages store is loaded)
+  if (ageString === "CHILDREN")   return { min: 3,  max: 8   };
+  if (ageString === "EARLY_TEENS") return { min: 9,  max: 15  };
+  if (ageString === "YOUTH")      return { min: 16, max: 24  };
+  if (ageString === "ADULTS")     return { min: 25, max: 100 };
+  // Fallback: match Arabic label substrings (used when backend ages store is unavailable)
+  if (ageString.includes("3-8"))  return { min: 3,  max: 8   };
+  if (ageString.includes("9-15")) return { min: 9,  max: 15  };
+  if (ageString.includes("16-24")) return { min: 16, max: 24  };
+  if (ageString.includes("25+"))  return { min: 25, max: 100 };
   return { min: 0, max: 0 };
 };
 
 export const mapValuesToAgeLabel = (min, max) => {
-  if (min === 3 && max === 8) return AGE_GROUPS[0];
-  if (min === 9 && max === 15) return AGE_GROUPS[1];
+  if (min === 3  && max === 8)  return AGE_GROUPS[0];
+  if (min === 9  && max === 15) return AGE_GROUPS[1];
   if (min === 16 && max === 24) return AGE_GROUPS[2];
-  if (min >= 25) return AGE_GROUPS[3];
-  return "";
+  if (min >= 25)               return AGE_GROUPS[3];
+  // No match (null/0 values): fall back to the first age group instead of empty string.
+  return AGE_GROUPS[0];
 };
 
 const LOCAL_DRAFT_KEY = "ktab_book_publish_draft";
@@ -284,7 +291,7 @@ export function useBookPublish() {
       ...prev,
       title: draft.title || "",
       description: draft.description || "",
-      ageGroup: mapValuesToAgeLabel(draft.ageRangeMin, draft.ageRangeMax),
+      ageGroup: mapValuesToAgeLabel(draft.ageRangeMin, draft.ageRangeMax) || AGE_GROUPS[0],
       language: draft.language || "arabic",
       category: genreId || prev.category,
       subCategory: subGenreId || prev.subCategory,
@@ -494,9 +501,7 @@ export function useBookPublish() {
         status: "DRAFT",
       };
 
-      if (isEditingDraft) {
-        bookDto.id = Number(sanitizeId(draftId || draft?.id));
-      }
+      // ID is sent as a URL path variable — do NOT include it in the DTO body.
 
       apiFormData.append(
         "bookDto",
@@ -566,7 +571,7 @@ export function useBookPublish() {
       const { min, max } = getAgeRangeValues(formData.ageGroup);
       const apiFormData = new FormData();
 
-      // Standard BookRequestDto according to OpenAPI spec with status = 'PUBLISHED'
+      // Status explicitly sent so backend processes the correct state transition.
       const bookDto = {
         title: sanitizeText(formData.title),
         description: sanitizeText(formData.description),
@@ -577,12 +582,9 @@ export function useBookPublish() {
         ageRangeMax: max,
         pageCount: Math.max(1, finalPageCount || 1),
         hasAudio: false,
-        status: "PUBLISHED",
+        status: "UNDER_REVIEW",
       };
-
-      if (isEditingDraft) {
-        bookDto.id = Number(sanitizeId(draftId || draft?.id));
-      }
+      // ID is sent as a URL path variable — do NOT include it in the DTO body.
 
       apiFormData.append(
         "bookDto",
@@ -606,8 +608,10 @@ export function useBookPublish() {
         } catch {
           // Handled
         }
-        AlertToast("تم نشر الكتاب بنجاح!", "SUCCESS");
-        navigate("/author/my-books");
+        AlertToast("تم إرسال الكتاب بنجاح وهو الآن قيد المراجعة", "SUCCESS");
+        navigate("/author/my-books", {
+          state: { initialStatus: "UNDER_REVIEW" },
+        });
       } else {
         const errorMsg =
           res?.error === "IMAGE_INVALID_RATIO_COVER"
@@ -765,12 +769,29 @@ export function useBookPublish() {
     [handlePdfChange]
   );
 
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+
+  const openPublishConfirmModal = useCallback(async () => {
+    const valid = await validatePublish();
+    if (!valid) return;
+    setIsConfirmModalOpen(true);
+  }, [validatePublish]);
+
+  const closePublishConfirmModal = useCallback(() => {
+    setIsConfirmModalOpen(false);
+  }, []);
+
+  const handleConfirmPublish = useCallback(async () => {
+    setIsConfirmModalOpen(false);
+    await handlePublish();
+  }, [handlePublish]);
+
   const handleFormSubmit = useCallback(
     (e) => {
       if (e) e.preventDefault();
-      handlePublish();
+      openPublishConfirmModal();
     },
-    [handlePublish]
+    [openPublishConfirmModal]
   );
 
   return {
@@ -802,6 +823,9 @@ export function useBookPublish() {
     handleFormSubmit,
     handleSaveDraft,
     handlePublish,
+    isConfirmModalOpen,
+    closePublishConfirmModal,
+    handleConfirmPublish,
   };
 }
 

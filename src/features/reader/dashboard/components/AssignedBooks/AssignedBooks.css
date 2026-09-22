@@ -265,6 +265,87 @@
   transform: scale(1.08);
 }
 
+/* Top Badges on Cover (Draft) */
+.ktab-assigned-card__top-badges {
+  position: absolute;
+  top: 0.625rem;
+  right: 0.625rem;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.ktab-assigned-card__draft-badge {
+  background-color: rgba(245, 158, 11, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #ffffff;
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  padding: 0.2rem 0.55rem;
+  border-radius: 9999px;
+  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.3);
+}
+
+/* Floating Cover Footer */
+.ktab-assigned-card__cover-footer {
+  position: absolute;
+  bottom: 0.55rem;
+  left: 0.55rem;
+  right: 0.55rem;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  pointer-events: none;
+}
+
+.ktab-assigned-card__footer-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  height: 24px;
+  background-color: rgba(15, 23, 42, 0.78);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: #ffffff;
+  font-size: 0.6875rem;
+  font-weight: 750;
+  padding: 0 0.5rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+  font-family: var(--font-english), var(--font-arabic), sans-serif;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.ktab-assigned-card__footer-pill svg {
+  display: block;
+  flex-shrink: 0;
+  width: 11px;
+  height: 11px;
+}
+
+.ktab-assigned-card__footer-pill span {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  padding-top: 2px;
+}
+
+.ktab-assigned-card__footer-pill--audio-active {
+  color: var(--brand-teal);
+  border-color: rgba(93, 227, 186, 0.35);
+}
+
+.ktab-assigned-card__footer-pill--audio-inactive {
+  color: rgba(255, 255, 255, 0.65);
+}
+
 /* More Options Button (Matching Author Book Card Menu Anchor) */
 .ktab-assigned-card__menu-area {
   position: absolute;
@@ -365,6 +446,21 @@
   min-width: 0;
   box-sizing: border-box;
   cursor: pointer;
+}
+
+.ktab-assigned-card__genre {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  font-size: 0.656rem;
+  font-weight: 750;
+  letter-spacing: 0.02em;
+  color: var(--brand-teal-deep);
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.2;
 }
 
 .ktab-assigned-card__title {

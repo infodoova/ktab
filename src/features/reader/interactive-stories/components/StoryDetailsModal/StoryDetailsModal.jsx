@@ -34,6 +34,9 @@ export function StoryDetailsModal({
     handleContentClick,
   } = useStoryDetailsModal({ isOpen, onClose, story, onStartSession });
 
+  const isMobile =
+    typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches;
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -55,18 +58,32 @@ export function StoryDetailsModal({
 
           {/* Drawer / Modal Sheet */}
           <motion.div
-            initial={{ opacity: 0, x: -50, scale: 0.98 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            exit={{ opacity: 0, x: -50, scale: 0.98 }}
+            initial={
+              isMobile
+                ? { opacity: 0, y: "100%" }
+                : { opacity: 0, x: -50, scale: 0.98 }
+            }
+            animate={
+              isMobile
+                ? { opacity: 1, y: 0 }
+                : { opacity: 1, x: 0, scale: 1 }
+            }
+            exit={
+              isMobile
+                ? { opacity: 0, y: "100%" }
+                : { opacity: 0, x: -50, scale: 0.98 }
+            }
             transition={{
               type: "spring",
-              damping: 30,
-              stiffness: 350,
+              damping: isMobile ? 32 : 30,
+              stiffness: isMobile ? 320 : 350,
               mass: 0.8,
             }}
             className="ktab-story-drawer"
             onClick={handleContentClick}
           >
+            {/* Mobile BottomSheet Drag Handle */}
+            <div className="ktab-story-drawer-handle" />
             {/* Header */}
             <div className="ktab-story-drawer__header">
               <h3 id="reader-story-drawer-title" className="ktab-story-drawer__title">

@@ -15,6 +15,10 @@ export function useAuthorBookCard({
   const navigate = useNavigate();
   const coverUrl = book?.coverImageUrl || book?.cover;
   const isDraft = book?.status === "DRAFT" || book?.isDraft;
+  const isPendingApproval =
+    book?.status === "PENDING_APPROVAL" ||
+    book?.status === "UNDER_REVIEW" ||
+    book?.status === "PENDING";
   const isOpen = isMenuOpen !== undefined ? isMenuOpen : openMenuId === book?.id;
 
   const [coverLoaded, setCoverLoaded] = useState(false);
@@ -80,19 +84,31 @@ export function useAuthorBookCard({
 
   const ratingText = Number(book?.averageRating ?? 0).toFixed(1);
   const hasAudio = Boolean(book?.hasAudio);
+  const pageCount = book?.pageCount || null;
   const langCode = (book?.language || "ar").toLowerCase();
   const languageLabel = langCode === "ar" ? "عربي" : langCode === "en" ? "EN" : langCode.toUpperCase();
-  const genreLabel = book?.genreName || book?.mainGenreName || book?.mainGenre?.name || "عام";
-  const authorDisplayName = book?.authorName || book?.customAuthorName || "أنت";
+  const genreLabel =
+    book?.mainGenreName && book?.subGenreName && book.mainGenreName.trim() !== book.subGenreName.trim()
+      ? `${book.mainGenreName.trim()} / ${book.subGenreName.trim()}`
+      : (book?.mainGenreName && book.mainGenreName.trim()) ||
+        (book?.genreName && book.genreName.trim()) ||
+        (book?.mainGenre?.name && book.mainGenre.name.trim()) ||
+        "عام";
+  const authorDisplayName =
+    (book?.customAuthorName && book.customAuthorName.trim()) ||
+    (book?.authorName && book.authorName.trim()) ||
+    "مؤلف غير محدد";
 
   return {
     coverUrl,
     isDraft,
+    isPendingApproval,
     isOpen,
     coverLoaded,
     hasCoverError,
     ratingText,
     hasAudio,
+    pageCount,
     languageLabel,
     genreLabel,
     authorDisplayName,

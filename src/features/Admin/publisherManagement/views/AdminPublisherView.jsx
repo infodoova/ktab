@@ -74,28 +74,30 @@ export default function AdminPublisherView() {
       showSearch={true}
       searchQuery={searchQuery}
       onSearchChange={setSearchQuery}
-      searchPlaceholder="ابحث باسم الناشر، أو البريد الإلكتروني..."
+      searchPlaceholder="ابحث باسم الناشر، البريد الإلكتروني، أو المعرف..."
       headerActions={headerActions}
     >
       <div className="ktab-admin-pub-view" dir="rtl">
         {/* Dynamic Island Status Filter */}
-        <div className="ktab-pub-island-wrap">
-          <div className="ktab-pub-island" role="tablist" aria-label="تصفية حسب الحالة">
-            {filterOptions.map(({ key, label, count }) => (
-              <button
-                key={key}
-                type="button"
-                role="tab"
-                aria-selected={statusFilter === key}
-                className={`ktab-pub-island__tab${
-                  statusFilter === key ? " ktab-pub-island__tab--active" : ""
-                }`}
-                onClick={() => setStatusFilter(key)}
-              >
-                <span className="ktab-pub-island__tab-label">{label}</span>
-                <span className="ktab-pub-island__tab-count">{count}</span>
-              </button>
-            ))}
+        <div className="ktab-pub-controls">
+          <div className="ktab-pub-island-wrap">
+            <div className="ktab-pub-island" role="tablist" aria-label="تصفية حسب الحالة">
+              {filterOptions.map(({ key, label, count }) => (
+                <button
+                  key={key}
+                  type="button"
+                  role="tab"
+                  aria-selected={statusFilter === key}
+                  className={`ktab-pub-island__tab${
+                    statusFilter === key ? " ktab-pub-island__tab--active" : ""
+                  }`}
+                  onClick={() => setStatusFilter(key)}
+                >
+                  <span className="ktab-pub-island__tab-label">{label}</span>
+                  <span className="ktab-pub-island__tab-count">{count}</span>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 

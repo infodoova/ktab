@@ -1,20 +1,13 @@
-import { LayoutDashboard, BookOpen } from "lucide-react";
+import { BookOpen } from "lucide-react";
 
 /**
  * Global Navigation Definitions for Publisher Role (40 / PUBLISHER)
- * 1. Dashboard (لوحة التحكم)
- * 2. Library / Publications Management (إدارة المنشورات)
+ * 1. Editorial Review Queue (قائمة المراجعة والتحكيم)
  */
 export const PUBLISHER_NAV_ITEMS = [
   {
-    name: "PublisherDashboard",
-    label: "لوحة التحكم",
-    icon: LayoutDashboard,
-    path: "/publisher/dashboard",
-  },
-  {
     name: "PublisherLibrary",
-    label: "إدارة المنشورات",
+    label: "قائمة المراجعة والتحكيم",
     icon: BookOpen,
     path: "/publisher/library-management",
   },

@@ -15,6 +15,9 @@ export const UploadProgressModal = memo(function UploadProgressModal({
   return (
     <div className="book-upload-modal-overlay" role="dialog" aria-modal="true" dir="rtl">
       <div className="book-upload-modal-card">
+        {/* Mobile BottomSheet Drag Handle */}
+        <div className="book-upload-modal-handle" />
+
         <div className="book-upload-modal-icon">
           <Loader2 size={28} className="book-upload-modal-spinner" />
         </div>

@@ -92,11 +92,80 @@
   }
 }
 
+/* ── Search & Filter Controls ────────────────────────────────────────────── */
+.ktab-lib-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.ktab-lib-search-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  align-items: center;
+}
+
+.ktab-lib-search-icon {
+  position: absolute;
+  right: 14px;
+  color: var(--text-muted, #94a3b8);
+  pointer-events: none;
+}
+
+.ktab-lib-search-input {
+  width: 100%;
+  height: 44px;
+  padding: 0 42px 0 38px;
+  background-color: var(--bg-primary, #ffffff);
+  border: 1px solid var(--border-card, rgba(0, 0, 0, 0.08));
+  border-radius: 9999px;
+  font-size: 14px;
+  color: var(--brand-black, #0a0a0a);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+  box-sizing: border-box;
+}
+
+.ktab-lib-search-input:focus {
+  border-color: rgba(0, 0, 0, 0.25);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+}
+
+.ktab-lib-search-input::placeholder {
+  color: var(--text-muted, #94a3b8);
+}
+
+.ktab-lib-search-clear {
+  position: absolute;
+  left: 12px;
+  background: transparent;
+  border: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-muted, #94a3b8);
+  transition: all 0.15s ease;
+}
+
+.ktab-lib-search-clear:hover {
+  background-color: rgba(0, 0, 0, 0.06);
+  color: var(--brand-black, #0a0a0a);
+}
+
 /* ── Dynamic Island Status Filter (Glassmorphism) ────────────────────────── */
 .ktab-lib-island-wrap {
   display: flex;
   justify-content: center;
-  margin-bottom: 32px;
+  margin-bottom: 0;
 }
 
 .ktab-lib-island {

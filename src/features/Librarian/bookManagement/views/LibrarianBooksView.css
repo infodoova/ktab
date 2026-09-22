@@ -1,0 +1,163 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   LIBRARIAN BOOKS VIEW STYLES
+   Apple & Eleven Reader Light Mode Editorial Standard
+   Pure Dynamic Tokens from src/index.css — Zero Hardcoded Colors
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.ktab-librarian-books-view {
+  width: 100%;
+  max-width: 100%;
+  padding: 20px 24px 80px;
+  direction: rtl;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+@media (max-width: 767px) {
+  .ktab-librarian-books-view {
+    padding: 12px 14px 80px;
+  }
+}
+
+
+
+/* ── Responsive Books Grid (Strict 2-Col Mobile -> 5-Col Large Desktop) ──── */
+.ktab-librarian-books-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  width: 100%;
+  max-width: 100%;
+  align-items: start;
+  box-sizing: border-box;
+}
+
+@media (min-width: 640px) {
+  .ktab-librarian-books-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+}
+
+@media (min-width: 900px) {
+  .ktab-librarian-books-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .ktab-librarian-books-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 22px;
+  }
+}
+
+/* ── Skeleton Grid ──────────────────────────────────────────────────────── */
+.ktab-librarian-books-skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  width: 100%;
+  max-width: 100%;
+  align-items: start;
+  box-sizing: border-box;
+}
+
+@media (min-width: 640px) {
+  .ktab-librarian-books-skeleton-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+}
+
+@media (min-width: 900px) {
+  .ktab-librarian-books-skeleton-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .ktab-librarian-books-skeleton-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 22px;
+  }
+}
+
+.ktab-librarian-books-skeleton-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.ktab-librarian-books-skeleton-cover {
+  width: 100%;
+  min-width: 0;
+  aspect-ratio: 3 / 4;
+  border-radius: 14px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  animation: ktab-librarian-shimmer 1.5s infinite ease-in-out;
+}
+
+.ktab-librarian-books-skeleton-line {
+  height: 12px;
+  border-radius: 6px;
+  background-color: var(--bg-secondary);
+  animation: ktab-librarian-shimmer 1.5s infinite ease-in-out;
+}
+
+.ktab-librarian-books-skeleton-line--long {
+  width: 80%;
+}
+
+.ktab-librarian-books-skeleton-line--short {
+  width: 50%;
+}
+
+/* ── Empty State ────────────────────────────────────────────────────────── */
+.ktab-librarian-books-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 64px 20px;
+  background: var(--bg-primary);
+  border: 1px dashed var(--border-card);
+  border-radius: 20px;
+  margin-top: 16px;
+  gap: 14px;
+}
+
+.ktab-librarian-books-empty-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 18px;
+  background-color: var(--bg-secondary);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
+.ktab-librarian-books-empty-title {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--brand-black);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.ktab-librarian-books-empty-desc {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--text-muted);
+  max-width: 420px;
+  margin: 0;
+}

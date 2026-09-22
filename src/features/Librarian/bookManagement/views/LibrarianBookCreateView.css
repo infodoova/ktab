@@ -1,0 +1,167 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   LIBRARIAN BOOK CREATE / EDIT VIEW STYLES
+   Exact editorial layout & styling from Author Book Publish studio.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.ktab-librarian-book-create-view {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.75rem 1.5rem 3.5rem;
+  width: 100%;
+  direction: rtl;
+  box-sizing: border-box;
+}
+
+@media (max-width: 860px) {
+  .ktab-librarian-book-create-view {
+    padding: 1rem 0 3rem 0;
+    max-width: 100%;
+  }
+}
+
+.ktab-book-publish-form {
+  width: 100%;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/* Centered Editorial Flow Container */
+.ktab-book-publish-form__body {
+  max-width: 780px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.35rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ── Individual Form Field Rows ── */
+.ktab-book-publish-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+/* ── 2x2 Select Grid ── */
+.ktab-book-publish-form__selects-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem 1rem;
+  width: 100%;
+}
+
+.ktab-book-publish-form__select-field {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Action Buttons ── */
+.ktab-book-publish-form__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.875rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
+  margin-top: 0.5rem;
+}
+
+.ktab-book-publish-form__btn-draft {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 46px;
+  padding: 0 1.35rem;
+  border-radius: 10px;
+  border: 1px solid var(--border-card, rgba(0, 0, 0, 0.12));
+  background-color: var(--bg-primary, #ffffff);
+  color: var(--text-muted, #64748b);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.ktab-book-publish-form__btn-draft:hover:not(:disabled) {
+  background-color: var(--btn-action-bg-hover, #f4f4f5);
+  color: var(--brand-black, #0a0a0a);
+  border-color: var(--btn-action-border, rgba(0, 0, 0, 0.2));
+}
+
+.ktab-book-publish-form__btn-publish {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 46px;
+  padding: 0 1.65rem;
+  border-radius: 10px;
+  border: none;
+  background-color: var(--brand-black, #0a0a0a);
+  color: var(--brand-white, #ffffff);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.14);
+  transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ktab-book-publish-form__btn-publish:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
+}
+
+.ktab-book-publish-form__btn-publish:disabled,
+.ktab-book-publish-form__btn-draft:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.ktab-book-publish-form__spinner {
+  animation: ktab-publish-spin 1s linear infinite;
+}
+
+@keyframes ktab-publish-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── Mobile & Tablet Full-Width Responsive ── */
+@media (max-width: 860px) {
+  .ktab-book-publish-form__body {
+    max-width: 100%;
+    padding: 0 1rem;
+    gap: 1.15rem;
+  }
+
+  .ktab-book-publish-form__selects-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .ktab-book-publish-form__actions {
+    display: flex;
+    flex-direction: row;
+    gap: 0.75rem;
+    width: 100%;
+    padding-top: 1rem;
+  }
+
+  .ktab-book-publish-form__btn-draft,
+  .ktab-book-publish-form__btn-publish {
+    flex: 1;
+    height: 48px;
+  }
+}

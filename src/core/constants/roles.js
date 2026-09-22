@@ -34,7 +34,7 @@ export const ROLE_DEFAULT_ROUTES = Object.freeze({
   [ROLES.ADMIN]: "/admin/dashboard",
   [ROLES.LIBRARY_ADMIN]: "/library-admin/dashboard",
   [ROLES.LIBRARIAN]: "/librarian/dashboard",
-  [ROLES.PUBLISHER]: "/publisher/dashboard",
+  [ROLES.PUBLISHER]: "/publisher/library-management",
   [ROLES.AUTHOR]: "/author/control",
   [ROLES.READER]: "/reader/home",
 });

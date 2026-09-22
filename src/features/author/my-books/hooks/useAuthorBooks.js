@@ -1,15 +1,17 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
-import { useAuthStore } from "@/core/store/authStore";
+import { useLocation } from "react-router-dom";
 import { fetchAuthorBooks, deleteAuthorBook } from "../services/myBooksService";
 import { AlertToast } from "@/components/myui/AlertToast";
 
 /**
- * Hook for managing Author's published books and drafts with race condition protection,
+ * Hook for managing Author's published books, drafts, and pending review books with race condition protection,
  * client-side search, genre filtering, sorting, and mobile sheet state.
  */
 export function useAuthorBooks() {
-  const user = useAuthStore((state) => state.user) || {};
-  const [status, setStatus] = useState("PUBLISHED");
+  const location = useLocation();
+  const [status, setStatus] = useState(
+    () => location.state?.initialStatus || "PUBLISHED"
+  );
 
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -41,21 +43,21 @@ export function useAuthorBooks() {
   }, []);
 
   const loadBooks = useCallback(
-    async (targetPage = 0, targetStatus = status, isInitial = false) => {
+    async (targetPage = 0, targetStatus, isInitial = false) => {
       const currentReqId = ++reqIdRef.current;
 
       if (isInitial) setLoading(true);
       else setLoadingMore(true);
 
       try {
+        // authorId omitted: service uses /authors/me/ (session-based auth).
         const res = await fetchAuthorBooks({
-          authorId: user?.userId || user?.id,
           status: targetStatus,
           page: targetPage,
           size: 8,
         });
 
-        // Drop response if newer request has already been initiated
+        // Discard response if a newer request has already been dispatched (race-condition guard).
         if (currentReqId !== reqIdRef.current) return;
 
         if (res?.messageStatus === "ERROR") {
@@ -69,13 +71,15 @@ export function useAuthorBooks() {
           : [];
 
         const total = typeof res?.totalPages === "number" ? res.totalPages : 1;
-        const incomingTotalElements = typeof res?.totalElements === "number"
-          ? res.totalElements
-          : typeof res?.data?.totalElements === "number"
-          ? res.data.totalElements
-          : incoming.length;
+        const incomingTotalElements =
+          typeof res?.totalElements === "number"
+            ? res.totalElements
+            : typeof res?.data?.totalElements === "number"
+            ? res.data.totalElements
+            : incoming.length;
 
-        setBooks((prev) => (targetPage === 0 ? incoming : [...prev, ...incoming]));
+        // Page 0 always replaces; higher pages append (infinite scroll).
+        setBooks(targetPage === 0 ? incoming : (prev) => [...prev, ...incoming]);
         setTotalPages(total);
         setTotalElements(incomingTotalElements);
         setPage(targetPage);
@@ -90,19 +94,33 @@ export function useAuthorBooks() {
         }
       }
     },
-    [status, user?.userId, user?.id]
+    // Empty deps: service is session-based, no external values needed. Stable function identity
+    // prevents the useEffect below from re-firing when the auth store hydrates.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
   );
 
-  useEffect(() => {
-    loadBooks(0, status, true);
-  }, [loadBooks, status]);
 
+  // Single effect drives all loads: fires on mount (initial) and whenever the active tab changes.
+  // The cleanup invalidates any in-flight request via reqIdRef so StrictMode's unmount/remount
+  // cycle doesn't allow the first mount's response to write to the second mount's state.
+  useEffect(() => {
+    setBooks([]);
+    setPage(0);
+    loadBooks(0, status, true);
+
+    return () => {
+      // Incrementing here makes any pending response from this render cycle stale.
+      reqIdRef.current += 1;
+    };
+  }, [status, loadBooks]);
+
+
+  // Tab change handler — just updates status; the effect above handles the reload.
   const handleStatusChange = useCallback((newStatus) => {
-    setStatus((prevStatus) => {
-      if (newStatus === prevStatus) return prevStatus;
-      setBooks([]);
+    setStatus((prev) => {
+      if (newStatus === prev) return prev;
       setTotalElements(0);
-      setPage(0);
       return newStatus;
     });
   }, []);
@@ -111,7 +129,7 @@ export function useAuthorBooks() {
     if (!loading && !loadingMore && page + 1 < totalPages) {
       loadBooks(page + 1, status, false);
     }
-  }, [loading, loadingMore, page, totalPages, loadBooks, status]);
+  }, [loading, loadingMore, page, totalPages, status, loadBooks]);
 
   const handleConfirmDelete = useCallback(async () => {
     if (!bookToDelete) return;

@@ -3,6 +3,7 @@ export * from "./forms";
 export * from "./layout";
 export { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "./Table";
 export { Modal, ModalHeader, ModalBody, ModalFooter } from "./Modal";
+export { DeleteConfirmModal } from "./DeleteConfirmModal";
 export { BottomSheet } from "./BottomSheet";
 export { Pagination } from "./Pagination";
 export { Skeleton } from "./Skeleton";

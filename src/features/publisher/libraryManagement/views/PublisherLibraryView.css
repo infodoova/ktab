@@ -1,5 +1,228 @@
-/* Publisher Library Management Shell Style */
-.publisher-blank-view {
-  min-height: calc(100vh - 120px);
+/* ═══════════════════════════════════════════════════════════════════════════
+   PUBLISHER EDITORIAL REVIEW QUEUE VIEW STYLESHEET
+   Light mode Apple-inspired editorial queue interface with responsive grid.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.ktab-publisher-queue-view {
   width: 100%;
+  padding: 1.25rem 1.5rem 3rem 1.5rem;
+  box-sizing: border-box;
+  font-family: var(--font-arabic), sans-serif;
+  direction: rtl;
+}
+
+@media (max-width: 640px) {
+  .ktab-publisher-queue-view {
+    padding: 1rem 0.75rem 2.5rem 0.75rem;
+  }
+}
+
+/* ── Status Filter Tabs ─────────────────────────────────────────────────── */
+.ktab-publisher-queue-filters {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-subtle);
+  flex-wrap: wrap;
+}
+
+.ktab-publisher-queue-tabs {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  background-color: var(--bg-secondary);
+  padding: 0.3rem;
+  border-radius: 9999px;
+  border: 1px solid var(--border-subtle);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.ktab-publisher-queue-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.ktab-publisher-queue-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem 0.95rem;
+  border-radius: 9999px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ktab-publisher-queue-tab:hover:not(.ktab-publisher-queue-tab--active) {
+  color: var(--brand-black);
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.ktab-publisher-queue-tab--active {
+  background-color: var(--bg-primary);
+  color: var(--brand-black);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.ktab-publisher-queue-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.775rem;
+  font-weight: 700;
+  color: var(--text-subtle);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Card Grid ──────────────────────────────────────────────────────────── */
+.ktab-publisher-queue-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem 1rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (min-width: 640px) {
+  .ktab-publisher-queue-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem 1.25rem;
+  }
+}
+
+@media (min-width: 900px) {
+  .ktab-publisher-queue-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.75rem 1.35rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  .ktab-publisher-queue-grid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 2rem 1.5rem;
+  }
+}
+
+@media (min-width: 1536px) {
+  .ktab-publisher-queue-grid {
+    grid-template-columns: repeat(6, 1fr);
+    gap: 2rem 1.5rem;
+  }
+}
+
+/* ── Skeleton Loading ───────────────────────────────────────────────────── */
+.ktab-publisher-queue-skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem 1rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (min-width: 640px) {
+  .ktab-publisher-queue-skeleton-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem 1.25rem;
+  }
+}
+
+@media (min-width: 900px) {
+  .ktab-publisher-queue-skeleton-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.75rem 1.35rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  .ktab-publisher-queue-skeleton-grid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 2rem 1.5rem;
+  }
+}
+
+.ktab-publisher-queue-skeleton-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ktab-publisher-queue-skeleton-cover {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border-radius: 14px;
+  background-color: var(--bg-secondary);
+  animation: ktabPubSkeletonPulse 1.5s infinite ease-in-out;
+}
+
+.ktab-publisher-queue-skeleton-line {
+  height: 12px;
+  border-radius: 6px;
+  background-color: var(--bg-secondary);
+  animation: ktabPubSkeletonPulse 1.5s infinite ease-in-out;
+}
+
+.ktab-publisher-queue-skeleton-line--long {
+  width: 85%;
+}
+
+.ktab-publisher-queue-skeleton-line--short {
+  width: 55%;
+}
+
+@keyframes ktabPubSkeletonPulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+/* ── Empty State ────────────────────────────────────────────────────────── */
+.ktab-publisher-queue-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 4rem 1.5rem;
+  border-radius: 20px;
+  border: 1px dashed var(--border-subtle);
+  background-color: var(--bg-primary);
+  margin-top: 1rem;
+  gap: 0.85rem;
+}
+
+.ktab-publisher-queue-empty-icon {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  background-color: var(--bg-secondary);
+  color: var(--brand-black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
+.ktab-publisher-queue-empty-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--brand-black);
+}
+
+.ktab-publisher-queue-empty-desc {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  max-width: 440px;
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
 }

@@ -1,22 +1,15 @@
-import { LayoutDashboard, BookOpen } from "lucide-react";
+import { BookOpen } from "lucide-react";
 
 /**
  * Global Navigation Definitions for Librarian Role (30 / LIBRARIAN)
- * 1. Dashboard (لوحة التحكم)
- * 2. Library Management (إدارة المكتبة)
+ * 1. Book Management (إدارة الكتب)
  */
 export const LIBRARIAN_NAV_ITEMS = [
   {
-    name: "LibrarianDashboard",
-    label: "لوحة التحكم",
-    icon: LayoutDashboard,
-    path: "/librarian/dashboard",
-  },
-  {
-    name: "LibrarianLibrary",
-    label: "إدارة المكتبة",
+    name: "LibrarianBooks",
+    label: "إدارة الكتب",
     icon: BookOpen,
-    path: "/librarian/library-management",
+    path: "/librarian/books",
   },
 ];
 

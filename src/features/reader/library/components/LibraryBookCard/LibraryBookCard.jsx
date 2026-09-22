@@ -1,5 +1,5 @@
 import React from "react";
-import { Headphones, Star } from "lucide-react";
+import { Headphones, BookOpen, FileText, Star } from "lucide-react";
 import brandIconImg from "@/assets/logo/BrandIcon.png";
 import { useLibraryBookCard } from "./useLibraryBookCard";
 import "./LibraryBookCard.css";
@@ -14,9 +14,9 @@ export const LibraryBookCard = React.memo(function LibraryBookCard({ book, onCli
     bookTitle,
     authorName,
     genre,
+    isDraft,
     hasAudio,
     rating,
-    totalReviews,
     pageCount,
     coverLoaded,
     hasCoverError,
@@ -73,38 +73,48 @@ export const LibraryBookCard = React.memo(function LibraryBookCard({ book, onCli
           </div>
         )}
 
-        {/* Audio Badge on Cover (Top-Left) */}
-        {hasAudio && (
-          <div className="ktab-lib-card__audio-badge" title="يتضمن نسخة صوتية">
-            <Headphones size={11} strokeWidth={2.4} />
-            <span>صوتي</span>
+        {/* Top-Right: Draft Badge */}
+        {isDraft && (
+          <div className="ktab-lib-card__top-badges">
+            <span className="ktab-lib-card__draft-badge">مسودة</span>
           </div>
         )}
 
-        {/* Specs Floating Pill on Cover (Bottom-Right) */}
-        {(rating > 0 || totalReviews > 0 || pageCount) && (
-          <div className="ktab-lib-card__cover-specs">
-            <span className="ktab-lib-card__spec-item">
-              <Star size={10} className="ktab-lib-card__star-icon" />
-              <span>
-                {rating > 0 ? rating.toFixed(1) : "جديد"}
-                {totalReviews > 0 ? ` (${totalReviews})` : ""}
-              </span>
-            </span>
+        {/* Floating Cover Footer */}
+        <div className="ktab-lib-card__cover-footer">
+          {pageCount ? (
+            <div className="ktab-lib-card__footer-pill" title={`${pageCount} صفحة`}>
+              <FileText size={11} />
+              <span>{pageCount} صفحة</span>
+            </div>
+          ) : rating > 0 ? (
+            <div className="ktab-lib-card__footer-pill" title={`التقييم: ${rating.toFixed(1)}`}>
+              <Star size={11} className="ktab-lib-card__star-icon" />
+              <span>{rating.toFixed(1)}</span>
+            </div>
+          ) : null}
 
-            {pageCount && (
-              <>
-                <span className="ktab-lib-card__spec-dot">•</span>
-                <span className="ktab-lib-card__spec-item">{pageCount} ص</span>
-              </>
-            )}
+          <div
+            className={`ktab-lib-card__footer-pill ${
+              hasAudio
+                ? "ktab-lib-card__footer-pill--audio-active"
+                : "ktab-lib-card__footer-pill--audio-inactive"
+            }`}
+            title={hasAudio ? "يتوفر نسخة صوتية" : "نسخة نصية فقط"}
+          >
+            {hasAudio ? <Headphones size={11} /> : <BookOpen size={11} />}
+            <span>{hasAudio ? "صوتي" : "نصي"}</span>
           </div>
-        )}
+        </div>
       </div>
 
       {/* Text Body UNDER Card: Category, Title, Author */}
       <div className="ktab-lib-card__body">
-        {genre && <span className="ktab-lib-card__genre">{genre}</span>}
+        {genre && (
+          <span className="ktab-lib-card__genre" title={genre}>
+            {genre}
+          </span>
+        )}
 
         <h3 className="ktab-lib-card__title" title={bookTitle}>
           {bookTitle}

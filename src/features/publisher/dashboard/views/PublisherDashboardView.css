@@ -1,5 +1,265 @@
-/* Publisher Dashboard Shell Style */
-.publisher-blank-view {
-  min-height: calc(100vh - 120px);
+/* ═══════════════════════════════════════════════════════════════════════════
+   PUBLISHER DASHBOARD VIEW STYLESHEET
+   Light mode Apple editorial dashboard with dynamic tokens and cards.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.ktab-publisher-dashboard {
   width: 100%;
+  padding: 1.5rem 1.75rem 3.5rem 1.75rem;
+  box-sizing: border-box;
+  font-family: var(--font-arabic), sans-serif;
+  direction: rtl;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+@media (max-width: 640px) {
+  .ktab-publisher-dashboard {
+    padding: 1rem 0.75rem 2.5rem 0.75rem;
+    gap: 1.5rem;
+  }
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+.ktab-publisher-dashboard__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ktab-publisher-dashboard__title {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 850;
+  color: var(--brand-black);
+  letter-spacing: -0.015em;
+  line-height: 1.3;
+}
+
+.ktab-publisher-dashboard__subtitle {
+  margin: 0.35rem 0 0 0;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+/* ── Metric Cards ───────────────────────────────────────────────────────── */
+.ktab-publisher-dashboard__metrics {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .ktab-publisher-dashboard__metrics {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+  }
+}
+
+.ktab-publisher-metric-card {
+  display: flex;
+  align-items: center;
+  gap: 1.15rem;
+  padding: 1.25rem 1.35rem;
+  border-radius: 16px;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-card);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+.ktab-publisher-metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+.ktab-publisher-metric-card__icon-wrap {
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ktab-publisher-metric-card--pending .ktab-publisher-metric-card__icon-wrap {
+  background-color: rgba(93, 227, 186, 0.16);
+  color: var(--brand-teal-deep);
+}
+
+.ktab-publisher-metric-card--approved .ktab-publisher-metric-card__icon-wrap {
+  background-color: rgba(16, 185, 129, 0.14);
+  color: #059669;
+}
+
+.ktab-publisher-metric-card--draft .ktab-publisher-metric-card__icon-wrap {
+  background-color: rgba(245, 158, 11, 0.14);
+  color: #d97706;
+}
+
+.ktab-publisher-metric-card__info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.ktab-publisher-metric-card__label {
+  font-size: 0.775rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.ktab-publisher-metric-card__value {
+  font-size: 1.5rem;
+  font-weight: 850;
+  color: var(--brand-black);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+/* ── Section & Grid ─────────────────────────────────────────────────────── */
+.ktab-publisher-dashboard__section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.ktab-publisher-dashboard__section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ktab-publisher-dashboard__section-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--brand-black);
+}
+
+.ktab-publisher-dashboard__section-desc {
+  margin: 0.25rem 0 0 0;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.ktab-publisher-dashboard__view-all-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 9999px;
+  border: 1px solid var(--border-subtle);
+  background-color: var(--bg-secondary);
+  color: var(--brand-black);
+  font-size: 0.775rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.ktab-publisher-dashboard__view-all-btn:hover {
+  background-color: var(--bg-primary);
+  border-color: var(--brand-teal);
+  color: var(--brand-teal-deep);
+}
+
+.ktab-publisher-dashboard__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem 1rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (min-width: 640px) {
+  .ktab-publisher-dashboard__grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem 1.25rem;
+  }
+}
+
+@media (min-width: 900px) {
+  .ktab-publisher-dashboard__grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.75rem 1.35rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  .ktab-publisher-dashboard__grid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 2rem 1.5rem;
+  }
+}
+
+/* ── Empty Box ──────────────────────────────────────────────────────────── */
+.ktab-publisher-dashboard__empty-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  border-radius: 16px;
+  border: 1px dashed var(--border-subtle);
+  background-color: var(--bg-primary);
+  text-align: center;
+  gap: 0.75rem;
+}
+
+.ktab-publisher-dashboard__empty-icon {
+  color: var(--text-subtle);
+}
+
+.ktab-publisher-dashboard__empty-text {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+/* ── Skeleton ───────────────────────────────────────────────────────────── */
+.ktab-publisher-dashboard__skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem 1rem;
+}
+
+@media (min-width: 640px) {
+  .ktab-publisher-dashboard__skeleton-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem 1.25rem;
+  }
+}
+
+.ktab-publisher-dashboard__skeleton-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ktab-publisher-dashboard__skeleton-cover {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border-radius: 14px;
+  background-color: var(--bg-secondary);
+  animation: ktabDashPulse 1.5s infinite ease-in-out;
+}
+
+.ktab-publisher-dashboard__skeleton-line {
+  height: 12px;
+  border-radius: 6px;
+  background-color: var(--bg-secondary);
+  width: 75%;
+  animation: ktabDashPulse 1.5s infinite ease-in-out;
+}
+
+@keyframes ktabDashPulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
 }

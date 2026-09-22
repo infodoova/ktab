@@ -32,8 +32,13 @@ export function Select({
     typeof opt === "object" && opt !== null ? opt : { value: opt, label: opt }
   );
 
-  // Find currently selected option
-  const selectedOption = normalizedOptions.find((opt) => opt.value === value);
+  // Find currently selected option (handles string/number conversions robustly)
+  const selectedOption = normalizedOptions.find(
+    (opt) =>
+      opt.value === value ||
+      (value !== undefined && value !== null && String(opt.value) === String(value))
+  );
+
 
   // Close when clicked outside
   useEffect(() => {

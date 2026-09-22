@@ -16,11 +16,18 @@ export function useLibraryBookCard({ book, onClick } = {}) {
   const coverUrl = book?.coverImageUrl || book?.cover || null;
   const bookTitle = book?.title || "بدون عنوان";
   const authorName =
-    book?.customAuthorName ||
-    book?.authorName ||
-    book?.author ||
+    (book?.customAuthorName && book.customAuthorName.trim()) ||
+    (book?.authorName && book.authorName.trim()) ||
+    (book?.author && book.author.trim()) ||
     "مؤلف غير محدد";
-  const genre = book?.mainGenreName || book?.genre || null;
+  const genre =
+    book?.mainGenreName && book?.subGenreName && book.mainGenreName.trim() !== book.subGenreName.trim()
+      ? `${book.mainGenreName.trim()} / ${book.subGenreName.trim()}`
+      : (book?.mainGenreName && book.mainGenreName.trim()) ||
+        (book?.subGenreName && book.subGenreName.trim()) ||
+        (book?.genre && book.genre.trim()) ||
+        null;
+  const isDraft = String(book?.status || "").toUpperCase() === "DRAFT" || Boolean(book?.isDraft);
   const hasAudio = Boolean(book?.hasAudio);
   const rating = Number(book?.averageRating) || 0;
   const totalReviews = Number(book?.totalReviews) || 0;
@@ -65,6 +72,7 @@ export function useLibraryBookCard({ book, onClick } = {}) {
     bookTitle,
     authorName,
     genre,
+    isDraft,
     hasAudio,
     rating,
     totalReviews,
