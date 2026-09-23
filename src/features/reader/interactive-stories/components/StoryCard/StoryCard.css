@@ -7,6 +7,7 @@
   flex-direction: column;
   gap: 0.65rem;
   width: 100%;
+  max-width: 280px;
   box-sizing: border-box;
   cursor: pointer;
   outline: none;
@@ -162,11 +163,12 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  transition: color 0.2s ease;
+  transition: color 0.15s ease, opacity 0.15s ease;
 }
 
 .ktab-story-card:hover .ktab-story-card__title {
-  color: var(--brand-teal-deep);
+  color: var(--brand-black);
+  opacity: 0.85;
 }
 
 .ktab-story-card__author {
@@ -193,7 +195,8 @@
 }
 
 .ktab-layout--dark .ktab-story-card:hover .ktab-story-card__title {
-  color: var(--brand-teal);
+  color: var(--brand-white);
+  opacity: 0.85;
 }
 
 .ktab-layout--dark .ktab-story-card__author {

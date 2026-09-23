@@ -1,0 +1,206 @@
+/* ==========================================================================
+   KTAB COMMON DETAILS DRAWER
+   Slide-over detail sheet anchored to the left of the viewport on desktop,
+   transforming into a bottom-sheet modal on mobile viewports.
+   ========================================================================== */
+
+.ktab-details-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  direction: ltr; /* Keeps drawer anchored to viewport left on desktop */
+  padding: 1.25rem;
+  box-sizing: border-box;
+}
+
+.ktab-details-drawer-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 10, 10, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.ktab-details-drawer-panel {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: var(--drawer-width, 520px);
+  height: calc(100vh - 2.5rem);
+  max-height: calc(100vh - 2.5rem);
+  background: var(--bg-primary, #ffffff);
+  border-radius: 1.5rem;
+  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.22);
+  overflow: hidden;
+  direction: rtl; /* Maintains Arabic RTL reading order inside drawer */
+}
+
+/* Mobile Drag Handle */
+.ktab-details-drawer-handle {
+  display: none;
+}
+
+/* Header */
+.ktab-details-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
+  background: var(--bg-primary, #ffffff);
+  border-top-left-radius: 1.5rem;
+  border-top-right-radius: 1.5rem;
+  flex-shrink: 0;
+}
+
+.ktab-details-drawer-header__titles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.ktab-details-drawer-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--brand-black, #111111);
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ktab-details-drawer-subtitle {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary, #666666);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ktab-details-drawer-close-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
+  background: var(--bg-primary, #ffffff);
+  color: var(--text-secondary, #666666);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+}
+
+.ktab-details-drawer-close-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--brand-black, #111111);
+  transform: scale(1.05);
+}
+
+.ktab-details-drawer-close-btn:active {
+  transform: scale(0.95);
+}
+
+/* Scrollable Body */
+.ktab-details-drawer-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 1.5rem;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Custom Scrollbar for Drawer Body */
+.ktab-details-drawer-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.ktab-details-drawer-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.ktab-details-drawer-body::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 999px;
+}
+
+.ktab-details-drawer-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+/* Sticky Footer */
+.ktab-details-drawer-footer {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
+  background: var(--bg-primary, #ffffff);
+  border-bottom-left-radius: 1.5rem;
+  border-bottom-right-radius: 1.5rem;
+}
+
+/* ==========================================================================
+   Responsive Mobile Adjustments (Bottom Sheet)
+   ========================================================================== */
+@media (max-width: 767px) {
+  .ktab-details-drawer-backdrop {
+    padding: 0;
+    justify-content: center;
+    align-items: flex-end;
+  }
+
+  .ktab-details-drawer-panel {
+    max-width: 100%;
+    max-height: 90vh;
+    height: auto;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    border-top: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
+    border-radius: 24px 24px 0 0;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.2);
+  }
+
+  .ktab-details-drawer-handle {
+    display: block;
+    width: 40px;
+    height: 4px;
+    background: rgba(0, 0, 0, 0.18);
+    border-radius: 999px;
+    margin: 10px auto 4px;
+    flex-shrink: 0;
+  }
+
+  .ktab-details-drawer-header {
+    padding: 0.75rem 1.25rem 1rem;
+    border-radius: 24px 24px 0 0;
+  }
+
+  .ktab-details-drawer-body {
+    padding: 1.15rem 1rem;
+    gap: 1.25rem;
+  }
+
+  .ktab-details-drawer-footer {
+    padding: 0.85rem 1.25rem;
+    flex-direction: column-reverse;
+    border-radius: 0;
+  }
+}

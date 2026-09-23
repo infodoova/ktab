@@ -1,42 +1,66 @@
 import React from "react";
-import { ArrowRight, RotateCcw } from "lucide-react";
+import { RotateCcw, ArrowLeft } from "lucide-react";
+import { SceneTimeline } from "../SceneTimeline/SceneTimeline";
 import "./PlayHeader.css";
 
 /**
- * Sticky header for the interactive play view.
- * @param {string} title - Story title
- * @param {() => void} onBack - Back/exit handler
- * @param {() => void} onRestart - Restart session handler
+ * Unified Dark Glassmorphism Top Bar for the Interactive Story Player.
+ * Right (in RTL): Story title with truncation (...)
+ * Center: Scrollable timeline with all scene balls (and locks)
+ * Left: Action controls (Retry/Restart & Back/Exit)
  */
-export function PlayHeader({ title, onBack, onRestart }) {
+export function PlayHeader({
+  title,
+  onBack,
+  onRestart,
+  sceneHistory,
+  currentScene,
+  onGoToScene,
+  totalScenes,
+  isGenerating,
+}) {
   return (
     <header className="play-header" dir="rtl">
-      <div className="play-header__leading">
-        <button
-          className="play-header__back-btn"
-          onClick={onBack}
-          aria-label="الخروج"
-        >
-          <ArrowRight size={18} />
-        </button>
-        <div className="play-header__info">
-          <h1 className="play-header__title">
-            {title || "المغامرة التفاعلية"}
-          </h1>
-          <span className="play-header__session-tag">
-            <span className="play-header__session-dot" />
-            جلسة نشطة
-          </span>
-        </div>
+      {/* Right Column (in RTL): Story Title with max-width and ellipsis */}
+      <div className="play-header__title-slot">
+        <h1 className="play-header__title" title={title || "قصة تفاعلية"}>
+          {title || "قصة تفاعلية"}
+        </h1>
       </div>
 
-      <div className="play-header__trailing">
+      {/* Center Column: Scrollable scene track with all scenes and lock indicators */}
+      <div className="play-header__center-slot">
+        <SceneTimeline
+          sceneHistory={sceneHistory}
+          currentScene={currentScene}
+          onGoToScene={onGoToScene}
+          totalScenes={totalScenes}
+          isGenerating={isGenerating}
+        />
+      </div>
+
+      {/* Left Column (in RTL): Action buttons (Restart + Exit/Back) */}
+      <div className="play-header__actions-slot">
         <button
-          className="play-header__restart-btn"
+          type="button"
+          className="play-header__action-btn"
           onClick={onRestart}
-          title="إعادة البدء من البداية"
+          title="إعادة بدء القصة من المشهد الأول"
+          aria-label="إعادة بدء القصة"
         >
-          <RotateCcw size={16} />
+          <RotateCcw size={14} />
+          <span className="play-header__action-label">إعادة</span>
+        </button>
+
+        <button
+          type="button"
+          className="play-header__action-btn play-header__action-btn--exit"
+          onClick={onBack}
+          title="الخروج من القصة"
+          aria-label="الخروج من القصة"
+        >
+          <span className="play-header__action-label">خروج</span>
+          <ArrowLeft size={14} />
         </button>
       </div>
     </header>

@@ -20,38 +20,7 @@
 }
 
 /* ── Responsive Books Grid (Strict 2-Col Mobile -> 5-Col Large Desktop) ──── */
-.ktab-admin-books-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  width: 100%;
-  max-width: 100%;
-  align-items: start;
-  box-sizing: border-box;
-}
-
-@media (min-width: 640px) {
-  .ktab-admin-books-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 16px;
-  }
-}
-
-@media (min-width: 900px) {
-  .ktab-admin-books-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 18px;
-  }
-}
-
-@media (min-width: 1200px) {
-  .ktab-admin-books-grid {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 22px;
-  }
-}
-
-/* ── Skeleton Grid ──────────────────────────────────────────────────────── */
+.ktab-admin-books-grid,
 .ktab-admin-books-skeleton-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -63,29 +32,34 @@
 }
 
 @media (min-width: 640px) {
+  .ktab-admin-books-grid,
   .ktab-admin-books-skeleton-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 16px;
   }
 }
 
-@media (min-width: 900px) {
+@media (min-width: 1440px) {
+  .ktab-admin-books-grid,
   .ktab-admin-books-skeleton-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 18px;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 20px;
   }
 }
 
-@media (min-width: 1200px) {
+@media (min-width: 2000px) {
+  .ktab-admin-books-grid,
   .ktab-admin-books-skeleton-grid {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 22px;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 24px;
   }
 }
 
 .ktab-admin-books-skeleton-item {
   display: flex;
   flex-direction: column;
+  max-width: 100%;
+  width: 100%;
   gap: 8px;
   width: 100%;
   min-width: 0;

@@ -160,19 +160,19 @@
   width: 100%;
   min-width: 0;
   aspect-ratio: 3 / 4;
-  border-radius: 0.85rem;
+  border-radius: 14px;
   overflow: hidden;
   background-color: var(--bg-secondary);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.05);
   cursor: pointer;
   box-sizing: border-box;
-  transition: box-shadow 0.25s ease, border-color 0.25s ease;
+  transition: box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.22s ease;
 }
 
 .ktab-assigned-card:hover .ktab-assigned-card__cover-wrap {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-  border-color: rgba(0, 0, 0, 0.12);
+  box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.12);
+  border-color: var(--border-card);
 }
 
 .ktab-assigned-card__image-container {
@@ -292,35 +292,41 @@
 /* Floating Cover Footer */
 .ktab-assigned-card__cover-footer {
   position: absolute;
-  bottom: 0.55rem;
-  left: 0.55rem;
-  right: 0.55rem;
-  z-index: 10;
+  bottom: 6px;
+  left: 6px;
+  right: 6px;
+  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.4rem;
+  gap: 4px;
   pointer-events: none;
 }
 
 .ktab-assigned-card__footer-pill {
   display: inline-flex;
   align-items: center;
-  gap: 0.28rem;
+  justify-content: center;
+  gap: 4px;
   height: 24px;
-  background-color: rgba(15, 23, 42, 0.78);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  color: #ffffff;
-  font-size: 0.6875rem;
-  font-weight: 750;
-  padding: 0 0.5rem;
+  padding: 0 8px;
   border-radius: 9999px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
-  font-family: var(--font-english), var(--font-arabic), sans-serif;
-  font-variant-numeric: tabular-nums;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: var(--brand-black);
+  font-size: 10.5px;
+  font-weight: 700;
   line-height: 1;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  white-space: nowrap;
+  max-width: 50%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  user-select: none;
+  font-variant-numeric: tabular-nums;
+  box-sizing: border-box;
 }
 
 .ktab-assigned-card__footer-pill svg {
@@ -337,13 +343,20 @@
   padding-top: 2px;
 }
 
+.ktab-assigned-card__star-icon {
+  color: #fbbf24;
+  fill: #fbbf24;
+}
+
 .ktab-assigned-card__footer-pill--audio-active {
-  color: var(--brand-teal);
-  border-color: rgba(93, 227, 186, 0.35);
+  background: rgba(13, 148, 136, 0.92);
+  color: var(--brand-white);
+  border-color: transparent;
 }
 
 .ktab-assigned-card__footer-pill--audio-inactive {
-  color: rgba(255, 255, 255, 0.65);
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--text-muted);
 }
 
 /* More Options Button (Matching Author Book Card Menu Anchor) */
@@ -453,9 +466,9 @@
   width: 100%;
   max-width: 100%;
   font-size: 0.656rem;
-  font-weight: 750;
+  font-weight: 700;
   letter-spacing: 0.02em;
-  color: var(--brand-teal-deep);
+  color: var(--text-subtle);
   margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -481,7 +494,8 @@
 }
 
 .ktab-assigned-card:hover .ktab-assigned-card__title {
-  color: var(--brand-teal-deep);
+  color: var(--brand-black);
+  opacity: 0.85;
 }
 
 .ktab-assigned-card__author {
@@ -630,7 +644,8 @@
 }
 
 .ktab-layout--dark .ktab-assigned-card:hover .ktab-assigned-card__title {
-  color: var(--brand-teal);
+  color: var(--brand-white);
+  opacity: 0.85;
 }
 
 .ktab-layout--dark .ktab-assigned-empty {

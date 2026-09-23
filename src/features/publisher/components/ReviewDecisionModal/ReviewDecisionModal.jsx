@@ -172,7 +172,7 @@ export function ReviewDecisionModal({
             </Button>
             <Button
               type="submit"
-              variant={isApprove ? "teal" : "danger"}
+              variant={isApprove ? "primary" : "danger"}
               disabled={isSubmitDisabled}
               icon={isApprove ? <CheckCircle size={15} /> : <XCircle size={15} />}
             >

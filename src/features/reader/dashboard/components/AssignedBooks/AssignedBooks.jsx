@@ -9,7 +9,6 @@ import {
   Eye,
   Compass,
   Headphones,
-  FileText,
   Star,
 } from "lucide-react";
 import brandIconImg from "@/assets/logo/BrandIcon.png";
@@ -46,7 +45,6 @@ function AssignedBookCard({
         (book.genre && book.genre.trim()) ||
         "";
   const hasAudio = Boolean(book.hasAudio);
-  const pageCount = book.pageCount || null;
   const rating = Number(book.averageRating) || 0;
   const isDraft = String(book.status || "").toUpperCase() === "DRAFT" || Boolean(book.isDraft);
 
@@ -143,17 +141,10 @@ function AssignedBookCard({
 
         {/* Floating Cover Footer */}
         <div className="ktab-assigned-card__cover-footer">
-          {pageCount ? (
-            <div className="ktab-assigned-card__footer-pill" title={`${pageCount} صفحة`}>
-              <FileText size={11} />
-              <span>{pageCount} صفحة</span>
-            </div>
-          ) : rating > 0 ? (
-            <div className="ktab-assigned-card__footer-pill" title={`التقييم: ${rating.toFixed(1)}`}>
-              <Star size={11} className="ktab-assigned-card__star-icon" />
-              <span>{rating.toFixed(1)}</span>
-            </div>
-          ) : null}
+          <div className="ktab-assigned-card__footer-pill" title={`التقييم: ${rating.toFixed(1)}`}>
+            <Star size={11} className="ktab-assigned-card__star-icon" />
+            <span>{rating.toFixed(1)}</span>
+          </div>
 
           <div
             className={`ktab-assigned-card__footer-pill ${

@@ -2,13 +2,22 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   fetchBookDraft,
-  publishNewBook,
   saveBookDraft,
   updateAuthorBook,
+  submitBookForReview,
 } from "../services/bookPublishService";
 import { useGenreStore, useEnumStore } from "@/core/store";
 import { AlertToast } from "@/components/myui/AlertToast";
-import { sanitizeText, sanitizeId, validateFile, validateSecureBookDocument } from "@/lib/sanitize";
+import { sanitizeText, sanitizeId } from "@/lib/sanitize";
+import {
+  validateFile,
+  validateSecureBookDocument,
+  validateImageDimensions,
+} from "@/utils/validation";
+import {
+  validateDraftData,
+  validatePublishData,
+} from "../validation/bookPublishValidation";
 import logger from "@/lib/logger";
 import * as pdfjsLib from "pdfjs-dist";
 
@@ -16,39 +25,70 @@ import * as pdfjsLib from "pdfjs-dist";
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
 
 export const AGE_GROUPS = [
-  "أطفال (3-8 سنوات)",
-  "ناشئة (9-15 سنة)",
-  "شباب (16-24 سنة)",
-  "كبار (25+)",
+  { value: "CHILDREN", min: 3, max: 8, label: "أطفال (3-8 سنوات)" },
+  { value: "EARLY_TEENS", min: 9, max: 15, label: "ناشئة (9-15 سنة)" },
+  { value: "YOUTH", min: 16, max: 24, label: "شباب (16-24 سنة)" },
+  { value: "ADULTS", min: 25, max: 99, label: "كبار (+25)" },
 ];
 
 export const LANG_OPTIONS = [
-  { id: "arabic", label: "العربية" },
-  { id: "english", label: "English" },
+  { id: "ar", label: "العربية" },
+  { id: "en", label: "English" },
+  { id: "fr", label: "Français" },
 ];
 
-export const getAgeRangeValues = (ageString) => {
-  if (!ageString) return { min: 0, max: 0 };
-  // Handle backend enum keys (value set by ageGroupOptions when ages store is loaded)
-  if (ageString === "CHILDREN")   return { min: 3,  max: 8   };
-  if (ageString === "EARLY_TEENS") return { min: 9,  max: 15  };
-  if (ageString === "YOUTH")      return { min: 16, max: 24  };
-  if (ageString === "ADULTS")     return { min: 25, max: 100 };
-  // Fallback: match Arabic label substrings (used when backend ages store is unavailable)
-  if (ageString.includes("3-8"))  return { min: 3,  max: 8   };
-  if (ageString.includes("9-15")) return { min: 9,  max: 15  };
-  if (ageString.includes("16-24")) return { min: 16, max: 24  };
-  if (ageString.includes("25+"))  return { min: 25, max: 100 };
-  return { min: 0, max: 0 };
+export const resolveAgeGroupValue = (min, max, options = []) => {
+  const minNum = Number(min);
+  const maxNum = Number(max);
+
+  if (options && options.length > 0) {
+    const matched =
+      options.find((opt) => {
+        const optMin = Number(opt.min);
+        const optMax = Number(opt.max);
+        return (
+          optMin === minNum &&
+          (optMax === maxNum || (!opt.max && maxNum >= 25) || (optMax >= 90 && maxNum >= 25))
+        );
+      }) || options.find((opt) => Number(opt.min) === minNum);
+
+    if (matched) return String(matched.value);
+  }
+
+  if (minNum === 3 && maxNum === 8) return "CHILDREN";
+  if (minNum === 9 && maxNum === 15) return "EARLY_TEENS";
+  if (minNum === 16 && maxNum === 24) return "YOUTH";
+  if (minNum >= 25) return "ADULTS";
+
+  return options[0]?.value ? String(options[0].value) : "CHILDREN";
 };
 
-export const mapValuesToAgeLabel = (min, max) => {
-  if (min === 3  && max === 8)  return AGE_GROUPS[0];
-  if (min === 9  && max === 15) return AGE_GROUPS[1];
-  if (min === 16 && max === 24) return AGE_GROUPS[2];
-  if (min >= 25)               return AGE_GROUPS[3];
-  // No match (null/0 values): fall back to the first age group instead of empty string.
-  return AGE_GROUPS[0];
+export const getAgeRangeValues = (ageValue, options = []) => {
+  if (!ageValue) return { min: 3, max: 8 };
+
+  if (options && options.length > 0) {
+    const found = options.find(
+      (opt) =>
+        opt.value === ageValue ||
+        String(opt.value).toUpperCase() === String(ageValue).toUpperCase() ||
+        opt.label === ageValue
+    );
+    if (found && typeof found.min === "number") {
+      return { min: found.min, max: found.max || 99 };
+    }
+  }
+
+  const str = String(ageValue).toUpperCase();
+  if (str === "CHILDREN" || str.includes("3-8") || str.includes("أطفال")) return { min: 3, max: 8 };
+  if (str === "EARLY_TEENS" || str.includes("9-15") || str.includes("ناشئة")) return { min: 9, max: 15 };
+  if (str === "YOUTH" || str.includes("16-24") || str.includes("شباب")) return { min: 16, max: 24 };
+  if (str === "ADULTS" || str.includes("25") || str.includes("كبار")) return { min: 25, max: 99 };
+
+  return { min: 3, max: 8 };
+};
+
+export const mapValuesToAgeLabel = (min, max, options = []) => {
+  return resolveAgeGroupValue(min, max, options);
 };
 
 const LOCAL_DRAFT_KEY = "ktab_book_publish_draft";
@@ -73,50 +113,7 @@ export const getPdfPageCount = async (file) => {
   }
 };
 
-/**
- * Validates cover image aspect ratio safely with cleanup.
- * @param {File} file
- * @param {number} [minRatio=1.35] - Minimum height/width ratio
- * @param {number} [maxRatio=1.85] - Maximum height/width ratio
- */
-export const validateImageDimensions = (file, minRatio = 1.35, maxRatio = 1.85) => {
-  return new Promise((resolve) => {
-    const objectUrl = URL.createObjectURL(file);
-    const img = new Image();
-    let settled = false;
-
-    const cleanup = () => {
-      if (!settled) {
-        settled = true;
-        URL.revokeObjectURL(objectUrl);
-      }
-    };
-
-    // Safety timeout in case image loading stalls
-    const timer = setTimeout(() => {
-      cleanup();
-      resolve({ isValid: true, ratio: 1.6 });
-    }, 4000);
-
-    img.onload = () => {
-      clearTimeout(timer);
-      const { naturalWidth, naturalHeight } = img;
-      // Validate height / width ratio against caller-supplied bounds (derived from uploadSpecs)
-      const ratio = naturalHeight / naturalWidth;
-      const isValid = ratio >= minRatio && ratio <= maxRatio;
-      cleanup();
-      resolve({ isValid, ratio, width: naturalWidth, height: naturalHeight });
-    };
-
-    img.onerror = () => {
-      clearTimeout(timer);
-      cleanup();
-      resolve({ isValid: false, ratio: 0, width: 0, height: 0 });
-    };
-
-    img.src = objectUrl;
-  });
-};
+export { validateImageDimensions };
 
 /**
  * Helper to retrieve locally cached form state.
@@ -156,8 +153,8 @@ export function useBookPublish() {
           description: local.description || "",
           category: local.category || "",
           subCategory: local.subCategory || "",
-          language: local.language || LANG_OPTIONS[0].id,
-          ageGroup: local.ageGroup || AGE_GROUPS[0],
+          language: local.language || "ar",
+          ageGroup: local.ageGroup || "CHILDREN",
           coverFile: null,
           pdfFile: null,
         };
@@ -168,8 +165,8 @@ export function useBookPublish() {
       description: "",
       category: "",
       subCategory: "",
-      language: LANG_OPTIONS[0].id,
-      ageGroup: AGE_GROUPS[0],
+      language: "ar",
+      ageGroup: "CHILDREN",
       coverFile: null,
       pdfFile: null,
     };
@@ -233,6 +230,51 @@ export function useBookPublish() {
 
   const { ages, languages, uploadSpecs, fetchBookEnums } = useEnumStore();
 
+  // Dynamic category options
+  const categoryOptions = useMemo(() => {
+    return genres.map((g) => ({
+      value: String(g.id),
+      label: g.name || g.arabicName || g.nameAr || String(g.id),
+    }));
+  }, [genres]);
+
+  // Dynamic subcategory options
+  const subCategoryOptions = useMemo(() => {
+    return subGenres.map((sg) => ({
+      value: String(sg.id),
+      label: sg.name || sg.arabicName || sg.nameAr || String(sg.id),
+    }));
+  }, [subGenres]);
+
+  // Dynamic age group options with explicit min and max
+  const ageGroupOptions = useMemo(() => {
+    if (ages && ages.length > 0) {
+      return ages.map((a) => ({
+        value: String(a.key),
+        label: a.labelAr || a.labelEn || a.key,
+        min: typeof a.minAge === "number" ? a.minAge : 0,
+        max: typeof a.maxAge === "number" ? a.maxAge : 99,
+      }));
+    }
+    return AGE_GROUPS.map((ag) => ({
+      value: ag.value,
+      label: ag.label,
+      min: ag.min,
+      max: ag.max,
+    }));
+  }, [ages]);
+
+  // Dynamic language options
+  const languageOptions = useMemo(() => {
+    if (languages && languages.length > 0) {
+      return languages.map((lang) => ({
+        value: String(lang.code || lang.value),
+        label: lang.labelAr || lang.labelEn || lang.label || lang.name || lang.code,
+      }));
+    }
+    return LANG_OPTIONS.map((lang) => ({ value: lang.id, label: lang.label }));
+  }, [languages]);
+
   // Load genres and enum metadata once from global cache
   useEffect(() => {
     fetchGenres();
@@ -256,6 +298,19 @@ export function useBookPublish() {
             : data;
 
         if (bookPayload) {
+          const bookStatus = String(bookPayload.status || "").toUpperCase();
+          if (
+            bookStatus === "UNDER_REVIEW" ||
+            bookStatus === "PENDING" ||
+            bookStatus === "PENDING_APPROVAL" ||
+            bookStatus === "SUBMITTED" ||
+            bookStatus === "IN_REVIEW"
+          ) {
+            AlertToast("هذا الكتاب قيد المراجعة لدى دار النشر ولا يمكن تعديله", "WARNING");
+            navigate("/author/my-books", { replace: true });
+            return;
+          }
+
           setDraft({
             ...bookPayload,
             id: bookPayload.id ?? bookPayload.bookId ?? draftId,
@@ -271,7 +326,7 @@ export function useBookPublish() {
     return () => {
       isMounted = false;
     };
-  }, [draftId]);
+  }, [draftId, navigate]);
 
   // Atomically sync draft data and genres into form state
   useEffect(() => {
@@ -287,12 +342,28 @@ export function useBookPublish() {
       if (found) genreId = String(found.id);
     }
 
+    const matchedAgeValue = resolveAgeGroupValue(
+      draft.ageRangeMin,
+      draft.ageRangeMax,
+      ageGroupOptions
+    );
+
+    const draftLang = String(draft.language || "ar").toLowerCase();
+    const matchedLang =
+      languageOptions.find(
+        (l) =>
+          String(l.value).toLowerCase() === draftLang ||
+          (l.value === "ar" && (draftLang === "arabic" || draftLang === "ar")) ||
+          (l.value === "en" && (draftLang === "english" || draftLang === "en")) ||
+          (l.value === "fr" && (draftLang === "french" || draftLang === "fr"))
+      )?.value || (draftLang === "arabic" ? "ar" : draftLang);
+
     setFormData((prev) => ({
       ...prev,
       title: draft.title || "",
       description: draft.description || "",
-      ageGroup: mapValuesToAgeLabel(draft.ageRangeMin, draft.ageRangeMax) || AGE_GROUPS[0],
-      language: draft.language || "arabic",
+      ageGroup: matchedAgeValue,
+      language: matchedLang,
       category: genreId || prev.category,
       subCategory: subGenreId || prev.subCategory,
     }));
@@ -307,7 +378,7 @@ export function useBookPublish() {
       const selectedGenre = genres.find((g) => String(g.id) === genreId);
       setSubGenres(selectedGenre?.subGenres || []);
     }
-  }, [draft, genres]);
+  }, [draft, genres, ageGroupOptions, languageOptions]);
 
   // Auto-select index 0 for genre and subgenre when genres load and no category is selected
   useEffect(() => {
@@ -391,81 +462,20 @@ export function useBookPublish() {
   );
 
   const validateDraft = useCallback(() => {
-    const cleanTitle = sanitizeText(formData.title);
-    if (!cleanTitle) {
-      AlertToast("يرجى إدخال عنوان للكتاب لحفظ المسودة.", "ERROR");
-      return false;
-    }
-    if (cleanTitle.length > 200) {
-      AlertToast("عنوان الكتاب طويل جداً (أقصى حد 200 حرف).", "ERROR");
+    const res = validateDraftData(formData);
+    if (!res.valid) {
+      AlertToast(res.error, "ERROR");
       return false;
     }
     return true;
-  }, [formData.title]);
+  }, [formData]);
 
   const validatePublish = useCallback(async () => {
-    const { title, description, category, ageGroup, coverFile, pdfFile, language } = formData;
-
-    const cleanTitle = sanitizeText(title);
-    const cleanDesc = sanitizeText(description);
-
-    if (!cleanTitle || !cleanDesc || !category || !ageGroup || !language) {
-      AlertToast("يرجى تعبئة جميع الحقول النصية.", "ERROR");
+    const res = await validatePublishData(formData, existingData);
+    if (!res.valid) {
+      AlertToast(res.error, "ERROR");
       return false;
     }
-
-    if (cleanTitle.length > 200) {
-      AlertToast("عنوان الكتاب طويل جداً (أقصى حد 200 حرف).", "ERROR");
-      return false;
-    }
-
-    if (cleanDesc.length > 5000) {
-      AlertToast("وصف الكتاب طويل جداً (أقصى حد 5000 حرف).", "ERROR");
-      return false;
-    }
-
-    const hasCover = coverFile || existingData.coverUrl;
-    const hasPdf = pdfFile || existingData.pdfName;
-
-    if (!hasCover) {
-      AlertToast("يرجى رفع صورة غلاف للكتاب.", "ERROR");
-      return false;
-    }
-    if (!hasPdf) {
-      AlertToast("يرجى رفع ملف الكتاب (PDF).", "ERROR");
-      return false;
-    }
-
-    if (coverFile) {
-      const coverValidation = validateFile(coverFile, {
-        allowedTypes: ["image/jpeg", "image/png", "image/webp"],
-        maxSizeBytes: 10 * 1024 * 1024, // 10 MB
-      });
-      if (!coverValidation.valid) {
-        AlertToast(coverValidation.error || "ملف الغلاف غير صالح", "ERROR");
-        return false;
-      }
-
-      const { isValid, ratio, width, height } = await validateImageDimensions(coverFile);
-      if (!isValid) {
-        AlertToast(
-          `يجب أن تكون نسبة غلاف الكتاب 1:1.6 تقريباً (المسموح بين 1.35 و 1.85). أبعاد صورتك: ${width}×${height} (النسبة: ${ratio ? ratio.toFixed(2) : "غير صالحة"}).`,
-          "ERROR"
-        );
-        return false;
-      }
-    }
-
-    if (pdfFile) {
-      const docValidation = await validateSecureBookDocument(pdfFile, {
-        maxSizeBytes: 100 * 1024 * 1024, // 100 MB
-      });
-      if (!docValidation.valid) {
-        AlertToast(docValidation.error || "ملف الكتاب غير صالح أمنياً", "ERROR");
-        return false;
-      }
-    }
-
     return true;
   }, [formData, existingData]);
 
@@ -484,8 +494,15 @@ export function useBookPublish() {
         }
       }
 
-      const { min, max } = getAgeRangeValues(formData.ageGroup);
+      const { min, max } = getAgeRangeValues(formData.ageGroup, ageGroupOptions);
       const apiFormData = new FormData();
+
+      const langCode =
+        formData.language === "arabic"
+          ? "ar"
+          : formData.language === "english"
+          ? "en"
+          : formData.language || "ar";
 
       // Standard BookRequestDto according to OpenAPI spec with status = 'DRAFT'
       const bookDto = {
@@ -493,7 +510,7 @@ export function useBookPublish() {
         description: sanitizeText(formData.description) || "",
         mainGenreId: Number(sanitizeId(formData.category)) || 1,
         subGenreId: Number(sanitizeId(formData.subCategory)) || 0,
-        language: sanitizeText(formData.language) || "arabic",
+        language: langCode,
         ageRangeMin: min,
         ageRangeMax: max,
         pageCount: Math.max(1, finalPageCount || 1),
@@ -519,7 +536,7 @@ export function useBookPublish() {
         ? await updateAuthorBook(draftId || draft?.id, apiFormData)
         : await saveBookDraft(apiFormData, (p) => setProgress(p));
 
-      if (res?.messageStatus === "SUCCESS" || res?.status === 200) {
+      if (res?.messageStatus === "SUCCESS" || res?.status === 200 || res?.statusCode === 200 || res?.success) {
         try {
           localStorage.removeItem(LOCAL_DRAFT_KEY);
         } catch {
@@ -549,6 +566,7 @@ export function useBookPublish() {
     draftId,
     draft?.id,
     navigate,
+    ageGroupOptions,
   ]);
 
   const handlePublish = useCallback(async () => {
@@ -568,23 +586,30 @@ export function useBookPublish() {
         }
       }
 
-      const { min, max } = getAgeRangeValues(formData.ageGroup);
+      const { min, max } = getAgeRangeValues(formData.ageGroup, ageGroupOptions);
       const apiFormData = new FormData();
 
-      // Status explicitly sent so backend processes the correct state transition.
+      const langCode =
+        formData.language === "arabic"
+          ? "ar"
+          : formData.language === "english"
+          ? "en"
+          : formData.language || "ar";
+
+      // Status in bookDto is DRAFT when updating.
+      // Final transition to UNDER_REVIEW is performed by the backend submit API.
       const bookDto = {
         title: sanitizeText(formData.title),
         description: sanitizeText(formData.description),
         mainGenreId: Number(sanitizeId(formData.category)),
         subGenreId: Number(sanitizeId(formData.subCategory)) || 0,
-        language: sanitizeText(formData.language) || "arabic",
+        language: langCode,
         ageRangeMin: min,
         ageRangeMax: max,
         pageCount: Math.max(1, finalPageCount || 1),
         hasAudio: false,
-        status: "UNDER_REVIEW",
+        status: "DRAFT",
       };
-      // ID is sent as a URL path variable — do NOT include it in the DTO body.
 
       apiFormData.append(
         "bookDto",
@@ -598,11 +623,31 @@ export function useBookPublish() {
         apiFormData.append("pdfFile", formData.pdfFile);
       }
 
-      const res = isEditingDraft
-        ? await updateAuthorBook(draftId || draft?.id, apiFormData)
-        : await publishNewBook(apiFormData, (p) => setProgress(p));
+      let res;
+      if (isEditingDraft) {
+        const activeDraftId = draftId || draft?.id;
+        // 1. Update draft with any newly edited fields or files first using status DRAFT
+        try {
+          await updateAuthorBook(activeDraftId, apiFormData);
+        } catch (updateErr) {
+          logger.warn("Non-fatal draft update notice before submit:", updateErr);
+        }
+        // 2. Submit existing draft for publisher review via POST /authors/me/books/submit?id={id}
+        res = await submitBookForReview({ id: activeDraftId });
+      } else {
+        // Mode 2: New book: submit multipart request directly via submit API
+        res = await submitBookForReview({
+          formData: apiFormData,
+          onProgress: (p) => setProgress(p),
+        });
+      }
 
-      if (res?.messageStatus === "SUCCESS" || res?.status === 200) {
+      if (
+        res?.messageStatus === "SUCCESS" ||
+        res?.status === 200 ||
+        res?.statusCode === 200 ||
+        res?.success
+      ) {
         try {
           localStorage.removeItem(LOCAL_DRAFT_KEY);
         } catch {
@@ -616,12 +661,12 @@ export function useBookPublish() {
         const errorMsg =
           res?.error === "IMAGE_INVALID_RATIO_COVER"
             ? `نسبة غلاف الكتاب غير مطابقة لمتطلبات النظام (المطلوب 1:1.6 بين 1.35 و 1.85، نسبتك الحالية: ${res.actualRatio || ""})`
-            : res?.message || res?.error || "فشل نشر الكتاب";
+            : res?.message || res?.error || "فشل إرسال الكتاب للمراجعة";
         AlertToast(errorMsg, "ERROR");
       }
     } catch (err) {
       logger.error("Publish book error:", err);
-      AlertToast("حدث خطأ أثناء نشر الكتاب", "ERROR");
+      AlertToast(err.message || "حدث خطأ أثناء نشر الكتاب", "ERROR");
     } finally {
       setLoading(false);
       setProgress(0);
@@ -634,44 +679,8 @@ export function useBookPublish() {
     draftId,
     draft?.id,
     navigate,
+    ageGroupOptions,
   ]);
-
-  // Precomputed Select options so JSX contains zero mapping logic
-  const categoryOptions = useMemo(() => {
-    return genres.map((g) => ({
-      value: String(g.id),
-      label: g.name || g.arabicName || g.nameAr || String(g.id),
-    }));
-  }, [genres]);
-
-  const subCategoryOptions = useMemo(() => {
-    return subGenres.map((sg) => ({
-      value: String(sg.id),
-      label: sg.name || sg.arabicName || sg.nameAr || String(sg.id),
-    }));
-  }, [subGenres]);
-
-  const ageGroupOptions = useMemo(() => {
-    // Use backend age categories when available; fall back to local AGE_GROUPS constants
-    if (ages && ages.length > 0) {
-      return ages.map((a) => ({
-        value: a.key,
-        label: a.labelAr,
-      }));
-    }
-    return AGE_GROUPS.map((ag) => ({ value: ag, label: ag }));
-  }, [ages]);
-
-  const languageOptions = useMemo(() => {
-    // Use backend language list when available; fall back to local LANG_OPTIONS constants
-    if (languages && languages.length > 0) {
-      return languages.map((lang) => ({
-        value: lang.code,
-        label: lang.labelAr,
-      }));
-    }
-    return LANG_OPTIONS.map((lang) => ({ value: lang.id, label: lang.label }));
-  }, [languages]);
 
   // Pre-bound declarative event handlers (zero inline functions in JSX)
   const handleTitleChange = useCallback(

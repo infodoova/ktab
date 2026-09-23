@@ -1,0 +1,31 @@
+.ktab-global-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.875rem;
+  width: 100%;
+  direction: rtl;
+  box-sizing: border-box;
+}
+
+@media (min-width: 768px) {
+  .ktab-global-metrics-grid--cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+  }
+
+  .ktab-global-metrics-grid--cols-4 {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .ktab-global-metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.625rem;
+  }
+
+  .ktab-global-metrics-grid > *:last-child:nth-child(odd) {
+    grid-column: span 2;
+  }
+}

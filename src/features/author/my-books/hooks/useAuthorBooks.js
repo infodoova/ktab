@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useLocation } from "react-router-dom";
-import { fetchAuthorBooks, deleteAuthorBook } from "../services/myBooksService";
+import { fetchAuthorBooks, deleteAuthorBook, submitBookForReview } from "../services/myBooksService";
 import { AlertToast } from "@/components/myui/AlertToast";
 
 /**
@@ -21,10 +21,6 @@ export function useAuthorBooks() {
   const [totalElements, setTotalElements] = useState(0);
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedGenre, setSelectedGenre] = useState("ALL");
-  const [sortBy, setSortBy] = useState("newest");
-  const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
-
   const [openMenuId, setOpenMenuId] = useState(null);
   const [selectedBookForDetails, setSelectedBookForDetails] = useState(null);
   const [bookToDelete, setBookToDelete] = useState(null);
@@ -94,9 +90,6 @@ export function useAuthorBooks() {
         }
       }
     },
-    // Empty deps: service is session-based, no external values needed. Stable function identity
-    // prevents the useEffect below from re-firing when the auth store hydrates.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
@@ -134,6 +127,19 @@ export function useAuthorBooks() {
   const handleConfirmDelete = useCallback(async () => {
     if (!bookToDelete) return;
 
+    const statusStr = String(bookToDelete.status || "").toUpperCase();
+    if (
+      statusStr === "UNDER_REVIEW" ||
+      statusStr === "PENDING" ||
+      statusStr === "PENDING_APPROVAL" ||
+      statusStr === "SUBMITTED" ||
+      statusStr === "IN_REVIEW"
+    ) {
+      AlertToast("لا يمكن حذف كتاب قيد المراجعة لدى دار النشر", "WARNING");
+      setBookToDelete(null);
+      return;
+    }
+
     try {
       const res = await deleteAuthorBook(bookToDelete.id);
       if (res?.messageStatus === "SUCCESS" || res?.status === 200) {
@@ -151,58 +157,41 @@ export function useAuthorBooks() {
     }
   }, [bookToDelete]);
 
+  const handleSubmitDraft = useCallback(async (book) => {
+    if (!book?.id) return;
+    try {
+      const res = await submitBookForReview({ id: book.id });
+      if (
+        res?.messageStatus === "SUCCESS" ||
+        res?.status === 200 ||
+        res?.statusCode === 200 ||
+        res?.success
+      ) {
+        AlertToast("تم إرسال الكتاب بنجاح وهو الآن قيد المراجعة", "SUCCESS");
+        setBooks((prev) => prev.filter((b) => b.id !== book.id));
+        setTotalElements((prev) => Math.max(0, prev - 1));
+        setSelectedBookForDetails(null);
+      } else {
+        AlertToast(res?.message || "فشل إرسال المسودة للمراجعة", "ERROR");
+      }
+    } catch {
+      AlertToast("حدث خطأ أثناء إرسال المسودة للمراجعة", "ERROR");
+    }
+  }, []);
+
   const displayedBooks = useMemo(() => {
-    let result = [...books];
+    if (!searchQuery.trim()) return books;
 
-    if (searchQuery.trim()) {
-      const q = searchQuery.trim().toLowerCase();
-      result = result.filter((book) => {
-        const title = (book?.title || "").toLowerCase();
-        const genre = (book?.genreName || book?.mainGenre?.name || "").toLowerCase();
-        const author = (book?.authorName || "").toLowerCase();
-        return title.includes(q) || genre.includes(q) || author.includes(q);
-      });
-    }
-
-    if (selectedGenre && selectedGenre !== "ALL") {
-      result = result.filter((book) => {
-        const genre = book?.genreName || book?.mainGenre?.name || "";
-        return genre === selectedGenre;
-      });
-    }
-
-    if (sortBy === "rating") {
-      result.sort((a, b) => (Number(b.averageRating) || 0) - (Number(a.averageRating) || 0));
-    } else if (sortBy === "reads") {
-      result.sort((a, b) => (Number(b.readCount || b.totalReads) || 0) - (Number(a.readCount || a.totalReads) || 0));
-    } else if (sortBy === "title") {
-      result.sort((a, b) => (a.title || "").localeCompare(b.title || "", "ar"));
-    } else {
-      result.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-    }
-
-    return result;
-  }, [books, searchQuery, selectedGenre, sortBy]);
-
-  const availableGenres = useMemo(() => {
-    const set = new Set();
-    books.forEach((b) => {
-      const g = b?.genreName || b?.mainGenre?.name;
-      if (g) set.add(g);
+    const q = searchQuery.trim().toLowerCase();
+    return books.filter((book) => {
+      const title = (book?.title || "").toLowerCase();
+      const genre = (book?.genreName || book?.mainGenre?.name || "").toLowerCase();
+      const author = (book?.authorName || "").toLowerCase();
+      return title.includes(q) || genre.includes(q) || author.includes(q);
     });
-    return Array.from(set);
-  }, [books]);
-
-  const activeFiltersCount = useMemo(() => {
-    let count = 0;
-    if (selectedGenre && selectedGenre !== "ALL") count += 1;
-    if (sortBy && sortBy !== "newest") count += 1;
-    return count;
-  }, [selectedGenre, sortBy]);
+  }, [books, searchQuery]);
 
   const resetFilters = useCallback(() => {
-    setSelectedGenre("ALL");
-    setSortBy("newest");
     setSearchQuery("");
   }, []);
 
@@ -217,14 +206,6 @@ export function useAuthorBooks() {
     status,
     searchQuery,
     setSearchQuery,
-    selectedGenre,
-    setSelectedGenre,
-    availableGenres,
-    sortBy,
-    setSortBy,
-    isFilterSheetOpen,
-    setIsFilterSheetOpen,
-    activeFiltersCount,
     resetFilters,
     openMenuId,
     setOpenMenuId,
@@ -235,6 +216,7 @@ export function useAuthorBooks() {
     handleStatusChange,
     loadMore,
     handleConfirmDelete,
+    handleSubmitDraft,
   };
 }
 

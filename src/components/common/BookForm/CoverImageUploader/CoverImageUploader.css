@@ -1,0 +1,268 @@
+.book-cover-uploader {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+  height: 100%;
+}
+
+.book-cover-uploader__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.book-cover-uploader__label {
+  font-size: 0.875rem;
+  font-weight: 750;
+  color: var(--brand-black);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.book-cover-uploader__required {
+  color: var(--color-danger);
+}
+
+.book-cover-uploader__hint {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-subtle);
+}
+
+.book-cover-uploader__input {
+  display: none;
+}
+
+/* ── Distinct Dropzone (Harmonized with PDF Uploader in 2-Column Grid) ── */
+.book-cover-uploader__dropzone {
+  position: relative;
+  width: 100%;
+  min-height: 200px;
+  height: 100%;
+  border-radius: 14px;
+  border: 1.5px dashed var(--border-card, #cbd5e1);
+  background-color: var(--bg-secondary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 1.75rem 1.25rem;
+  box-sizing: border-box;
+}
+
+.book-cover-uploader__dropzone:hover,
+.book-cover-uploader__dropzone:focus-visible {
+  border-color: var(--brand-black);
+  background-color: var(--bg-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  outline: none;
+}
+
+.book-cover-uploader__dropzone--dragover {
+  border-color: var(--brand-teal);
+  border-style: solid;
+  background-color: var(--brand-teal-soft);
+  box-shadow: 0 0 0 4px var(--brand-teal-ambient);
+}
+
+.book-cover-uploader__dropzone--error {
+  border-color: var(--color-danger);
+  background-color: #fef2f2;
+}
+
+.book-cover-uploader__dropzone--has-cover {
+  padding: 0;
+  border-style: solid;
+  border-color: var(--border-card);
+  background-color: var(--bg-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* ── Empty State ── */
+.book-cover-uploader__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  text-align: center;
+  width: 100%;
+}
+
+.book-cover-uploader__icon-badge {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 1rem;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--brand-black);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+  flex-shrink: 0;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.book-cover-uploader__dropzone:hover .book-cover-uploader__icon-badge {
+  transform: translateY(-2px) scale(1.06);
+}
+
+.book-cover-uploader__cta-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.book-cover-uploader__cta-action {
+  font-size: 0.9375rem;
+  font-weight: 750;
+  color: var(--brand-black);
+  line-height: 1.35;
+}
+
+.book-cover-uploader__cta-sub {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+/* ── Showcase with Cover (Clean Absorbable Data Display) ── */
+.book-cover-uploader__showcase {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.book-cover-uploader__ambient {
+  position: absolute;
+  inset: -15px;
+  background-size: cover;
+  background-position: center;
+  filter: blur(28px) saturate(1.2);
+  opacity: 0.18;
+  pointer-events: none;
+  transform: scale(1.1);
+}
+
+.book-cover-uploader__book-wrap {
+  position: relative;
+  z-index: 1;
+  height: 172px;
+  aspect-ratio: 1 / 1.55;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.22), 0 3px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.book-cover-uploader__dropzone:hover .book-cover-uploader__book-wrap {
+  transform: scale(1.03);
+}
+
+.book-cover-uploader__book-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ── Hover Overlay with Action Pills (Visible on Hover Only) ── */
+.book-cover-uploader__hover-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: rgba(10, 10, 10, 0.5);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.book-cover-uploader__dropzone:hover .book-cover-uploader__hover-overlay,
+.book-cover-uploader__hover-overlay:focus-within {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.book-cover-uploader__hover-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.book-cover-uploader__btn-change {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  font-family: inherit;
+  background-color: #ffffff;
+  color: var(--brand-black);
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  transition: all 0.15s ease;
+}
+
+.book-cover-uploader__btn-change:hover {
+  transform: scale(1.05);
+  background-color: #f8fafc;
+}
+
+.book-cover-uploader__btn-remove {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.55rem 0.95rem;
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-family: inherit;
+  background-color: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+  transition: all 0.15s ease;
+}
+
+.book-cover-uploader__btn-remove:hover {
+  background-color: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+  transform: scale(1.05);
+}
+
+.book-cover-uploader__error-text {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-danger);
+  margin-top: 0.25rem;
+}

@@ -1,16 +1,8 @@
 import { useState, useCallback, useEffect } from "react";
 import { publisherEditorialService } from "../services/publisherEditorialService";
 import { AlertToast } from "@/components/myui/AlertToast";
+import { normalizeText } from "@/utils/validation";
 
-/**
- * Normalizes text for comparison by trimming, collapsing spaces, and lowercasing.
- */
-function normalizeText(str) {
-  return (str || "")
-    .trim()
-    .replace(/\s+/g, " ")
-    .toLowerCase();
-}
 
 /**
  * Hook managing editorial decision submission (approve or reject with note)

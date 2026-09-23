@@ -279,10 +279,8 @@
 }
 
 .login-google-btn-rendered {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 100% !important;
+  display: block !important;
   min-height: 48px;
 }
 
@@ -290,10 +288,58 @@
   display: none !important;
 }
 
+/* Force GSI SDK container divs to expand to full container width without flex shrink-wrapping */
+.login-google-btn-rendered > div,
+.login-google-btn-rendered .S9gUrf-YoZ4jf,
+.login-google-btn-rendered .S9gUrf-YoZ4jf > div {
+  width: 100% !important;
+  max-width: 100% !important;
+  display: block !important;
+}
+
+/* Match the exact geometry, border radius, and height of the primary submit button */
+.login-google-btn-rendered [role="button"],
+.login-google-btn-rendered .nsm7Bb-HzV7m-LgbsSe {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 100% !important;
+  height: 48px !important;
+  min-height: 48px !important;
+  border-radius: 12px !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: none !important;
+  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.12)) !important;
+  background-color: var(--bg-card, #ffffff) !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.login-google-btn-rendered [role="button"]:hover,
+.login-google-btn-rendered .nsm7Bb-HzV7m-LgbsSe:hover {
+  border-color: var(--brand-black, #0a0a0a) !important;
+  background-color: #f8fafc !important;
+  transform: translateY(-1.5px) !important;
+}
+
+/* Center inner content and ensure proper flex alignment */
+.login-google-btn-rendered .nsm7Bb-HzV7m-LgbsSe-bN97Pc-sM5MNb {
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Fallback iframe styling for environments where iframe is used instead of FedCM */
 .login-google-btn-rendered iframe {
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: 100% !important;
+  height: 48px !important;
+  min-height: 48px !important;
   margin: 0 auto !important;
   border-radius: 12px !important;
-  max-width: 100% !important;
 }
 
 .login-google-loading-text {
@@ -369,8 +415,13 @@
 
   .login-btn-primary,
   .login-btn-google,
-  .login-google-container {
-    height: 46px;
+  .login-google-container,
+  .login-google-btn-rendered,
+  .login-google-btn-rendered [role="button"],
+  .login-google-btn-rendered .nsm7Bb-HzV7m-LgbsSe,
+  .login-google-btn-rendered iframe {
+    height: 46px !important;
+    min-height: 46px !important;
     font-size: 14.5px;
   }
 

@@ -1,0 +1,226 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   UNIFIED EDITORIAL BOOK PUBLISH FORM (Single Vertical Flow - No Enclosing BG)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.book-publish-form {
+  width: 100%;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/* Centered Editorial Flow Container */
+.book-publish-form__body {
+  max-width: 780px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.35rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ── Individual Form Field Rows ── */
+.book-publish-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+/* ── 2x2 Select Grid ── */
+.book-publish-form__selects-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem 1rem;
+  width: 100%;
+}
+
+.book-publish-form__select-field {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── 2-Column Upload Grid (PDF + Cover Image) ── */
+.book-publish-form__upload-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+  width: 100%;
+  align-items: stretch;
+}
+
+/* ── Action Buttons ── */
+.book-publish-form__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.875rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border-subtle);
+  margin-top: 0.5rem;
+}
+
+.book-publish-form__btn-draft {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 48px;
+  padding: 0 1.35rem;
+  border-radius: 12px;
+  border: 1px solid var(--border-card, rgba(0, 0, 0, 0.14));
+  background-color: var(--bg-primary, #ffffff);
+  color: var(--brand-black, #0a0a0a);
+  font-size: 0.9375rem;
+  font-weight: 650;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+.book-publish-form__btn-draft:hover:not(:disabled) {
+  background-color: var(--btn-action-bg-hover, #e2e8f0);
+  color: var(--brand-black, #0a0a0a);
+  border-color: var(--btn-action-border, #cbd5e1);
+  transform: translateY(-1px);
+}
+
+.book-publish-form__btn-publish {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  height: 48px;
+  padding: 0 1.75rem;
+  border-radius: 12px;
+  border: 1px solid var(--brand-black, #0a0a0a);
+  background-color: var(--brand-black, #0a0a0a);
+  color: var(--brand-white, #ffffff);
+  font-size: 0.9375rem;
+  font-weight: 750;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.14);
+  transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+.book-publish-form__btn-publish svg {
+  color: #ffffff !important;
+}
+
+.book-publish-form__btn-publish:hover:not(:disabled) {
+  transform: translateY(-1.5px);
+  background-color: #1a1a1a;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+}
+
+.book-publish-form__btn-publish:disabled,
+.book-publish-form__btn-draft:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.book-publish-form__spinner {
+  animation: book-publish-spin 1s linear infinite;
+}
+
+@keyframes book-publish-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── Tablet Responsive (641px - 860px) ── */
+@media (min-width: 641px) and (max-width: 860px) {
+  .book-publish-form__body {
+    max-width: 100%;
+    padding: 0 1.25rem;
+    gap: 1.15rem;
+  }
+
+  .book-publish-form__selects-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .book-publish-form__upload-grid {
+    grid-template-columns: 1fr;
+    gap: 1.15rem;
+  }
+
+  .book-publish-form__actions {
+    display: flex;
+    flex-direction: row;
+    gap: 0.75rem;
+    width: 100%;
+    padding-top: 1rem;
+  }
+
+  .book-publish-form__btn-draft,
+  .book-publish-form__btn-publish {
+    flex: 1;
+    min-width: 0;
+    height: 48px;
+    padding: 0 1rem;
+    white-space: nowrap;
+  }
+}
+
+/* ── Mobile Responsive (<= 640px) ── */
+@media (max-width: 640px) {
+  .book-publish-form__body {
+    max-width: 100%;
+    padding: 0 1rem;
+    gap: 1.15rem;
+  }
+
+  .book-publish-form__selects-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .book-publish-form__upload-grid {
+    grid-template-columns: 1fr;
+    gap: 1.15rem;
+  }
+
+  .book-publish-form__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+    padding-top: 1rem;
+  }
+
+  .book-publish-form__btn-publish {
+    width: 100%;
+    flex: none;
+    height: 50px;
+    padding: 0 1.25rem;
+    font-size: 0.9375rem;
+    white-space: nowrap;
+    order: 1;
+  }
+
+  .book-publish-form__btn-draft {
+    width: 100%;
+    flex: none;
+    height: 48px;
+    padding: 0 1.25rem;
+    font-size: 0.9375rem;
+    white-space: nowrap;
+    order: 2;
+  }
+}

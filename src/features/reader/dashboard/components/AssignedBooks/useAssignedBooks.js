@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
  * @param {Array} [params.books=[]]
  * @param {Function} [params.onRemoveBook]
  */
-export function useAssignedBooks({ books = [], onRemoveBook } = {}) {
+export function useAssignedBooks({ onRemoveBook } = {}) {
   const trackRef = useRef(null);
   const navigate = useNavigate();
   const [openMenuId, setOpenMenuId] = useState(null);

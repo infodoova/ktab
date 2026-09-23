@@ -22,7 +22,6 @@ export default function LibrarianBooksView() {
     setSelectedBook,
     handleOpenCreate,
     handleOpenEdit,
-    refreshBooks,
   } = useLibrarianBooks();
 
 

@@ -40,11 +40,16 @@ export function useBookDetailsDrawer({ isOpen, onClose, book }) {
 
   const activeBook = details || book;
   const coverUrl = activeBook?.coverImageUrl || activeBook?.cover;
-  const isDraft = activeBook?.status === "DRAFT" || activeBook?.isDraft;
+  const statusUpper = String(activeBook?.status || "").toUpperCase();
+  const isDraft = statusUpper === "DRAFT" || Boolean(activeBook?.isDraft);
   const isPending =
-    activeBook?.status === "PENDING_APPROVAL" ||
-    activeBook?.status === "UNDER_REVIEW" ||
-    activeBook?.status === "PENDING";
+    statusUpper === "PENDING_APPROVAL" ||
+    statusUpper === "UNDER_REVIEW" ||
+    statusUpper === "PENDING" ||
+    statusUpper === "SUBMITTED" ||
+    statusUpper === "IN_REVIEW" ||
+    statusUpper === "AWAITING_APPROVAL" ||
+    Boolean(activeBook?.isPendingApproval);
 
   useEffect(() => {
     setCoverLoaded(false);
@@ -106,22 +111,47 @@ export function useBookDetailsDrawer({ isOpen, onClose, book }) {
   const totalReviews = activeBook?.totalReviews ?? 0;
   const reviewsText = `${totalReviews} ${totalReviews === 1 ? "تقييم" : totalReviews === 2 ? "تقييمان" : "تقييمات"}`;
   
-  let publishDateText = "غير محدد";
-  const rawDate = activeBook?.publishDate || activeBook?.createdAt;
+  const rawDate =
+    activeBook?.submittedAt ||
+    activeBook?.submissionDate ||
+    activeBook?.publishDate ||
+    activeBook?.publishedDate ||
+    activeBook?.createdAt ||
+    activeBook?.createdDate ||
+    activeBook?.creationDate ||
+    activeBook?.updatedAt ||
+    activeBook?.lastModifiedDate ||
+    activeBook?.timestamp;
+
+  let formattedDate = null;
   if (rawDate) {
     try {
       const d = new Date(rawDate);
       if (!isNaN(d.getTime())) {
-        publishDateText = d.toLocaleDateString("ar-SA", {
+        formattedDate = d.toLocaleDateString("ar-SA", {
           year: "numeric",
           month: "long",
           day: "numeric",
         });
       }
     } catch {
-      publishDateText = String(rawDate).split("T")[0];
+      formattedDate = String(rawDate).split("T")[0];
     }
   }
+
+  const dateLabel = isPending
+    ? "تاريخ التقديم"
+    : isDraft
+    ? "تاريخ الحفظ"
+    : "تاريخ النشر";
+
+  const dateValue =
+    formattedDate ||
+    (isPending
+      ? "بانتظار الاعتماد"
+      : isDraft
+      ? "مسودة غير منشورة"
+      : "منشور");
 
   const pdfUrl = activeBook?.pdfDownloadUrl || null;
   const pdfName = activeBook?.pdfFileName || (activeBook?.title ? `${activeBook.title}.pdf` : "ملف_الكتاب.pdf");
@@ -147,24 +177,28 @@ export function useBookDetailsDrawer({ isOpen, onClose, book }) {
       label: "المؤلف",
       value: author,
       iconType: "user",
+      highlight: "indigo",
     },
     {
       id: "source",
       label: "المصدر",
       value: sourceText,
       iconType: "building",
+      highlight: "purple",
     },
     {
       id: "mainGenre",
       label: "التصنيف الرئيسي",
       value: mainGenre,
       iconType: "bookmark",
+      highlight: "amber",
     },
     {
       id: "subGenre",
       label: subGenre ? "التصنيف الفرعي" : "صيغة الكتاب",
       value: subGenre || (pdfUrl ? "مستند PDF" : "نسخة رقمية"),
       iconType: subGenre ? "tag" : "fileText",
+      highlight: "cyan",
     },
     {
       id: "status",
@@ -192,30 +226,35 @@ export function useBookDetailsDrawer({ isOpen, onClose, book }) {
       label: "عدد الصفحات",
       value: pageCountText,
       iconType: "bookOpen",
+      highlight: "emerald",
     },
     {
       id: "ageRange",
       label: "الفئة العمرية",
       value: ageRangeText,
       iconType: "users",
+      highlight: "sky",
     },
     {
       id: "language",
       label: "اللغة",
       value: languageText,
       iconType: "globe",
+      highlight: "blue",
     },
     {
       id: "publishDate",
-      label: "تاريخ النشر",
-      value: publishDateText,
+      label: dateLabel,
+      value: dateValue,
       iconType: "calendar",
+      highlight: "slate",
     },
     {
       id: "readCount",
       label: "إجمالي القراءات",
       value: readCountText,
       iconType: "eye",
+      highlight: "rose",
     },
   ];
 
@@ -237,7 +276,9 @@ export function useBookDetailsDrawer({ isOpen, onClose, book }) {
     ratingText,
     totalReviews,
     reviewsText,
-    publishDateText,
+    publishDateText: dateValue,
+    dateLabel,
+    dateValue,
     pdfUrl,
     pdfName,
     canPreview: Boolean(pdfUrl),

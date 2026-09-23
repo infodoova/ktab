@@ -1,56 +1,91 @@
-import React, { useState, useEffect } from "react";
-import { ZoomIn } from "lucide-react";
+import React, { useState } from "react";
+import { ZoomIn, Sparkles } from "lucide-react";
+import brandIconImg from "@/assets/logo/BrandIcon.png";
 import "./SceneArtwork.css";
 
 /**
- * Scene artwork image with loading skeleton, error state, and zoom-in overlay.
- * @param {string} image - URL of the current scene's artwork
- * @param {(url: string) => void} onImageClick - Handler to open full-screen preview
- * @param {boolean} isGenerating - Whether a new scene is currently being generated
+ * Scene artwork image maintaining strict 1:1 aspect ratio.
+ * Features smooth image transitions, rich generating loader, and full-screen zoom trigger.
  */
 export function SceneArtwork({ image, onImageClick, isGenerating }) {
+  const [prevImage, setPrevImage] = useState(image);
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
 
-  useEffect(() => {
+  /* Reset image loading state during render when image prop changes */
+  if (image !== prevImage) {
+    setPrevImage(image);
     setLoaded(false);
     setError(false);
-  }, [image]);
+  }
 
   const showSkeleton = isGenerating || (!loaded && !error);
 
   return (
-    <div className="scene-artwork" onClick={() => onImageClick?.(image)}>
+    <div
+      className="ktab-scene-artwork"
+      onClick={() => {
+        if (image && !error) onImageClick?.(image);
+      }}
+      role="button"
+      tabIndex={0}
+      aria-label="تكبير صورة المشهد"
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          if (image && !error) onImageClick?.(image);
+        }
+      }}
+    >
       {showSkeleton && (
-        <div className="scene-artwork__skeleton">
-          <div className="scene-artwork__spinner" />
+        <div className="ktab-scene-artwork__skeleton">
+          <div className="ktab-scene-artwork__skeleton-inner">
+            <div className="ktab-scene-artwork__spinner-container">
+              <div className="ktab-scene-artwork__spinner-ring" />
+              <Sparkles size={22} className="ktab-scene-artwork__spinner-icon" />
+            </div>
+            <div className="ktab-scene-artwork__skeleton-labels">
+              <span className="ktab-scene-artwork__skeleton-title">
+                جاري رسم لوحة المشهد...
+              </span>
+              <span className="ktab-scene-artwork__skeleton-sub">
+                توليد الرسوم التوضيحية
+              </span>
+            </div>
+          </div>
+          <div className="ktab-scene-artwork__shimmer" />
         </div>
       )}
 
-      {error && (
-        <div className="scene-artwork__error">
-          <span className="scene-artwork__error-icon">🖼️</span>
-          <span className="scene-artwork__error-text">تعذر تحميل الصورة</span>
+      {error ? (
+        <div className="ktab-scene-artwork__fallback">
+          <img
+            src={brandIconImg}
+            alt=""
+            className="ktab-scene-artwork__fallback-logo"
+            aria-hidden="true"
+          />
+          <span className="ktab-scene-artwork__fallback-text">صورة المشهد</span>
         </div>
+      ) : (
+        <img
+          src={image}
+          alt="صورة المشهد"
+          onLoad={() => setLoaded(true)}
+          onError={() => setError(true)}
+          className={`ktab-scene-artwork__image ${
+            loaded ? "ktab-scene-artwork__image--loaded" : "ktab-scene-artwork__image--loading"
+          }`}
+          loading="eager"
+          decoding="async"
+        />
       )}
 
-      <img
-        src={image}
-        alt="Scene artwork"
-        onLoad={() => setLoaded(true)}
-        onError={() => setError(true)}
-        className={`scene-artwork__image ${
-          loaded ? "scene-artwork__image--loaded" : "scene-artwork__image--loading"
-        }`}
-      />
-
-      <div className="scene-artwork__gradient" />
-
-      <div className="scene-artwork__zoom-overlay">
-        <div className="scene-artwork__zoom-icon">
-          <ZoomIn size={20} />
+      {loaded && !error && (
+        <div className="ktab-scene-artwork__zoom-hint" aria-hidden="true">
+          <ZoomIn size={16} />
         </div>
-      </div>
+      )}
     </div>
   );
 }

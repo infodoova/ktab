@@ -6,9 +6,8 @@ import { loginApi, googleLoginApi, completeGoogleRegistrationApi } from "@/core/
 import { AlertToast } from "@/components/myui/AlertToast";
 import { getRoleDefaultRoute } from "@/core/constants/roles";
 import { sanitizeEmail } from "@/lib/sanitize";
+import { validateEmail, validateLoginPassword } from "@/utils/validation";
 import logger from "@/lib/logger";
-
-const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 /**
  * Custom hook handling all login business logic, state, validation, navigation,
@@ -167,9 +166,10 @@ export function useLogin() {
       }
 
       try {
-        const containerWidth = googleBtnRef.current
-          ? Math.min(400, Math.max(280, googleBtnRef.current.offsetWidth || 380))
-          : 380;
+        const containerWidth = Math.min(
+          400,
+          Math.max(280, googleBtnRef.current?.offsetWidth || 400)
+        );
 
         window.google.accounts.id.renderButton(googleBtnRef.current, {
           type: "standard",
@@ -208,19 +208,14 @@ export function useLogin() {
     const nextErrors = {};
     const cleanEmail = sanitizeEmail(email);
 
-    if (!cleanEmail) {
-      nextErrors.email = "الرجاء إدخال البريد الإلكتروني.";
-    } else if (!EMAIL_REGEX.test(cleanEmail)) {
-      nextErrors.email = "صيغة بريد إلكتروني غير صحيحة.";
-    } else if (cleanEmail.length > 254) {
-      nextErrors.email = "البريد الإلكتروني طويل جداً.";
-    }
+    const emailErr = validateEmail(cleanEmail, {
+      requiredMessage: "الرجاء إدخال البريد الإلكتروني.",
+      invalidMessage: "صيغة بريد إلكتروني غير صحيحة.",
+    });
+    if (emailErr) nextErrors.email = emailErr;
 
-    if (!password) {
-      nextErrors.password = "الرجاء إدخال كلمة المرور.";
-    } else if (password.length > 128) {
-      nextErrors.password = "كلمة المرور تتجاوز الحد المسموح به (128 حرفاً).";
-    }
+    const pwErr = validateLoginPassword(password);
+    if (pwErr) nextErrors.password = pwErr;
 
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;

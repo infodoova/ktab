@@ -23,22 +23,22 @@
 
 @media (min-width: 640px) {
   .ktab-lib-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 1.25rem;
   }
 }
 
-@media (min-width: 900px) {
+@media (min-width: 1440px) {
   .ktab-lib-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 1.35rem;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 1.5rem;
   }
 }
 
-@media (min-width: 1200px) {
+@media (min-width: 2000px) {
   .ktab-lib-grid {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1.75rem;
   }
 }
 
@@ -48,6 +48,8 @@
 .ktab-lib-skeleton {
   display: flex;
   flex-direction: column;
+  max-width: 100%;
+  width: 100%;
   gap: 0.55rem;
   width: 100%;
   min-width: 0;

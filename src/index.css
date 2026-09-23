@@ -735,3 +735,17 @@ body {
   border-color: var(--bg-secondary, #141414);
 }
 
+/* ==========================================================================
+   BUTTON ICON & TEXT HARMONIZATION
+   Buttons with dark backgrounds and white text must always render white icons (no green).
+   ========================================================================== */
+button[class*="primary"] svg,
+button[class*="btn-primary"] svg,
+button[class*="btn-publish"] svg,
+.myui-btn--primary svg,
+.myui-btn--primary .myui-btn-icon,
+.ktab-book-drawer__preview-btn svg {
+  color: var(--brand-white, #ffffff) !important;
+  stroke: currentColor;
+}
+

@@ -41,12 +41,12 @@ export const AUTHOR_NAV_ITEMS = [
     icon: Sparkles,
     path: "/author/ai-tools",
   },
-  {
-    name: "AuthorSettings",
-    label: "الإعدادات",
-    icon: Settings,
-    path: "/author/settings",
-  },
+  // {
+  //   name: "AuthorSettings",
+  //   label: "الإعدادات",
+  //   icon: Settings,
+  //   path: "/author/settings",
+  // },
 ];
 
 export default AUTHOR_NAV_ITEMS;

@@ -33,64 +33,26 @@ export default function PublisherDashboardView() {
         </div>
 
         {/* Metric Cards Grid */}
-        <div className="ktab-publisher-dashboard__metrics">
-          <div
-            className="ktab-publisher-metric-card ktab-publisher-metric-card--pending"
+        <MetricsGrid columns={3}>
+          <MetricCard
+            title="بانتظار المراجعة والتحكيم"
+            value={loading ? "..." : counts.pending}
+            icon={Clock}
             onClick={handleNavigateToQueue}
-            role="button"
-            tabIndex={0}
-          >
-            <div className="ktab-publisher-metric-card__icon-wrap">
-              <Clock size={22} strokeWidth={2.4} />
-            </div>
-            <div className="ktab-publisher-metric-card__info">
-              <span className="ktab-publisher-metric-card__label">
-                بانتظار المراجعة والتحكيم
-              </span>
-              <span className="ktab-publisher-metric-card__value">
-                {loading ? "..." : counts.pending}
-              </span>
-            </div>
-          </div>
-
-          <div
-            className="ktab-publisher-metric-card ktab-publisher-metric-card--approved"
+          />
+          <MetricCard
+            title="الكتب المعتمدة والمنشورة"
+            value={loading ? "..." : counts.approved}
+            icon={CheckCircle}
             onClick={handleNavigateToQueue}
-            role="button"
-            tabIndex={0}
-          >
-            <div className="ktab-publisher-metric-card__icon-wrap">
-              <CheckCircle size={22} strokeWidth={2.4} />
-            </div>
-            <div className="ktab-publisher-metric-card__info">
-              <span className="ktab-publisher-metric-card__label">
-                الكتب المعتمدة والمنشورة
-              </span>
-              <span className="ktab-publisher-metric-card__value">
-                {loading ? "..." : counts.approved}
-              </span>
-            </div>
-          </div>
-
-          <div
-            className="ktab-publisher-metric-card ktab-publisher-metric-card--draft"
+          />
+          <MetricCard
+            title="تحت المراجعة / التعديل"
+            value={loading ? "..." : counts.rejected}
+            icon={FileEdit}
             onClick={handleNavigateToQueue}
-            role="button"
-            tabIndex={0}
-          >
-            <div className="ktab-publisher-metric-card__icon-wrap">
-              <FileEdit size={22} strokeWidth={2.4} />
-            </div>
-            <div className="ktab-publisher-metric-card__info">
-              <span className="ktab-publisher-metric-card__label">
-                تحت المراجعة / التعديل
-              </span>
-              <span className="ktab-publisher-metric-card__value">
-                {loading ? "..." : counts.rejected}
-              </span>
-            </div>
-          </div>
-        </div>
+          />
+        </MetricsGrid>
 
         {/* Recent Queue Submissions Section */}
         <div className="ktab-publisher-dashboard__section">

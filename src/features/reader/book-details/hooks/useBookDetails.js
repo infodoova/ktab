@@ -312,6 +312,10 @@ export function useBookDetails(bookId) {
   }, [navigate, bookId]);
   const handleNavigateBack = useCallback(() => navigate(-1), [navigate]);
   const handleNavigateToReader = useCallback(() => navigate("/reader"), [navigate]);
+  const handleScrollToTop = useCallback(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+  const currentYear = new Date().getFullYear();
 
   return {
     bookData,
@@ -344,6 +348,8 @@ export function useBookDetails(bookId) {
     handleStartReading,
     handleNavigateBack,
     handleNavigateToReader,
+    handleScrollToTop,
+    currentYear,
   };
 }
 

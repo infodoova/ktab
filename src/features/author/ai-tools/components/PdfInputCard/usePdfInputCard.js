@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { AlertToast } from "@/components/myui/AlertToast";
 import { useEnumStore } from "@/core/store";
+import { validateFile } from "@/utils/validation";
 import {
   AUDIENCE_OPTIONS,
   WORD_COUNT_CONFIG,
@@ -44,18 +45,15 @@ export function usePdfInputCard({ onGenerate, loading = false }) {
   const validateAndSetPdf = useCallback((selectedFile) => {
     if (!selectedFile) return;
 
-    if (
-      selectedFile.type !== "application/pdf" &&
-      !selectedFile.name.toLowerCase().endsWith(".pdf")
-    ) {
-      const msg = "يرجى اختيار ملف بصيغة PDF فقط.";
-      setErrors((prev) => ({ ...prev, file: msg }));
-      AlertToast(msg, "ERROR");
-      return;
-    }
+    const fileCheck = validateFile(selectedFile, {
+      allowedTypes: ["application/pdf"],
+      maxSizeBytes: maxPdfBytes,
+    });
 
-    if (selectedFile.size > maxPdfBytes) {
-      const msg = `الحد الأقصى لحجم الملف هو ${maxPdfMb} ميغابايت.`;
+    if (!fileCheck.valid) {
+      const msg = selectedFile.size > maxPdfBytes
+        ? `الحد الأقصى لحجم الملف هو ${maxPdfMb} ميغابايت.`
+        : "يرجى اختيار ملف بصيغة PDF فقط.";
       setErrors((prev) => ({ ...prev, file: msg }));
       AlertToast(msg, "ERROR");
       return;
@@ -71,9 +69,11 @@ export function usePdfInputCard({ onGenerate, loading = false }) {
   }, []);
 
   const handleFileChange = useCallback(
-    (e) => {
-      const selected = e.target.files?.[0];
-      validateAndSetPdf(selected);
+    (input) => {
+      const selected = input instanceof File ? input : input?.target?.files?.[0];
+      if (selected) {
+        validateAndSetPdf(selected);
+      }
     },
     [validateAndSetPdf]
   );

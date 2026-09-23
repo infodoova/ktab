@@ -1,7 +1,5 @@
 import React from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import {
-  X,
   Download,
   Tag,
   BookOpen,
@@ -18,13 +16,13 @@ import {
   Loader2,
 } from "lucide-react";
 import brandIconImg from "@/assets/logo/BrandIcon.png";
+import { DetailsDrawer } from "@/components/common/DetailsDrawer";
 import { usePublisherReviewDrawer } from "../../hooks/usePublisherReviewDrawer";
 import "./PublisherReviewDrawer.css";
 
 /**
  * Editorial Apple-inspired Slide-over Drawer for Publisher Editorial Review.
- * Anchored to the left of the viewport with comprehensive book inspection tiles,
- * source file download, and review decision actions.
+ * Powered by the global DetailsDrawer shell.
  */
 export function PublisherReviewDrawer({
   isOpen,
@@ -73,105 +71,81 @@ export function PublisherReviewDrawer({
     }
   };
 
-  const isMobile =
-    typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches;
+  const footerActions = (
+    <div className="ktab-pub-drawer-footer-actions">
+      <button
+        type="button"
+        onClick={handleDownloadSource}
+        disabled={downloading}
+        className="ktab-pub-drawer-btn ktab-pub-drawer-btn--download"
+        title="تحميل الملف المصدري للكتاب"
+      >
+        {downloading ? (
+          <Loader2 size={16} className="animate-spin" />
+        ) : (
+          <Download size={16} strokeWidth={2.2} />
+        )}
+        <span>{downloading ? "جاري التجهيز..." : "تحميل ملف الكتاب"}</span>
+      </button>
+
+      <button
+        type="button"
+        onClick={() => {
+          onClose();
+          onReject?.(currentBook);
+        }}
+        className="ktab-pub-drawer-btn ktab-pub-drawer-btn--reject"
+      >
+        <XCircle size={16} strokeWidth={2.2} />
+        <span>إعادة كمسودة مع ملاحظة</span>
+      </button>
+
+      <button
+        type="button"
+        onClick={() => {
+          onClose();
+          onApprove?.(currentBook);
+        }}
+        className="ktab-pub-drawer-btn ktab-pub-drawer-btn--approve"
+      >
+        <CheckCircle size={16} strokeWidth={2.2} className="ktab-pub-drawer-approve-icon" />
+        <span>قبول ونشر الكتاب</span>
+      </button>
+    </div>
+  );
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <div
-          className="ktab-pub-drawer-backdrop"
-          onClick={onClose}
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="publisher-drawer-title"
-        >
-          {/* Backdrop Blur Overlay */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="ktab-pub-drawer-backdrop-overlay"
-          />
-
-          {/* Slide-over Drawer Panel (Bottom Sheet on Mobile, Left Card on Desktop) */}
-          <motion.div
-            initial={isMobile ? { opacity: 0, y: "100%" } : { opacity: 0, x: -100 }}
-            animate={isMobile ? { opacity: 1, y: 0 } : { opacity: 1, x: 0 }}
-            exit={isMobile ? { opacity: 0, y: "100%" } : { opacity: 0, x: -100 }}
-            transition={{
-              type: "spring",
-              damping: isMobile ? 32 : 30,
-              stiffness: isMobile ? 320 : 350,
-              mass: 0.8,
-            }}
-            className="ktab-pub-drawer-panel"
-            onClick={(e) => e.stopPropagation()}
-            dir="rtl"
-          >
-            {/* Mobile BottomSheet Grab Handle */}
-            <div className="ktab-pub-drawer-handle" />
-
-            {/* Header */}
-            <div className="ktab-pub-drawer-header">
-              <h3 id="publisher-drawer-title" className="ktab-pub-drawer-title">
-                تفاصيل وفحص الكتاب
-              </h3>
-              <button
-                type="button"
-                onClick={onClose}
-                className="ktab-pub-drawer-close-btn"
-                aria-label="إغلاق النافذة"
-              >
-                <X size={18} />
-              </button>
+    <DetailsDrawer
+      isOpen={isOpen}
+      onClose={onClose}
+      title="تفاصيل وفحص الكتاب"
+      footer={footerActions}
+    >
+      {/* Hero Section */}
+      <div className="ktab-pub-drawer-hero">
+        <div className="ktab-pub-drawer-cover-wrap">
+          {currentBook?.coverImageUrl ? (
+            <img
+              src={currentBook.coverImageUrl}
+              alt={currentBook?.title || "غلاف الكتاب"}
+              className="ktab-pub-drawer-cover-img"
+            />
+          ) : (
+            <div className="ktab-pub-drawer-fallback-cover">
+              <img
+                src={brandIconImg}
+                alt=""
+                className="ktab-pub-drawer-fallback-logo"
+              />
             </div>
+          )}
+        </div>
 
-            {/* Body */}
-            <div className="ktab-pub-drawer-body">
-              {/* Hero Section */}
-              <div className="ktab-pub-drawer-hero">
-                <div className="ktab-pub-drawer-cover-wrap">
-                  {currentBook?.coverImageUrl ? (
-                    <img
-                      src={currentBook.coverImageUrl}
-                      alt={currentBook?.title || "غلاف الكتاب"}
-                      className="ktab-pub-drawer-cover-img"
-                    />
-                  ) : (
-                    <div className="ktab-pub-drawer-fallback-cover">
-                      <img
-                        src={brandIconImg}
-                        alt=""
-                        className="ktab-pub-drawer-fallback-logo"
-                      />
-                    </div>
-                  )}
-                </div>
-
-                <div className="ktab-pub-drawer-hero-info">
-                  <h2 className="ktab-pub-drawer-book-title">{currentBook?.title}</h2>
-                  <p className="ktab-pub-drawer-book-author">المؤلف: {authorName}</p>
-
-                  <div className="ktab-pub-drawer-actions">
-                    <button
-                      type="button"
-                      onClick={handleDownloadSource}
-                      disabled={downloading}
-                      className="ktab-pub-drawer-btn-download"
-                      title="تحميل الملف المصدري للكتاب"
-                    >
-                      {downloading ? (
-                        <Loader2 size={15} className="animate-spin" />
-                      ) : (
-                        <Download size={15} strokeWidth={2.2} />
-                      )}
-                      <span>{downloading ? "جاري التجهيز..." : "تحميل ملف الكتاب"}</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
+        <div className="ktab-pub-drawer-hero-info">
+          <h2 className="ktab-pub-drawer-book-title">{currentBook?.title}</h2>
+          <p className="ktab-pub-drawer-book-author">المؤلف: {authorName}</p>
+        </div>
+      </div>
 
               {/* Book Description Section (only if description is present) */}
               {currentBook?.description && (
@@ -208,7 +182,7 @@ export function PublisherReviewDrawer({
                 <div className="ktab-pub-drawer-specs-grid">
                   {currentBook?.customAuthorName && (
                     <div className="ktab-pub-drawer-spec-tile">
-                      <div className="ktab-pub-drawer-spec-icon">
+                      <div className="ktab-pub-drawer-spec-icon ktab-pub-drawer-spec-icon--author">
                         <User size={16} />
                       </div>
                       <div className="ktab-pub-drawer-spec-text">
@@ -222,7 +196,7 @@ export function PublisherReviewDrawer({
 
                   {currentBook?.authorName && (
                     <div className="ktab-pub-drawer-spec-tile">
-                      <div className="ktab-pub-drawer-spec-icon">
+                      <div className="ktab-pub-drawer-spec-icon ktab-pub-drawer-spec-icon--account">
                         <Users size={16} />
                       </div>
                       <div className="ktab-pub-drawer-spec-text">
@@ -233,7 +207,7 @@ export function PublisherReviewDrawer({
                   )}
 
                   <div className="ktab-pub-drawer-spec-tile">
-                    <div className="ktab-pub-drawer-spec-icon">
+                    <div className="ktab-pub-drawer-spec-icon ktab-pub-drawer-spec-icon--genre">
                       <Tag size={16} />
                     </div>
                     <div className="ktab-pub-drawer-spec-text">
@@ -246,7 +220,7 @@ export function PublisherReviewDrawer({
                   </div>
 
                   <div className="ktab-pub-drawer-spec-tile">
-                    <div className="ktab-pub-drawer-spec-icon">
+                    <div className="ktab-pub-drawer-spec-icon ktab-pub-drawer-spec-icon--pages">
                       <BookOpen size={16} />
                     </div>
                     <div className="ktab-pub-drawer-spec-text">
@@ -258,7 +232,7 @@ export function PublisherReviewDrawer({
                   </div>
 
                   <div className="ktab-pub-drawer-spec-tile">
-                    <div className="ktab-pub-drawer-spec-icon">
+                    <div className="ktab-pub-drawer-spec-icon ktab-pub-drawer-spec-icon--media">
                       <Headphones size={16} />
                     </div>
                     <div className="ktab-pub-drawer-spec-text">
@@ -270,7 +244,7 @@ export function PublisherReviewDrawer({
                   </div>
 
                   <div className="ktab-pub-drawer-spec-tile">
-                    <div className="ktab-pub-drawer-spec-icon">
+                    <div className="ktab-pub-drawer-spec-icon ktab-pub-drawer-spec-icon--lang">
                       <Globe size={16} />
                     </div>
                     <div className="ktab-pub-drawer-spec-text">
@@ -283,7 +257,7 @@ export function PublisherReviewDrawer({
 
                   {(currentBook?.ageRangeMin || currentBook?.ageRangeMax) && (
                     <div className="ktab-pub-drawer-spec-tile">
-                      <div className="ktab-pub-drawer-spec-icon">
+                      <div className="ktab-pub-drawer-spec-icon ktab-pub-drawer-spec-icon--age">
                         <Users size={16} />
                       </div>
                       <div className="ktab-pub-drawer-spec-text">
@@ -297,7 +271,7 @@ export function PublisherReviewDrawer({
 
                   {currentBook?.submittedAt && (
                     <div className="ktab-pub-drawer-spec-tile">
-                      <div className="ktab-pub-drawer-spec-icon">
+                      <div className="ktab-pub-drawer-spec-icon ktab-pub-drawer-spec-icon--date">
                         <Clock size={16} />
                       </div>
                       <div className="ktab-pub-drawer-spec-text">
@@ -311,7 +285,7 @@ export function PublisherReviewDrawer({
 
                   {currentBook?.libraryOrganizationName && (
                     <div className="ktab-pub-drawer-spec-tile">
-                      <div className="ktab-pub-drawer-spec-icon">
+                      <div className="ktab-pub-drawer-spec-icon ktab-pub-drawer-spec-icon--library">
                         <Building2 size={16} />
                       </div>
                       <div className="ktab-pub-drawer-spec-text">
@@ -324,39 +298,9 @@ export function PublisherReviewDrawer({
                   )}
                 </div>
               </div>
-            </div>
-
-            {/* Sticky Editorial Actions Footer */}
-            <div className="ktab-pub-drawer-footer">
-              <button
-                type="button"
-                onClick={() => {
-                  onClose();
-                  onReject?.(currentBook);
-                }}
-                className="ktab-pub-drawer-btn ktab-pub-drawer-btn--reject"
-              >
-                <XCircle size={16} strokeWidth={2.2} />
-                <span>إعادة كمسودة مع ملاحظة</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  onClose();
-                  onApprove?.(currentBook);
-                }}
-                className="ktab-pub-drawer-btn ktab-pub-drawer-btn--approve"
-              >
-                <CheckCircle size={16} strokeWidth={2.2} className="ktab-pub-drawer-approve-icon" />
-                <span>قبول ونشر الكتاب</span>
-              </button>
-            </div>
-          </motion.div>
-        </div>
-      )}
-    </AnimatePresence>
+    </DetailsDrawer>
   );
 }
 
 export default PublisherReviewDrawer;
+

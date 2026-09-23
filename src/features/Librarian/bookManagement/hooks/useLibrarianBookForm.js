@@ -3,12 +3,13 @@ import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { librarianService } from "../../services/librarianService";
 import { useGenreStore, useEnumStore } from "@/core/store";
 import { AlertToast } from "@/components/myui/AlertToast";
+import { sanitizeText, sanitizeId } from "@/lib/sanitize";
 import {
-  sanitizeText,
-  sanitizeId,
   validateFile,
   validateSecureBookDocument,
-} from "@/lib/sanitize";
+  validateImageDimensions,
+} from "@/utils/validation";
+import { validateLibrarianBookForm } from "../validation/librarianBookValidation";
 import * as pdfjsLib from "pdfjs-dist";
 
 // Configure PDF.js worker
@@ -43,47 +44,7 @@ async function extractPdfPageCount(file) {
   }
 }
 
-/**
- * Validates cover image aspect ratio safely with cleanup.
- * Target: 1:1.6 (height/width ratio between minRatio=1.35 and maxRatio=1.85).
- */
-export function validateImageDimensions(file, minRatio = 1.35, maxRatio = 1.85) {
-  return new Promise((resolve) => {
-    const objectUrl = URL.createObjectURL(file);
-    const img = new Image();
-    let settled = false;
 
-    const cleanup = () => {
-      if (!settled) {
-        settled = true;
-        URL.revokeObjectURL(objectUrl);
-      }
-    };
-
-    // Safety timeout in case image loading stalls
-    const timer = setTimeout(() => {
-      cleanup();
-      resolve({ isValid: true, ratio: 1.6 });
-    }, 4000);
-
-    img.onload = () => {
-      clearTimeout(timer);
-      const { naturalWidth, naturalHeight } = img;
-      const ratio = naturalHeight / naturalWidth;
-      const isValid = ratio >= minRatio && ratio <= maxRatio;
-      cleanup();
-      resolve({ isValid, ratio, width: naturalWidth, height: naturalHeight });
-    };
-
-    img.onerror = () => {
-      clearTimeout(timer);
-      cleanup();
-      resolve({ isValid: false, ratio: 0, width: 0, height: 0 });
-    };
-
-    img.src = objectUrl;
-  });
-}
 
 
 /**
@@ -478,42 +439,7 @@ export function useLibrarianBookForm(props = {}) {
   }, []);
 
   const validate = useCallback(() => {
-    const newErrors = {};
-
-    if (!formData.title.trim() || formData.title.trim().length < 2) {
-      newErrors.title = "يرجى إدخال عنوان الكتاب (حرفان على الأقل)";
-    }
-
-    if (!formData.customAuthorName.trim() || formData.customAuthorName.trim().length < 2) {
-      newErrors.customAuthorName = "يرجى إدخال اسم مؤلف الكتاب (حرفان على الأقل)";
-    }
-
-    if (!formData.description.trim() || formData.description.trim().length < 5) {
-      newErrors.description = "يرجى كتابة نبذة عن الكتاب (5 أحرف على الأقل)";
-    }
-
-    if (!formData.category) {
-      newErrors.category = "يرجى اختيار التصنيف الأساسي للكتاب";
-    }
-
-    if (!formData.language) {
-      newErrors.language = "يرجى اختيار لغة الكتاب";
-    }
-
-    if (!formData.ageGroup) {
-      newErrors.ageGroup = "يرجى اختيار الفئة العمرية المستهدفة";
-    }
-
-    const hasCover = formData.coverFile || existingData.coverUrl;
-    if (!hasCover) {
-      newErrors.cover = "غلاف الكتاب إلزامي";
-    }
-
-    const hasPdf = formData.pdfFile || existingData.pdfName;
-    if (!hasPdf) {
-      newErrors.pdf = "ملف الكتاب بصيغة PDF إلزامي";
-    }
-
+    const newErrors = validateLibrarianBookForm(formData, existingData);
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }, [formData, existingData]);

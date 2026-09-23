@@ -6,30 +6,15 @@ import { AUTHOR_TABLE_SORT_OPTIONS } from "../../constants/dashboardConstants";
  */
 export function useAuthorBooksTable({
   books = [],
-  genres = ["الكل"],
   searchQuery = "",
-  selectedBookId,
   onSelectBookForStats,
   onPageChange,
 }) {
-  const [selectedGenre, setSelectedGenre] = useState("الكل");
-  const [sortBy, setSortBy] = useState("newest");
-  const [statusFilter, setStatusFilter] = useState("ALL"); // "ALL" | "PUBLISHED" | "DRAFT"
+  const [statusFilter, setStatusFilter] = useState("ALL"); // "ALL" | "PUBLISHED" | "UNDER_REVIEW" | "DRAFT"
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
   const [isMobileScreen, setIsMobileScreen] = useState(() =>
     typeof window !== "undefined" ? window.innerWidth < 768 : false
   );
-
-  const genreOptions = useMemo(
-    () =>
-      genres.map((g) => ({
-        value: g,
-        label: g === "الكل" ? "جميع التصنيفات" : g,
-      })),
-    [genres]
-  );
-
-  const sortOptions = AUTHOR_TABLE_SORT_OPTIONS;
 
   // Auto-close filter sheet on desktop width and track mobile state
   useEffect(() => {
@@ -76,18 +61,14 @@ export function useAuthorBooksTable({
   }, [books]);
 
   const resetFilters = () => {
-    setSelectedGenre("الكل");
-    setSortBy("newest");
     setStatusFilter("ALL");
   };
 
   const activeFiltersCount = useMemo(() => {
     let count = 0;
-    if (selectedGenre !== "الكل") count++;
-    if (sortBy !== "newest") count++;
     if (statusFilter !== "ALL") count++;
     return count;
-  }, [selectedGenre, sortBy, statusFilter]);
+  }, [statusFilter]);
 
   const displayedBooks = useMemo(() => {
     if (!Array.isArray(books)) return [];
@@ -109,45 +90,42 @@ export function useAuthorBooksTable({
       });
     }
 
-    // 2. Genre Filter
-    if (selectedGenre && selectedGenre !== "الكل") {
+    // 2. Status Single-Choice Filter
+    if (statusFilter === "PUBLISHED") {
       result = result.filter((b) => {
-        const gName =
-          b.genreName ||
-          (typeof b.mainGenre === "string" ? b.mainGenre : b.mainGenre?.name) ||
-          b.genre;
-        return gName === selectedGenre;
+        const s = (b.status || "").toUpperCase();
+        return (
+          s === "PUBLISHED" ||
+          (b.isDraft === false &&
+            s !== "UNDER_REVIEW" &&
+            s !== "PENDING_APPROVAL" &&
+            s !== "IN_REVIEW")
+        );
+      });
+    } else if (statusFilter === "UNDER_REVIEW") {
+      result = result.filter((b) => {
+        const s = (b.status || "").toUpperCase();
+        return (
+          s === "UNDER_REVIEW" ||
+          s === "PENDING_APPROVAL" ||
+          s === "IN_REVIEW"
+        );
+      });
+    } else if (statusFilter === "DRAFT") {
+      result = result.filter((b) => {
+        const s = (b.status || "").toUpperCase();
+        return (
+          s === "DRAFT" ||
+          (b.isDraft === true &&
+            s !== "UNDER_REVIEW" &&
+            s !== "PENDING_APPROVAL" &&
+            s !== "IN_REVIEW")
+        );
       });
     }
 
-    // 3. Status Single-Choice Filter
-    if (statusFilter === "PUBLISHED") {
-      result = result.filter(
-        (b) => b.isDraft === false || b.status === "PUBLISHED"
-      );
-    } else if (statusFilter === "DRAFT") {
-      result = result.filter(
-        (b) => b.isDraft === true || b.status === "DRAFT"
-      );
-    }
-
-    // 4. Sort
-    result.sort((a, b) => {
-      if (sortBy === "highest_rated") {
-        return (b.averageRating || 0) - (a.averageRating || 0);
-      }
-      if (sortBy === "most_read") {
-        const readsA = a.totalReaders ?? a.readCount ?? a.totalReads ?? 0;
-        const readsB = b.totalReaders ?? b.readCount ?? b.totalReads ?? 0;
-        return readsB - readsA;
-      }
-      const idA = a.id ?? a.bookId ?? 0;
-      const idB = b.id ?? b.bookId ?? 0;
-      return idB - idA;
-    });
-
     return result;
-  }, [books, searchQuery, selectedGenre, statusFilter, sortBy]);
+  }, [books, searchQuery, statusFilter]);
 
   const handleSelectBook = (bookId) => {
     if (onSelectBookForStats) {
@@ -208,10 +186,6 @@ export function useAuthorBooksTable({
   );
 
   return {
-    selectedGenre,
-    setSelectedGenre,
-    sortBy,
-    setSortBy,
     statusFilter,
     setStatusFilter,
     isFilterSheetOpen,
@@ -227,8 +201,6 @@ export function useAuthorBooksTable({
     canScroll,
     scrollProgress,
     handlePaginationChange,
-    genreOptions,
-    sortOptions,
   };
 }
 

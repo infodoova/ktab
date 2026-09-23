@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
 /**
@@ -11,23 +11,29 @@ export function useAuthorBookCard({
   isMenuOpen,
   onClick,
   onDelete,
+  onSubmit,
 }) {
   const navigate = useNavigate();
   const coverUrl = book?.coverImageUrl || book?.cover;
-  const isDraft = book?.status === "DRAFT" || book?.isDraft;
+  const statusStr = String(book?.status || "").toUpperCase();
+  const isDraft = statusStr === "DRAFT" || Boolean(book?.isDraft);
   const isPendingApproval =
-    book?.status === "PENDING_APPROVAL" ||
-    book?.status === "UNDER_REVIEW" ||
-    book?.status === "PENDING";
+    statusStr === "PENDING_APPROVAL" ||
+    statusStr === "UNDER_REVIEW" ||
+    statusStr === "PENDING" ||
+    statusStr === "SUBMITTED" ||
+    statusStr === "IN_REVIEW";
   const isOpen = isMenuOpen !== undefined ? isMenuOpen : openMenuId === book?.id;
 
+  const [prevCover, setPrevCover] = useState(coverUrl);
   const [coverLoaded, setCoverLoaded] = useState(false);
   const [hasCoverError, setHasCoverError] = useState(false);
 
-  useEffect(() => {
+  if (prevCover !== coverUrl) {
+    setPrevCover(coverUrl);
     setCoverLoaded(false);
     setHasCoverError(false);
-  }, [coverUrl]);
+  }
 
   const handleCoverLoad = useCallback(() => {
     setCoverLoaded(true);
@@ -45,7 +51,7 @@ export function useAuthorBookCard({
         setOpenMenuId(isOpen ? null : book?.id);
       }
     },
-    [isOpen, book?.id, setOpenMenuId]
+    [isOpen, book, setOpenMenuId]
   );
 
   const handleDetailsClick = useCallback(() => {
@@ -56,8 +62,9 @@ export function useAuthorBookCard({
   }, [book, onClick, setOpenMenuId]);
 
   const handleEditClick = useCallback(() => {
+    if (isPendingApproval) return;
     setOpenMenuId(null);
-    navigate(`/author/new-book/${book.id}`, {
+    navigate(`/author/new-book/${book?.id}`, {
       state: {
         from: {
           parentLabel: "المكتبة",
@@ -65,12 +72,19 @@ export function useAuthorBookCard({
         },
       },
     });
-  }, [book?.id, navigate, setOpenMenuId]);
+  }, [book, isPendingApproval, navigate, setOpenMenuId]);
+
+  const handleSubmitClick = useCallback(() => {
+    if (isPendingApproval) return;
+    setOpenMenuId(null);
+    onSubmit?.(book);
+  }, [book, isPendingApproval, onSubmit, setOpenMenuId]);
 
   const handleDeleteClick = useCallback(() => {
+    if (isPendingApproval) return;
     setOpenMenuId(null);
     onDelete?.(book);
-  }, [book, onDelete, setOpenMenuId]);
+  }, [book, isPendingApproval, onDelete, setOpenMenuId]);
 
   const handleKeyDown = useCallback(
     (e) => {
@@ -117,6 +131,7 @@ export function useAuthorBookCard({
     toggleMenu,
     handleDetailsClick,
     handleEditClick,
+    handleSubmitClick,
     handleDeleteClick,
     handleKeyDown,
   };

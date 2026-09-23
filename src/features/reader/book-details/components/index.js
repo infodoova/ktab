@@ -6,3 +6,4 @@ export { BookReviewModal } from "./BookReviewModal/BookReviewModal";
 export { SimilarBooks } from "./SimilarBooks/SimilarBooks";
 export { FullUserRatesModal } from "./FullUserRatesModal";
 export { BookDetailsSkeleton } from "./BookDetailsSkeleton/BookDetailsSkeleton";
+export { BookDetailsFooter } from "./BookDetailsFooter/BookDetailsFooter";

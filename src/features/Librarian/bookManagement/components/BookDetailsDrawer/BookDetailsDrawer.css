@@ -112,11 +112,25 @@
     font-size: 16px;
   }
 
+  .ktab-lib-drawer-footer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+  }
+
   .ktab-lib-drawer-btn-download,
   .ktab-lib-drawer-btn-edit,
   .ktab-lib-drawer-btn-delete {
-    height: 40px;
+    height: 42px;
     font-size: 13px;
+    padding: 0 10px;
+    gap: 6px;
+    width: auto;
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
   }
 }
 
@@ -234,11 +248,10 @@
   margin: 0;
 }
 
-.ktab-lib-drawer-actions {
+.ktab-lib-drawer-footer {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-top: 12px;
+  align-items: center;
+  gap: 10px;
   width: 100%;
 }
 
@@ -259,7 +272,8 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  width: 100%;
+  flex: 1;
+  white-space: nowrap;
 }
 
 .ktab-lib-drawer-btn-download:hover:not(:disabled) {
@@ -284,18 +298,26 @@
   font-size: 13.5px;
   font-weight: 700;
   font-family: var(--font-arabic), sans-serif;
-  background-color: var(--bg-secondary, #f1f5f9);
-  color: var(--brand-black, #0a0a0a);
-  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
+  background-color: var(--brand-black, #0a0a0a);
+  color: var(--brand-white, #ffffff);
+  border: 1px solid var(--brand-black, #0a0a0a);
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  width: 100%;
+  flex: 1;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  white-space: nowrap;
+}
+
+.ktab-lib-drawer-btn-edit svg {
+  color: #ffffff !important;
 }
 
 .ktab-lib-drawer-btn-edit:hover {
-  background-color: #e2e8f0;
-  border-color: rgba(0, 0, 0, 0.14);
+  background-color: #1f1f1f;
+  border-color: #1f1f1f;
+  color: var(--brand-white, #ffffff);
   transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
 }
 
 .ktab-lib-drawer-btn-delete {
@@ -314,7 +336,8 @@
   border: 1px solid rgba(239, 68, 68, 0.2);
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  width: 100%;
+  flex: 1;
+  white-space: nowrap;
 }
 
 .ktab-lib-drawer-btn-delete:hover {
@@ -342,14 +365,21 @@
 
 .ktab-lib-drawer-desc-box {
   font-size: 13.5px;
+  font-weight: 500;
   line-height: 1.7;
-  color: var(--text-muted);
+  color: var(--brand-black);
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-subtle);
   border-radius: 12px;
   padding: 14px 16px;
   margin: 0;
-  white-space: pre-line;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  text-align: start;
+  unicode-bidi: plaintext;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Specifications Grid */
@@ -385,8 +415,29 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--brand-black);
+  color: var(--text-subtle);
   flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.ktab-lib-drawer-spec-card:hover .ktab-lib-drawer-spec-icon {
+  color: var(--brand-black);
+  border-color: var(--glass-border);
+}
+
+/* Unified clean monochrome spec icons - avoids colorful rainbow clutter */
+.ktab-lib-drawer-spec-icon--star,
+.ktab-lib-drawer-spec-icon--author,
+.ktab-lib-drawer-spec-icon--genre,
+.ktab-lib-drawer-spec-icon--pages,
+.ktab-lib-drawer-spec-icon--age,
+.ktab-lib-drawer-spec-icon--media,
+.ktab-lib-drawer-spec-icon--lang,
+.ktab-lib-drawer-spec-icon--library,
+.ktab-lib-drawer-spec-icon--date {
+  color: var(--text-subtle);
+  background-color: var(--bg-primary);
+  border-color: var(--border-subtle);
 }
 
 .ktab-lib-drawer-spec-text {

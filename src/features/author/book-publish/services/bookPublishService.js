@@ -1,6 +1,7 @@
 import {
   getHelper,
   patchHelper,
+  postHelper,
   postFormDataHelper,
 } from "@/core/api/apiHelpers";
 import { sanitizeId } from "@/lib/sanitize";
@@ -29,6 +30,35 @@ export async function fetchBookDraft(draftId) {
 }
 
 /**
+ * Submits a book for publisher review.
+ * Matches: POST /api/v1/authors/me/books/submit
+ *
+ * Two modes:
+ * 1) Existing draft: supply id as query param (?id=123) with no body required.
+ * 2) New book: omit id, send multipart request with bookDto, coverImage, and pdfFile.
+ *    The book is created as DRAFT and immediately submitted in a single transaction.
+ *
+ * @param {Object} options
+ * @param {string|number} [options.id] - Existing draft ID
+ * @param {FormData} [options.formData] - Multipart form data for new book
+ * @param {Function} [options.onProgress] - Upload progress callback
+ */
+export async function submitBookForReview({ id, formData, onProgress } = {}) {
+  if (id) {
+    const safeId = encodeURIComponent(sanitizeId(id));
+    return postHelper({
+      url: `${API_BASE}/authors/me/books/submit?id=${safeId}`,
+    });
+  }
+
+  return postFormDataHelper({
+    url: `${API_BASE}/authors/me/books/submit`,
+    formData,
+    onUploadProgress: onProgress,
+  });
+}
+
+/**
  * Publishes or creates a new book with multipart form data:
  * - bookDto (JSON Blob containing BookRequestDto with status: 'PUBLISHED' or 'DRAFT')
  * - coverImage (Binary file)
@@ -38,11 +68,7 @@ export async function fetchBookDraft(draftId) {
  * @param {Function} onProgress
  */
 export async function publishNewBook(formData, onProgress) {
-  return postFormDataHelper({
-    url: `${API_BASE}/authors/me/books`,
-    formData,
-    onUploadProgress: onProgress,
-  });
+  return submitBookForReview({ formData, onProgress });
 }
 
 /**

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { createNewInteractiveStory } from "../services/newStoryService";
 import { AlertToast } from "@/components/myui/AlertToast";
 import { useEnumStore } from "@/core/store";
+import { validateStoryStep, validateFullStory } from "../validation/storyWizardValidation";
 import {
   GENRE_PRESETS,
   LENS_OPTIONS,
@@ -10,26 +11,14 @@ import {
   ART_STYLES,
   ART_STYLE_SELECT_OPTIONS,
   SCENE_COUNT_CONFIG,
-  LOCAL_STORY_DRAFT_KEY,
   MAX_COVER_SIZE_BYTES,
   INITIAL_CONSTITUTION,
   CONSTITUTION_FIELDS,
   STORY_MAX_LENGTHS,
 } from "../constants/newStoryConstants";
 
-function getCachedStoryDraft() {
-  try {
-    const cached = localStorage.getItem(LOCAL_STORY_DRAFT_KEY);
-    if (!cached) return null;
-    const parsed = JSON.parse(cached);
-    return parsed;
-  } catch {
-    return null;
-  }
-}
-
 /**
- * Custom hook managing interactive story creation, autosave, file handling,
+ * Custom hook managing interactive story creation, file handling,
  * and multipart submission strictly adhering to the schema:
  * {
  *   title, genre, lens, maxScenes, visualStyle, visualStyleNotes,
@@ -49,25 +38,22 @@ export function useNewInteractiveStory() {
 
   useEffect(() => {
     fetchStoryEnums();
+    try {
+      localStorage.removeItem("ktab_new_interactive_story_draft");
+    } catch {
+      // Ignored
+    }
   }, [fetchStoryEnums]);
 
-  const [formData, setFormData] = useState(() => {
-    const cached = getCachedStoryDraft();
-    const constitutionDraft = {
-      ...INITIAL_CONSTITUTION,
-      ...(cached?.constitution || {}),
-    };
-
-    return {
-      title: cached?.title || "",
-      genre: cached?.genre || "fantasy",
-      lens: cached?.lens || "SURVIVAL",
-      sceneCount: cached?.sceneCount || cached?.maxScenes || SCENE_COUNT_CONFIG.DEFAULT,
-      visualStyle: cached?.visualStyle || "CINEMATIC_STORYBOOK",
-      visualStyleNotes: cached?.visualStyleNotes || "",
-      constitution: constitutionDraft,
-      cover: null,
-    };
+  const [formData, setFormData] = useState({
+    title: "",
+    genre: "fantasy",
+    lens: "SURVIVAL",
+    sceneCount: SCENE_COUNT_CONFIG.DEFAULT,
+    visualStyle: "CINEMATIC_STORYBOOK",
+    visualStyleNotes: "",
+    constitution: { ...INITIAL_CONSTITUTION },
+    cover: null,
   });
 
   const [currentStep, setCurrentStep] = useState(1);
@@ -213,38 +199,7 @@ export function useNewInteractiveStory() {
   // Step validation
   const validateStep = useCallback(
     (step) => {
-      const stepErrors = {};
-      if (step === 1) {
-        if (!formData.title.trim()) {
-          stepErrors.title = "يرجى إدخال عنوان القصة.";
-        } else if (formData.title.length > STORY_MAX_LENGTHS.TITLE) {
-          stepErrors.title = `عنوان القصة يجب ألا يتجاوز ${STORY_MAX_LENGTHS.TITLE} حرف.`;
-        }
-        if (!formData.cover) {
-          stepErrors.cover = "يرجى اختيار صورة غلاف للقصة.";
-        }
-      } else if (step === 2) {
-        CONSTITUTION_FIELDS.forEach((field) => {
-          const val = formData.constitution[field.key]?.trim() || "";
-          if (field.required && !val) {
-            stepErrors[`constitution_${field.key}`] = `يرجى إدخال ${field.label}.`;
-          } else if ((formData.constitution[field.key]?.length || 0) > (field.maxLength || STORY_MAX_LENGTHS.CONSTITUTION_FIELD)) {
-            stepErrors[`constitution_${field.key}`] = `يجب ألا يتجاوز الحقل ${field.maxLength || STORY_MAX_LENGTHS.CONSTITUTION_FIELD} حرف.`;
-          }
-        });
-      } else if (step === 3) {
-        if (!formData.lens) {
-          stepErrors.lens = "يرجى تحديد منظور القصة.";
-        }
-        if (!formData.visualStyle) {
-          stepErrors.visualStyle = "يرجى تحديد النمط البصري.";
-        }
-        if (!formData.visualStyleNotes.trim()) {
-          stepErrors.visualStyleNotes = "يرجى كتابة ملاحظات الرؤية البصرية للقصة.";
-        } else if (formData.visualStyleNotes.length > STORY_MAX_LENGTHS.VISUAL_STYLE_NOTES) {
-          stepErrors.visualStyleNotes = `يجب ألا تتجاوز الملاحظات ${STORY_MAX_LENGTHS.VISUAL_STYLE_NOTES} حرف.`;
-        }
-      }
+      const stepErrors = validateStoryStep(step, formData);
 
       if (Object.keys(stepErrors).length > 0) {
         setErrors((prev) => ({ ...prev, ...stepErrors }));
@@ -289,37 +244,6 @@ export function useNewInteractiveStory() {
     [handleStepClick]
   );
 
-  // Autosave to localStorage
-  useEffect(() => {
-    const hasContent =
-      Boolean(formData.title.trim()) ||
-      Boolean(formData.constitution.coreTheme.trim()) ||
-      Boolean(formData.constitution.settingPlace.trim());
-
-    if (!hasContent) return;
-
-    const timer = setTimeout(() => {
-      try {
-        localStorage.setItem(
-          LOCAL_STORY_DRAFT_KEY,
-          JSON.stringify({
-            title: formData.title,
-            genre: formData.genre,
-            lens: formData.lens,
-            sceneCount: formData.sceneCount,
-            visualStyle: formData.visualStyle,
-            visualStyleNotes: formData.visualStyleNotes,
-            constitution: formData.constitution,
-          })
-        );
-      } catch {
-        // Handled silently
-      }
-    }, 700);
-
-    return () => clearTimeout(timer);
-  }, [formData]);
-
   // Prevent navigation loss
   useEffect(() => {
     const handleBeforeUnload = (e) => {
@@ -351,31 +275,7 @@ export function useNewInteractiveStory() {
     async (e) => {
       if (e) e.preventDefault();
 
-      const newErrors = {};
-      if (!formData.title.trim()) {
-        newErrors.title = "يرجى إدخال عنوان القصة.";
-      } else if (formData.title.length > STORY_MAX_LENGTHS.TITLE) {
-        newErrors.title = `عنوان القصة يجب ألا يتجاوز ${STORY_MAX_LENGTHS.TITLE} حرف.`;
-      }
-
-      if (!formData.cover) {
-        newErrors.cover = "يرجى اختيار صورة غلاف للقصة.";
-      }
-
-      CONSTITUTION_FIELDS.forEach((field) => {
-        const val = formData.constitution[field.key]?.trim() || "";
-        if (field.required && !val) {
-          newErrors[`constitution_${field.key}`] = `يرجى إدخال ${field.label}.`;
-        } else if ((formData.constitution[field.key]?.length || 0) > (field.maxLength || STORY_MAX_LENGTHS.CONSTITUTION_FIELD)) {
-          newErrors[`constitution_${field.key}`] = `يجب ألا يتجاوز الحقل ${field.maxLength || STORY_MAX_LENGTHS.CONSTITUTION_FIELD} حرف.`;
-        }
-      });
-
-      if (!formData.visualStyleNotes.trim()) {
-        newErrors.visualStyleNotes = "يرجى كتابة ملاحظات الرؤية البصرية للقصة.";
-      } else if (formData.visualStyleNotes.length > STORY_MAX_LENGTHS.VISUAL_STYLE_NOTES) {
-        newErrors.visualStyleNotes = `يجب ألا تتجاوز الملاحظات ${STORY_MAX_LENGTHS.VISUAL_STYLE_NOTES} حرف.`;
-      }
+      const newErrors = validateFullStory(formData);
 
       if (Object.keys(newErrors).length > 0) {
         setErrors(newErrors);
@@ -416,11 +316,6 @@ export function useNewInteractiveStory() {
         const res = await createNewInteractiveStory(payload);
 
         if (res?.messageStatus === "SUCCESS" || res?.status === 200 || res?.data) {
-          try {
-            localStorage.removeItem(LOCAL_STORY_DRAFT_KEY);
-          } catch {
-            // Handled
-          }
           AlertToast("تم إنشاء القصة التفاعلية بنجاح!", "SUCCESS");
           navigate("/author/my-stories");
         } else {

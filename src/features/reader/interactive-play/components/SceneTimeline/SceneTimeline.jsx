@@ -1,83 +1,126 @@
 import React, { useRef, useEffect } from "react";
+import { Lock } from "lucide-react";
 import "./SceneTimeline.css";
 
 /**
- * Unified scene journey timeline showing thumbnail dots and overall progress bar.
- * Combines the functionality of legacy SceneNavigator and StorylineProgress.
+ * Connected Journey Track Timeline (Dark Glassmorphism).
+ * Displays all scenes (1 to totalScenes). Reached scenes are interactive;
+ * future ungenerated scenes display a lock icon.
  *
- * @param {Array} sceneHistory - Array of all visited scenes
- * @param {Object} currentScene - Currently active scene object
- * @param {(index: number) => void} onGoToScene - Handler for scene navigation
- * @param {number} totalScenes - Total number of scenes in this story
- * @param {React.Ref} externalRef - Optional external ref for scroll control
+ * @param {Array} sceneHistory - Visited scenes
+ * @param {Object} currentScene - Active scene
+ * @param {(index: number) => void} onGoToScene - Navigation callback
+ * @param {number} totalScenes - Total scenes (default 14)
+ * @param {boolean} isGenerating - Whether next scene is generating
  */
 export function SceneTimeline({
   sceneHistory = [],
   currentScene,
   onGoToScene,
-  totalScenes = 10,
-  externalRef,
+  totalScenes = 14,
+  isGenerating = false,
 }) {
-  const internalRef = useRef(null);
-  const trackRef = externalRef || internalRef;
+  const trackRef = useRef(null);
 
-  /* Auto-scroll the active scene thumbnail into view */
+  /* Auto-scroll active node into view */
   useEffect(() => {
     if (!trackRef.current) return;
-    const activeBtn = trackRef.current.querySelector("[data-active='true']");
-    if (activeBtn) {
-      activeBtn.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+    const activeNode = trackRef.current.querySelector("[data-active='true']");
+    if (activeNode) {
+      activeNode.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
     }
-  }, [currentScene, trackRef]);
+  }, [currentScene]);
 
-  const currentNumber = currentScene?.sceneNumber || 1;
-  const progressPercent = Math.min(100, Math.round((currentNumber / totalScenes) * 100));
+  const allSteps = Array.from({ length: totalScenes }, (_, i) => {
+    const stepNum = i + 1;
+    const historyIndex = sceneHistory.findIndex(
+      (s) => (s.sceneNumber || 0) === stepNum || s.sceneId === `turn_${stepNum}`
+    );
+    const historyScene = historyIndex !== -1 ? sceneHistory[historyIndex] : null;
+    const isVisited = Boolean(historyScene);
+    const isCurrent =
+      Boolean(currentScene && (currentScene.sceneNumber === stepNum || currentScene.sceneId === `turn_${stepNum}`));
+    const isCompleted = Boolean(historyScene?.chosenNodeId);
+    const isGeneratingNode = isCurrent && (isGenerating || currentScene?.isPending);
+    const isLocked = !isVisited;
+
+    return {
+      stepNum,
+      historyIndex,
+      isVisited,
+      isCurrent,
+      isCompleted,
+      isGeneratingNode,
+      isLocked,
+    };
+  });
 
   return (
-    <div className="scene-timeline">
-      <div className="scene-timeline__header">
-        <span className="scene-timeline__title">تاريخ الرحلة</span>
-        <span className="scene-timeline__counter">
-          المشهد {currentNumber} / {sceneHistory.length}
-        </span>
-      </div>
+    <nav className="ktab-connected-timeline" aria-label="خطوات القصة">
+      <div className="ktab-connected-timeline__container">
+        <div ref={trackRef} className="ktab-connected-timeline__track">
+          {allSteps.map((step, idx) => {
+            const canNavigate = step.isVisited && !isGenerating && !step.isCurrent;
 
-      <div ref={trackRef} className="scene-timeline__track">
-        {sceneHistory.map((scene, index) => {
-          const isActive = currentScene?.sceneId === scene.sceneId;
-          return (
-            <button
-              key={scene.sceneId}
-              data-active={isActive}
-              onClick={() => onGoToScene(index)}
-              className={`scene-timeline__dot ${isActive ? "scene-timeline__dot--active" : ""}`}
-              style={{
-                backgroundImage: scene.sceneImage ? `url(${scene.sceneImage})` : "none",
-              }}
-            >
-              <div className="scene-timeline__dot-overlay" />
-              <span className="scene-timeline__dot-number">{index + 1}</span>
-            </button>
-          );
-        })}
-      </div>
+            return (
+              <div key={step.stepNum} className="ktab-connected-timeline__node-wrapper">
+                {/* Connecting track line to previous node */}
+                {idx > 0 && (
+                  <div
+                    className={`ktab-connected-timeline__line ${
+                      allSteps[idx - 1].isCompleted
+                        ? "ktab-connected-timeline__line--completed"
+                        : allSteps[idx - 1].isVisited
+                        ? "ktab-connected-timeline__line--visited"
+                        : "ktab-connected-timeline__line--locked"
+                    }`}
+                  />
+                )}
 
-      {/* Progress bar */}
-      <div className="scene-timeline__progress">
-        <div className="scene-timeline__progress-header">
-          <span className="scene-timeline__progress-label">تقدم المغامرة</span>
-          <span className="scene-timeline__progress-value">{progressPercent}%</span>
-        </div>
-        <div className="scene-timeline__progress-bar">
-          <div
-            className="scene-timeline__progress-fill"
-            style={{ width: `${progressPercent}%` }}
-          >
-            <div className="scene-timeline__progress-shimmer" />
-          </div>
+                <button
+                  type="button"
+                  data-active={step.isCurrent}
+                  disabled={!canNavigate}
+                  onClick={() => canNavigate && onGoToScene(step.historyIndex)}
+                  className={[
+                    "ktab-connected-timeline__node",
+                    step.isCurrent && "ktab-connected-timeline__node--active",
+                    step.isCompleted && "ktab-connected-timeline__node--completed",
+                    step.isGeneratingNode && "ktab-connected-timeline__node--generating",
+                    step.isLocked && "ktab-connected-timeline__node--locked",
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
+                  title={
+                    step.isLocked
+                      ? `المشهد ${step.stepNum} (لم يُفتح بعد)`
+                      : `المشهد ${step.stepNum}`
+                  }
+                  aria-label={
+                    step.isLocked
+                      ? `المشهد ${step.stepNum} مقفل`
+                      : `الانتقال إلى المشهد ${step.stepNum}`
+                  }
+                >
+                  {step.isLocked ? (
+                    <>
+                      <span className="ktab-connected-timeline__number ktab-connected-timeline__number--locked">{step.stepNum}</span>
+                      <Lock size={8} className="ktab-connected-timeline__lock-badge" />
+                    </>
+                  ) : (
+                    <span className="ktab-connected-timeline__number">{step.stepNum}</span>
+                  )}
+
+                  {step.isGeneratingNode && (
+                    <span className="ktab-connected-timeline__spinner" aria-hidden="true" />
+                  )}
+                </button>
+              </div>
+            );
+          })}
         </div>
       </div>
-    </div>
+    </nav>
   );
 }
 

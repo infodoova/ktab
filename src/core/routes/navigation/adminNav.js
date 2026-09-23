@@ -7,12 +7,12 @@ import { LayoutDashboard, BookOpen, Users } from "lucide-react";
  * 3. Publisher Management (إدارة الناشرين)
  */
 export const ADMIN_NAV_ITEMS = [
-  {
-    name: "AdminDashboard",
-    label: "لوحة التحكم",
-    icon: LayoutDashboard,
-    path: "/admin/dashboard",
-  },
+  // {
+  //   name: "AdminDashboard",
+  //   label: "لوحة التحكم",
+  //   icon: LayoutDashboard,
+  //   path: "/admin/dashboard",
+  // },
   {
     name: "AdminLibrary",
     label: "إدارة المكتبات",

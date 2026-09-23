@@ -5,28 +5,51 @@
 
 .ktab-publisher-queue-view {
   width: 100%;
-  padding: 1.25rem 1.5rem 3rem 1.5rem;
+  max-width: 100%;
+  margin: 0;
+  padding: 0 1.25rem 3.5rem 1.25rem;
   box-sizing: border-box;
   font-family: var(--font-arabic), sans-serif;
   direction: rtl;
 }
 
-@media (max-width: 640px) {
+@media (min-width: 768px) {
   .ktab-publisher-queue-view {
-    padding: 1rem 0.75rem 2.5rem 0.75rem;
+    padding: 0 2.5rem 5rem 2.5rem;
   }
 }
 
 /* ── Status Filter Tabs ─────────────────────────────────────────────────── */
 .ktab-publisher-queue-filters {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 4rem;
+  z-index: 25;
+  background-color: var(--bg-secondary, #f8fafc);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--border-subtle);
-  flex-wrap: wrap;
+  width: auto;
+  gap: 1.25rem;
+  margin-top: 0;
+  margin-right: -2.5rem;
+  margin-left: -2.5rem;
+  padding: 1rem 2.5rem 1rem 2.5rem;
+  border-bottom: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+  box-sizing: border-box;
+  margin-bottom: 2rem;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+@media (max-width: 767px) {
+  .ktab-publisher-queue-filters {
+    top: calc(3.75rem - 1px);
+    margin-top: -1px;
+    margin-right: -1.25rem;
+    margin-left: -1.25rem;
+    padding: 0.75rem 1.25rem 0.875rem 1.25rem;
+  }
 }
 
 .ktab-publisher-queue-tabs {
@@ -84,75 +107,45 @@
 }
 
 /* ── Card Grid ──────────────────────────────────────────────────────────── */
-.ktab-publisher-queue-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.25rem 1rem;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-@media (min-width: 640px) {
-  .ktab-publisher-queue-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem 1.25rem;
-  }
-}
-
-@media (min-width: 900px) {
-  .ktab-publisher-queue-grid {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.75rem 1.35rem;
-  }
-}
-
-@media (min-width: 1200px) {
-  .ktab-publisher-queue-grid {
-    grid-template-columns: repeat(5, 1fr);
-    gap: 2rem 1.5rem;
-  }
-}
-
-@media (min-width: 1536px) {
-  .ktab-publisher-queue-grid {
-    grid-template-columns: repeat(6, 1fr);
-    gap: 2rem 1.5rem;
-  }
-}
-
-/* ── Skeleton Loading ───────────────────────────────────────────────────── */
+.ktab-publisher-queue-grid,
 .ktab-publisher-queue-skeleton-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1.25rem 1rem;
   width: 100%;
+  align-items: start;
   box-sizing: border-box;
 }
 
 @media (min-width: 640px) {
+  .ktab-publisher-queue-grid,
   .ktab-publisher-queue-skeleton-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 1.5rem 1.25rem;
   }
 }
 
-@media (min-width: 900px) {
+@media (min-width: 1440px) {
+  .ktab-publisher-queue-grid,
   .ktab-publisher-queue-skeleton-grid {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.75rem 1.35rem;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 1.75rem 1.5rem;
   }
 }
 
-@media (min-width: 1200px) {
+@media (min-width: 2000px) {
+  .ktab-publisher-queue-grid,
   .ktab-publisher-queue-skeleton-grid {
-    grid-template-columns: repeat(5, 1fr);
-    gap: 2rem 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 2rem 1.75rem;
   }
 }
 
 .ktab-publisher-queue-skeleton-item {
   display: flex;
   flex-direction: column;
+  max-width: 100%;
+  width: 100%;
   gap: 0.5rem;
 }
 

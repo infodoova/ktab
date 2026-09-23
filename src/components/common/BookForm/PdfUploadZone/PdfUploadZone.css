@@ -1,0 +1,316 @@
+.book-pdf-uploader {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+  height: 100%;
+}
+
+.book-pdf-uploader__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.book-pdf-uploader__label {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--primary-text);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.book-pdf-uploader__required {
+  color: var(--color-danger);
+}
+
+.book-pdf-uploader__hint {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-subtle);
+}
+
+.book-pdf-uploader__input {
+  display: none;
+}
+
+/* ── Distinct Empty Dropzone (Crisp Centered Premium Card) ── */
+.book-pdf-uploader__dropzone {
+  width: 100%;
+  min-height: 200px;
+  height: 100%;
+  padding: 1.75rem 1.25rem;
+  border-radius: 14px;
+  border: 1.5px dashed var(--border-card, #cbd5e1);
+  background-color: var(--bg-secondary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  cursor: pointer;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+.book-pdf-uploader--compact .book-pdf-uploader__dropzone {
+  min-height: 155px;
+  padding: 1.25rem 1rem;
+}
+
+.book-pdf-uploader__dropzone:hover,
+.book-pdf-uploader__dropzone:focus-visible {
+  border-color: var(--brand-black);
+  background-color: var(--bg-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  outline: none;
+}
+
+.book-pdf-uploader__dropzone--dragover {
+  border-color: var(--brand-teal);
+  border-style: solid;
+  background-color: var(--brand-teal-soft);
+  box-shadow: 0 0 0 4px var(--brand-teal-ambient);
+}
+
+.book-pdf-uploader__dropzone--error {
+  border-color: var(--color-danger);
+  background-color: #fef2f2;
+}
+
+.book-pdf-uploader__icon-badge {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 1rem;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--brand-black);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+  flex-shrink: 0;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.book-pdf-uploader__dropzone:hover .book-pdf-uploader__icon-badge {
+  transform: translateY(-2px) scale(1.06);
+}
+
+.book-pdf-uploader__cta-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.book-pdf-uploader__cta-action {
+  font-size: 0.9375rem;
+  font-weight: 750;
+  color: var(--primary-text);
+  line-height: 1.35;
+}
+
+.book-pdf-uploader__cta-sub {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+
+
+.book-pdf-uploader__dropzone--has-file {
+  padding: 0;
+  border-style: solid;
+  border-color: var(--border-card);
+  background-color: var(--bg-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+
+/* ── Empty State ── */
+.book-pdf-uploader__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  text-align: center;
+  width: 100%;
+}
+
+/* ── Full Card Document Content ── */
+.book-pdf-uploader__content {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 200px;
+  padding: 1.75rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.book-pdf-uploader__icon-wrap {
+  width: 3.75rem;
+  height: 3.75rem;
+  border-radius: 1rem;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--brand-black);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
+  flex-shrink: 0;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.book-pdf-uploader__dropzone:hover .book-pdf-uploader__icon-wrap {
+  transform: translateY(-2px) scale(1.05);
+}
+
+.book-pdf-uploader__details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+  width: 100%;
+  max-width: 90%;
+}
+
+.book-pdf-uploader__file-name {
+  font-size: 0.9375rem;
+  font-weight: 750;
+  color: var(--primary-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 90%;
+  line-height: 1.35;
+}
+
+.book-pdf-uploader__metrics {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.book-pdf-uploader__metric-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.22rem 0.65rem;
+  border-radius: 9999px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  font-size: 0.75rem;
+  color: var(--primary-text);
+  line-height: 1.25;
+}
+
+.book-pdf-uploader__metric-label {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.book-pdf-uploader__metric-pill strong {
+  font-weight: 750;
+  color: var(--primary-text);
+}
+
+/* ── Hover Overlay with Action Pills (Visible on Hover Only) ── */
+.book-pdf-uploader__hover-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: rgba(10, 10, 10, 0.5);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.book-pdf-uploader__dropzone:hover .book-pdf-uploader__hover-overlay,
+.book-pdf-uploader__hover-overlay:focus-within {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.book-pdf-uploader__hover-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.book-pdf-uploader__btn-change {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  font-family: inherit;
+  background-color: #ffffff;
+  color: var(--brand-black);
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  transition: all 0.15s ease;
+}
+
+.book-pdf-uploader__btn-change:hover {
+  transform: scale(1.05);
+  background-color: #f8fafc;
+}
+
+.book-pdf-uploader__btn-remove {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.55rem 0.95rem;
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-family: inherit;
+  background-color: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+  transition: all 0.15s ease;
+}
+
+.book-pdf-uploader__btn-remove:hover {
+  background-color: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+  transform: scale(1.05);
+}
+
+.book-pdf-uploader__error-text {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-danger);
+  margin-top: 0.125rem;
+}

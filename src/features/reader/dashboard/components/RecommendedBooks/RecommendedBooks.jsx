@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ChevronRight, ChevronLeft, Headphones, BookOpen, FileText, Star } from "lucide-react";
+import { ChevronRight, ChevronLeft, Headphones, BookOpen, Star } from "lucide-react";
 import brandIconImg from "@/assets/logo/BrandIcon.png";
 import { useRecommendedBooks } from "./useRecommendedBooks";
 import "./RecommendedBooks.css";
@@ -29,7 +29,6 @@ function RecommendedBookCard({ book, onSelect }) {
   const isDraft = String(book?.status || "").toUpperCase() === "DRAFT" || Boolean(book?.isDraft);
   const hasAudio = Boolean(book?.hasAudio);
   const rating = Number(book?.averageRating) || 0;
-  const pageCount = book?.pageCount || null;
 
   return (
     <article
@@ -82,17 +81,10 @@ function RecommendedBookCard({ book, onSelect }) {
 
         {/* Floating Cover Footer */}
         <div className="ktab-book-shelf-card__cover-footer">
-          {pageCount ? (
-            <div className="ktab-book-shelf-card__footer-pill" title={`${pageCount} صفحة`}>
-              <FileText size={11} />
-              <span>{pageCount} صفحة</span>
-            </div>
-          ) : rating > 0 ? (
-            <div className="ktab-book-shelf-card__footer-pill" title={`التقييم: ${rating.toFixed(1)}`}>
-              <Star size={11} className="ktab-book-shelf-card__star-icon" />
-              <span>{rating.toFixed(1)}</span>
-            </div>
-          ) : null}
+          <div className="ktab-book-shelf-card__footer-pill" title={`التقييم: ${rating.toFixed(1)}`}>
+            <Star size={11} className="ktab-book-shelf-card__star-icon" />
+            <span>{rating.toFixed(1)}</span>
+          </div>
 
           <div
             className={`ktab-book-shelf-card__footer-pill ${

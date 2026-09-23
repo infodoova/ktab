@@ -1,6 +1,6 @@
 import React from "react";
 import { useParams } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import {
   BookHero,
   BookMetadataStrip,
@@ -10,8 +10,8 @@ import {
   SimilarBooks,
   FullUserRatesModal,
   BookDetailsSkeleton,
+  BookDetailsFooter,
 } from "../components";
-import Footer from "@/features/home/components/Footer";
 import { useBookDetails } from "../hooks/useBookDetails";
 import "./BookDetailsView.css";
 
@@ -53,6 +53,8 @@ export function BookDetailsView() {
     handleStartReading,
     handleNavigateBack,
     handleNavigateToReader,
+    handleScrollToTop,
+    currentYear,
   } = useBookDetails(bookId);
 
   // Missing Book ID State
@@ -82,21 +84,23 @@ export function BookDetailsView() {
       {/* 1. Sticky Navigation & Breadcrumbs Bar */}
       <header className="apple-book-details-header">
         <div className="apple-book-details-nav-inner">
+          {bookData?.title ? (
+            <span className="apple-book-details-nav-title" title={bookData.title}>
+              {bookData.title}
+            </span>
+          ) : (
+            <div />
+          )}
+
           <button
             type="button"
             onClick={handleNavigateBack}
             className="apple-book-details-back-btn"
             aria-label="الرجوع إلى الصفحة السابقة"
           >
-            <ArrowRight size={16} />
             <span>المكتبة</span>
+            <ArrowLeft size={16} />
           </button>
-
-          {bookData?.title && (
-            <span className="apple-book-details-nav-title" title={bookData.title}>
-              {bookData.title}
-            </span>
-          )}
         </div>
       </header>
 
@@ -183,8 +187,11 @@ export function BookDetailsView() {
         loading={loadingReviews}
       />
 
-      {/* 4. Editorial Landing Page Footer */}
-      <Footer />
+      {/* 4. Minimalist Single-Line Footer */}
+      <BookDetailsFooter
+        onScrollToTop={handleScrollToTop}
+        currentYear={currentYear}
+      />
     </div>
   );
 }

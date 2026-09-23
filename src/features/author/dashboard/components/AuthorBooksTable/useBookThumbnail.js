@@ -1,16 +1,18 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 
 /**
  * Hook for managing BookThumbnail loading state in AuthorBooksTable.
  */
 export function useBookThumbnail(coverUrl) {
+  const [prevCoverUrl, setPrevCoverUrl] = useState(coverUrl);
   const [loaded, setLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
 
-  useEffect(() => {
+  if (prevCoverUrl !== coverUrl) {
+    setPrevCoverUrl(coverUrl);
     setLoaded(false);
     setHasError(false);
-  }, [coverUrl]);
+  }
 
   const handleLoad = useCallback(() => {
     setLoaded(true);

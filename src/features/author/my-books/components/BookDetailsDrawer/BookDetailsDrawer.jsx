@@ -1,7 +1,5 @@
 import React from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import {
-  X,
   Star,
   BookOpen,
   Headphones,
@@ -16,8 +14,10 @@ import {
   Bookmark,
   Tag,
   FileText,
+  Send,
 } from "lucide-react";
 import brandIconImg from "@/assets/logo/BrandIcon.png";
+import { DetailsDrawer } from "@/components/common/DetailsDrawer";
 import { useBookDetailsDrawer } from "./useBookDetailsDrawer";
 import "./BookDetailsDrawer.css";
 
@@ -60,10 +60,10 @@ function renderSpecIcon(iconType) {
 }
 
 /**
- * Pure presentation BookDetailsDrawer component.
- * Uses useBookDetailsDrawer for state, animations, and lifecycle.
+ * Editorial BookDetailsDrawer component using the shared DetailsDrawer shell.
+ * Uses useBookDetailsDrawer for data loading and presentation attributes.
  */
-export function BookDetailsDrawer({ isOpen, onClose, book }) {
+export function BookDetailsDrawer({ isOpen, onClose, book, onSubmit }) {
   const {
     coverUrl,
     isDraft,
@@ -81,178 +81,126 @@ export function BookDetailsDrawer({ isOpen, onClose, book }) {
     handleCoverError,
   } = useBookDetailsDrawer({ isOpen, onClose, book });
 
-  const isMobile =
-    typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches;
-
   return (
-    <AnimatePresence>
-      {isOpen && book && (
-        <div
-          className="ktab-book-drawer-backdrop"
-          onClick={onClose}
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="book-drawer-title"
-        >
-          {/* Backdrop Blur Overlay */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="ktab-book-drawer-backdrop-overlay"
-          />
-
-          {/* Drawer Panel (Bottom Sheet on mobile, Left Card on desktop) */}
-          <motion.div
-            initial={
-              isMobile
-                ? { opacity: 0, y: "100%" }
-                : { opacity: 0, x: -50, scale: 0.98 }
-            }
-            animate={
-              isMobile
-                ? { opacity: 1, y: 0 }
-                : { opacity: 1, x: 0, scale: 1 }
-            }
-            exit={
-              isMobile
-                ? { opacity: 0, y: "100%" }
-                : { opacity: 0, x: -50, scale: 0.98 }
-            }
-            transition={{
-              type: "spring",
-              damping: isMobile ? 32 : 30,
-              stiffness: isMobile ? 320 : 350,
-              mass: 0.8,
-            }}
-            className="ktab-book-drawer"
-            onClick={(e) => e.stopPropagation()}
+    <DetailsDrawer
+      isOpen={Boolean(isOpen && book)}
+      onClose={onClose}
+      title="تفاصيل الكتاب"
+      footer={
+        <div className="ktab-book-drawer__footer-actions">
+          {isDraft && !isPending && typeof onSubmit === "function" && (
+            <button
+              type="button"
+              onClick={() => {
+                onClose?.();
+                onSubmit(book);
+              }}
+              className="ktab-book-drawer__submit-btn"
+              title="نشر الكتاب وإرساله للمراجعة"
+            >
+              <Send size={16} strokeWidth={2.2} />
+              <span>نشر الكتاب للمراجعة</span>
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={handlePreview}
+            disabled={!canPreview}
+            className="ktab-book-drawer__preview-btn"
+            title={canPreview ? "معاينة وقراءة الكتاب" : "ملف الكتاب غير متوفر للمعاينة"}
           >
-            {/* Mobile BottomSheet Drag Handle */}
-            <div className="ktab-book-drawer-handle" />
-            {/* Header */}
-            <div className="ktab-book-drawer__header">
-              <h3 id="book-drawer-title" className="ktab-book-drawer__title">
-                تفاصيل الكتاب
-              </h3>
-              <button
-                type="button"
-                onClick={onClose}
-                className="ktab-book-drawer__close-btn"
-                aria-label="إغلاق"
-                title="إغلاق"
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            {/* Body */}
-            <div className="ktab-book-drawer__body">
-              {/* Hero Book Info */}
-              <div className="ktab-book-drawer__hero">
-                <div className="ktab-book-drawer__cover-wrap">
-                  {!hasCoverError && coverUrl ? (
-                    <>
-                      {!coverLoaded && <div className="ktab-book-drawer__cover-shimmer" />}
-                      <img
-                        src={coverUrl}
-                        alt={title}
-                        onLoad={handleCoverLoad}
-                        onError={handleCoverError}
-                        className={`ktab-book-drawer__cover-img ${
-                          coverLoaded
-                            ? "ktab-book-drawer__cover-img--loaded"
-                            : "ktab-book-drawer__cover-img--loading"
-                        }`}
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    </>
-                  ) : (
-                    <div className="ktab-book-drawer__fallback-cover">
-                      <img
-                        src={brandIconImg}
-                        alt=""
-                        className="ktab-book-drawer__fallback-logo"
-                        aria-hidden="true"
-                      />
-                    </div>
-                  )}
-                </div>
-
-                <div className="ktab-book-drawer__info">
-                  <h4 className="ktab-book-drawer__book-title">{title}</h4>
-                  <p className="ktab-book-drawer__book-author">
-                    بقلم: <span>{author}</span>
-                  </p>
-                  <div className="ktab-book-drawer__status-badge-wrap">
-                    <span
-                      className={`ktab-book-drawer__status-pill ${
-                        isDraft
-                          ? "ktab-book-drawer__status-pill--draft"
-                          : isPending
-                          ? "ktab-book-drawer__status-pill--pending"
-                          : "ktab-book-drawer__status-pill--published"
-                      }`}
-                    >
-                      {isDraft || isPending ? <Clock size={12} /> : <CheckCircle2 size={12} />}
-                      <span>{statusLabel}</span>
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Comprehensive Details Grid (All 12 metadata points in a clean grid) */}
-              <div className="ktab-book-drawer__section">
-                <h4 className="ktab-book-drawer__section-title">بيانات ومواصفات الكتاب</h4>
-                <div className="ktab-book-drawer__grid">
-                  {specItems.map((item) => (
-                    <div key={item.id} className="ktab-book-drawer__tile">
-                      <div className="ktab-book-drawer__tile-header">
-                        <div
-                          className={`ktab-book-drawer__tile-icon ktab-book-drawer__tile-icon--${
-                            item.highlight || "neutral"
-                          }`}
-                        >
-                          {renderSpecIcon(item.iconType)}
-                        </div>
-                        <span className="ktab-book-drawer__tile-label">{item.label}</span>
-                      </div>
-                      <span className="ktab-book-drawer__tile-value" title={item.value}>
-                        {item.value}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Book Summary / Description */}
-              <div className="ktab-book-drawer__section">
-                <h4 className="ktab-book-drawer__section-title">نبذة عن الكتاب</h4>
-                <p className="ktab-book-drawer__desc-box">
-                  {description || "لا يوجد وصف مسجل لهذا الكتاب حتى الآن."}
-                </p>
-              </div>
-            </div>
-
-            {/* Bottom Sticky Action: One Big Preview Book Button */}
-            <div className="ktab-book-drawer__footer">
-              <button
-                type="button"
-                onClick={handlePreview}
-                disabled={!canPreview}
-                className="ktab-book-drawer__preview-btn"
-                title={canPreview ? "معاينة وقراءة الكتاب" : "ملف الكتاب غير متوفر للمعاينة"}
-              >
-                <BookOpen size={18} strokeWidth={2.2} />
-                <span>معاينة الكتاب</span>
-              </button>
-            </div>
-          </motion.div>
+            <BookOpen size={18} strokeWidth={2.2} />
+            <span>معاينة الكتاب</span>
+          </button>
         </div>
-      )}
-    </AnimatePresence>
+      }
+    >
+      {/* Hero Book Info */}
+      <div className="ktab-book-drawer__hero">
+        <div className="ktab-book-drawer__cover-wrap">
+          {!hasCoverError && coverUrl ? (
+            <>
+              {!coverLoaded && <div className="ktab-book-drawer__cover-shimmer" />}
+              <img
+                src={coverUrl}
+                alt={title}
+                onLoad={handleCoverLoad}
+                onError={handleCoverError}
+                className={`ktab-book-drawer__cover-img ${
+                  coverLoaded
+                    ? "ktab-book-drawer__cover-img--loaded"
+                    : "ktab-book-drawer__cover-img--loading"
+                }`}
+                loading="lazy"
+                decoding="async"
+              />
+            </>
+          ) : (
+            <div className="ktab-book-drawer__fallback-cover">
+              <img
+                src={brandIconImg}
+                alt=""
+                className="ktab-book-drawer__fallback-logo"
+                aria-hidden="true"
+              />
+            </div>
+          )}
+        </div>
+
+        <div className="ktab-book-drawer__info">
+          <h4 className="ktab-book-drawer__book-title">{title}</h4>
+          <p className="ktab-book-drawer__book-author">
+            بقلم: <span>{author}</span>
+          </p>
+          <div className="ktab-book-drawer__status-badge-wrap">
+            <span
+              className={`ktab-book-drawer__status-pill ${
+                isDraft
+                  ? "ktab-book-drawer__status-pill--draft"
+                  : isPending
+                  ? "ktab-book-drawer__status-pill--pending"
+                  : "ktab-book-drawer__status-pill--published"
+              }`}
+            >
+              {isDraft || isPending ? <Clock size={12} /> : <CheckCircle2 size={12} />}
+              <span>{statusLabel}</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Comprehensive Details Grid */}
+      <div className="ktab-book-drawer__section">
+        <h4 className="ktab-book-drawer__section-title">بيانات ومواصفات الكتاب</h4>
+        <div className="ktab-book-drawer__grid">
+          {specItems.map((item) => (
+            <div key={item.id} className="ktab-book-drawer__tile">
+              <div className="ktab-book-drawer__tile-header">
+                <div
+                  className={`ktab-book-drawer__tile-icon ktab-book-drawer__tile-icon--${
+                    item.highlight || "neutral"
+                  }`}
+                >
+                  {renderSpecIcon(item.iconType)}
+                </div>
+                <span className="ktab-book-drawer__tile-label">{item.label}</span>
+              </div>
+              <span className="ktab-book-drawer__tile-value" title={item.value}>
+                {item.value}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Book Summary / Description */}
+      <div className="ktab-book-drawer__section">
+        <h4 className="ktab-book-drawer__section-title">نبذة عن الكتاب</h4>
+        <p className="ktab-book-drawer__desc-box">
+          {description || "لا يوجد وصف مسجل لهذا الكتاب حتى الآن."}
+        </p>
+      </div>
+    </DetailsDrawer>
   );
 }
 

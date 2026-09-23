@@ -61,6 +61,15 @@
   flex-direction: column;
 }
 
+/* ── 2-Column Upload Grid (PDF + Cover Image) ── */
+.ktab-book-publish-form__upload-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+  width: 100%;
+  align-items: stretch;
+}
+
 /* ── Action Buttons ── */
 .ktab-book-publish-form__actions {
   display: flex;
@@ -86,6 +95,8 @@
   font-weight: 600;
   font-family: inherit;
   cursor: pointer;
+  white-space: nowrap;
+  box-sizing: border-box;
   transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 
@@ -110,6 +121,8 @@
   font-weight: 700;
   font-family: inherit;
   cursor: pointer;
+  white-space: nowrap;
+  box-sizing: border-box;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.14);
   transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
 }
@@ -138,17 +151,22 @@
   }
 }
 
-/* ── Mobile & Tablet Full-Width Responsive ── */
-@media (max-width: 860px) {
+/* ── Tablet Responsive (641px - 860px) ── */
+@media (min-width: 641px) and (max-width: 860px) {
   .ktab-book-publish-form__body {
     max-width: 100%;
-    padding: 0 1rem;
+    padding: 0 1.25rem;
     gap: 1.15rem;
   }
 
   .ktab-book-publish-form__selects-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
+  }
+
+  .ktab-book-publish-form__upload-grid {
+    grid-template-columns: 1fr;
+    gap: 1.15rem;
   }
 
   .ktab-book-publish-form__actions {
@@ -162,6 +180,56 @@
   .ktab-book-publish-form__btn-draft,
   .ktab-book-publish-form__btn-publish {
     flex: 1;
+    min-width: 0;
     height: 48px;
+    padding: 0 1rem;
+    white-space: nowrap;
+  }
+}
+
+/* ── Mobile Responsive (<= 640px) ── */
+@media (max-width: 640px) {
+  .ktab-book-publish-form__body {
+    max-width: 100%;
+    padding: 0 1rem;
+    gap: 1.15rem;
+  }
+
+  .ktab-book-publish-form__selects-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .ktab-book-publish-form__upload-grid {
+    grid-template-columns: 1fr;
+    gap: 1.15rem;
+  }
+
+  .ktab-book-publish-form__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+    padding-top: 1rem;
+  }
+
+  .ktab-book-publish-form__btn-publish {
+    width: 100%;
+    flex: none;
+    height: 50px;
+    padding: 0 1.25rem;
+    font-size: 0.9375rem;
+    white-space: nowrap;
+    order: 1;
+  }
+
+  .ktab-book-publish-form__btn-draft {
+    width: 100%;
+    flex: none;
+    height: 48px;
+    padding: 0 1.25rem;
+    font-size: 0.9375rem;
+    white-space: nowrap;
+    order: 2;
   }
 }

@@ -8,8 +8,7 @@ const API_BASE = import.meta.env.VITE_API_URL || "";
  *
  * @param {{ authorId: string|number, status?: string, page?: number, size?: number }} params
  */
-export async function fetchAuthorBooks({ authorId, status = "PUBLISHED", page = 0, size = 8 } = {}) {
-  const safeAuthorId = encodeURIComponent(sanitizeId(authorId));
+export async function fetchAuthorBooks({ status = "PUBLISHED", page = 0, size = 8 } = {}) {
   const safeStatus = encodeURIComponent(sanitizeId(status));
   const safePage = Math.max(0, parseInt(page, 10) || 0);
   const safeSize = Math.max(1, Math.min(50, parseInt(size, 10) || 8));
@@ -77,4 +76,6 @@ export async function fetchAuthorBookById(bookId) {
     url: `${API_BASE}/authors/me/books/${safeBookId}`,
   });
 }
+
+export { submitBookForReview } from "@/features/author/book-publish/services/bookPublishService";
 

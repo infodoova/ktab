@@ -6,7 +6,6 @@ import {
   Download,
   Headphones,
   BookOpen,
-  FileText,
   Star,
 } from "lucide-react";
 import brandIconImg from "@/assets/logo/BrandIcon.png";
@@ -142,17 +141,10 @@ export function LibraryAdminBookCard({ book, onDetails, onDelete }) {
 
         {/* Floating Cover Footer */}
         <div className="ktab-lib-book-card__cover-footer">
-          {book.pageCount ? (
-            <div className="ktab-lib-book-card__pill" title={`${book.pageCount} صفحة`}>
-              <FileText size={11} />
-              <span>{book.pageCount} صفحة</span>
-            </div>
-          ) : Number(book.averageRating) > 0 ? (
-            <div className="ktab-lib-book-card__pill" title={`التقييم: ${Number(book.averageRating).toFixed(1)}`}>
-              <Star size={11} className="ktab-lib-book-card__star-icon" />
-              <span>{Number(book.averageRating).toFixed(1)}</span>
-            </div>
-          ) : null}
+          <div className="ktab-lib-book-card__pill" title={`التقييم: ${Number(book.averageRating || 0).toFixed(1)}`}>
+            <Star size={11} className="ktab-lib-book-card__star-icon" />
+            <span>{Number(book.averageRating || 0).toFixed(1)}</span>
+          </div>
 
           <div
             className={`ktab-lib-book-card__pill ${

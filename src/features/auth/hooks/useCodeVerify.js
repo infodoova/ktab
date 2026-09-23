@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { verifyEmailApi, resendVerificationCodeApi } from "@/core/api/authApi";
 import { AlertToast } from "@/components/myui/AlertToast";
 import { sanitizeEmail } from "@/lib/sanitize";
+import { validateVerificationCode, validateEmail } from "@/utils/validation";
 import logger from "@/lib/logger";
 
 /**
@@ -34,7 +35,12 @@ export function useCodeVerify({ email } = {}) {
 
   // Resend OTP code
   const handleResend = async () => {
-    if (!canResend || loading || !cleanEmail) return;
+    const emailErr = validateEmail(cleanEmail);
+    if (emailErr) {
+      AlertToast(emailErr, "ERROR");
+      return;
+    }
+    if (!canResend || loading) return;
 
     setLoading(true);
     try {
@@ -58,7 +64,19 @@ export function useCodeVerify({ email } = {}) {
   // Submit OTP code for verification
   const handleVerify = async () => {
     const cleanCode = code.replace(/\D/g, "");
-    if (cleanCode.length < 6 || loading || !cleanEmail) return;
+    const emailErr = validateEmail(cleanEmail);
+    if (emailErr) {
+      AlertToast(emailErr, "ERROR");
+      return;
+    }
+
+    const codeErr = validateVerificationCode(cleanCode);
+    if (codeErr) {
+      AlertToast(codeErr, "ERROR");
+      return;
+    }
+
+    if (loading) return;
 
     setLoading(true);
 

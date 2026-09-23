@@ -28,18 +28,18 @@ export const READER_NAV_ITEMS = [
     icon: FolderOpen,
     path: "/reader/interactive-stories",
   },
-  {
-    name: "ReaderAchievements",
-    label: "الإنجازات والشارات",
-    icon: ArchiveIcon,
-    path: "/reader/Achievements",
-  },
-  {
-    name: "ReaderSettings",
-    label: "الإعدادات",
-    icon: Settings,
-    path: "/reader/settings",
-  },
+  // {
+  //   name: "ReaderAchievements",
+  //   label: "الإنجازات والشارات",
+  //   icon: ArchiveIcon,
+  //   path: "/reader/Achievements",
+  // },
+  // {
+  //   name: "ReaderSettings",
+  //   label: "الإعدادات",
+  //   icon: Settings,
+  //   path: "/reader/settings",
+  // },
 ];
 
 export default READER_NAV_ITEMS;

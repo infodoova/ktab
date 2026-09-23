@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { generateBookEnding } from "../services/aiToolsService";
 import { AlertToast } from "@/components/myui/AlertToast";
-import { validateFile, sanitizeText } from "@/lib/sanitize";
+import { sanitizeText } from "@/lib/sanitize";
+import { validateFile } from "@/utils/validation";
 import logger from "@/lib/logger";
 
 /**

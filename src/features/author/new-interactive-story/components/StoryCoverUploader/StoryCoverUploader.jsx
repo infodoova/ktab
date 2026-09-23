@@ -1,10 +1,11 @@
 import React from "react";
-import { ImagePlus, Trash2, UploadCloud } from "lucide-react";
+import { Trash2, UploadCloud } from "lucide-react";
 import { useStoryCoverUploader } from "./useStoryCoverUploader";
 import "./StoryCoverUploader.css";
 
 /**
  * Editorial Apple / Eleven Reader interactive story cover uploader.
+ * Harmonized with book PDF and cover upload zones across the platform.
  * Pure declarative JSX using useStoryCoverUploader hook for all DOM and state operations.
  */
 export function StoryCoverUploader({
@@ -31,6 +32,9 @@ export function StoryCoverUploader({
           غلاف القصة التفاعلية
           <span className="new-story-cover-uploader__required">*</span>
         </label>
+        <span className="new-story-cover-uploader__hint">
+          صيغ PNG, JPG, WebP (حتى 5MB) · النسبة المطلوبة: 1:1 (مربعة)
+        </span>
       </div>
 
       <input
@@ -57,45 +61,60 @@ export function StoryCoverUploader({
         onKeyDown={handleKeyDown}
       >
         {coverPreview ? (
-          <div className="new-story-cover-uploader__preview-wrap">
-            <img
-              src={coverPreview}
-              alt="معاينة غلاف القصة"
-              className="new-story-cover-uploader__preview-img"
+          <div className="new-story-cover-uploader__showcase">
+            <div
+              className="new-story-cover-uploader__ambient"
+              style={{ backgroundImage: `url(${coverPreview})` }}
+              aria-hidden="true"
             />
-            <div className="new-story-cover-uploader__preview-overlay">
-              <button
-                type="button"
-                className="new-story-cover-uploader__btn-remove"
-                onClick={handleRemoveCover}
-                title="إزالة الغلاف"
-                aria-label="إزالة الغلاف"
-              >
-                <Trash2 size={16} />
-                <span>حذف</span>
-              </button>
-              <div className="new-story-cover-uploader__change-hint">
-                <UploadCloud size={16} />
-                <span>انقر للتغيير</span>
+            <div className="new-story-cover-uploader__cover-wrap">
+              <img
+                src={coverPreview}
+                alt="معاينة غلاف القصة"
+                className="new-story-cover-uploader__cover-img"
+              />
+            </div>
+            <div className="new-story-cover-uploader__hover-overlay">
+              <div className="new-story-cover-uploader__hover-actions">
+                <button
+                  type="button"
+                  onClick={handleTriggerClick}
+                  className="new-story-cover-uploader__btn-change"
+                  title="تغيير الغلاف"
+                  aria-label="تغيير الغلاف"
+                >
+                  <UploadCloud size={15} />
+                  <span>تغيير الغلاف</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleRemoveCover}
+                  className="new-story-cover-uploader__btn-remove"
+                  title="إزالة الغلاف"
+                  aria-label="إزالة الغلاف"
+                >
+                  <Trash2 size={15} />
+                  <span>إزالة</span>
+                </button>
               </div>
             </div>
           </div>
         ) : (
           <div className="new-story-cover-uploader__empty">
             <div className="new-story-cover-uploader__icon-badge">
-              <ImagePlus size={22} />
+              <UploadCloud size={24} strokeWidth={2.2} />
             </div>
             <div className="new-story-cover-uploader__cta-text">
-              <span className="new-story-cover-uploader__cta-action">اسحب الغلاف هنا</span>
-              <span className="new-story-cover-uploader__cta-sub">أو اضغط للتصفح من جهازك</span>
+              <span className="new-story-cover-uploader__cta-action">
+                اسحب غلاف القصة هنا
+              </span>
+              <span className="new-story-cover-uploader__cta-sub">
+                أو اضغط للتصفح من جهازك
+              </span>
             </div>
           </div>
         )}
       </div>
-
-      <p className="new-story-cover-uploader__note">
-        صيغ الصور المدعومة: PNG، JPG، WebP (حتى 5MB) · النسبة المطلوبة: 1:1 (مربعة)
-      </p>
 
       {error && <span className="new-story-cover-uploader__error-text">{error}</span>}
     </div>

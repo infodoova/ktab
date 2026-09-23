@@ -32,12 +32,17 @@ export function Select({
     typeof opt === "object" && opt !== null ? opt : { value: opt, label: opt }
   );
 
-  // Find currently selected option (handles string/number conversions robustly)
-  const selectedOption = normalizedOptions.find(
-    (opt) =>
-      opt.value === value ||
-      (value !== undefined && value !== null && String(opt.value) === String(value))
-  );
+  // Find currently selected option (handles string/number conversions, case-insensitivity, and label fallback robustly)
+  const selectedOption = normalizedOptions.find((opt) => {
+    if (opt.value === value) return true;
+    if (value !== undefined && value !== null) {
+      const strVal = String(value).trim();
+      const optVal = String(opt.value).trim();
+      if (optVal === strVal || optVal.toLowerCase() === strVal.toLowerCase()) return true;
+      if (opt.label && (String(opt.label).trim() === strVal || String(opt.label).trim().toLowerCase() === strVal.toLowerCase())) return true;
+    }
+    return false;
+  });
 
 
   // Close when clicked outside

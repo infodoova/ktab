@@ -7,7 +7,6 @@ import {
   XCircle,
   Headphones,
   BookOpen,
-  FileText,
   Star,
 } from "lucide-react";
 import brandIconImg from "@/assets/logo/BrandIcon.png";
@@ -148,17 +147,10 @@ export function PublisherBookCard({ book, onDetails, onApprove, onReject }) {
 
         {/* Floating Cover Footer */}
         <div className="ktab-pub-book-card__cover-footer">
-          {book.pageCount ? (
-            <div className="ktab-pub-book-card__pill" title={`${book.pageCount} صفحة`}>
-              <FileText size={11} />
-              <span>{book.pageCount} صفحة</span>
-            </div>
-          ) : rating > 0 ? (
-            <div className="ktab-pub-book-card__pill" title={`التقييم: ${rating.toFixed(1)}`}>
-              <Star size={11} className="ktab-pub-book-card__star-icon" />
-              <span>{rating.toFixed(1)}</span>
-            </div>
-          ) : null}
+          <div className="ktab-pub-book-card__pill" title={`التقييم: ${rating.toFixed(1)}`}>
+            <Star size={11} className="ktab-pub-book-card__star-icon" />
+            <span>{rating.toFixed(1)}</span>
+          </div>
 
           <div
             className={`ktab-pub-book-card__pill ${

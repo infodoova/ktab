@@ -2,9 +2,11 @@ import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { publisherService } from "../services/publisherService";
 import { AlertToast } from "@/components/myui/AlertToast";
-import { validateStrongPassword } from "@/lib/passwordValidation";
-
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import {
+  validateName,
+  validateEmail,
+  validateStrongPassword,
+} from "@/utils/validation";
 
 /**
  * Custom hook encapsulating publisher provisioning (create) and update form logic.
@@ -38,19 +40,14 @@ export function usePublisherForm() {
   const validate = () => {
     const newErrors = {};
 
-    if (!formData.firstName.trim()) {
-      newErrors.firstName = "الاسم الأول مطلوب";
-    }
+    const firstErr = validateName(formData.firstName, "الاسم الأول");
+    if (firstErr) newErrors.firstName = firstErr;
 
-    if (!formData.lastName.trim()) {
-      newErrors.lastName = "اسم العائلة مطلوب";
-    }
+    const lastErr = validateName(formData.lastName, "اسم العائلة");
+    if (lastErr) newErrors.lastName = lastErr;
 
-    if (!formData.email.trim()) {
-      newErrors.email = "البريد الإلكتروني مطلوب";
-    } else if (!EMAIL_REGEX.test(formData.email.trim())) {
-      newErrors.email = "صيغة البريد الإلكتروني غير صحيحة";
-    }
+    const emailErr = validateEmail(formData.email);
+    if (emailErr) newErrors.email = emailErr;
 
     if (!isEditing) {
       const pwError = validateStrongPassword(formData.password, {

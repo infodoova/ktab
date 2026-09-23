@@ -1,9 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { libraryAdminService } from "../../services/libraryAdminService";
 import { AlertToast } from "@/components/myui/AlertToast";
-import { validateStrongPassword } from "@/lib/passwordValidation";
-
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import { validateOrganizationProfile } from "../validation/organizationProfileValidation";
 
 const INITIAL_FORM = {
   name: "",
@@ -103,27 +101,7 @@ export function useOrganizationProfile() {
   }, [organization, populateForm]);
 
   const validate = useCallback(() => {
-    const errs = {};
-    if (!formData.name.trim()) errs.name = "اسم المكتبة مطلوب";
-    if (!formData.city.trim()) errs.city = "المدينة مطلوبة";
-    if (!formData.country.trim()) errs.country = "الدولة مطلوبة";
-
-    if (formData.email && !EMAIL_REGEX.test(formData.email.trim())) {
-      errs.email = "صيغة البريد الإلكتروني للمكتبة غير صحيحة";
-    }
-
-    if (formData.admin?.email && !EMAIL_REGEX.test(formData.admin.email.trim())) {
-      errs.admin_email = "صيغة البريد الإلكتروني للمسؤول غير صحيحة";
-    }
-
-    // Validate admin password if provided
-    if (formData.admin?.password && formData.admin.password.trim()) {
-      const pwError = validateStrongPassword(formData.admin.password, { required: false });
-      if (pwError) {
-        errs.admin_password = pwError;
-      }
-    }
-
+    const errs = validateOrganizationProfile(formData);
     setErrors(errs);
     return Object.keys(errs).length === 0;
   }, [formData]);

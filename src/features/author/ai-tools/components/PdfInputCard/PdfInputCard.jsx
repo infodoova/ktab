@@ -1,6 +1,6 @@
 import React from "react";
-import { Upload, FileText, Sparkles, X, Loader2 } from "lucide-react";
 import { Select } from "@/components/myui";
+import { PdfUploadZone } from "@/components/common";
 import { usePdfInputCard } from "./usePdfInputCard";
 import "./PdfInputCard.css";
 
@@ -11,20 +11,14 @@ import "./PdfInputCard.css";
 export function PdfInputCard({ onGenerate, loading = false, showHeader = true }) {
   const {
     file,
-    fileInputRef,
     wordCount,
     setWordCount,
     audience,
     setAudience,
     audienceOptions,
     wordCountConfig,
-    isDragging,
-    formattedFileSize,
     errors,
     handleFileChange,
-    handleDragOver,
-    handleDragLeave,
-    handleDrop,
     handleRemoveFile,
     handleTrigger,
   } = usePdfInputCard({ onGenerate, loading });
@@ -45,70 +39,20 @@ export function PdfInputCard({ onGenerate, loading = false, showHeader = true })
         </div>
       )}
 
-      {/* PDF Upload Dropzone */}
+      {/* PDF Upload Dropzone (matching Author studio unified design) */}
       <div className="ktab-pdf-input-field">
-        <div className="ktab-pdf-input-label-row">
-          <span className="ktab-pdf-input-label">
-            ملف الكتاب (PDF) <span className="ktab-pdf-input-required">*</span>
-          </span>
-        </div>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="application/pdf"
-          onChange={handleFileChange}
-          style={{ display: "none" }}
-          aria-label="اختيار ملف PDF"
+        <PdfUploadZone
+          pdfFile={file}
+          onFileChange={handleFileChange}
+          onRemoveFile={handleRemoveFile}
+          error={errors.file}
+          label="ملف الكتاب (PDF)"
+          hint="صيغة PDF فقط (حتى 50MB)"
+          required={true}
+          dropzoneTitle="اسحب مسودة الكتاب هنا (PDF)"
+          dropzoneSub="أو اضغط للتصفح من جهازك"
+          compact={true}
         />
-
-        {file ? (
-          <div className="ktab-pdf-file-card">
-            <div className="ktab-pdf-file-card__meta">
-              <div className="ktab-pdf-file-card__icon" aria-hidden="true">
-                <FileText size={18} strokeWidth={2} />
-              </div>
-              <div className="ktab-pdf-file-card__text">
-                <span className="ktab-pdf-file-card__name" title={file.name}>
-                  {file.name}
-                </span>
-                <span className="ktab-pdf-file-card__size">{formattedFileSize}</span>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={handleRemoveFile}
-              className="ktab-pdf-file-card__remove-btn"
-              aria-label="حذف الملف المختار"
-            >
-              <X size={16} />
-            </button>
-          </div>
-        ) : (
-          <div
-            onClick={() => fileInputRef.current?.click()}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-            className={`ktab-pdf-dropzone ${
-              isDragging ? "ktab-pdf-dropzone--dragging" : ""
-            } ${errors.file ? "ktab-pdf-dropzone--error" : ""}`}
-            role="button"
-            tabIndex={0}
-            aria-label="انقر أو اسحب ملف PDF للرفع"
-          >
-            <div className="ktab-pdf-dropzone__icon-wrap" aria-hidden="true">
-              <Upload size={20} strokeWidth={2} />
-            </div>
-            <span className="ktab-pdf-dropzone__prompt">اسحب مسودة الكتاب هنا أو تصفح</span>
-            <span className="ktab-pdf-dropzone__hint">صيغة PDF فقط • حتى 20 ميغابايت</span>
-          </div>
-        )}
-
-        {errors.file && (
-          <span className="ktab-pdf-field-error" role="alert">
-            {errors.file}
-          </span>
-        )}
       </div>
 
       {/* Audience Profile with Global Select */}

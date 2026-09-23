@@ -1,0 +1,222 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   GLOBAL UNIFIED METRIC CARD
+   Eleven Reader + Apple Editorial Standard
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.ktab-global-metric-card {
+  position: relative;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 1.125rem;
+  padding: 1.25rem 1.35rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 8.25rem;
+  box-shadow: var(--shadow-card, 0 2px 8px rgba(0, 0, 0, 0.04));
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+  box-sizing: border-box;
+  font-family: var(--font-arabic), sans-serif;
+  direction: rtl;
+}
+
+.ktab-global-metric-card--clickable {
+  cursor: pointer;
+}
+
+.ktab-global-metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card-hover, 0 8px 24px rgba(0, 0, 0, 0.08));
+  border-color: var(--border-medium, rgba(0, 0, 0, 0.12));
+}
+
+.ktab-global-metric-card--active {
+  border-color: var(--brand-black);
+  box-shadow: 0 0 0 1.5px var(--brand-black);
+}
+
+.ktab-global-metric-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.45rem;
+  width: 100%;
+}
+
+.ktab-global-metric-card__title {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin: 0;
+  letter-spacing: -0.01em;
+  line-height: 1.35;
+  white-space: normal;
+  word-break: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: visible;
+}
+
+.ktab-global-metric-card__top-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.ktab-global-metric-card__icon-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.65rem;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  color: var(--brand-black);
+  flex-shrink: 0;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ktab-global-metric-card:hover .ktab-global-metric-card__icon-badge {
+  background-color: var(--brand-teal-soft, #e6faf4);
+  border-color: rgba(93, 227, 186, 0.4);
+  color: var(--brand-teal-deep, #0d9488);
+  transform: scale(1.05);
+}
+
+.ktab-global-metric-card__icon-badge svg {
+  width: 1.125rem;
+  height: 1.125rem;
+  stroke-width: 2.2;
+  color: inherit;
+  display: block;
+}
+
+.ktab-global-metric-card__icon-img {
+  width: 1.25rem;
+  height: 1.25rem;
+  object-fit: contain;
+}
+
+.ktab-global-metric-card__body {
+  width: 100%;
+  margin: 0.5rem 0 0.25rem 0;
+}
+
+.ktab-global-metric-card__value {
+  font-size: 1.85rem;
+  font-weight: 850;
+  color: var(--primary-text, var(--brand-black));
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  font-variant-numeric: tabular-nums;
+}
+
+.ktab-global-metric-card__footer {
+  width: 100%;
+}
+
+.ktab-global-metric-card__subvalue {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  line-height: 1.25;
+}
+
+/* Horizontal variation if needed */
+.ktab-global-metric-card--horizontal {
+  flex-direction: row;
+  align-items: center;
+  min-height: 5.5rem;
+  padding: 1.15rem 1.35rem;
+}
+
+.ktab-global-metric-card--horizontal .ktab-global-metric-card__header {
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+}
+
+/* ── Mobile Viewports (2-Column Grid Full Visibility) ────────────────────── */
+@media (max-width: 768px) {
+  .ktab-global-metric-card {
+    padding: 0.95rem 0.95rem;
+    min-height: 7.25rem;
+    border-radius: 1rem;
+  }
+
+  .ktab-global-metric-card__header {
+    align-items: flex-start;
+    gap: 0.35rem;
+  }
+
+  .ktab-global-metric-card__title {
+    font-size: 0.775rem;
+    line-height: 1.35;
+    white-space: normal;
+    word-break: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: visible;
+  }
+
+  .ktab-global-metric-card__icon-badge {
+    width: 1.95rem;
+    height: 1.95rem;
+    border-radius: 0.55rem;
+  }
+
+  .ktab-global-metric-card__icon-badge svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .ktab-global-metric-card__body {
+    margin: 0.35rem 0 0.2rem 0;
+  }
+
+  .ktab-global-metric-card__value {
+    font-size: 1.75rem;
+    line-height: 1.1;
+  }
+
+  .ktab-global-metric-card__subvalue {
+    font-size: 0.7rem;
+    line-height: 1.35;
+    white-space: normal;
+    word-break: break-word;
+    display: block;
+  }
+}
+
+@media (max-width: 420px) {
+  .ktab-global-metric-card {
+    padding: 0.8rem 0.8rem;
+    min-height: 7rem;
+  }
+
+  .ktab-global-metric-card__title {
+    font-size: 0.735rem;
+  }
+
+  .ktab-global-metric-card__icon-badge {
+    width: 1.85rem;
+    height: 1.85rem;
+  }
+
+  .ktab-global-metric-card__icon-badge svg {
+    width: 0.95rem;
+    height: 0.95rem;
+  }
+
+  .ktab-global-metric-card__value {
+    font-size: 1.6rem;
+  }
+
+  .ktab-global-metric-card__subvalue {
+    font-size: 0.675rem;
+  }
+}

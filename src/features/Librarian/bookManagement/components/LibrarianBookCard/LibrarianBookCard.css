@@ -9,10 +9,16 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 100%;
+  max-width: 240px;
   min-width: 0;
   direction: rtl;
   box-sizing: border-box;
+  cursor: pointer;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ktab-librarian-book-card:hover {
+  transform: translateY(-4px);
 }
 
 /* ── 3:4 Aspect Ratio Cover ──────────────────────────────────────────────── */
@@ -29,13 +35,11 @@
   box-shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.05);
   cursor: pointer;
   box-sizing: border-box;
-  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+  transition: box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1),
               border-color 0.22s ease;
 }
 
 .ktab-librarian-book-card:hover .ktab-librarian-book-card__cover-wrap {
-  transform: translateY(-4px);
   border-color: var(--border-card);
   box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.12);
 }
@@ -51,11 +55,11 @@
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: transform 0.3s ease, opacity 0.2s ease;
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
 }
 
 .ktab-librarian-book-card:hover .ktab-librarian-book-card__img {
-  transform: scale(1.03);
+  transform: scale(1.04);
 }
 
 .ktab-librarian-book-card__img--loading {
@@ -293,7 +297,7 @@
 .ktab-librarian-book-card__genre {
   font-size: 10.5px;
   font-weight: 700;
-  color: var(--brand-teal-deep);
+  color: var(--text-subtle);
   line-height: 1.25;
   white-space: nowrap;
   overflow: hidden;
@@ -318,8 +322,10 @@
   transition: color 0.15s ease;
 }
 
-.ktab-librarian-book-card__title:hover {
-  color: var(--brand-teal-deep);
+.ktab-librarian-book-card__title:hover,
+.ktab-librarian-book-card:hover .ktab-librarian-book-card__title {
+  color: var(--brand-black);
+  opacity: 0.85;
 }
 
 .ktab-librarian-book-card__author {

@@ -4,10 +4,10 @@ import {
   Trash2,
   Edit,
   Eye,
+  Send,
   Star,
   Headphones,
   BookOpen,
-  FileText,
 } from "lucide-react";
 import brandIconImg from "@/assets/logo/BrandIcon.png";
 import { useAuthorBookCard } from "./useAuthorBookCard";
@@ -27,6 +27,8 @@ export const AuthorBookCard = React.memo(function AuthorBookCard({
   onClick,
   onDeleteClick,
   onDelete,
+  onSubmitClick,
+  onSubmit,
 }) {
   const {
     coverUrl,
@@ -37,7 +39,6 @@ export const AuthorBookCard = React.memo(function AuthorBookCard({
     hasCoverError,
     ratingText,
     hasAudio,
-    pageCount,
     genreLabel,
     authorDisplayName,
     handleCoverLoad,
@@ -45,6 +46,7 @@ export const AuthorBookCard = React.memo(function AuthorBookCard({
     toggleMenu,
     handleDetailsClick,
     handleEditClick,
+    handleSubmitClick,
     handleDeleteClick,
     handleKeyDown,
   } = useAuthorBookCard({
@@ -54,6 +56,7 @@ export const AuthorBookCard = React.memo(function AuthorBookCard({
     isMenuOpen,
     onClick: onBookClick || onCardClick || onClick,
     onDelete: onDeleteClick || onDelete,
+    onSubmit: onSubmitClick || onSubmit,
   });
 
   return (
@@ -66,38 +69,35 @@ export const AuthorBookCard = React.memo(function AuthorBookCard({
       onKeyDown={handleKeyDown}
     >
       {/* Visual Cover Stage */}
-      <div className="ktab-book-card__stage">
-        <div className="ktab-book-card__media">
-          {coverUrl && !hasCoverError ? (
+      <div className="ktab-book-card__cover-wrap">
+        {!coverUrl || hasCoverError ? (
+          <div
+            className="ktab-book-card__fallback-cover"
+            role="img"
+            aria-label={book?.title || "كتاب"}
+          >
+            <img
+              src={brandIconImg}
+              alt=""
+              className="ktab-book-card__fallback-logo"
+              aria-hidden="true"
+            />
+          </div>
+        ) : (
+          <div className="ktab-book-card__image-container">
+            {!coverLoaded && <div className="ktab-book-card__cover-shimmer" />}
             <img
               src={coverUrl}
               alt={book.title || "غلاف الكتاب"}
-              className={`ktab-book-card__img ${coverLoaded ? "is-loaded" : ""}`}
+              className={`ktab-book-card__cover-img ${
+                coverLoaded
+                  ? "ktab-book-card__cover-img--loaded"
+                  : "ktab-book-card__cover-img--loading"
+              }`}
               loading="lazy"
               decoding="async"
               onLoad={handleCoverLoad}
               onError={handleCoverError}
-            />
-          ) : (
-            <div className="ktab-book-card__placeholder">
-              <BookOpen size={36} className="ktab-book-card__placeholder-icon" />
-              <span className="ktab-book-card__placeholder-title">
-                {book.title || "كتاب"}
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* Ambient Glow */}
-        {coverUrl && !hasCoverError && (
-          <div className="ktab-book-card__ambient">
-            <img
-              src={coverUrl}
-              alt=""
-              aria-hidden="true"
-              className="ktab-book-card__ambient-img"
-              loading="lazy"
-              decoding="async"
             />
           </div>
         )}
@@ -140,42 +140,48 @@ export const AuthorBookCard = React.memo(function AuthorBookCard({
                 <Eye size={13} />
               </button>
 
-              {isDraft && (
-                <button
-                  type="button"
-                  onClick={handleEditClick}
-                  className="ktab-book-card__menu-item"
-                >
-                  <span>تعديل الكتاب</span>
-                  <Edit size={13} />
-                </button>
+              {isDraft && !isPendingApproval && (
+                <>
+                  <button
+                    type="button"
+                    onClick={handleSubmitClick}
+                    className="ktab-book-card__menu-item ktab-book-card__menu-item--submit"
+                    title="نشر الكتاب وإرساله للمراجعة"
+                  >
+                    <span>نشر الكتاب</span>
+                    <Send size={13} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleEditClick}
+                    className="ktab-book-card__menu-item"
+                  >
+                    <span>تعديل الكتاب</span>
+                    <Edit size={13} />
+                  </button>
+                </>
               )}
 
-              <button
-                type="button"
-                onClick={handleDeleteClick}
-                className="ktab-book-card__menu-item ktab-book-card__menu-item--danger"
-              >
-                <span>حذف الكتاب</span>
-                <Trash2 size={13} />
-              </button>
+              {!isPendingApproval && (
+                <button
+                  type="button"
+                  onClick={handleDeleteClick}
+                  className="ktab-book-card__menu-item ktab-book-card__menu-item--danger"
+                >
+                  <span>حذف الكتاب</span>
+                  <Trash2 size={13} />
+                </button>
+              )}
             </div>
           )}
         </div>
 
         {/* Bottom Floating Cover Bar: Specs & Audio */}
         <div className="ktab-book-card__cover-footer">
-          {pageCount ? (
-            <div className="ktab-book-card__footer-pill" title={`${pageCount} صفحة`}>
-              <FileText size={11} />
-              <span>{pageCount} صفحة</span>
-            </div>
-          ) : Number(ratingText) > 0 ? (
-            <div className="ktab-book-card__footer-pill" title={`التقييم: ${ratingText}`}>
-              <Star size={11} className="ktab-book-card__star-icon" />
-              <span>{ratingText}</span>
-            </div>
-          ) : null}
+          <div className="ktab-book-card__footer-pill" title={`التقييم: ${ratingText}`}>
+            <Star size={11} className="ktab-book-card__star-icon" />
+            <span>{ratingText}</span>
+          </div>
 
           <div
             className={`ktab-book-card__footer-pill ${

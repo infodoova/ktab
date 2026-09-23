@@ -2,11 +2,13 @@ import { useState, useEffect, useCallback } from "react";
 import { registerApi } from "@/core/api/authApi";
 import { AlertToast } from "@/components/myui/AlertToast";
 import { sanitizeText, sanitizeEmail } from "@/lib/sanitize";
-import { validateStrongPassword } from "@/lib/passwordValidation";
+import {
+  validateEmail,
+  validateName,
+  validateStrongPassword,
+  validatePasswordConfirmation,
+} from "@/utils/validation";
 import logger from "@/lib/logger";
-
-const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-const NAME_REGEX = /^[\p{L}\s'-]{1,50}$/u;
 
 const INITIAL_FORM_STATE = {
   firstName: "",
@@ -68,27 +70,19 @@ export function useSignup() {
       nextErrors.role = "يرجى اختيار نوع الحساب (قارئ أو مؤلف)";
     }
 
-    if (!cleanFirst) {
-      nextErrors.firstName = "الاسم الأول مطلوب";
-    } else if (!NAME_REGEX.test(cleanFirst)) {
-      nextErrors.firstName = "الاسم الأول يجب أن يحتوي على أحرف فقط (أقصى حد 50 حرفاً)";
+    const firstErr = validateName(cleanFirst, "الاسم الأول");
+    if (firstErr) nextErrors.firstName = firstErr;
+
+    if (cleanMiddle) {
+      const midErr = validateName(cleanMiddle, "الاسم الأوسط");
+      if (midErr) nextErrors.middleName = midErr;
     }
 
-    if (cleanMiddle && !NAME_REGEX.test(cleanMiddle)) {
-      nextErrors.middleName = "الاسم الأوسط غير صحيح";
-    }
+    const lastErr = validateName(cleanLast, "الاسم الأخير");
+    if (lastErr) nextErrors.lastName = lastErr;
 
-    if (!cleanLast) {
-      nextErrors.lastName = "الاسم الأخير مطلوب";
-    } else if (!NAME_REGEX.test(cleanLast)) {
-      nextErrors.lastName = "الاسم الأخير يجب أن يحتوي على أحرف فقط (أقصى حد 50 حرفاً)";
-    }
-
-    if (!cleanEmail) {
-      nextErrors.email = "البريد الإلكتروني مطلوب";
-    } else if (!EMAIL_REGEX.test(cleanEmail) || cleanEmail.length > 254) {
-      nextErrors.email = "صيغة بريد إلكتروني غير صحيحة";
-    }
+    const emailErr = validateEmail(cleanEmail);
+    if (emailErr) nextErrors.email = emailErr;
 
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
@@ -98,21 +92,14 @@ export function useSignup() {
   const validateStep2 = useCallback(() => {
     const nextErrors = {};
 
-    if (!form.password) {
-      nextErrors.password = "كلمة المرور مطلوبة";
-    } else if (form.password.length > 128) {
-      nextErrors.password = "كلمة المرور طويلة جداً (أقصى حد 128 حرفاً).";
-    } else {
-      const pwError = validateStrongPassword(form.password);
-      if (pwError) {
-        nextErrors.password = pwError;
-      }
+    const pwErr = validateStrongPassword(form.password);
+    if (pwErr) {
+      nextErrors.password = pwErr;
     }
 
-    if (!form.confirmPassword) {
-      nextErrors.confirmPassword = "تأكيد كلمة المرور مطلوب";
-    } else if (form.confirmPassword !== form.password) {
-      nextErrors.confirmPassword = "كلمتا المرور غير متطابقتين";
+    const confirmErr = validatePasswordConfirmation(form.password, form.confirmPassword);
+    if (confirmErr) {
+      nextErrors.confirmPassword = confirmErr;
     }
 
     setErrors(nextErrors);

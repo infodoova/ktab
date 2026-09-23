@@ -41,6 +41,13 @@
   }
 }
 
+@media (min-width: 1600px) {
+  .ktab-reader-analytics__grid {
+    grid-template-columns: repeat(4, minmax(0, 360px));
+    gap: 1.5rem;
+  }
+}
+
 .ktab-reader-stat-card {
   position: relative;
   background-color: var(--bg-primary);

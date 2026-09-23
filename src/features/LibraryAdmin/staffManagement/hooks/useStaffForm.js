@@ -2,9 +2,11 @@ import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { libraryAdminService } from "../../services/libraryAdminService";
 import { AlertToast } from "@/components/myui/AlertToast";
-import { validateStrongPassword } from "@/lib/passwordValidation";
-
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import {
+  validateName,
+  validateEmail,
+  validateStrongPassword,
+} from "@/utils/validation";
 
 const INITIAL_FORM_STATE = {
   firstName: "",
@@ -32,19 +34,14 @@ export function useStaffForm() {
   const validate = useCallback(() => {
     const newErrors = {};
 
-    if (!formData.firstName.trim()) {
-      newErrors.firstName = "الاسم الأول مطلوب";
-    }
+    const firstErr = validateName(formData.firstName, "الاسم الأول");
+    if (firstErr) newErrors.firstName = firstErr;
 
-    if (!formData.lastName.trim()) {
-      newErrors.lastName = "اسم العائلة مطلوب";
-    }
+    const lastErr = validateName(formData.lastName, "اسم العائلة");
+    if (lastErr) newErrors.lastName = lastErr;
 
-    if (!formData.email.trim()) {
-      newErrors.email = "البريد الإلكتروني مطلوب";
-    } else if (!EMAIL_REGEX.test(formData.email.trim())) {
-      newErrors.email = "صيغة البريد الإلكتروني غير صحيحة";
-    }
+    const emailErr = validateEmail(formData.email);
+    if (emailErr) newErrors.email = emailErr;
 
     const pwError = validateStrongPassword(formData.password, {
       required: true,

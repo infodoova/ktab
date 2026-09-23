@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
 import { sendPasswordResetApi, resetPasswordApi } from "@/core/api/authApi";
 import { AlertToast } from "@/components/myui/AlertToast";
-import { validateStrongPassword } from "@/lib/passwordValidation";
-
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import {
+  validateEmail,
+  validateVerificationCode,
+  validateStrongPassword,
+  validatePasswordConfirmation,
+} from "@/utils/validation";
 
 /**
  * Hook managing the 3-step Password Reset state machine and cooldown timers.
@@ -36,10 +39,12 @@ export function useResetPassword({ onClose } = {}) {
   const sendEmail = async () => {
     const nextErrors = {};
 
-    if (!email.trim()) {
-      nextErrors.email = "يرجى إدخال البريد الإلكتروني";
-    } else if (!EMAIL_REGEX.test(email)) {
-      nextErrors.email = "صيغة بريد إلكتروني غير صحيحة";
+    const emailErr = validateEmail(email, {
+      requiredMessage: "يرجى إدخال البريد الإلكتروني",
+      invalidMessage: "صيغة بريد إلكتروني غير صحيحة",
+    });
+    if (emailErr) {
+      nextErrors.email = emailErr;
     }
 
     if (Object.keys(nextErrors).length > 0) {
@@ -70,9 +75,10 @@ export function useResetPassword({ onClose } = {}) {
 
   // STEP 2 — Validate Code input
   const verifyCode = () => {
-    if (code.length < 6) {
+    const codeErr = validateVerificationCode(code, 6);
+    if (codeErr) {
       setErrors({ code: "الرمز غير مكتمل" });
-      AlertToast("يرجى إدخال الرمز المكون من 6 أرقام بالكامل", "ERROR");
+      AlertToast(codeErr, "ERROR");
       return;
     }
 
@@ -106,19 +112,14 @@ export function useResetPassword({ onClose } = {}) {
   const savePassword = async () => {
     const nextErrors = {};
 
-    if (!newPw) {
-      nextErrors.newPw = "كلمة المرور مطلوبة";
-    } else {
-      const pwError = validateStrongPassword(newPw);
-      if (pwError) {
-        nextErrors.newPw = pwError;
-      }
+    const pwErr = validateStrongPassword(newPw);
+    if (pwErr) {
+      nextErrors.newPw = pwErr;
     }
 
-    if (!confirmPw) {
-      nextErrors.confirmPw = "يرجى تأكيد كلمة المرور";
-    } else if (newPw !== confirmPw) {
-      nextErrors.confirmPw = "كلمتا المرور غير متطابقتين";
+    const confirmErr = validatePasswordConfirmation(newPw, confirmPw);
+    if (confirmErr) {
+      nextErrors.confirmPw = confirmErr;
     }
 
     if (Object.keys(nextErrors).length > 0) {

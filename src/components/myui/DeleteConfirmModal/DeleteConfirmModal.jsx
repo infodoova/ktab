@@ -2,17 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { AlertTriangle, X, Loader2, Check } from "lucide-react";
 import { Modal } from "../Modal";
 import { BottomSheet } from "../BottomSheet";
+import { normalizeText } from "@/utils/validation";
 import "./DeleteConfirmModal.css";
-
-/**
- * Normalizes text for comparison by trimming and collapsing multiple whitespace characters.
- */
-function normalizeText(str) {
-  return (str || "")
-    .trim()
-    .replace(/\s+/g, " ")
-    .toLowerCase();
-}
 
 /**
  * Unified, strict delete confirmation modal used across ALL app roles.

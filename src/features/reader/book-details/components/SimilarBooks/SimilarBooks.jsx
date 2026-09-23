@@ -1,5 +1,5 @@
 import React from "react";
-import { Headphones, BookOpen, FileText, Star } from "lucide-react";
+import { Headphones, BookOpen, Star } from "lucide-react";
 import { useSimilarBooks } from "./useSimilarBooks";
 import "./SimilarBooks.css";
 
@@ -51,7 +51,6 @@ export function SimilarBooks({ books = [], loading = false }) {
             "مؤلف غير محدد";
           const hasAudio = Boolean(simBook.hasAudio);
           const rating = Number(simBook.averageRating) || 0;
-          const pageCount = simBook.pageCount;
 
           return (
             <div
@@ -74,17 +73,10 @@ export function SimilarBooks({ books = [], loading = false }) {
 
                 {/* Floating Cover Footer */}
                 <div className="apple-similar-card__cover-footer">
-                  {pageCount ? (
-                    <div className="apple-similar-card__footer-pill" title={`${pageCount} صفحة`}>
-                      <FileText size={11} />
-                      <span>{pageCount} صفحة</span>
-                    </div>
-                  ) : rating > 0 ? (
-                    <div className="apple-similar-card__footer-pill" title={`التقييم: ${rating.toFixed(1)}`}>
-                      <Star size={11} className="apple-similar-card__star-icon" />
-                      <span>{rating.toFixed(1)}</span>
-                    </div>
-                  ) : null}
+                  <div className="apple-similar-card__footer-pill" title={`التقييم: ${rating.toFixed(1)}`}>
+                    <Star size={11} className="apple-similar-card__star-icon" />
+                    <span>{rating.toFixed(1)}</span>
+                  </div>
 
                   <div
                     className={`apple-similar-card__footer-pill ${

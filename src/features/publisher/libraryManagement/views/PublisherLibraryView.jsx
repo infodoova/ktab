@@ -23,6 +23,7 @@ export default function PublisherLibraryView() {
     loading,
     searchQuery,
     setSearchQuery,
+    selectedStatus,
     totalElements,
     selectedBook,
     setSelectedBook,

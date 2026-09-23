@@ -11,6 +11,7 @@
   border-radius: 14px;
   box-sizing: border-box;
   width: 100%;
+  max-width: 240px;
   font-family: var(--font-arabic), sans-serif;
   direction: rtl;
   user-select: none;
@@ -29,17 +30,17 @@
   border-radius: 14px;
   overflow: hidden;
   background-color: var(--bg-secondary);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.05);
   cursor: pointer;
   outline: none;
   box-sizing: border-box;
-  transition: box-shadow 0.25s ease, border-color 0.25s ease;
+  transition: box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.22s ease;
 }
 
 .ktab-pub-book-card:hover .ktab-pub-book-card__cover-wrap {
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
-  border-color: rgba(0, 0, 0, 0.12);
+  box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.12);
+  border-color: var(--border-card);
 }
 
 .ktab-pub-book-card__image-box {
@@ -305,10 +306,9 @@
 }
 
 .ktab-pub-book-card__pill--audio-active {
-  background: rgba(15, 23, 42, 0.82);
-  border-color: rgba(93, 227, 186, 0.4);
-  color: var(--brand-teal);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16);
+  background: rgba(13, 148, 136, 0.92);
+  color: var(--brand-white);
+  border-color: transparent;
 }
 
 .ktab-pub-book-card__pill--audio-inactive {
@@ -330,8 +330,8 @@
 .ktab-pub-book-card__genre {
   display: block;
   font-size: 0.656rem;
-  font-weight: 750;
-  color: var(--brand-teal-deep);
+  font-weight: 700;
+  color: var(--text-subtle);
   line-height: 1.2;
   letter-spacing: 0.02em;
   overflow: hidden;
@@ -354,8 +354,10 @@
   transition: color 0.18s ease;
 }
 
+.ktab-pub-book-card__title:hover,
 .ktab-pub-book-card:hover .ktab-pub-book-card__title {
-  color: var(--brand-teal-deep);
+  color: var(--brand-black);
+  opacity: 0.85;
 }
 
 .ktab-pub-book-card__author {
@@ -402,22 +404,22 @@
 }
 
 .ktab-pub-book-card__action-btn--approve {
-  background-color: var(--brand-teal, #5de3ba);
-  color: var(--brand-black, #0a0a0a);
-  border: 1px solid var(--brand-teal, #5de3ba);
-  box-shadow: 0 1px 4px rgba(93, 227, 186, 0.25);
+  background-color: var(--brand-black, #0a0a0a);
+  color: var(--brand-white, #ffffff);
+  border: 1px solid var(--brand-black, #0a0a0a);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
 }
 
 .ktab-pub-book-card__action-btn--approve svg {
-  color: var(--brand-black, #0a0a0a);
+  color: var(--brand-white, #ffffff);
 }
 
 .ktab-pub-book-card__action-btn--approve:hover {
-  background-color: var(--brand-teal-dark, #4ed4ab);
-  border-color: var(--brand-teal-dark, #4ed4ab);
-  color: var(--brand-black, #0a0a0a);
+  background-color: #1f1f1f;
+  border-color: #1f1f1f;
+  color: var(--brand-white, #ffffff);
   transform: translateY(-1px);
-  box-shadow: 0 3px 10px rgba(93, 227, 186, 0.35);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
 }
 
 .ktab-pub-book-card__action-btn--reject {

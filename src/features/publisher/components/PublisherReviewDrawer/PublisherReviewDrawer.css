@@ -100,10 +100,19 @@
     font-size: 16px;
   }
 
+  .ktab-pub-drawer-footer-actions {
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+
   .ktab-pub-drawer-btn-download,
   .ktab-pub-drawer-btn {
-    height: 40px;
-    font-size: 13px;
+    width: 100%;
+    flex: none;
+    height: 44px;
+    white-space: nowrap;
+    font-size: 13.5px;
   }
 }
 
@@ -257,25 +266,31 @@
   font-size: 13.5px;
   font-weight: 700;
   font-family: var(--font-arabic), sans-serif;
-  background-color: var(--bg-secondary, #f8fafc);
-  color: var(--brand-black, #0a0a0a);
-  border: 1px solid var(--border-card, #e2e8f0);
+  background-color: var(--brand-black, #0a0a0a);
+  color: var(--brand-white, #ffffff);
+  border: 1px solid var(--brand-black, #0a0a0a);
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   width: 100%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.ktab-pub-drawer-btn-download svg {
+  color: #ffffff !important;
 }
 
 .ktab-pub-drawer-btn-download:hover:not(:disabled) {
-  background-color: var(--bg-primary, #ffffff);
-  border-color: var(--brand-teal, #5de3ba);
-  color: var(--brand-black, #0a0a0a);
+  background-color: #1f1f1f;
+  border-color: #1f1f1f;
+  color: var(--brand-white, #ffffff);
   transform: translateY(-1px);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
 }
 
 .ktab-pub-drawer-btn-download:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
 /* ── Sections ───────────────────────────────────────────────────────────── */
@@ -295,14 +310,21 @@
 
 .ktab-pub-drawer-desc-box {
   font-size: 13.5px;
+  font-weight: 500;
   line-height: 1.7;
-  color: var(--text-muted);
+  color: var(--brand-black);
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-subtle);
   border-radius: 12px;
   padding: 14px 16px;
   margin: 0;
-  white-space: pre-line;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  text-align: start;
+  unicode-bidi: plaintext;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* ── Specifications Grid ─────────────────────────────────────────────────── */
@@ -338,8 +360,29 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--brand-black);
+  color: var(--text-subtle);
   flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.ktab-pub-drawer-spec-card:hover .ktab-pub-drawer-spec-icon {
+  color: var(--brand-black);
+  border-color: var(--border-card);
+}
+
+/* Unified clean monochrome spec icons - avoids colorful rainbow clutter */
+.ktab-pub-drawer-spec-icon--author,
+.ktab-pub-drawer-spec-icon--account,
+.ktab-pub-drawer-spec-icon--genre,
+.ktab-pub-drawer-spec-icon--pages,
+.ktab-pub-drawer-spec-icon--media,
+.ktab-pub-drawer-spec-icon--lang,
+.ktab-pub-drawer-spec-icon--age,
+.ktab-pub-drawer-spec-icon--date,
+.ktab-pub-drawer-spec-icon--library {
+  color: var(--text-subtle);
+  background-color: var(--bg-primary);
+  border-color: var(--border-subtle);
 }
 
 .ktab-pub-drawer-spec-text {
@@ -398,14 +441,11 @@
 }
 
 /* ── Sticky Editorial Actions Footer ────────────────────────────────────── */
-.ktab-pub-drawer-footer {
-  padding: 16px 24px;
-  border-top: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.06));
-  background-color: var(--bg-primary, #ffffff);
+.ktab-pub-drawer-footer-actions {
   display: flex;
   align-items: center;
   gap: 12px;
-  flex-shrink: 0;
+  width: 100%;
 }
 
 .ktab-pub-drawer-btn {
@@ -421,27 +461,47 @@
   font-size: 13.5px;
   font-weight: 700;
   cursor: pointer;
+  white-space: nowrap;
   box-sizing: border-box;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .ktab-pub-drawer-btn--approve {
-  background-color: var(--brand-teal, #5de3ba);
-  color: var(--brand-black, #0a0a0a);
-  border: 1px solid var(--brand-teal, #5de3ba);
-  box-shadow: 0 2px 8px rgba(93, 227, 186, 0.28);
+  background-color: var(--brand-black, #0a0a0a);
+  color: var(--brand-white, #ffffff);
+  border: 1px solid var(--brand-black, #0a0a0a);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
 
 .ktab-pub-drawer-approve-icon {
-  color: var(--brand-black, #0a0a0a);
+  color: var(--brand-white, #ffffff);
 }
 
 .ktab-pub-drawer-btn--approve:hover {
-  background-color: var(--brand-teal-dark, #4ed4ab);
-  border-color: var(--brand-teal-dark, #4ed4ab);
-  color: var(--brand-black, #0a0a0a);
+  background-color: #1f1f1f;
+  border-color: #1f1f1f;
+  color: var(--brand-white, #ffffff);
   transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(93, 227, 186, 0.4);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+}
+
+.ktab-pub-drawer-btn--download {
+  background-color: var(--brand-black, #0a0a0a);
+  color: var(--brand-white, #ffffff);
+  border: 1px solid var(--brand-black, #0a0a0a);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.ktab-pub-drawer-btn--download:hover:not(:disabled) {
+  background-color: #1f1f1f;
+  border-color: #1f1f1f;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+}
+
+.ktab-pub-drawer-btn--download:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .ktab-pub-drawer-btn--reject {

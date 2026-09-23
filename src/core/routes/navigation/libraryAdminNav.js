@@ -8,12 +8,12 @@ import { LayoutDashboard, Building2, BookOpen, Users } from "lucide-react";
  * 4. Staff Management (فريق العمل)
  */
 export const LIBRARY_ADMIN_NAV_ITEMS = [
-  {
-    name: "LibraryAdminDashboard",
-    label: "لوحة التحكم",
-    icon: LayoutDashboard,
-    path: "/library-admin/dashboard",
-  },
+  // {
+  //   name: "LibraryAdminDashboard",
+  //   label: "لوحة التحكم",
+  //   icon: LayoutDashboard,
+  //   path: "/library-admin/dashboard",
+  // },
   {
     name: "LibraryAdminLibrary",
     label: "إدارة المكتبة",

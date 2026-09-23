@@ -98,33 +98,39 @@
   border: 1px solid var(--border-subtle);
   background: var(--bg-secondary);
   color: var(--primary-text);
-  font-size: 12px;
-  font-weight: 800;
+  font-size: 13px;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
 
 .play-confirm-dialog__cancel-btn:hover {
   background: var(--btn-action-bg-hover);
+  border-color: var(--border-card);
+}
+
+.play-confirm-dialog__cancel-btn:active {
+  transform: scale(0.97);
 }
 
 .play-confirm-dialog__confirm-btn {
   flex: 1;
   padding: 12px;
   border-radius: 14px;
-  border: none;
-  background: var(--gradient);
-  color: var(--brand-black);
-  font-size: 12px;
-  font-weight: 800;
+  border: 1px solid var(--brand-black);
+  background: var(--brand-black);
+  color: var(--brand-white);
+  font-size: 13px;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
 
 .play-confirm-dialog__confirm-btn:hover {
-  background: var(--gradient-hover);
+  background: var(--brand-black-hover);
+  border-color: var(--brand-black-hover);
 }
 
 .play-confirm-dialog__confirm-btn:active {
-  transform: scale(0.96);
+  transform: scale(0.97);
 }

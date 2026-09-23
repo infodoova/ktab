@@ -2,7 +2,7 @@ import React from "react";
 import { Loader2 } from "lucide-react";
 import { AppLayout } from "@/components/myui/layout";
 import { Input, Textarea, Select } from "@/components/myui/forms";
-import { CoverImageUploader, PdfUploadZone } from "@/features/author/book-publish/components";
+import { CoverImageUploader, PdfUploadZone } from "@/components/common/BookForm";
 import { PublishConfirmModal } from "@/components/common/PublishConfirmModal";
 import { useLibrarianBookForm } from "../hooks/useLibrarianBookForm";
 import "./LibrarianBookCreateView.css";
@@ -189,8 +189,8 @@ export default function LibrarianBookCreateView() {
               </div>
             </div>
 
-            {/* 4. Book PDF Document Upload */}
-            <div className="ktab-book-publish-form__field">
+            {/* 4 & 5. Upload Grid: Book PDF Document + Cover Image */}
+            <div className="ktab-book-publish-form__upload-grid">
               <PdfUploadZone
                 pdfFile={formData.pdfFile}
                 existingPdfName={existingData.pdfName}
@@ -199,10 +199,6 @@ export default function LibrarianBookCreateView() {
                 onRemoveFile={handleRemoveDocument}
                 error={errors.pdf}
               />
-            </div>
-
-            {/* 5. Book Cover Image Upload */}
-            <div className="ktab-book-publish-form__field">
               <CoverImageUploader
                 coverFile={formData.coverFile}
                 coverUrl={existingData.coverUrl}

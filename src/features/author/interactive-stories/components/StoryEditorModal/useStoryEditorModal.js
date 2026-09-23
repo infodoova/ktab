@@ -8,15 +8,16 @@ import {
  * Custom hook encapsulating StoryEditorModal state, lifecycle, and data transformations.
  */
 export function useStoryEditorModal({ isOpen, onClose, story }) {
+  const coverUrl = story?.coverImageUrl || story?.coverImage || story?.cover;
+  const [prevCoverUrl, setPrevCoverUrl] = useState(coverUrl);
   const [coverLoaded, setCoverLoaded] = useState(false);
   const [hasCoverError, setHasCoverError] = useState(false);
 
-  const coverUrl = story?.coverImageUrl || story?.coverImage || story?.cover;
-
-  useEffect(() => {
+  if (prevCoverUrl !== coverUrl) {
+    setPrevCoverUrl(coverUrl);
     setCoverLoaded(false);
     setHasCoverError(false);
-  }, [coverUrl]);
+  }
 
   const handleCoverLoad = useCallback(() => {
     setCoverLoaded(true);
@@ -55,15 +56,17 @@ export function useStoryEditorModal({ isOpen, onClose, story }) {
   const styleLabel = rawStyle ? ARABIC_MODAL_TAG_MAP[rawStyle] || rawStyle : null;
   const scenes = story?.maxScenes ?? story?.sceneCount ?? story?.scenesCount ?? 0;
 
-  const constitutionEntries = useMemo(() => {
-    if (!story?.constitution) return [];
+  const rawConstitution = story?.constitution;
 
-    let parsed = story.constitution;
+  const constitutionEntries = useMemo(() => {
+    if (!rawConstitution) return [];
+
+    let parsed = rawConstitution;
     if (typeof parsed === "string") {
       try {
         parsed = JSON.parse(parsed);
       } catch {
-        return [{ label: "الدستور السردي", value: story.constitution }];
+        return [{ label: "الدستور السردي", value: rawConstitution }];
       }
     }
 
@@ -72,13 +75,13 @@ export function useStoryEditorModal({ isOpen, onClose, story }) {
     }
 
     return Object.entries(parsed)
-      .filter(([_, val]) => val && String(val).trim().length > 0)
+      .filter(([, val]) => val && String(val).trim().length > 0)
       .map(([key, value]) => ({
         key,
         label: CONSTITUTION_LABELS[key] || key,
         value: Array.isArray(value) ? value.join("، ") : String(value),
       }));
-  }, [story?.constitution]);
+  }, [rawConstitution]);
 
   return {
     coverUrl,

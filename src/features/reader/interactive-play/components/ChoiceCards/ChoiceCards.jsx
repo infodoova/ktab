@@ -1,15 +1,10 @@
 import React from "react";
+import { Check } from "lucide-react";
 import "./ChoiceCards.css";
 
 /**
  * Decision choice cards grid (A, B, C, D).
- * Renders a generating skeleton when isGenerating is true.
- *
- * @param {Array} nodes - Choice nodes array [{nodeId, nodeText}]
- * @param {(node) => void} onNodeClick - Click handler for choice selection
- * @param {boolean} disabled - Whether interaction is disabled
- * @param {string|null} chosenNodeId - ID of the already-chosen node
- * @param {boolean} isGenerating - Whether a new scene is being generated
+ * Features glassy, responsive cards with instant tactile feedback.
  */
 export function ChoiceCards({
   nodes = [],
@@ -18,62 +13,85 @@ export function ChoiceCards({
   chosenNodeId = null,
   isGenerating = false,
 }) {
+  const showSkeleton = isGenerating || !nodes.length;
+  const isLocked = disabled || Boolean(chosenNodeId) || isGenerating;
+
+  let headerLabel = "اختر مسارك التالي";
   if (isGenerating) {
-    return (
-      <div className="choice-cards">
-        <div className="choice-cards__generating">
-          <div className="choice-cards__generating-dots">
-            <span className="choice-cards__generating-dot" />
-            <span className="choice-cards__generating-dot" />
-            <span className="choice-cards__generating-dot" />
-          </div>
-          <p className="choice-cards__generating-text">
-            يرسم الذكاء الاصطناعي ملامح طريقك...
-          </p>
-          <div className="choice-cards__generating-grid">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="choice-cards__generating-card">
-                <div className="choice-cards__generating-shimmer" />
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
+    headerLabel = "جاري إعداد الخيارات...";
+  } else if (chosenNodeId) {
+    headerLabel = "مسارك المختار";
+  } else if (disabled) {
+    headerLabel = "مشهد سابق (للقراءة فقط)";
   }
 
-  if (!nodes.length) return null;
-
   return (
-    <div className="choice-cards">
-      <div className="choice-cards__label">
-        {chosenNodeId ? "مسارك الذي اخترته:" : "اختر مسارك:"}
+    <div
+      className={`ktab-choice-cards ${isLocked ? "ktab-choice-cards--locked" : ""}`}
+      dir="rtl"
+    >
+      <div className="ktab-choice-cards__header">
+        <span className="ktab-choice-cards__label">{headerLabel}</span>
+        {isGenerating && (
+          <span className="ktab-choice-cards__generating-pill">
+            جاري توليد الخيارات القادمة...
+          </span>
+        )}
       </div>
 
-      <div className="choice-cards__grid">
-        {nodes.map((node) => {
-          const isSelected = chosenNodeId === node.nodeId;
-          const isFaded = chosenNodeId && !isSelected;
-
-          return (
-            <button
-              key={node.nodeId}
-              disabled={disabled || Boolean(chosenNodeId)}
-              onClick={() => onNodeClick?.(node)}
-              className={[
-                "choice-card",
-                isSelected && "choice-card--selected",
-                isFaded && "choice-card--faded",
-                (disabled || chosenNodeId) && "choice-card--disabled",
-              ]
-                .filter(Boolean)
-                .join(" ")}
+      <div className="ktab-choice-cards__grid">
+        {showSkeleton ? (
+          ["A", "B", "C", "D"].map((letter) => (
+            <div
+              key={letter}
+              className="ktab-choice-card ktab-choice-card--skeleton"
+              aria-hidden="true"
             >
-              <span className="choice-card__key">{node.nodeId}</span>
-              <span className="choice-card__text">{node.nodeText}</span>
-            </button>
-          );
-        })}
+              <div className="ktab-choice-card__badge ktab-choice-card__badge--skeleton">
+                {letter}
+              </div>
+              <div className="ktab-choice-card__skeleton-content">
+                <div className="ktab-choice-card__skeleton-bar" />
+                <div className="ktab-choice-card__skeleton-sub-bar" />
+              </div>
+            </div>
+          ))
+        ) : (
+          nodes.map((node) => {
+            const isSelected = chosenNodeId === node.nodeId;
+            const isFaded = Boolean(chosenNodeId) && !isSelected;
+
+            return (
+              <button
+                key={node.nodeId}
+                type="button"
+                disabled={isLocked}
+                aria-disabled={isLocked}
+                onClick={(e) => {
+                  if (isLocked) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                  }
+                  onNodeClick?.(node);
+                }}
+                className={[
+                  "ktab-choice-card",
+                  isSelected && "ktab-choice-card--selected",
+                  isFaded && "ktab-choice-card--faded",
+                  isLocked && "ktab-choice-card--disabled",
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
+              >
+                <div className="ktab-choice-card__badge">
+                  {isSelected ? <Check size={14} strokeWidth={2.8} /> : node.nodeId}
+                </div>
+                <span className="ktab-choice-card__text">{node.nodeText}</span>
+              </button>
+            );
+          })
+        )}
       </div>
     </div>
   );

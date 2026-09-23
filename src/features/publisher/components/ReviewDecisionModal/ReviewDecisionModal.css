@@ -303,3 +303,17 @@
   transform: none;
   box-shadow: none;
 }
+
+@media (max-width: 640px) {
+  .ktab-review-modal-actions {
+    flex-direction: column-reverse;
+    gap: 0.65rem;
+    width: 100%;
+  }
+
+  .ktab-review-modal-actions > * {
+    width: 100% !important;
+    white-space: nowrap;
+    justify-content: center;
+  }
+}

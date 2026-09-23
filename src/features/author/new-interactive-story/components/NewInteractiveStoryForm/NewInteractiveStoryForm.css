@@ -476,8 +476,9 @@
   transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
 }
 
-.new-story-form__btn-primary svg {
-  color: var(--brand-teal, #5de3ba);
+.new-story-form__btn-primary svg,
+.new-story-form__btn-publish svg {
+  color: #ffffff;
 }
 
 .new-story-form__btn-primary:hover:not(:disabled) {
@@ -605,6 +606,8 @@
     height: 50px; /* Touch-friendly height */
     font-size: 0.9375rem;
     border-radius: 12px;
+    white-space: nowrap;
+    box-sizing: border-box;
   }
 
   .new-story-form__btn-primary {

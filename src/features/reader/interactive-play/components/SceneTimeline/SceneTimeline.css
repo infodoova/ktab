@@ -1,191 +1,158 @@
-.scene-timeline {
-  direction: rtl;
-  border-radius: 16px;
-  border: 1px solid var(--border-subtle);
-  background: var(--bg-primary);
-  padding: 16px;
-}
+/* ==========================================================================
+   Scene Timeline — Minimal
+   Small numbered dots, white active, dim locked, clean lines between.
+   ========================================================================== */
 
-@media (min-width: 768px) {
-  .scene-timeline {
-    border-radius: 20px;
-    padding: 20px;
-  }
-}
-
-.scene-timeline__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
-
-.scene-timeline__title {
-  font-size: 10px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  color: var(--text-subtle);
-}
-
-@media (min-width: 768px) {
-  .scene-timeline__title {
-    font-size: 11px;
-  }
-}
-
-.scene-timeline__counter {
-  font-size: 11px;
-  font-weight: 800;
-  color: var(--brand-teal-deep);
-}
-
-.scene-timeline__track {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  overflow-x: auto;
-  scroll-behavior: smooth;
-  padding-bottom: 6px;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* Hide scrollbar while keeping scroll functionality */
-.scene-timeline__track::-webkit-scrollbar {
-  height: 3px;
-}
-
-.scene-timeline__track::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.scene-timeline__track::-webkit-scrollbar-thumb {
-  background: var(--border-subtle);
-  border-radius: 4px;
-}
-
-@media (min-width: 768px) {
-  .scene-timeline__track {
-    gap: 10px;
-  }
-}
-
-/* Scene dot / thumbnail button */
-.scene-timeline__dot {
-  flex-shrink: 0;
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  border: 1.5px solid var(--border-subtle);
-  background-size: cover;
-  background-position: center;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
+.ktab-connected-timeline {
+  width: 100%;
+  max-width: 32rem;
+  margin: 0 auto;
+  direction: ltr;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.25s ease;
 }
 
-@media (min-width: 768px) {
-  .scene-timeline__dot {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-  }
+.ktab-connected-timeline__container {
+  width: 100%;
+  overflow-x: auto;
+  padding: 0.25rem 0.5rem;
+  box-sizing: border-box;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
-.scene-timeline__dot:hover {
-  border-color: var(--text-subtle);
-  transform: scale(1.08);
+.ktab-connected-timeline__container::-webkit-scrollbar { display: none; }
+
+.ktab-connected-timeline__track {
+  display: inline-flex;
+  align-items: center;
+  min-width: max-content;
+  padding: 0 0.125rem;
+  direction: ltr;
 }
 
-.scene-timeline__dot--active {
-  border-color: var(--brand-teal);
-  box-shadow: 0 0 0 2px var(--brand-teal-ambient);
+.ktab-connected-timeline__node-wrapper {
+  display: flex;
+  align-items: center;
 }
 
-.scene-timeline__dot--active:hover {
-  border-color: var(--brand-teal);
-}
-
-/* Dark overlay on thumbnails for readability */
-.scene-timeline__dot-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+/* Connecting line */
+.ktab-connected-timeline__line {
+  width: 0.875rem;
+  height: 1.5px;
+  background: rgba(255, 255, 255, 0.07);
+  flex-shrink: 0;
   transition: background 0.2s ease;
 }
 
-.scene-timeline__dot--active .scene-timeline__dot-overlay {
-  background: rgba(93, 227, 186, 0.25);
-}
+.ktab-connected-timeline__line--completed { background: rgba(255, 255, 255, 0.35); }
+.ktab-connected-timeline__line--visited   { background: rgba(255, 255, 255, 0.18); }
+.ktab-connected-timeline__line--locked    { background: rgba(255, 255, 255, 0.04); }
 
-.scene-timeline__dot:hover .scene-timeline__dot-overlay {
-  background: rgba(0, 0, 0, 0.25);
-}
-
-.scene-timeline__dot-number {
+/* ── Node button ──────────────────────────────────────────── */
+.ktab-connected-timeline__node {
   position: relative;
-  z-index: 1;
-  font-size: 11px;
-  font-weight: 800;
-  color: #fff;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
-}
-
-/* Progress bar */
-.scene-timeline__progress {
-  margin-top: 14px;
-}
-
-.scene-timeline__progress-header {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.4);
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 6px;
+  justify-content: center;
+  font-family: var(--font-english);
+  font-size: 0.625rem;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+  z-index: 2;
+  transition: border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  padding: 0;
 }
 
-.scene-timeline__progress-label {
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--text-subtle);
+.ktab-connected-timeline__node:hover:not(:disabled) {
+  border-color: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.75);
+  transform: scale(1.1);
 }
 
-.scene-timeline__progress-value {
-  font-size: 11px;
+/* Completed (choice made) */
+.ktab-connected-timeline__node--completed:not(.ktab-connected-timeline__node--active) {
+  border-color: rgba(255, 255, 255, 0.22);
+  color: rgba(255, 255, 255, 0.65);
+}
+
+/* Active (current scene) */
+.ktab-connected-timeline__node--active {
+  background: #ffffff !important;
+  border-color: #ffffff !important;
+  color: #0b0d14 !important;
+  transform: scale(1.2) !important;
   font-weight: 800;
-  color: var(--brand-teal-deep);
+  z-index: 3;
 }
 
-.scene-timeline__progress-bar {
-  width: 100%;
-  height: 6px;
-  border-radius: 100px;
-  background: var(--bg-secondary);
-  overflow: hidden;
-  border: 1px solid var(--border-subtle);
+/* Locked */
+.ktab-connected-timeline__node--locked {
+  border: 1px dashed rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.18);
+  cursor: default;
+  pointer-events: none;
 }
 
-.scene-timeline__progress-fill {
-  height: 100%;
-  border-radius: 100px;
-  background: var(--gradient);
-  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
+.ktab-connected-timeline__number--locked {
+  opacity: 0.8;
 }
 
-.scene-timeline__progress-shimmer {
+/* Tiny lock overlay badge on locked nodes */
+.ktab-connected-timeline__lock-badge {
   position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
-  animation: shimmer-progress 2s infinite;
+  bottom: -1px;
+  right: -1px;
+  color: rgba(255, 255, 255, 0.25);
+  pointer-events: none;
 }
 
-@keyframes shimmer-progress {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+/* Spinner ring on generating node */
+.ktab-connected-timeline__spinner {
+  position: absolute;
+  inset: -3.5px;
+  border-radius: 50%;
+  border: 1.5px solid transparent;
+  border-top-color: rgba(255, 255, 255, 0.8);
+  border-right-color: rgba(255, 255, 255, 0.3);
+  animation: tlSpin 0.9s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes tlSpin {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Mobile compact */
+@media (max-width: 768px) {
+  .ktab-connected-timeline { max-width: 18rem; }
+
+  .ktab-connected-timeline__node {
+    width: 1.5rem;
+    height: 1.5rem;
+    font-size: 0.5625rem;
+  }
+
+  .ktab-connected-timeline__line { width: 0.625rem; }
+}
+
+@media (max-width: 480px) {
+  .ktab-connected-timeline { max-width: 12rem; }
+
+  .ktab-connected-timeline__node {
+    width: 1.375rem;
+    height: 1.375rem;
+    font-size: 0.5rem;
+  }
+
+  .ktab-connected-timeline__line { width: 0.4rem; }
 }

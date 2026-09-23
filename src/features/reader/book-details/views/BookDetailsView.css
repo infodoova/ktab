@@ -62,17 +62,17 @@
 }
 
 .apple-book-details-back-btn:hover svg {
-  transform: translateX(3px);
+  transform: translateX(-3px);
 }
 
 .apple-book-details-nav-title {
-  font-size: 0.925rem;
+  font-size: 0.95rem;
   font-weight: 700;
   color: var(--text-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 320px;
+  max-width: 480px;
 }
 
 /* --------------------------------------------------------------------------

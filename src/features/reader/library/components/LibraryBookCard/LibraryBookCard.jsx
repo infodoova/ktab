@@ -1,5 +1,5 @@
 import React from "react";
-import { Headphones, BookOpen, FileText, Star } from "lucide-react";
+import { Headphones, BookOpen, Star } from "lucide-react";
 import brandIconImg from "@/assets/logo/BrandIcon.png";
 import { useLibraryBookCard } from "./useLibraryBookCard";
 import "./LibraryBookCard.css";
@@ -17,7 +17,6 @@ export const LibraryBookCard = React.memo(function LibraryBookCard({ book, onCli
     isDraft,
     hasAudio,
     rating,
-    pageCount,
     coverLoaded,
     hasCoverError,
     handleCoverLoad,
@@ -82,17 +81,10 @@ export const LibraryBookCard = React.memo(function LibraryBookCard({ book, onCli
 
         {/* Floating Cover Footer */}
         <div className="ktab-lib-card__cover-footer">
-          {pageCount ? (
-            <div className="ktab-lib-card__footer-pill" title={`${pageCount} صفحة`}>
-              <FileText size={11} />
-              <span>{pageCount} صفحة</span>
-            </div>
-          ) : rating > 0 ? (
-            <div className="ktab-lib-card__footer-pill" title={`التقييم: ${rating.toFixed(1)}`}>
-              <Star size={11} className="ktab-lib-card__star-icon" />
-              <span>{rating.toFixed(1)}</span>
-            </div>
-          ) : null}
+          <div className="ktab-lib-card__footer-pill" title={`التقييم: ${rating.toFixed(1)}`}>
+            <Star size={11} className="ktab-lib-card__star-icon" />
+            <span>{rating.toFixed(1)}</span>
+          </div>
 
           <div
             className={`ktab-lib-card__footer-pill ${

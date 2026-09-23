@@ -18,6 +18,7 @@ export function AuthorBookGrid({
   setOpenMenuId,
   onBookClick,
   onDeleteClick,
+  onSubmitClick,
   onLoadMore,
   onCreateNew,
   searchQuery = "",
@@ -133,6 +134,8 @@ export function AuthorBookGrid({
             onCardClick={onBookClick}
             onDelete={onDeleteClick}
             onDeleteClick={onDeleteClick}
+            onSubmit={onSubmitClick}
+            onSubmitClick={onSubmitClick}
           />
         ))}
       </div>

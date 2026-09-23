@@ -1,11 +1,5 @@
-import React, { useState } from "react";
-import {
-  Star,
-  BookOpen,
-  SlidersHorizontal,
-  RotateCcw,
-  Check,
-} from "lucide-react";
+import React from "react";
+import { Star, BookOpen, RotateCcw } from "lucide-react";
 import {
   Table,
   TableHeader,
@@ -13,8 +7,6 @@ import {
   TableRow,
   TableHead,
   TableCell,
-  Select,
-  BottomSheet,
   Pagination,
 } from "@/components/myui";
 import brandIconImg from "@/assets/logo/BrandIcon.png";
@@ -57,7 +49,6 @@ function BookThumbnail({ coverUrl, title }) {
 
 export function AuthorBooksTable({
   books = [],
-  genres = ["الكل"],
   searchQuery = "",
   loading = false,
   isPaginating = false,
@@ -68,15 +59,8 @@ export function AuthorBooksTable({
   onSelectBookForStats,
 }) {
   const {
-    selectedGenre,
-    setSelectedGenre,
-    sortBy,
-    setSortBy,
     statusFilter,
     setStatusFilter,
-    isFilterSheetOpen,
-    setIsFilterSheetOpen,
-    isMobileScreen,
     activeFiltersCount,
     resetFilters,
     displayedBooks,
@@ -87,13 +71,9 @@ export function AuthorBooksTable({
     canScroll,
     scrollProgress,
     handlePaginationChange,
-    genreOptions,
-    sortOptions,
   } = useAuthorBooksTable({
     books,
-    genres,
     searchQuery,
-    selectedBookId,
     onSelectBookForStats,
     onPageChange,
   });
@@ -115,30 +95,11 @@ export function AuthorBooksTable({
                 ({displayedBooks.length} عمل)
               </span>
             </div>
-
-            {/* Mobile Icon-Only Filter Button (Strictly Mobile Only) */}
-            {isMobileScreen && (
-              <button
-                type="button"
-                onClick={() => setIsFilterSheetOpen(true)}
-                className="ktab-mobile-filter-btn ktab-mobile-only"
-                aria-label="تصفية وترتيب الكتب"
-                title="تصفية وترتيب الكتب"
-              >
-                <SlidersHorizontal size={15} />
-                {activeFiltersCount > 0 && (
-                  <span className="ktab-mobile-filter-badge">
-                    {activeFiltersCount}
-                  </span>
-                )}
-              </button>
-            )}
           </div>
         </div>
 
-        {/* Desktop Filter Controls (screens >= 768px) */}
-        <div className="ktab-books-card__controls ktab-desktop-only">
-          {/* Status Segmented Tabs */}
+        {/* Status Segmented Tabs */}
+        <div className="ktab-books-card__controls">
           <div
             className="ktab-segmented-tabs"
             role="tablist"
@@ -169,6 +130,17 @@ export function AuthorBooksTable({
             <button
               type="button"
               role="tab"
+              aria-selected={statusFilter === "UNDER_REVIEW"}
+              onClick={() => setStatusFilter("UNDER_REVIEW")}
+              className={`ktab-segmented-tab ${
+                statusFilter === "UNDER_REVIEW" ? "ktab-segmented-tab--active" : ""
+              }`}
+            >
+              قيد المراجعة
+            </button>
+            <button
+              type="button"
+              role="tab"
               aria-selected={statusFilter === "DRAFT"}
               onClick={() => setStatusFilter("DRAFT")}
               className={`ktab-segmented-tab ${
@@ -177,31 +149,6 @@ export function AuthorBooksTable({
             >
               المسودات
             </button>
-          </div>
-
-          {/* Global UI Select Components */}
-          <div className="ktab-books-card__selects-group">
-            {genres.length > 1 && (
-              <Select
-                value={selectedGenre}
-                onChange={(e) => setSelectedGenre(e.target.value)}
-                options={genreOptions}
-                placeholder="جميع التصنيفات"
-                className="ktab-table-select"
-                triggerClassName="ktab-table-select-trigger"
-                menuClassName="ktab-table-select-menu"
-              />
-            )}
-
-            <Select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              options={sortOptions}
-              placeholder="ترتيب حسب"
-              className="ktab-table-select"
-              triggerClassName="ktab-table-select-trigger"
-              menuClassName="ktab-table-select-menu"
-            />
           </div>
         </div>
       </header>
@@ -288,8 +235,14 @@ export function AuthorBooksTable({
                     const bookId = book.id ?? book._id ?? book.bookId;
                     const bookKey = bookId != null ? `book-${bookId}` : `book-index-${index}`;
                     const isSelected = selectedBookId === bookId;
+                    const statusUpper = (book.status || "").toUpperCase();
+                    const isUnderReview =
+                      statusUpper === "UNDER_REVIEW" ||
+                      statusUpper === "PENDING_APPROVAL" ||
+                      statusUpper === "IN_REVIEW";
                     const isPublished =
-                      book.isDraft === false || book.status === "PUBLISHED";
+                      !isUnderReview &&
+                      (book.isDraft === false || statusUpper === "PUBLISHED");
                     const rating =
                       typeof book.averageRating === "number"
                         ? book.averageRating.toFixed(1)
@@ -327,16 +280,22 @@ export function AuthorBooksTable({
                           </div>
                         </TableCell>
 
-                        {/* Status (Professional Monochrome Clean Text, NO DOT) */}
+                        {/* Status (Professional Clean Text with UNDER_REVIEW support) */}
                         <TableCell>
                           <span
                             className={`ktab-status-text ${
                               isPublished
                                 ? "ktab-status-text--published"
+                                : isUnderReview
+                                ? "ktab-status-text--under-review"
                                 : "ktab-status-text--draft"
                             }`}
                           >
-                            {isPublished ? "منشور" : "مسودة"}
+                            {isPublished
+                              ? "منشور"
+                              : isUnderReview
+                              ? "قيد المراجعة"
+                              : "مسودة"}
                           </span>
                         </TableCell>
 
@@ -371,107 +330,6 @@ export function AuthorBooksTable({
         onPageChange={handlePaginationChange}
         disabled={loading || isPaginating}
       />
-
-      {/* Global Bottom Sheet for Mobile Filters (Strictly Mobile Only) */}
-      {isMobileScreen && (
-        <BottomSheet
-          isOpen={isFilterSheetOpen}
-          onClose={() => setIsFilterSheetOpen(false)}
-          title="تصفية وترتيب الكتب"
-          className="ktab-filter-bottom-sheet"
-          scrollable={false}
-        >
-          <div className="ktab-filter-sheet-body">
-            {/* Status Group */}
-            <div className="ktab-filter-sheet-field">
-              <label className="ktab-filter-sheet-label">حالة الكتاب</label>
-              <div className="ktab-filter-sheet-tabs">
-                <button
-                  type="button"
-                  onClick={() => setStatusFilter("ALL")}
-                  className={`ktab-filter-sheet-tab ${
-                    statusFilter === "ALL" ? "ktab-filter-sheet-tab--active" : ""
-                  }`}
-                >
-                  الكل
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setStatusFilter("PUBLISHED")}
-                  className={`ktab-filter-sheet-tab ${
-                    statusFilter === "PUBLISHED"
-                      ? "ktab-filter-sheet-tab--active"
-                      : ""
-                  }`}
-                >
-                  المنشورة
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setStatusFilter("DRAFT")}
-                  className={`ktab-filter-sheet-tab ${
-                    statusFilter === "DRAFT" ? "ktab-filter-sheet-tab--active" : ""
-                  }`}
-                >
-                  المسودات
-                </button>
-              </div>
-            </div>
-
-            {/* Genre Select */}
-            {genres.length > 1 && (
-              <div className="ktab-filter-sheet-field">
-                <label className="ktab-filter-sheet-label">التصنيف</label>
-                <Select
-                  value={selectedGenre}
-                  onChange={(e) => setSelectedGenre(e.target.value)}
-                  options={genreOptions}
-                  placeholder="جميع التصنيفات"
-                  className="ktab-filter-sheet-select"
-                  triggerClassName="ktab-table-select-trigger"
-                  menuClassName="ktab-table-select-menu"
-                />
-              </div>
-            )}
-
-            {/* Sort Select */}
-            <div className="ktab-filter-sheet-field">
-              <label className="ktab-filter-sheet-label">الترتيب</label>
-              <Select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                options={sortOptions}
-                placeholder="ترتيب حسب"
-                className="ktab-filter-sheet-select"
-                triggerClassName="ktab-table-select-trigger"
-                menuClassName="ktab-table-select-menu"
-              />
-            </div>
-
-            {/* Sheet Footer Actions */}
-            <div className="ktab-filter-sheet-actions">
-              {activeFiltersCount > 0 && (
-                <button
-                  type="button"
-                  onClick={resetFilters}
-                  className="ktab-filter-sheet-reset-btn"
-                >
-                  <RotateCcw size={14} />
-                  <span>إعادة تعيين</span>
-                </button>
-              )}
-              <button
-                type="button"
-                onClick={() => setIsFilterSheetOpen(false)}
-                className="ktab-filter-sheet-apply-btn"
-              >
-                <Check size={16} />
-                <span>إظهار النتائج ({displayedBooks.length})</span>
-              </button>
-            </div>
-          </div>
-        </BottomSheet>
-      )}
     </section>
   );
 }

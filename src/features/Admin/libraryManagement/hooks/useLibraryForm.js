@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { libraryService } from "../services/libraryService";
 import { AlertToast } from "@/components/myui/AlertToast";
-import { validateStrongPassword } from "@/lib/passwordValidation";
+import { validateLibraryForm } from "../validation/libraryFormValidation";
 
 const INITIAL_FORM_STATE = {
   name: "",
@@ -82,30 +82,7 @@ export function useLibraryForm({ initialData = null, onSuccess } = {}) {
   }, []);
 
   const validate = useCallback(() => {
-    const errs = {};
-    if (!formData.name.trim()) errs.name = "اسم المكتبة مطلوب";
-    if (!formData.city.trim()) errs.city = "المدينة مطلوبة";
-    if (!formData.country.trim()) errs.country = "الدولة مطلوبة";
-
-    // For creation: admin fields are required
-    if (!initialData) {
-      if (!formData.admin.email.trim()) errs.admin_email = "البريد الإلكتروني للمسؤول مطلوب";
-      if (!formData.admin.firstName.trim()) errs.admin_firstName = "الاسم الأول للمسؤول مطلوب";
-      if (!formData.admin.lastName.trim()) errs.admin_lastName = "اسم العائلة للمسؤول مطلوب";
-      const pwErr = validateStrongPassword(formData.admin.password, {
-        required: true,
-        requiredMessage: "كلمة المرور مطلوبة لمسؤول المكتبة",
-      });
-      if (pwErr) {
-        errs.admin_password = pwErr;
-      }
-    } else if (formData.admin?.password && formData.admin.password.trim()) {
-      const pwErr = validateStrongPassword(formData.admin.password, { required: false });
-      if (pwErr) {
-        errs.admin_password = pwErr;
-      }
-    }
-
+    const errs = validateLibraryForm(formData, initialData);
     setErrors(errs);
     return Object.keys(errs).length === 0;
   }, [formData, initialData]);

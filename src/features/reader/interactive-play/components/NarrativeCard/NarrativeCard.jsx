@@ -1,68 +1,56 @@
-import React, { useState, useEffect, useRef } from "react";
+import React from "react";
 import "./NarrativeCard.css";
 
 /**
- * Narrative text card with typewriter effect and scene number indicator.
- * Also renders an inline retry banner when a choice submission fails.
+ * Editorial Manuscript Scroll Card displaying high-contrast story prose.
+ * Features an authentic open parchment scroll finish with curled ends.
  *
- * @param {string} text - Scene narrative text to display
- * @param {number} sceneNumber - Current scene number
- * @param {boolean} showRetry - Whether to show the retry banner
- * @param {() => void} onRetry - Retry handler for failed choice submissions
+ * @param {string} text - Scene narrative text
+ * @param {boolean} showRetry - Whether to show retry banner
+ * @param {() => void} onRetry - Retry callback
  */
-export function NarrativeCard({ text, sceneNumber, showRetry, onRetry }) {
-  const [displayedText, setDisplayedText] = useState("");
-  const scrollRef = useRef(null);
-
-  /* Typewriter: reveal text character-by-character */
-  useEffect(() => {
-    setDisplayedText("");
-    if (!text) return;
-
-    let i = 0;
-    const interval = setInterval(() => {
-      if (i <= text.length) {
-        setDisplayedText(text.slice(0, i));
-        i++;
-      } else {
-        clearInterval(interval);
-      }
-    }, 18);
-
-    return () => clearInterval(interval);
-  }, [text]);
-
-  /* Auto-scroll to bottom as text reveals */
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [displayedText]);
+export function NarrativeCard({ text, showRetry, onRetry, isGenerating = false }) {
+  const isLoading = isGenerating || !text;
 
   return (
-    <div className="narrative-card">
-      <div className="narrative-card__scene-tag">
-        <span className="narrative-card__scene-dot" />
-        <span className="narrative-card__scene-label">
-          المشهد {sceneNumber}
-        </span>
-      </div>
-
-      <div ref={scrollRef} className="narrative-card__text-area">
-        {displayedText}
+    <section className="ktab-narrative-card" aria-label="أحداث المشهد">
+      <div className="ktab-narrative-card__body">
+        {isLoading ? (
+          <div className="ktab-narrative-card__skeleton" aria-label="جاري كتابة أحداث المشهد">
+            <div className="ktab-narrative-card__skeleton-header">
+              <span className="ktab-narrative-card__skeleton-dot" aria-hidden="true" />
+              <span className="ktab-narrative-card__skeleton-hint">
+                جاري تدوين وقائع المشهد...
+              </span>
+            </div>
+            <div className="ktab-narrative-card__skeleton-line" style={{ width: "96%" }} />
+            <div className="ktab-narrative-card__skeleton-line" style={{ width: "88%" }} />
+            <div className="ktab-narrative-card__skeleton-line" style={{ width: "92%" }} />
+            <div className="ktab-narrative-card__skeleton-line" style={{ width: "65%" }} />
+          </div>
+        ) : (
+          <div className="ktab-narrative-card__content">
+            <p className="ktab-narrative-card__text">{text}</p>
+          </div>
+        )}
       </div>
 
       {showRetry && (
-        <div className="narrative-card__retry-banner">
-          <span className="narrative-card__retry-text">
-            تعذر توليد المشهد التالي بسبب انقطاع الاتصال.
+        <div className="ktab-narrative-card__retry-banner">
+          <span className="ktab-narrative-card__retry-text">
+            تعذر توليد المشهد التالي بسبب انقطاع مؤقت في الاتصال.
           </span>
-          <button className="narrative-card__retry-btn" onClick={onRetry}>
+          <button
+            type="button"
+            className="ktab-narrative-card__retry-btn"
+            disabled={isGenerating}
+            onClick={onRetry}
+          >
             إعادة المحاولة
           </button>
         </div>
       )}
-    </div>
+    </section>
   );
 }
 
