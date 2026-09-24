@@ -6,8 +6,9 @@
 .ktab-scene-artwork {
   position: relative;
   width: 100%;
+  height: 100%;
+  min-height: 100%;
   flex: 1;
-  min-height: 0;
   border-radius: 1rem;
   overflow: hidden;
   background: rgba(255, 255, 255, 0.05);
@@ -49,41 +50,92 @@
   transform: scale(1.025);
 }
 
-/* ── Loading State: quiet breathing, no decorations ────────── */
+/* ── Pro Image Loader / Skeleton ──────────────────────────── */
 .ktab-scene-artwork__skeleton {
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: rgba(13, 15, 23, 0.7);
-  animation: artworkBreath 3s ease-in-out infinite;
+  background: rgba(14, 17, 26, 0.96);
+  background-image: radial-gradient(circle at 50% 42%, rgba(28, 34, 52, 0.7) 0%, rgba(11, 13, 20, 0.98) 100%);
   z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Diagonal glass shimmer sweep */
+.ktab-scene-artwork__shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 0%,
+    transparent 35%,
+    rgba(255, 255, 255, 0.03) 45%,
+    rgba(255, 255, 255, 0.07) 50%,
+    rgba(255, 255, 255, 0.03) 55%,
+    transparent 65%,
+    transparent 100%
+  );
+  background-size: 250% 250%;
+  animation: artworkShimmerSweep 3.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  pointer-events: none;
+}
+
+@keyframes artworkShimmerSweep {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Center Column */
+.ktab-scene-artwork__loader-center {
+  position: relative;
+  z-index: 3;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-@keyframes artworkBreath {
-  0%, 100% { background: rgba(13, 15, 23, 0.7); }
-  50%       { background: rgba(20, 23, 34, 0.7); }
+/* Dual Ring Container */
+.ktab-scene-artwork__ring-box {
+  position: relative;
+  width: 3.25rem;
+  height: 3.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.ktab-scene-artwork__skeleton::after {
-  content: "";
-  width: 5px;
-  height: 5px;
+/* Outer smooth spinning arc */
+.ktab-scene-artwork__spinning-ring {
+  position: absolute;
+  inset: 0;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
-  animation: dotPulse 2s ease-in-out infinite;
+  border: 2px solid rgba(255, 255, 255, 0.08);
+  border-top-color: rgba(255, 255, 255, 0.9);
+  border-right-color: rgba(255, 255, 255, 0.35);
+  animation: artworkSpin 1.1s cubic-bezier(0.5, 0, 0.5, 1) infinite;
 }
 
-@keyframes dotPulse {
-  0%, 100% { opacity: 0.3; transform: scale(1); }
-  50%       { opacity: 0.7; transform: scale(1.6); }
+@keyframes artworkSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }
 
-/* Hide verbose inner elements */
-.ktab-scene-artwork__skeleton-inner { display: none; }
-.ktab-scene-artwork__shimmer        { display: none; }
+/* Centered icon with gentle ambient pulse */
+.ktab-scene-artwork__icon-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.7);
+  animation: iconPulse 2s ease-in-out infinite;
+}
+
+@keyframes iconPulse {
+  0%, 100% { opacity: 0.6; transform: scale(0.96); }
+  50%       { opacity: 1; transform: scale(1.04); }
+}
 
 /* ── Fallback ─────────────────────────────────────────────── */
 .ktab-scene-artwork__fallback {
@@ -94,19 +146,22 @@
   gap: 0.5rem;
   width: 100%;
   height: 100%;
+  direction: rtl;
 }
 
 .ktab-scene-artwork__fallback-logo {
   width: 2.5rem;
   height: 2.5rem;
-  opacity: 0.15;
+  opacity: 0.25;
   object-fit: contain;
 }
 
 .ktab-scene-artwork__fallback-text {
   font-family: var(--font-arabic);
-  font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.25);
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.65);
+  letter-spacing: 0;
+  line-height: 1.4;
 }
 
 /* ── Zoom hint: always visible, not just on hover ─────────── */
@@ -135,7 +190,6 @@
 
 @media (max-width: 640px) {
   .ktab-scene-artwork {
-    min-height: 12rem;
     border-radius: 0.875rem;
   }
 }

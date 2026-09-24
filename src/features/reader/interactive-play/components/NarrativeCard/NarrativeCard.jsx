@@ -2,12 +2,13 @@ import React from "react";
 import "./NarrativeCard.css";
 
 /**
- * Editorial Manuscript Scroll Card displaying high-contrast story prose.
- * Features an authentic open parchment scroll finish with curled ends.
+ * Editorial Manuscript Card displaying high-contrast story prose.
+ * Displays the full narrative text with smooth, natural scrolling.
  *
  * @param {string} text - Scene narrative text
  * @param {boolean} showRetry - Whether to show retry banner
  * @param {() => void} onRetry - Retry callback
+ * @param {boolean} isGenerating - Whether next scene is generating
  */
 export function NarrativeCard({ text, showRetry, onRetry, isGenerating = false }) {
   const isLoading = isGenerating || !text;
@@ -30,7 +31,9 @@ export function NarrativeCard({ text, showRetry, onRetry, isGenerating = false }
           </div>
         ) : (
           <div className="ktab-narrative-card__content">
-            <p className="ktab-narrative-card__text">{text}</p>
+            <p className="ktab-narrative-card__text">
+              {text}
+            </p>
           </div>
         )}
       </div>
@@ -55,3 +58,4 @@ export function NarrativeCard({ text, showRetry, onRetry, isGenerating = false }
 }
 
 export default NarrativeCard;
+

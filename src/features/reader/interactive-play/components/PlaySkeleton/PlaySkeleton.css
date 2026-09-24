@@ -5,7 +5,8 @@
   justify-content: center;
   min-height: 100dvh;
   padding: 24px;
-  background: var(--bg-primary);
+  background: var(--story-bg-base);
+  background-image: var(--story-bg-gradient);
   direction: rtl;
 }
 
@@ -190,16 +191,21 @@
   justify-content: center;
   min-height: 100dvh;
   padding: 24px;
-  background: var(--bg-primary);
+  background: var(--story-bg-base);
+  background-image: var(--story-bg-gradient);
   text-align: center;
   direction: rtl;
+  font-family: var(--font-arabic), sans-serif;
   gap: 20px;
 }
 
 .play-error__title {
+  font-family: var(--font-arabic), sans-serif;
   font-size: 20px;
   font-weight: 800;
-  color: var(--primary-text);
+  color: var(--story-text-primary);
+  letter-spacing: 0;
+  line-height: 1.5;
 }
 
 .play-error__btn {
@@ -208,9 +214,10 @@
   border: none;
   background: var(--gradient);
   color: var(--brand-black);
-  font-size: 12px;
+  font-family: var(--font-arabic), sans-serif;
+  font-size: 13px;
   font-weight: 800;
-  letter-spacing: 0.04em;
+  letter-spacing: 0;
   cursor: pointer;
   transition: all 0.2s ease;
 }

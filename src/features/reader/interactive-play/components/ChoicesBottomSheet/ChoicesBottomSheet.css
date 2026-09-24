@@ -1,0 +1,173 @@
+/* ==========================================================================
+   Choices Bottom Sheet Modal — Mobile & Tablet Experience
+   Allows full-screen story immersion while providing focused decision access.
+   ========================================================================== */
+
+.ktab-choices-sheet__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 220;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  animation: choicesSheetOverlayIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  direction: rtl;
+}
+
+@keyframes choicesSheetOverlayIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.ktab-choices-sheet {
+  position: relative;
+  width: 100%;
+  max-width: 48rem;
+  margin: 0 auto;
+  max-height: 82vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--story-bg-base);
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(13, 15, 23, 0.98) 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1.5rem 1.5rem 0 0;
+  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.75);
+  animation: choicesSheetSlideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+  box-sizing: border-box;
+  font-family: var(--font-arabic), sans-serif;
+  direction: rtl;
+}
+
+@keyframes choicesSheetSlideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0.8;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ── Handle Bar ────────────────────────────────────────────── */
+.ktab-choices-sheet__handle-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 0.65rem;
+  padding-bottom: 0.25rem;
+  flex-shrink: 0;
+}
+
+.ktab-choices-sheet__handle {
+  width: 2.75rem;
+  height: 0.25rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.25);
+  transition: background 0.2s ease;
+}
+
+.ktab-choices-sheet:hover .ktab-choices-sheet__handle {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* ── Header ────────────────────────────────────────────────── */
+.ktab-choices-sheet__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.25rem 0.85rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+
+.ktab-choices-sheet__title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.ktab-choices-sheet__title {
+  margin: 0;
+  font-family: var(--font-arabic), sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--story-text-primary);
+  line-height: 1.5;
+  letter-spacing: 0;
+}
+
+.ktab-choices-sheet__subtitle {
+  display: block;
+  font-family: var(--font-arabic), sans-serif;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.75);
+  margin-top: 0.15rem;
+  line-height: 1.4;
+  letter-spacing: 0;
+}
+
+.ktab-choices-sheet__close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.125rem;
+  height: 2.125rem;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.75);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  padding: 0;
+}
+
+.ktab-choices-sheet__close-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+  transform: scale(1.05);
+}
+
+/* ── Content ───────────────────────────────────────────────── */
+.ktab-choices-sheet__content {
+  padding: 1rem 1.25rem max(1.25rem, env(safe-area-inset-bottom, 1.25rem));
+  overflow-y: auto;
+  min-height: 0;
+  flex: 1;
+}
+
+/* Choices inside sheet don't need redundant header */
+.ktab-choices-sheet__content .ktab-choice-cards__header {
+  display: none;
+}
+
+/* Optimize choice cards for bottom sheet list layout */
+.ktab-choices-sheet__content .ktab-choice-cards__grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.ktab-choices-sheet__content .ktab-choice-card {
+  padding: 0.85rem 1rem;
+  min-height: 3.25rem;
+  border-radius: 0.875rem;
+}
+
+@media (min-width: 640px) {
+  .ktab-choices-sheet {
+    border-radius: 1.75rem 1.75rem 0 0;
+  }
+
+  .ktab-choices-sheet__content .ktab-choice-cards__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+}

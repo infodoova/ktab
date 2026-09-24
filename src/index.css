@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300..900;1,300..900&family=Tajawal:wght@200;300;400;500;700;800;900&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -101,11 +102,33 @@
   --shadow-teal: 0 8px 26px rgba(93, 227, 186, 0.45);
   --shadow-teal-hover: 0 12px 34px rgba(93, 227, 186, 0.6);
   --shadow-soft: 0 8px 32px rgba(93, 227, 186, 0.15);
+
+  /* Interactive Story Player Tokens */
+  --story-bg-base: #090b10;
+  --story-bg-gradient: linear-gradient(115deg, #090b10 0%, #0e121d 30%, #131a2a 55%, #0f1422 75%, #080a10 100%);
+  --story-overlay-desktop: radial-gradient(ellipse 65% 75% at 80% 40%, rgba(24, 34, 52, 0.42) 0%, transparent 70%), linear-gradient(to right, rgba(11, 13, 20, 0.12) 0%, rgba(11, 13, 20, 0.28) 18%, rgba(13, 16, 26, 0.72) 28%, rgba(16, 21, 34, 0.92) 40%, rgba(13, 17, 28, 0.97) 65%, #080a10 100%);
+  --story-overlay-mobile: radial-gradient(ellipse 80% 50% at 50% 80%, rgba(24, 34, 52, 0.3) 0%, transparent 70%), linear-gradient(to bottom, rgba(11, 13, 20, 0.15) 0%, rgba(11, 13, 20, 0.45) 25%, rgba(14, 18, 29, 0.94) 40%, #080a10 100%);
+  --story-card-bg: rgba(255, 255, 255, 0.055);
+  --story-card-bg-hover: rgba(255, 255, 255, 0.08);
+  --story-card-border-top: rgba(255, 255, 255, 0.18);
+  --story-card-border: rgba(255, 255, 255, 0.08);
+  --story-text-primary: rgba(255, 255, 255, 0.94);
+  --story-text-secondary: rgba(255, 255, 255, 0.88);
+  --story-text-muted: rgba(255, 255, 255, 0.45);
+  --story-timeline-border: rgba(255, 255, 255, 0.45);
+  --story-timeline-border-hover: rgba(255, 255, 255, 0.85);
+  --story-timeline-border-locked: rgba(255, 255, 255, 0.35);
+  --story-timeline-active-bg: #ffffff;
+  --story-timeline-active-text: #0b0d14;
+  --story-timeline-line-completed: rgba(255, 255, 255, 0.55);
+  --story-timeline-line-visited: rgba(255, 255, 255, 0.3);
+  --story-timeline-line-locked: rgba(255, 255, 255, 0.15);
 }
 
 /* 2. Global Font & Text Rendering Rules */
 html,
 body,
+#root,
 button,
 input,
 optgroup,

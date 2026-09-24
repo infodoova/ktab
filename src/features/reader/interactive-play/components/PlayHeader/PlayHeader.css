@@ -14,7 +14,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 1.5rem;
-  height: 3.5rem;
+  height: 3.875rem;
   background: rgba(11, 13, 20, 0.75);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
@@ -22,38 +22,146 @@
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04), 0 4px 24px rgba(0, 0, 0, 0.4);
   box-sizing: border-box;
   direction: rtl;
+  font-family: var(--font-arabic), sans-serif;
   gap: 0.75rem;
 }
 
 /* ── Right slot: Story Title ──────────────────────────────── */
 .play-header__title-slot {
-  flex: 0 1 14rem;
+  position: relative;
+  flex: 0 1 auto;
   min-width: 0;
   display: flex;
   align-items: center;
 }
 
+.play-header__title--desktop {
+  display: block;
+}
+
+.play-header__title-btn--mobile {
+  display: none;
+}
+
+.play-header__title-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: transparent;
+  border: 1px solid transparent;
+  padding: 0.35rem 0.5rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  color: var(--story-text-primary);
+  text-align: right;
+  transition: background 0.15s ease, border-color 0.15s ease;
+  max-width: 100%;
+}
+
+.play-header__title-btn:hover,
+.play-header__title-btn--open {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
 .play-header__title {
   margin: 0;
-  font-family: var(--font-arabic);
-  font-size: 0.9rem;
+  font-family: var(--font-arabic), sans-serif;
+  font-size: clamp(0.95rem, 1.15vw, 1.15rem);
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--story-text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
+  line-height: 1.5;
+}
+
+.play-header__title-chevron {
+  color: rgba(255, 255, 255, 0.5);
+  transition: transform 0.2s ease, color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.play-header__title-chevron--open {
+  transform: rotate(180deg);
+  color: #ffffff;
+}
+
+/* Dropdown Menu */
+.play-header__dropdown-menu {
+  position: absolute;
+  top: calc(100% + 0.45rem);
+  right: 0;
+  min-width: 12.5rem;
+  background: rgba(16, 20, 30, 0.96);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 0.75rem;
+  padding: 0.375rem;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.65), 0 2px 8px rgba(0, 0, 0, 0.3);
+  z-index: 120;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  animation: headerDropIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes headerDropIn {
+  from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.play-header__dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.625rem 0.85rem;
+  border-radius: 0.5rem;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.88);
+  font-family: var(--font-arabic);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  width: 100%;
+  text-align: right;
+  direction: rtl;
+  box-sizing: border-box;
+}
+
+.play-header__dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.play-header__dropdown-item--exit {
+  color: rgba(252, 165, 165, 0.9);
+}
+
+.play-header__dropdown-item--exit:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
+}
+
+.play-header__dropdown-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 0.15rem 0.25rem;
 }
 
 /* ── Center slot: Timeline ────────────────────────────────── */
 .play-header__center-slot {
   flex: 1 1 auto;
-  max-width: 34rem;
+  max-width: 46rem;
   display: flex;
   align-items: center;
   justify-content: center;
   min-width: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
 /* ── Left slot: Action Buttons ───────────────────────────── */
@@ -61,22 +169,22 @@
   flex: 0 0 auto;
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.5rem;
 }
 
 .play-header__action-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.35rem;
-  height: 2rem;
-  padding: 0 0.8rem;
+  gap: 0.4rem;
+  height: 2.125rem;
+  padding: 0 0.95rem;
   border-radius: 9999px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(255, 255, 255, 0.8);
   font-family: var(--font-arabic);
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
@@ -102,30 +210,63 @@
   color: #fca5a5;
 }
 
-/* ── Mobile: icon-only buttons ─────────────────────────────── */
-@media (max-width: 768px) {
+/* ── Desktop & Tablet (≥ 640px, including iPads & PCs) ─────── */
+@media (min-width: 640px) {
+  .play-header__title--desktop {
+    display: block !important;
+  }
+
+  .play-header__title-btn--mobile {
+    display: none !important;
+  }
+
+  .play-header__dropdown-menu {
+    display: none !important;
+  }
+
+  .play-header__actions-slot {
+    display: flex !important;
+  }
+}
+
+/* ── Small Mobile screens only (< 640px) ────────────────────── */
+@media (max-width: 639px) {
   .play-header {
-    padding: 0 0.875rem;
-    height: 3.125rem;
-    gap: 0.4rem;
+    padding: 0 0.75rem;
+    height: 3.25rem;
+    gap: 0.5rem;
+  }
+
+  .play-header__title--desktop {
+    display: none;
+  }
+
+  .play-header__title-btn--mobile {
+    display: inline-flex;
   }
 
   .play-header__title-slot {
-    flex: 0 1 6rem;
+    flex: 0 0 auto;
+    max-width: 8.5rem;
+  }
+
+  .play-header__title-btn {
+    padding: 0.25rem 0.375rem;
   }
 
   .play-header__title {
     font-size: 0.8125rem;
   }
 
-  .play-header__action-label {
+  /* Hide separate left actions on small mobile since they are accessible in title dropdown */
+  .play-header__actions-slot {
     display: none;
   }
 
-  .play-header__action-btn {
-    width: 2rem;
-    height: 2rem;
-    padding: 0;
-    border-radius: 50%;
+  /* Center slot takes the remaining available space for timeline */
+  .play-header__center-slot {
+    flex: 1 1 auto;
+    max-width: none;
+    justify-content: flex-end;
   }
 }

@@ -1,13 +1,15 @@
 import React, { useState, useCallback } from "react";
-import { X, ChevronLeft, ChevronRight, Share2, Download } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Share2, Download, ChevronUp, Check, Loader2, RotateCcw } from "lucide-react";
 import { PlayHeader } from "../components/PlayHeader/PlayHeader";
 import { SceneArtwork } from "../components/SceneArtwork/SceneArtwork";
 import { NarrativeCard } from "../components/NarrativeCard/NarrativeCard";
 import { ChoiceCards } from "../components/ChoiceCards/ChoiceCards";
+import { ChoicesBottomSheet } from "../components/ChoicesBottomSheet/ChoicesBottomSheet";
 import { PlayConfirmModal } from "../components/PlayConfirmModal/PlayConfirmModal";
 import { PlayError } from "../components/PlaySkeleton/PlaySkeleton";
 import { PlaySessionLoader } from "../components/PlaySessionLoader/PlaySessionLoader";
 import { useStorySession } from "../hooks/useStorySession";
+import { useStoryKeyboard } from "../hooks/useStoryKeyboard";
 import { ErrorBoundary } from "@/components/common";
 import { AlertToast } from "@/components/myui/AlertToast";
 import tokenManager from "@/core/services/tokenManager";
@@ -15,8 +17,8 @@ import "./InteractivePlayView.css";
 
 /**
  * Editorial Interactive Story Player View.
- * Desktop: Left 1:1 image + steps; Right narrative description + 4 glassy choices.
- * Mobile: Top horizontal slides + 1:1 image + scrollable text + fixed bottom choice pickers.
+ * Desktop: Viewport-locked. Image LEFT, narrative RIGHT, 2×2 choices below.
+ * Tablet / Mobile: Ambient image + centered artwork + full scrollable narrative + bottom sheet choices.
  */
 export function InteractivePlayView() {
   const {
@@ -32,6 +34,8 @@ export function InteractivePlayView() {
     setShowRestartConfirm,
     previewImage,
     setPreviewImage,
+    isChoicesSheetOpen,
+    setIsChoicesSheetOpen,
     lastFailedChoice,
     handleRetryChoice,
     handleSelectChoice,
@@ -40,16 +44,10 @@ export function InteractivePlayView() {
     handleExitSession,
   } = useStorySession();
 
-  if (loading) {
-    return <PlaySessionLoader />;
-  }
-
-  if (error || !currentScene) {
-    return <PlayError error={error} onExit={handleExitSession} />;
-  }
-
   const latestScene =
-    sceneHistory.length > 0 ? sceneHistory[sceneHistory.length - 1] : null;
+    sceneHistory && sceneHistory.length > 0
+      ? sceneHistory[sceneHistory.length - 1]
+      : null;
 
   const isLatestScene = Boolean(
     currentScene &&
@@ -59,20 +57,46 @@ export function InteractivePlayView() {
 
   const isCurrentActive = Boolean(
     isLatestScene &&
-    !currentScene.isPending &&
-    !currentScene.chosenNodeId &&
+    !currentScene?.isPending &&
+    !currentScene?.chosenNodeId &&
     !generatingScene
   );
 
-
   const totalScenes = storyMetadata?.storyScenes || storyMetadata?.sceneCount || 14;
 
-  /* Index of the currently displayed scene within history — used for prev/next arrows */
-  const currentHistoryIndex = sceneHistory.findIndex(
-    (s) => s.sceneId === currentScene.sceneId
-  );
+  /* Index of the currently displayed scene within history — used for prev/next navigation */
+  const currentHistoryIndex = currentScene
+    ? (sceneHistory || []).findIndex((s) => s.sceneId === currentScene.sceneId)
+    : -1;
   const canGoPrev = currentHistoryIndex > 0;
-  const canGoNext = currentHistoryIndex >= 0 && currentHistoryIndex < sceneHistory.length - 1;
+  const canGoNext =
+    Boolean(sceneHistory) &&
+    currentHistoryIndex >= 0 &&
+    currentHistoryIndex < sceneHistory.length - 1;
+
+  /* Keyboard shortcuts hook must be called unconditionally on every render to obey Rules of Hooks */
+  useStoryKeyboard({
+    canGoPrev: canGoPrev && !loading,
+    canGoNext: canGoNext && !loading,
+    onGoPrev: () => handleGoToScene(currentHistoryIndex - 1),
+    onGoNext: () => handleGoToScene(currentHistoryIndex + 1),
+    nodes: currentScene?.nodes || [],
+    onSelectChoice: handleSelectChoice,
+    isCurrentActive: isCurrentActive && !loading,
+    isGenerating: generatingScene || loading,
+    previewImage,
+    onClosePreview: () => setPreviewImage(null),
+    isChoicesSheetOpen,
+    onCloseChoicesSheet: () => setIsChoicesSheetOpen(false),
+  });
+
+  if (loading) {
+    return <PlaySessionLoader />;
+  }
+
+  if (error || !currentScene) {
+    return <PlayError error={error} onExit={handleExitSession} />;
+  }
 
   return (
     <div className="interactive-play" dir="rtl">
@@ -115,14 +139,14 @@ export function InteractivePlayView() {
            */}
           <div className="interactive-play__cards-row">
 
-            {/* Desktop prev-scene arrow — left of image */}
+            {/* Desktop next-scene arrow — left of image (points forward in RTL timeline) */}
             <button
               type="button"
               className="interactive-play__nav-arrow interactive-play__nav-arrow--prev"
-              onClick={() => canGoPrev && handleGoToScene(currentHistoryIndex - 1)}
-              disabled={!canGoPrev || generatingScene}
-              aria-label="المشهد السابق"
-              title="المشهد السابق"
+              onClick={() => canGoNext && handleGoToScene(currentHistoryIndex + 1)}
+              disabled={!canGoNext || generatingScene}
+              aria-label="المشهد التالي"
+              title="المشهد التالي"
             >
               ‹
             </button>
@@ -139,19 +163,19 @@ export function InteractivePlayView() {
               <NarrativeCard
                 text={currentScene.sceneText}
                 isGenerating={generatingScene}
-                showRetry={Boolean(lastFailedChoice) && !generatingScene}
+                showRetry={false}
                 onRetry={handleRetryChoice}
               />
             </div>
 
-            {/* Desktop next-scene arrow — right of narrative */}
+            {/* Desktop prev-scene arrow — right of narrative (points back to Scene 1 in RTL) */}
             <button
               type="button"
               className="interactive-play__nav-arrow interactive-play__nav-arrow--next"
-              onClick={() => canGoNext && handleGoToScene(currentHistoryIndex + 1)}
-              disabled={!canGoNext || generatingScene}
-              aria-label="المشهد التالي"
-              title="المشهد التالي"
+              onClick={() => canGoPrev && handleGoToScene(currentHistoryIndex - 1)}
+              disabled={!canGoPrev || generatingScene}
+              aria-label="المشهد السابق"
+              title="المشهد السابق"
             >
               ›
             </button>
@@ -170,16 +194,95 @@ export function InteractivePlayView() {
         </ErrorBoundary>
       </main>
 
-      {/* Mobile: Fixed bottom choices dock */}
-      <div className="interactive-play__choices-mobile">
-        <ChoiceCards
-          nodes={currentScene.nodes}
-          onNodeClick={handleSelectChoice}
-          disabled={!isCurrentActive}
-          chosenNodeId={currentScene.chosenNodeId}
-          isGenerating={generatingScene || currentScene.isPending}
-        />
+      {/* Mobile & Tablet (< 1024px): Sleek, persistent bottom action trigger bar */}
+      <div className="interactive-play__choices-mobile-bar">
+        {Boolean(lastFailedChoice) && !generatingScene ? (
+          /* Error State: Replaces "اختر مسارك التالي" with prominent retry */
+          <button
+            type="button"
+            className="interactive-play__choices-trigger interactive-play__choices-trigger--error"
+            onClick={handleRetryChoice}
+            aria-label="إعادة محاولة توليد المشهد"
+          >
+            <span className="interactive-play__choices-trigger-title">
+              تعذر الاتصال • انقر لإعادة المحاولة
+            </span>
+            <div className="interactive-play__choices-trigger-icon-wrap" aria-hidden="true">
+              <RotateCcw size={16} strokeWidth={2.4} />
+            </div>
+          </button>
+        ) : generatingScene || currentScene.isPending ? (
+          /* Pro Loading State: Sleek rotating spinner, no dots, no green */
+          <div className="interactive-play__choices-trigger interactive-play__choices-trigger--generating">
+            <span className="interactive-play__choices-trigger-title">
+              جاري إعداد وكتابة المشهد التالي...
+            </span>
+            <div className="interactive-play__choices-trigger-icon-wrap" aria-hidden="true">
+              <Loader2 size={16} className="interactive-play__pro-spinner" strokeWidth={2.4} />
+            </div>
+          </div>
+        ) : isCurrentActive ? (
+          /* Active Choice State: Centered text, no "4 choices" badge */
+          <button
+            type="button"
+            className="interactive-play__choices-trigger interactive-play__choices-trigger--active"
+            onClick={() => setIsChoicesSheetOpen(true)}
+            aria-label="عرض خيارات المسار التالي"
+          >
+            <span className="interactive-play__choices-trigger-title">
+              اختر مسارك التالي
+            </span>
+            <div className="interactive-play__choices-trigger-icon-wrap" aria-hidden="true">
+              <ChevronUp size={17} strokeWidth={2.6} />
+            </div>
+          </button>
+        ) : currentScene.chosenNodeId ? (
+          /* Chosen Path State */
+          <button
+            type="button"
+            className="interactive-play__choices-trigger interactive-play__choices-trigger--chosen"
+            onClick={() => setIsChoicesSheetOpen(true)}
+            aria-label="عرض الخيار المختار"
+          >
+            <span className="interactive-play__choices-trigger-title">
+              المسار المختار: {currentScene.nodes?.find((n) => n.nodeId === currentScene.chosenNodeId)?.nodeText || currentScene.chosenNodeId}
+            </span>
+            <div className="interactive-play__choices-trigger-icon-wrap" aria-hidden="true">
+              <ChevronUp size={17} strokeWidth={2.6} />
+            </div>
+          </button>
+        ) : (
+          /* Readonly / Past Scene State */
+          <button
+            type="button"
+            className="interactive-play__choices-trigger interactive-play__choices-trigger--readonly"
+            onClick={() => setIsChoicesSheetOpen(true)}
+            aria-label="عرض خيارات المشهد السابق"
+          >
+            <span className="interactive-play__choices-trigger-title">
+              مشهد سابق (عرض الخيارات)
+            </span>
+            <div className="interactive-play__choices-trigger-icon-wrap" aria-hidden="true">
+              <ChevronUp size={17} strokeWidth={2.6} />
+            </div>
+          </button>
+        )}
       </div>
+
+      {/* Choices Bottom Sheet Modal (< 1024px) */}
+      <ChoicesBottomSheet
+        isOpen={isChoicesSheetOpen}
+        onClose={() => setIsChoicesSheetOpen(false)}
+        nodes={currentScene.nodes || []}
+        onNodeClick={(node) => {
+          handleSelectChoice(node);
+          setIsChoicesSheetOpen(false);
+        }}
+        disabled={!isCurrentActive}
+        chosenNodeId={currentScene.chosenNodeId}
+        isGenerating={generatingScene || currentScene.isPending}
+        sceneId={currentScene.sceneNumber || currentScene.sceneId}
+      />
 
       {/* Image Preview Modal */}
       <ImagePreview
@@ -194,6 +297,7 @@ export function InteractivePlayView() {
           title="الخروج من القصة"
           message="هل تريد الخروج؟ يمكنك استئناف مغامرتك لاحقاً."
           confirmText="تأكيد الخروج"
+          variant="exit"
           onConfirm={handleExitSession}
           onCancel={() => setShowExitConfirm(false)}
         />
@@ -205,6 +309,7 @@ export function InteractivePlayView() {
           title="إعادة بدء القصة"
           message="هل تريد البدء من المشهد الأول من جديد؟ سيتم فقدان تقدمك الحالي."
           confirmText="إعادة البدء"
+          variant="restart"
           onConfirm={handleRestartSession}
           onCancel={() => setShowRestartConfirm(false)}
         />

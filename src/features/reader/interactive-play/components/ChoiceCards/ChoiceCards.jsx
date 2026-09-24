@@ -1,5 +1,5 @@
 import React from "react";
-import { Check } from "lucide-react";
+import { Check, ChevronLeft } from "lucide-react";
 import "./ChoiceCards.css";
 
 /**
@@ -41,14 +41,14 @@ export function ChoiceCards({
 
       <div className="ktab-choice-cards__grid">
         {showSkeleton ? (
-          ["A", "B", "C", "D"].map((letter) => (
+          ["1", "2", "3", "4"].map((num) => (
             <div
-              key={letter}
+              key={num}
               className="ktab-choice-card ktab-choice-card--skeleton"
               aria-hidden="true"
             >
               <div className="ktab-choice-card__badge ktab-choice-card__badge--skeleton">
-                {letter}
+                {num}
               </div>
               <div className="ktab-choice-card__skeleton-content">
                 <div className="ktab-choice-card__skeleton-bar" />
@@ -57,13 +57,14 @@ export function ChoiceCards({
             </div>
           ))
         ) : (
-          nodes.map((node) => {
+          nodes.map((node, index) => {
             const isSelected = chosenNodeId === node.nodeId;
             const isFaded = Boolean(chosenNodeId) && !isSelected;
+            const choiceNumber = index + 1;
 
             return (
               <button
-                key={node.nodeId}
+                key={node.nodeId || index}
                 type="button"
                 disabled={isLocked}
                 aria-disabled={isLocked}
@@ -85,9 +86,12 @@ export function ChoiceCards({
                   .join(" ")}
               >
                 <div className="ktab-choice-card__badge">
-                  {isSelected ? <Check size={14} strokeWidth={2.8} /> : node.nodeId}
+                  {isSelected ? <Check size={14} strokeWidth={2.8} /> : choiceNumber}
                 </div>
                 <span className="ktab-choice-card__text">{node.nodeText}</span>
+                <span className="ktab-choice-card__arrow" aria-hidden="true">
+                  <ChevronLeft size={16} />
+                </span>
               </button>
             );
           })

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ZoomIn, Sparkles } from "lucide-react";
+import { ZoomIn, Image as ImageIcon } from "lucide-react";
 import brandIconImg from "@/assets/logo/BrandIcon.png";
 import "./SceneArtwork.css";
 
@@ -24,6 +24,7 @@ export function SceneArtwork({ image, onImageClick, isGenerating }) {
   return (
     <div
       className="ktab-scene-artwork"
+      dir="rtl"
       onClick={() => {
         if (image && !error) onImageClick?.(image);
       }}
@@ -38,22 +39,19 @@ export function SceneArtwork({ image, onImageClick, isGenerating }) {
       }}
     >
       {showSkeleton && (
-        <div className="ktab-scene-artwork__skeleton">
-          <div className="ktab-scene-artwork__skeleton-inner">
-            <div className="ktab-scene-artwork__spinner-container">
-              <div className="ktab-scene-artwork__spinner-ring" />
-              <Sparkles size={22} className="ktab-scene-artwork__spinner-icon" />
-            </div>
-            <div className="ktab-scene-artwork__skeleton-labels">
-              <span className="ktab-scene-artwork__skeleton-title">
-                جاري رسم لوحة المشهد...
-              </span>
-              <span className="ktab-scene-artwork__skeleton-sub">
-                توليد الرسوم التوضيحية
-              </span>
+        <div className="ktab-scene-artwork__skeleton" aria-label="جاري إعداد صورة المشهد">
+          {/* Moving diagonal glass shimmer sweep */}
+          <div className="ktab-scene-artwork__shimmer" aria-hidden="true" />
+
+          {/* Central Pro Loader */}
+          <div className="ktab-scene-artwork__loader-center">
+            <div className="ktab-scene-artwork__ring-box">
+              <div className="ktab-scene-artwork__spinning-ring" />
+              <div className="ktab-scene-artwork__icon-center">
+                <ImageIcon size={22} strokeWidth={1.8} />
+              </div>
             </div>
           </div>
-          <div className="ktab-scene-artwork__shimmer" />
         </div>
       )}
 

@@ -32,6 +32,7 @@ export function useStorySession() {
   const [showRestartConfirm, setShowRestartConfirm] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
   const [lastFailedChoice, setLastFailedChoice] = useState(null);
+  const [isChoicesSheetOpen, setIsChoicesSheetOpen] = useState(false);
 
   // Synchronization refs for deduplication and spam prevention
   const requestIdRef = useRef(0);
@@ -300,6 +301,8 @@ export function useStorySession() {
     setShowRestartConfirm,
     previewImage,
     setPreviewImage,
+    isChoicesSheetOpen,
+    setIsChoicesSheetOpen,
     sceneSelectorRef,
     lastFailedChoice,
     handleRetryChoice,

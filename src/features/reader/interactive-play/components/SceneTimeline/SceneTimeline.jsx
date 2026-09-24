@@ -56,7 +56,7 @@ export function SceneTimeline({
   });
 
   return (
-    <nav className="ktab-connected-timeline" aria-label="خطوات القصة">
+    <nav className="ktab-connected-timeline" dir="rtl" aria-label="خطوات القصة">
       <div className="ktab-connected-timeline__container">
         <div ref={trackRef} className="ktab-connected-timeline__track">
           {allSteps.map((step, idx) => {
@@ -105,7 +105,9 @@ export function SceneTimeline({
                   {step.isLocked ? (
                     <>
                       <span className="ktab-connected-timeline__number ktab-connected-timeline__number--locked">{step.stepNum}</span>
-                      <Lock size={8} className="ktab-connected-timeline__lock-badge" />
+                      <span className="ktab-connected-timeline__lock-badge" aria-hidden="true">
+                        <Lock size={10} strokeWidth={2.6} />
+                      </span>
                     </>
                   ) : (
                     <span className="ktab-connected-timeline__number">{step.stepNum}</span>
