@@ -13,12 +13,14 @@ export const useReaderPreferencesStore = create(
       ambientEffect: "none", // "none" | "rain" | "wind" | "nature"
       volume: 0.7,
       isMuted: false,
+      theme: "pure-white", // "pure-white" | "warm-cream" | "paper-sepia" | "charcoal-dark"
 
       setFontSize: (fontSize) => set({ fontSize }),
       setVoice: (voice) => set({ voice }),
       setAmbientEffect: (ambientEffect) => set({ ambientEffect }),
       setVolume: (volume) => set({ volume }),
       setIsMuted: (isMuted) => set({ isMuted }),
+      setTheme: (theme) => set({ theme }),
 
       toggleMute: () => set((state) => ({ isMuted: !state.isMuted })),
 
@@ -36,6 +38,7 @@ export const useReaderPreferencesStore = create(
           ambientEffect: "none",
           volume: 0.7,
           isMuted: false,
+          theme: "pure-white",
         }),
     }),
     {

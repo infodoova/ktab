@@ -1,16 +1,22 @@
-import React, { useEffect } from "react";
-import { ReaderHeaderBar } from "../components/ReaderHeaderBar";
-import { ReaderFooterBar } from "../components/ReaderFooterBar";
+import React from "react";
 import { FlipBookViewer } from "../components/FlipBookViewer";
+import { ReaderGlassHeader } from "../components/ReaderGlassHeader";
+import { FastTravelModal } from "../components/FastTravelModal";
+import { MobilePageNav } from "../components/MobilePageNav";
 import { useBookReader } from "../hooks/useBookReader";
 import { ErrorBoundary } from "@/components/common";
+import "./BookDisplayView.css";
 
 /**
- * Pure presentation view for the full-screen FlipBook Reader experience.
+ * Editorial Liquid Glass Full-Screen Reader View.
+ * Displays a single-page book reading canvas occupying the viewport up to the top,
+ * controlled by an Apple-inspired liquid glass floating dock and popovers.
+ * Pure declarative markup driven entirely by useBookReader custom hook.
  */
 export function BookDisplayView() {
   const {
-    navigate,
+    handleBack,
+    handleRootClick,
     bookRef,
     bookText,
     loadingText,
@@ -19,55 +25,71 @@ export function BookDisplayView() {
     setVoice,
     effect,
     setEffect,
-    isMuted,
-    volume,
     fontSize,
     handleFontSizeChange,
-    cycleVolume,
+    theme,
+    handleSelectTheme,
     isPlaying,
-    isTTSLoading,
-    handleNextPage,
-    handlePrevPage,
+    currentPage,
+    totalPages,
+    isLocked,
+    handleToggleLock,
+    isFullscreen,
+    handleToggleFullscreen,
+    isControlsVisible,
+    activePopover,
+    handleTogglePopover,
+    activeModal,
+    handleCloseModal,
+    handleOpenFastTravel,
     handleGoToPage,
     handlePageChange,
+    handlePrevPage,
+    handleNextPage,
     handleTogglePlay,
     onPagesGenerated,
+    handleCanvasClick,
   } = useBookReader();
-
-  useEffect(() => {
-    const originalBodyBg = document.body.style.backgroundColor;
-    document.body.style.backgroundColor = "#ffffff";
-    return () => {
-      document.body.style.backgroundColor = originalBodyBg;
-    };
-  }, []);
 
   return (
     <div
       dir="rtl"
-      className="relative min-h-screen bg-white text-black flex flex-col overflow-hidden"
+      className={`ktab-book-display-root ktab-book-display-root--${theme}`}
+      onClick={handleRootClick}
     >
-      {/* Top Controls Toolbar */}
-      <ReaderHeaderBar
-        onBack={() => navigate(-1)}
-        onGoToPage={handleGoToPage}
-        effect={effect}
-        setEffect={setEffect}
-        volume={volume}
+      {/* Apple Liquid Glass Floating Dock Controls */}
+      <ReaderGlassHeader
+        onBack={handleBack}
+        isPlaying={isPlaying}
+        onTogglePlay={handleTogglePlay}
         voice={voice}
         onSelectVoice={setVoice}
-        isMuted={isMuted}
-        onCycleVolume={cycleVolume}
-        isLoading={isTTSLoading}
+        effect={effect}
+        onSelectEffect={setEffect}
+        fontSize={fontSize}
+        onFontSizeChange={handleFontSizeChange}
+        theme={theme}
+        onSelectTheme={handleSelectTheme}
+        activePopover={activePopover}
+        onTogglePopover={handleTogglePopover}
+        onOpenFastTravel={handleOpenFastTravel}
+        isLocked={isLocked}
+        onToggleLock={handleToggleLock}
+        isFullscreen={isFullscreen}
+        onToggleFullscreen={handleToggleFullscreen}
+        isControlsVisible={isControlsVisible}
       />
 
-      {/* Main FlipBook Canvas */}
-      <main className="flex-1 w-full h-full flex items-center justify-center pt-20 pb-28 px-2 sm:px-6">
+      {/* Main Single-Page FlipBook Canvas */}
+      <main
+        className="ktab-book-display-canvas"
+        onClick={handleCanvasClick}
+      >
         <ErrorBoundary
           variant="card"
           title="تعذر عرض صفحات الكتاب"
-          message="حدث خطأ غير متوقع أثناء معالجة صفحات الكتاب أو الرسم التفاعلي. يرجى المحاولة مرة أخرى."
-          className="w-full max-w-xl"
+          message="حدث خطأ غير متوقع أثناء معالجة صفحات الكتاب. يرجى المحاولة مرة أخرى."
+          className="ktab-book-display-error-card"
         >
           <FlipBookViewer
             bookRef={bookRef}
@@ -75,6 +97,7 @@ export function BookDisplayView() {
             loading={loadingText}
             fontSize={fontSize}
             wordsPerPage={wordsPerPage}
+            theme={theme}
             isRTL={true}
             onPageChange={handlePageChange}
             onPagesGenerated={onPagesGenerated}
@@ -82,16 +105,24 @@ export function BookDisplayView() {
         </ErrorBoundary>
       </main>
 
+      {/* Fast Travel Modal (50-Page Chunked Direct Nodes) */}
+      <FastTravelModal
+        isOpen={activeModal === "fastTravel"}
+        onClose={handleCloseModal}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onGoToPage={handleGoToPage}
+      />
 
-      {/* Bottom Controls Toolbar */}
-      <ReaderFooterBar
-        onNext={handleNextPage}
-        onPrev={handlePrevPage}
-        isPlaying={isPlaying}
-        isLoading={isTTSLoading}
-        onTogglePlay={handleTogglePlay}
-        fontSize={fontSize}
-        onFontSizeChange={handleFontSizeChange}
+      {/* Mobile Bottom Page Navigation Bar (Swipe Prev & Next + Center Page Indicator) */}
+      <MobilePageNav
+        currentPage={currentPage}
+        totalPages={totalPages}
+        isLocked={isLocked}
+        theme={theme}
+        onPrevPage={handlePrevPage}
+        onNextPage={handleNextPage}
+        onOpenFastTravel={handleOpenFastTravel}
       />
     </div>
   );

@@ -1,0 +1,573 @@
+
+/* ==========================================================================
+   FLIPBOOK VIEWER STANDALONE STYLESHEET
+   Apple-inspired, ultra-clean single-page editorial book presentation
+   ========================================================================== */
+
+.ktab-flipbook-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  user-select: none;
+  overflow: hidden;
+  direction: ltr !important; /* Critical: keeps PageFlip canvas coordinates LTR centered */
+  transition: background-color 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Reader Background Themes */
+.ktab-reader-theme--pure-white {
+  background-color: var(--bg-secondary, #f8fafc);
+}
+
+.ktab-reader-theme--warm-cream {
+  background-color: #f5eedc;
+}
+
+.ktab-reader-theme--paper-sepia {
+  background-color: #ebe1c5;
+}
+
+.ktab-reader-theme--charcoal-dark {
+  background-color: #0a0c10;
+}
+
+/* TTS Word Highlighter - Clean Yellow Accent */
+.tts-active-word {
+  background: var(--highlight-yellow, #fde047) !important;
+  color: #000000 !important;
+  border-radius: 4px;
+  display: inline;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 0 0 3px var(--highlight-yellow, #fde047);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+/* Enforce Single-Page Fullscreen Dimensions in PageFlip Engine */
+.ktab-book-flip-engine,
+.stf__parent {
+  width: var(--single-page-width) !important;
+  max-width: var(--single-page-width) !important;
+  height: var(--single-page-height) !important;
+  margin: 0 auto !important;
+  direction: ltr !important;
+  position: relative !important;
+  display: block !important;
+}
+
+.stf__wrapper::before,
+.stf__wrapper::after {
+  display: none !important;
+}
+
+.stf__wrapper {
+  margin: 0 auto !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.stf__block {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.stf__item {
+  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.12),
+              0 2px 10px rgba(0, 0, 0, 0.04);
+  border-radius: 12px;
+  overflow: hidden;
+  transform-style: preserve-3d !important;
+  will-change: transform;
+  contain: layout style;
+  transition: background-color 0.25s ease;
+}
+
+/* Theme Backgrounds mapped directly to stf__item and book-page for instant theme switching */
+.ktab-reader-theme--pure-white .stf__item,
+.ktab-reader-theme--pure-white .ktab-book-page {
+  background-color: #ffffff !important;
+  color: #0f172a;
+}
+
+.ktab-reader-theme--warm-cream .stf__item,
+.ktab-reader-theme--warm-cream .ktab-book-page {
+  background-color: #fbf7ee !important;
+  color: #2c2824;
+}
+
+.ktab-reader-theme--paper-sepia .stf__item,
+.ktab-reader-theme--paper-sepia .ktab-book-page {
+  background-color: #f4ecd8 !important;
+  color: #3d3224;
+}
+
+.ktab-reader-theme--charcoal-dark .stf__item,
+.ktab-reader-theme--charcoal-dark .ktab-book-page {
+  background-color: #12151c !important;
+  color: #f1f5f9;
+  box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.65),
+              0 2px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Single Book Page Wrapper */
+.ktab-book-page {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  direction: rtl !important;
+  box-sizing: border-box;
+  will-change: transform;
+  contain: layout style;
+}
+
+/* Front Face: Inner Text Content Container */
+.ktab-book-page__content-wrap {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 44px 28px 36px;
+  box-sizing: border-box;
+  background-color: inherit;
+  position: relative;
+  z-index: 2;
+  transition: opacity 0.15s ease;
+}
+
+@media (min-width: 768px) {
+  .ktab-book-page__content-wrap {
+    padding: 56px 48px 40px;
+  }
+}
+
+.ktab-book-page__text {
+  width: 100%;
+  max-width: 100%;
+  max-height: calc(100% - 48px);
+  overflow: hidden;
+  text-align: justify;
+  text-align-last: start;
+  font-family: var(--font-arabic, "Tajawal", system-ui, sans-serif);
+  user-select: text;
+  word-spacing: 0.02em;
+  direction: rtl;
+  outline: none;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Back Face: Solid Color with Centered Ktab Brand Logo (Only shown on turning leaf) */
+.ktab-book-page__backface {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: none !important;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  pointer-events: none;
+  box-sizing: border-box;
+  background-color: inherit;
+}
+
+/* During peel / flip: Target ONLY the active turning leaf (assigned z-index: 5 by PageFlip).
+   Static pages (z-index: 1) and bottomPage (revealed next page, z-index: 3) NEVER match this. */
+.stf__item[style*="z-index: 5"] .ktab-book-page__content-wrap,
+.stf__item[style*="z-index:5"] .ktab-book-page__content-wrap {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+.stf__item[style*="z-index: 5"] .ktab-book-page__backface,
+.stf__item[style*="z-index:5"] .ktab-book-page__backface {
+  display: flex !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: none !important;
+  z-index: 10 !important;
+  background-color: inherit !important;
+}
+
+.ktab-reader-theme--pure-white .ktab-book-page__backface {
+  background-color: #ffffff !important;
+}
+
+.ktab-reader-theme--warm-cream .ktab-book-page__backface {
+  background-color: #fbf7ee !important;
+}
+
+.ktab-reader-theme--paper-sepia .ktab-book-page__backface {
+  background-color: #f4ecd8 !important;
+}
+
+.ktab-reader-theme--charcoal-dark .ktab-book-page__backface {
+  background-color: #12151c !important;
+}
+
+.ktab-book-page__backface-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  opacity: 0.88;
+  user-select: none;
+}
+
+.ktab-book-backface-logo {
+  width: 68px;
+  height: 68px;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Hide accidental dog-ear fold corner element */
+.stf__corner {
+  display: none !important;
+}
+
+/* Full-Screen Mobile Paper Engine: Zero Borders, Zero Margins, Edge-to-Edge */
+@media (max-width: 767px) {
+  .ktab-flipbook-container {
+    width: 100% !important;
+    height: 100% !important;
+    height: 100dvh !important;
+    max-width: 100% !important;
+    max-height: 100dvh !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    background-color: transparent !important;
+    overflow: hidden !important;
+    touch-action: none !important;
+  }
+
+  .ktab-book-flip-engine,
+  .stf__parent {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100% !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    margin: 0 auto !important;
+    border-radius: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .stf__wrapper,
+  .stf__block {
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 auto !important;
+  }
+
+  .stf__item {
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  .ktab-book-page {
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 0 !important;
+    border: none !important;
+  }
+
+  .ktab-book-page__content-wrap {
+    padding: 56px 20px calc(44px + env(safe-area-inset-bottom, 0px)) !important;
+    width: 100% !important;
+    height: 100% !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .ktab-book-page__text {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: calc(100% - 24px) !important;
+    text-align: justify !important;
+    text-align-last: start !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    margin: auto 0 !important;
+  }
+
+  .ktab-book-page__footer {
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+    z-index: 20 !important;
+  }
+
+  .ktab-book-page__number {
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    opacity: 0.65 !important;
+    letter-spacing: 0.12em !important;
+  }
+}
+
+/* Page Number Footer */
+.ktab-book-page__footer {
+  position: absolute;
+  bottom: 14px;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  user-select: none;
+  z-index: 15;
+}
+
+.ktab-book-page__number {
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--font-english, monospace);
+  letter-spacing: 0.1em;
+  opacity: 0.45;
+  transition: opacity 0.2s ease;
+  color: inherit;
+}
+
+/* Tactile Edge Flip Zones (Subtle click targets for desktop & active tap zones for mobile) */
+.ktab-flip-edge-trigger {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 12%;
+  max-width: 90px;
+  z-index: 30;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s ease;
+  user-select: none;
+  background: transparent;
+  border: none;
+  padding: 0;
+  outline: none;
+}
+
+.ktab-flip-edge-trigger:hover {
+  opacity: 1;
+}
+
+.ktab-flip-edge-trigger--prev {
+  right: 0;
+}
+
+.ktab-flip-edge-trigger--next {
+  left: 0;
+}
+
+@media (max-width: 767px) {
+  .ktab-flip-edge-trigger {
+    width: 20% !important;
+    max-width: 80px !important;
+    opacity: 1 !important;
+    background: transparent !important;
+    -webkit-tap-highlight-color: transparent !important;
+    touch-action: manipulation !important;
+  }
+}
+
+/* ── Tactile Flip Edge Arrow Pills (Themed Across All 4 Reader Themes) ── */
+.ktab-flip-edge-pill {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              background-color 0.22s ease,
+              border-color 0.22s ease,
+              color 0.22s ease,
+              box-shadow 0.22s ease;
+}
+
+.ktab-flip-edge-trigger:hover .ktab-flip-edge-pill {
+  transform: scale(1.08);
+}
+
+.ktab-flip-edge-trigger:active .ktab-flip-edge-pill {
+  transform: scale(0.95);
+}
+
+/* 1. Pure White Theme */
+.ktab-reader-theme--pure-white .ktab-flip-edge-pill {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: #0f172a;
+}
+.ktab-reader-theme--pure-white .ktab-flip-edge-trigger:hover .ktab-flip-edge-pill {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.2);
+  color: #000000;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.14);
+}
+
+/* 2. Warm Cream Theme */
+.ktab-reader-theme--warm-cream .ktab-flip-edge-pill {
+  background: rgba(251, 247, 238, 0.9);
+  border: 1px solid rgba(44, 40, 36, 0.14);
+  color: #2c2824;
+}
+.ktab-reader-theme--warm-cream .ktab-flip-edge-trigger:hover .ktab-flip-edge-pill {
+  background: #fbf7ee;
+  border-color: rgba(44, 40, 36, 0.28);
+  color: #171412;
+  box-shadow: 0 6px 20px rgba(44, 40, 36, 0.12);
+}
+
+/* 3. Paper Sepia Theme */
+.ktab-reader-theme--paper-sepia .ktab-flip-edge-pill {
+  background: rgba(244, 236, 216, 0.92);
+  border: 1px solid rgba(61, 50, 36, 0.16);
+  color: #3d3224;
+}
+.ktab-reader-theme--paper-sepia .ktab-flip-edge-trigger:hover .ktab-flip-edge-pill {
+  background: #ece2c8;
+  border-color: rgba(61, 50, 36, 0.32);
+  color: #241c12;
+  box-shadow: 0 6px 20px rgba(61, 50, 36, 0.14);
+}
+
+/* 4. Charcoal Dark Theme (Crisp Dark Glass & High Contrast Glow) */
+.ktab-reader-theme--charcoal-dark .ktab-flip-edge-pill {
+  background: rgba(28, 33, 44, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #f1f5f9;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+}
+.ktab-reader-theme--charcoal-dark .ktab-flip-edge-trigger:hover .ktab-flip-edge-pill {
+  background: #252c3d;
+  border-color: rgba(255, 255, 255, 0.32);
+  color: #ffffff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+}
+
+/* High-contrast loader */
+.ktab-book-loader-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.ktab-book-loader-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border-radius: 24px;
+  padding: 32px 42px;
+  text-align: center;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.ktab-book-loader-spinner {
+  width: 38px;
+  height: 38px;
+  border: 3px solid rgba(0, 0, 0, 0.08);
+  border-top-color: var(--brand-teal-deep, #0d9488);
+  border-radius: 50%;
+  animation: ktabBookSpin 0.8s linear infinite;
+}
+
+@keyframes ktabBookSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.ktab-book-loader-text {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.01em;
+}
+
+/* Empty State Card (When Book Has No Text in Database) */
+.ktab-book-empty-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 24px;
+}
+
+.ktab-book-empty-card {
+  max-width: 460px;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 24px;
+  padding: 36px 28px;
+  text-align: center;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.ktab-reader-theme--charcoal-dark .ktab-book-empty-card {
+  background: rgba(22, 27, 40, 0.88);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #f1f5f9;
+}
+
+.ktab-book-empty-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(93, 227, 186, 0.15);
+  color: var(--brand-teal-deep, #0d9488);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 6px;
+}
+
+.ktab-book-empty-title {
+  font-size: 17px;
+  font-weight: 800;
+  color: inherit;
+  margin: 0;
+}
+
+.ktab-book-empty-desc {
+  font-size: 13px;
+  line-height: 1.6;
+  opacity: 0.7;
+  margin: 0;
+}

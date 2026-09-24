@@ -288,18 +288,43 @@
   display: none !important;
 }
 
-/* Force GSI SDK container divs to expand to full container width without flex shrink-wrapping */
+/* Ensure GSI SDK container divs fill width without creating duplicate ghost boxes */
 .login-google-btn-rendered > div,
-.login-google-btn-rendered .S9gUrf-YoZ4jf,
-.login-google-btn-rendered .S9gUrf-YoZ4jf > div {
+.login-google-btn-rendered .S9gUrf-YoZ4jf {
   width: 100% !important;
   max-width: 100% !important;
-  display: block !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: none !important;
+  background: transparent !important;
 }
 
-/* Match the exact geometry, border radius, and height of the primary submit button */
-.login-google-btn-rendered [role="button"],
-.login-google-btn-rendered .nsm7Bb-HzV7m-LgbsSe {
+/* Collapse any empty placeholder or token-exchange sibling divs created by Google GSI */
+.login-google-btn-rendered *:empty:not(iframe),
+.login-google-btn-rendered [role="button"]:empty,
+.login-google-btn-rendered .nsm7Bb-HzV7m-LgbsSe:empty {
+  display: none !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  border: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* If an iframe is present, hide any non-iframe sibling wrapper to prevent ghost boxes */
+.login-google-btn-rendered:has(iframe) [role="button"],
+.login-google-btn-rendered:has(iframe) .nsm7Bb-HzV7m-LgbsSe {
+  border: none !important;
+  background: transparent !important;
+  min-height: 0 !important;
+  height: auto !important;
+  box-shadow: none !important;
+}
+
+/* Native mode (non-iframe): Match the exact geometry and border radius of the submit button */
+.login-google-btn-rendered:not(:has(iframe)) [role="button"],
+.login-google-btn-rendered:not(:has(iframe)) .nsm7Bb-HzV7m-LgbsSe {
   width: 100% !important;
   max-width: 100% !important;
   min-width: 100% !important;
@@ -331,7 +356,7 @@
   justify-content: center !important;
 }
 
-/* Fallback iframe styling for environments where iframe is used instead of FedCM */
+/* Primary iframe styling for Google Identity Services */
 .login-google-btn-rendered iframe {
   width: 100% !important;
   min-width: 100% !important;
@@ -340,6 +365,7 @@
   min-height: 48px !important;
   margin: 0 auto !important;
   border-radius: 12px !important;
+  display: block !important;
 }
 
 .login-google-loading-text {

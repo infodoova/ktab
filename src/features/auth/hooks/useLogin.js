@@ -166,6 +166,11 @@ export function useLogin() {
       }
 
       try {
+        // Clear previous render tree to prevent duplicate/ghost buttons on re-render
+        if (googleBtnRef.current) {
+          googleBtnRef.current.innerHTML = "";
+        }
+
         const containerWidth = Math.min(
           400,
           Math.max(280, googleBtnRef.current?.offsetWidth || 400)
@@ -183,6 +188,7 @@ export function useLogin() {
         setIsGoogleReady(true);
       } catch (err) {
         logger.error("Failed to render Google button:", err);
+        setIsGoogleReady(false);
       }
     };
 

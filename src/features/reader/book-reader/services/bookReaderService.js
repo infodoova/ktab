@@ -33,7 +33,7 @@ export async function fetchBookContent(bookId) {
     if (res?.messageStatus === "SUCCESS" || res?.data) {
       return res;
     }
-  } catch (err) {
+  } catch {
     // Fallback to legacy reader endpoint if available
   }
   return getHelper({

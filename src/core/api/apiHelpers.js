@@ -53,8 +53,6 @@ async function parseResponse(res) {
 }
 
 export async function getHelper({ url, headers = {}, pagination, page, size }) {
-  await tokenManager.refreshIfNeeded();
-
   const query = buildQuery(pagination, page, size, url);
 
   try {
@@ -72,8 +70,6 @@ export async function getHelper({ url, headers = {}, pagination, page, size }) {
 }
 
 export async function postHelper({ url, body, headers = {} }) {
-  await tokenManager.refreshIfNeeded();
-
   try {
     const res = await fetch(url, {
       method: "POST",
@@ -90,8 +86,6 @@ export async function postHelper({ url, body, headers = {} }) {
 }
 
 export async function putHelper({ url, body, headers = {} }) {
-  await tokenManager.refreshIfNeeded();
-
   try {
     const res = await fetch(url, {
       method: "PUT",
@@ -108,8 +102,6 @@ export async function putHelper({ url, body, headers = {} }) {
 }
 
 export async function deleteHelper({ url, headers = {} }) {
-  await tokenManager.refreshIfNeeded();
-
   try {
     const res = await fetch(url, {
       method: "DELETE",
@@ -125,7 +117,6 @@ export async function deleteHelper({ url, headers = {} }) {
 }
 
 export async function patchHelper({ url, body, headers = {} }) {
-  await tokenManager.refreshIfNeeded();
   const token = tokenManager.getToken();
   const finalHeaders = {
     ...headers,
@@ -158,8 +149,6 @@ export async function patchHelper({ url, body, headers = {} }) {
 }
 
 export async function postFormDataHelper({ url, formData }) {
-  await tokenManager.refreshIfNeeded();
-
   const token = tokenManager.getToken();
 
   try {

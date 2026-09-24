@@ -159,13 +159,15 @@ class TokenManager {
   }
 
   /**
-   * Checks and refreshes the token if needed before an API request.
+   * Safe fallback for callers needing a valid token.
+   * If the token is still valid, returns it immediately without issuing a network refresh.
+   * Routine refreshing is handled strictly in the background by scheduleDynamicRefresh().
    */
   async refreshIfNeeded() {
     const token = this.getToken();
 
-    // If authenticated and token hasn't reached 80% of its lifespan, use it directly
-    if (token && !isJwtExpired(token) && !this.isTokenExpiringSoon(token)) {
+    // If active in-memory token is not expired, return it immediately without calling /refresh
+    if (token && !isJwtExpired(token)) {
       return token;
     }
 

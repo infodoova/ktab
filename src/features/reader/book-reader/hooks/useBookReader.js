@@ -14,6 +14,14 @@ import rainFile from "@/assets/audio/rain.mp3";
 import windFile from "@/assets/audio/wind.mp3";
 import natureFile from "@/assets/audio/nature.mp3";
 
+import { FAKE_BIG_TEST_BOOK } from "@/fakedataorassets/testData";
+
+const EFFECT_FILES = {
+  rain: rainFile,
+  wind: windFile,
+  nature: natureFile,
+};
+
 /**
  * Master hook for FlipBook reading, background ambient sound effects, and TTS integration.
  */
@@ -33,13 +41,20 @@ export function useBookReader() {
     volume,
     isMuted,
     cycleVolume,
+    theme = "pure-white",
+    setTheme,
   } = useReaderPreferencesStore();
 
+  const [isLocked, setIsLocked] = useState(false);
+  const [isControlsVisible, setIsControlsVisible] = useState(true);
+  const [activePopover, setActivePopover] = useState(null); // "theme" | "font" | "ambient" | "voices" | null
+  const [activeModal, setActiveModal] = useState(null); // "fastTravel" | null
+  const [totalPages, setTotalPages] = useState(1);
 
   const bookRef = useRef(null);
   const [bookText, setBookText] = useState("");
   const [loadingText, setLoadingText] = useState(true);
-  const [wordsPerPage] = useState(60);
+  const [wordsPerPage] = useState(110);
 
   const handleFontSizeChange = (newSize) => {
     setFontSize(newSize);
@@ -64,13 +79,43 @@ export function useBookReader() {
         }
 
         const data = res.data;
-        const textContent =
-          typeof data === "string"
-            ? data
-            : (data?.text || data?.content || (typeof res?.data === "string" ? res.data : ""));
+        let rawContent = "";
+        if (typeof data === "string") {
+          rawContent = data;
+        } else if (Array.isArray(data)) {
+          rawContent = data
+            .map((item) => (typeof item === "string" ? item : item?.text || item?.content || ""))
+            .filter(Boolean)
+            .join("\n\n");
+        } else if (data && typeof data === "object") {
+          if (Array.isArray(data.pages)) {
+            rawContent = data.pages
+              .map((p) => (typeof p === "string" ? p : p?.text || p?.content || ""))
+              .filter(Boolean)
+              .join("\n\n");
+          } else if (Array.isArray(data.chapters)) {
+            rawContent = data.chapters
+              .map((c) => (typeof c === "string" ? c : c?.text || c?.content || ""))
+              .filter(Boolean)
+              .join("\n\n");
+          } else {
+            rawContent = data.text || data.content || data.bookText || "";
+          }
+        }
+
+        // Clean out literal stringified null/undefined artifacts
+        const cleaned = String(rawContent || "")
+          .replace(/\b(null|undefined)\b/gi, "")
+          .trim();
+
+        // If server book has no extracted text in DB, use FAKE_BIG_TEST_BOOK for rapid pagination testing
+        const finalContent = cleaned && cleaned.length >= 50 ? cleaned : FAKE_BIG_TEST_BOOK;
 
         if (active) {
-          setBookText(textContent || "");
+          setBookText(finalContent);
+          const wordEstimate = finalContent.trim().split(/\s+/).filter(Boolean).length;
+          const pageEstimate = Math.max(1, Math.ceil(wordEstimate / 110));
+          setTotalPages(pageEstimate);
           setLoadingText(false);
         }
       } catch (err) {
@@ -93,12 +138,6 @@ export function useBookReader() {
   const currentSourceRef = useRef(null);
   const audioBuffersRef = useRef({});
   const loadingAudioRef = useRef({});
-
-  const EFFECT_FILES = {
-    rain: rainFile,
-    wind: windFile,
-    nature: natureFile,
-  };
 
   useEffect(() => {
     const ctx = createAudioContextSafe();
@@ -214,17 +253,98 @@ export function useBookReader() {
 
   const onPagesGenerated = useCallback((pageInfo) => {
     generatedPagesRef.current = pageInfo;
+    if (pageInfo?.length) {
+      setTotalPages(pageInfo.length);
+    }
   }, []);
 
+  const handleToggleLock = useCallback(() => {
+    setIsLocked((prev) => {
+      const next = !prev;
+      if (next) {
+        setActiveModal(null);
+      }
+      return next;
+    });
+  }, []);
+
+  const toggleControls = useCallback(() => {
+    if (isLocked) return;
+    setIsControlsVisible((prev) => !prev);
+  }, [isLocked]);
+
+  const handleTogglePopover = useCallback(
+    (popoverName) => {
+      if (isLocked) return;
+      setActivePopover((prev) => (prev === popoverName ? null : popoverName));
+    },
+    [isLocked]
+  );
+
+  const handleClosePopover = useCallback(() => {
+    setActivePopover(null);
+  }, []);
+
+  const handleOpenModal = useCallback(
+    (modalName) => {
+      if (isLocked) return;
+      setActiveModal(modalName);
+      setActivePopover(null);
+    },
+    [isLocked]
+  );
+
+  const handleCloseModal = useCallback(() => {
+    setActiveModal(null);
+  }, []);
+
+  const handleSelectTheme = useCallback(
+    (newTheme) => {
+      setTheme(newTheme);
+    },
+    [setTheme]
+  );
+
+  const handleCycleTheme = useCallback(() => {
+    const sequence = ["pure-white", "warm-cream", "paper-sepia", "charcoal-dark"];
+    const currentIndex = sequence.indexOf(theme);
+    const nextTheme = sequence[(currentIndex + 1) % sequence.length];
+    setTheme(nextTheme);
+    const names = {
+      "pure-white": "أبيض نقي",
+      "warm-cream": "كريمي دافئ",
+      "paper-sepia": "ورق عتيق",
+      "charcoal-dark": "ليلي داكن",
+    };
+    AlertToast(`السمة: ${names[nextTheme] || nextTheme}`, "INFO");
+  }, [theme, setTheme]);
+
+  const handleOpenFastTravel = useCallback(() => {
+    if (isLocked) return;
+    setActiveModal((prev) => (prev === "fastTravel" ? null : "fastTravel"));
+  }, [isLocked]);
+
   const handleNextPage = useCallback(() => {
-    if (bookRef.current?.pageFlip) {
-      bookRef.current.pageFlip().flipNext();
+    try {
+      if (bookRef.current?.nextPage) {
+        bookRef.current.nextPage();
+      } else if (bookRef.current?.pageFlip) {
+        bookRef.current.pageFlip().flipNext();
+      }
+    } catch {
+      // Ignored if rapid flip animation is in progress
     }
   }, []);
 
   const handlePrevPage = useCallback(() => {
-    if (bookRef.current?.pageFlip) {
-      bookRef.current.pageFlip().flipPrev();
+    try {
+      if (bookRef.current?.prevPage) {
+        bookRef.current.prevPage();
+      } else if (bookRef.current?.pageFlip) {
+        bookRef.current.pageFlip().flipPrev();
+      }
+    } catch {
+      // Ignored if rapid flip animation is in progress
     }
   }, []);
 
@@ -319,9 +439,165 @@ export function useBookReader() {
     }
   }, [isPlaying, currentPage, id, voice, togglePlay, startPageStream, cancelStream]);
 
+  // Synchronize document body styles, theme backgrounds, and lock scroll leakage during reading session
+  useEffect(() => {
+    const originalBodyBg = document.body.style.backgroundColor;
+    const originalBodyOverflow = document.body.style.overflow;
+    const originalDocOverflow = document.documentElement.style.overflow;
+    const originalBodyTouch = document.body.style.touchAction;
+
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.touchAction = "none";
+
+    const themeBgMap = {
+      "pure-white": "#f8fafc",
+      "warm-cream": "#f5eedc",
+      "paper-sepia": "#ebe1c5",
+      "charcoal-dark": "#0a0c10",
+    };
+    document.body.style.backgroundColor = themeBgMap[theme] || "#f8fafc";
+
+    return () => {
+      document.body.style.backgroundColor = originalBodyBg;
+      document.body.style.overflow = originalBodyOverflow;
+      document.documentElement.style.overflow = originalDocOverflow;
+      document.body.style.touchAction = originalBodyTouch;
+    };
+  }, [theme]);
+
+  const handleCanvasClick = useCallback(
+    (e) => {
+      if (activePopover) {
+        handleClosePopover();
+        return;
+      }
+      if (
+        e.target.closest("button") ||
+        e.target.closest(".ktab-glass-circle-btn") ||
+        e.target.closest(".ktab-flip-edge-trigger") ||
+        e.target.closest(".ktab-glass-popover") ||
+        e.target.closest(".ktab-reader-dock") ||
+        e.target.closest(".ktab-mobile-page-nav")
+      ) {
+        return;
+      }
+      toggleControls();
+    },
+    [activePopover, handleClosePopover, toggleControls]
+  );
+
+  const handleBack = useCallback(() => {
+    const doc = document;
+    if (
+      doc.fullscreenElement ||
+      doc.webkitFullscreenElement ||
+      doc.mozFullScreenElement ||
+      doc.msFullscreenElement
+    ) {
+      if (doc.exitFullscreen) {
+        doc.exitFullscreen().catch(() => {});
+      } else if (doc.webkitExitFullscreen) {
+        doc.webkitExitFullscreen();
+      }
+    }
+    navigate(-1);
+  }, [navigate]);
+
+  const handleRootClick = useCallback(() => {
+    if (activePopover) {
+      handleClosePopover();
+    }
+  }, [activePopover, handleClosePopover]);
+
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const isFs = Boolean(
+        document.fullscreenElement ||
+        document.webkitFullscreenElement ||
+        document.mozFullScreenElement ||
+        document.msFullscreenElement
+      );
+      setIsFullscreen(isFs);
+    };
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
+    document.addEventListener("mozfullscreenchange", handleFullscreenChange);
+    document.addEventListener("MSFullscreenChange", handleFullscreenChange);
+
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+      document.removeEventListener("webkitfullscreenchange", handleFullscreenChange);
+      document.removeEventListener("mozfullscreenchange", handleFullscreenChange);
+      document.removeEventListener("MSFullscreenChange", handleFullscreenChange);
+
+      // Ensures HTML5 Fullscreen mode remains scoped exclusively to the reader view and is automatically dismissed upon route transitions or component unmount
+      const doc = document;
+      if (
+        doc.fullscreenElement ||
+        doc.webkitFullscreenElement ||
+        doc.mozFullScreenElement ||
+        doc.msFullscreenElement
+      ) {
+        if (doc.exitFullscreen) {
+          doc.exitFullscreen().catch(() => {});
+        } else if (doc.webkitExitFullscreen) {
+          doc.webkitExitFullscreen();
+        } else if (doc.mozCancelFullScreen) {
+          doc.mozCancelFullScreen();
+        } else if (doc.msExitFullscreen) {
+          doc.msExitFullscreen();
+        }
+      }
+    };
+  }, []);
+
+  const handleToggleFullscreen = useCallback(async () => {
+    try {
+      const doc = document;
+      const docEl = document.documentElement;
+
+      const isFs = Boolean(
+        doc.fullscreenElement ||
+        doc.webkitFullscreenElement ||
+        doc.mozFullScreenElement ||
+        doc.msFullscreenElement
+      );
+
+      if (!isFs) {
+        if (docEl.requestFullscreen) {
+          await docEl.requestFullscreen();
+        } else if (docEl.webkitRequestFullscreen) {
+          await docEl.webkitRequestFullscreen();
+        } else if (docEl.mozRequestFullScreen) {
+          await docEl.mozRequestFullScreen();
+        } else if (docEl.msRequestFullscreen) {
+          await docEl.msRequestFullscreen();
+        }
+      } else {
+        if (doc.exitFullscreen) {
+          await doc.exitFullscreen();
+        } else if (doc.webkitExitFullscreen) {
+          await doc.webkitExitFullscreen();
+        } else if (doc.mozCancelFullScreen) {
+          await doc.mozCancelFullScreen();
+        } else if (doc.msExitFullscreen) {
+          await doc.msExitFullscreen();
+        }
+      }
+    } catch {
+      // Ignored if user dismissed or permission denied
+    }
+  }, []);
+
   return {
     id,
     navigate,
+    handleBack,
+    handleRootClick,
     bookRef,
     bookText,
     loadingText,
@@ -332,10 +608,27 @@ export function useBookReader() {
     setEffect,
     isMuted,
     volume,
+    cycleVolume,
     fontSize,
     handleFontSizeChange,
-    cycleVolume,
+    theme,
+    handleSelectTheme,
+    handleCycleTheme,
+    isLocked,
+    handleToggleLock,
+    isFullscreen,
+    handleToggleFullscreen,
+    isControlsVisible,
+    toggleControls,
+    activePopover,
+    handleTogglePopover,
+    handleClosePopover,
+    activeModal,
+    handleOpenModal,
+    handleCloseModal,
+    handleOpenFastTravel,
     currentPage,
+    totalPages,
     isPlaying,
     isStreaming,
     isTTSLoading,
@@ -345,5 +638,6 @@ export function useBookReader() {
     handlePageChange,
     handleTogglePlay,
     onPagesGenerated,
+    handleCanvasClick,
   };
 }
