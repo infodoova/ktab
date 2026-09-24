@@ -1,11 +1,10 @@
-import React, { useRef, useEffect } from "react";
-import { Lock } from "lucide-react";
+import React, { useRef, useEffect, useState, useCallback } from "react";
+import { Lock, ChevronLeft, ChevronRight } from "lucide-react";
 import "./SceneTimeline.css";
 
 /**
  * Connected Journey Track Timeline (Dark Glassmorphism).
- * Displays all scenes (1 to totalScenes). Reached scenes are interactive;
- * future ungenerated scenes display a lock icon.
+ * Displays all scenes (1 to totalScenes) with left and right navigation arrows on PC.
  *
  * @param {Array} sceneHistory - Visited scenes
  * @param {Object} currentScene - Active scene
@@ -20,16 +19,80 @@ export function SceneTimeline({
   totalScenes = 14,
   isGenerating = false,
 }) {
+  const containerRef = useRef(null);
   const trackRef = useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
 
-  /* Auto-scroll active node into view */
+  /* Check whether container has horizontal scroll overflow */
+  const checkScroll = useCallback(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    const maxScroll = scrollWidth - clientWidth;
+    const overflowing = maxScroll > 6;
+
+    if (!overflowing) {
+      setCanScrollLeft(false);
+      setCanScrollRight(false);
+      return;
+    }
+
+    const absScroll = Math.abs(scrollLeft);
+    setCanScrollRight(absScroll > 4);
+    setCanScrollLeft(absScroll < maxScroll - 4);
+  }, []);
+
+  /* Observe container and track size changes to keep arrow states accurate */
+  useEffect(() => {
+    const frameId = requestAnimationFrame(() => {
+      checkScroll();
+    });
+    const el = containerRef.current;
+    if (!el) return () => cancelAnimationFrame(frameId);
+
+    let ro;
+    if (typeof window !== "undefined" && window.ResizeObserver) {
+      ro = new ResizeObserver(() => {
+        checkScroll();
+      });
+      ro.observe(el);
+      if (trackRef.current) {
+        ro.observe(trackRef.current);
+      }
+    }
+
+    const handleResize = () => checkScroll();
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      cancelAnimationFrame(frameId);
+      if (ro) ro.disconnect();
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [checkScroll]);
+
+  /* Auto-scroll active node into view and update arrow states */
   useEffect(() => {
     if (!trackRef.current) return;
     const activeNode = trackRef.current.querySelector("[data-active='true']");
     if (activeNode) {
       activeNode.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+      const timer = setTimeout(checkScroll, 350);
+      return () => clearTimeout(timer);
     }
-  }, [currentScene]);
+  }, [currentScene, checkScroll]);
+
+  /* Handle manual arrow clicks */
+  const handleScroll = (direction) => {
+    const el = containerRef.current;
+    if (!el) return;
+    const step = 200;
+    // In RTL, negative scroll moves left (later scenes), positive moves right (earlier scenes)
+    const delta = direction === "left" ? -step : step;
+    el.scrollBy({ left: delta, behavior: "smooth" });
+    setTimeout(checkScroll, 320);
+  };
 
   const allSteps = Array.from({ length: totalScenes }, (_, i) => {
     const stepNum = i + 1;
@@ -57,7 +120,23 @@ export function SceneTimeline({
 
   return (
     <nav className="ktab-connected-timeline" dir="rtl" aria-label="خطوات القصة">
-      <div className="ktab-connected-timeline__container">
+      {/* Scroll Arrow Right (Points to earlier scenes / Scene 1 in RTL) */}
+      <button
+        type="button"
+        className="ktab-connected-timeline__scroll-btn ktab-connected-timeline__scroll-btn--right"
+        onClick={() => handleScroll("right")}
+        disabled={!canScrollRight}
+        aria-label="التمرير للمشاهد السابقة"
+        title="المشاهد السابقة"
+      >
+        <ChevronRight size={15} strokeWidth={2.4} />
+      </button>
+
+      <div
+        ref={containerRef}
+        onScroll={checkScroll}
+        className="ktab-connected-timeline__container"
+      >
         <div ref={trackRef} className="ktab-connected-timeline__track">
           {allSteps.map((step, idx) => {
             const canNavigate = step.isVisited && !isGenerating && !step.isCurrent;
@@ -122,6 +201,18 @@ export function SceneTimeline({
           })}
         </div>
       </div>
+
+      {/* Scroll Arrow Left (Points to later scenes / Scene 14 in RTL) */}
+      <button
+        type="button"
+        className="ktab-connected-timeline__scroll-btn ktab-connected-timeline__scroll-btn--left"
+        onClick={() => handleScroll("left")}
+        disabled={!canScrollLeft}
+        aria-label="التمرير للمشاهد التالية"
+        title="المشاهد التالية"
+      >
+        <ChevronLeft size={15} strokeWidth={2.4} />
+      </button>
     </nav>
   );
 }

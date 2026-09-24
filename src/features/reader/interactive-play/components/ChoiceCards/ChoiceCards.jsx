@@ -1,10 +1,11 @@
 import React from "react";
-import { Check, ChevronLeft } from "lucide-react";
+import { Check, ChevronLeft, RotateCcw, ArrowLeft } from "lucide-react";
 import "./ChoiceCards.css";
 
 /**
- * Decision choice cards grid (A, B, C, D).
- * Features glassy, responsive cards with instant tactile feedback.
+ * Decision choice cards grid (A, B, C, D) and Story Ending Card.
+ * When the story concludes (no further choices and not generating), renders
+ * a dedicated completion card with restart and exit options.
  */
 export function ChoiceCards({
   nodes = [],
@@ -12,7 +13,52 @@ export function ChoiceCards({
   disabled = false,
   chosenNodeId = null,
   isGenerating = false,
+  isEnding = false,
+  onRestart,
+  onExit,
 }) {
+  const isStoryEnd = Boolean(
+    isEnding || (!isGenerating && !chosenNodeId && (!nodes || nodes.length === 0))
+  );
+
+  /* Render story conclusion state when there are no more choices */
+  if (isStoryEnd) {
+    return (
+      <div className="ktab-choice-cards ktab-choice-cards--ending" dir="rtl">
+        <div className="ktab-choice-cards__ending-card">
+          <div className="ktab-choice-cards__ending-text">
+            <h3 className="ktab-choice-cards__ending-title">نهاية القصة</h3>
+            <p className="ktab-choice-cards__ending-subtitle">
+              وصلت إلى ختام هذه الرواية التفاعلية واكتملت جميع فصولها. يمكنك إعادة خوض المغامرة لاكتشاف مسارات جديدة أو مغادرة التجربة.
+            </p>
+          </div>
+
+          <div className="ktab-choice-cards__ending-actions">
+            <button
+              type="button"
+              className="ktab-choice-cards__ending-btn ktab-choice-cards__ending-btn--restart"
+              onClick={onRestart}
+              aria-label="إعادة بدء القصة من البداية"
+            >
+              <RotateCcw size={16} strokeWidth={2.2} />
+              <span>إعادة بدء القصة</span>
+            </button>
+
+            <button
+              type="button"
+              className="ktab-choice-cards__ending-btn ktab-choice-cards__ending-btn--exit"
+              onClick={onExit}
+              aria-label="الخروج من القصة"
+            >
+              <span>الخروج من القصة</span>
+              <ArrowLeft size={16} strokeWidth={2.2} />
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const showSkeleton = isGenerating || !nodes.length;
   const isLocked = disabled || Boolean(chosenNodeId) || isGenerating;
 

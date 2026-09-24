@@ -156,12 +156,18 @@
 /* ── Center slot: Timeline ────────────────────────────────── */
 .play-header__center-slot {
   flex: 1 1 auto;
-  max-width: 46rem;
+  max-width: 52rem;
   display: flex;
   align-items: center;
   justify-content: center;
   min-width: 0;
   overflow: visible;
+}
+
+@media (min-width: 1440px) {
+  .play-header__center-slot {
+    max-width: 58rem;
+  }
 }
 
 /* ── Left slot: Action Buttons ───────────────────────────── */

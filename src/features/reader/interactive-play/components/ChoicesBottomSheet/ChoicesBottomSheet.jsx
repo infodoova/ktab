@@ -27,6 +27,9 @@ export function ChoicesBottomSheet({
   chosenNodeId = null,
   isGenerating = false,
   sceneId,
+  isEnding = false,
+  onRestart,
+  onExit,
 }) {
   /* Close on Escape key */
   useEffect(() => {
@@ -75,12 +78,18 @@ export function ChoicesBottomSheet({
         {/* Sheet Header */}
         <div className="ktab-choices-sheet__header">
           <div className="ktab-choices-sheet__title-group">
-            <h3 className="ktab-choices-sheet__title">اختر مسارك التالي</h3>
-            {sceneId && (
+            <h3 className="ktab-choices-sheet__title">
+              {isEnding ? "نهاية القصة" : "اختر مسارك التالي"}
+            </h3>
+            {isEnding ? (
+              <span className="ktab-choices-sheet__subtitle">
+                اكتملت جميع فصول الرواية التفاعلية
+              </span>
+            ) : sceneId ? (
               <span className="ktab-choices-sheet__subtitle">
                 المشهد {sceneId} • حدد اتجاه القصة
               </span>
-            )}
+            ) : null}
           </div>
 
           <button
@@ -93,7 +102,7 @@ export function ChoicesBottomSheet({
           </button>
         </div>
 
-        {/* Sheet Content: Full Choice Cards */}
+        {/* Sheet Content: Full Choice Cards / Ending Card */}
         <div className="ktab-choices-sheet__content">
           <ChoiceCards
             nodes={nodes}
@@ -101,6 +110,15 @@ export function ChoicesBottomSheet({
             disabled={disabled}
             chosenNodeId={chosenNodeId}
             isGenerating={isGenerating}
+            isEnding={isEnding}
+            onRestart={() => {
+              onClose?.();
+              onRestart?.();
+            }}
+            onExit={() => {
+              onClose?.();
+              onExit?.();
+            }}
           />
         </div>
       </div>

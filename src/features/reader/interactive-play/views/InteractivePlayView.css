@@ -384,7 +384,66 @@
     from { transform: rotate(0deg); }
     to   { transform: rotate(360deg); }
   }
+
+  /* Story conclusion actions bar on mobile */
+  .interactive-play__ending-mobile-bar {
+    width: 100%;
+    max-width: 36rem;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+  }
+
+  .interactive-play__ending-mobile-btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    padding: 0.75rem 1rem;
+    border-radius: 9999px;
+    font-family: var(--font-arabic), sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    line-height: 1.4;
+    cursor: pointer;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .interactive-play__ending-mobile-btn--restart {
+    background: #ffffff;
+    color: #0b0d14;
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+  }
+
+  .interactive-play__ending-mobile-btn--restart:hover {
+    background: rgba(255, 255, 255, 0.92);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.45);
+  }
+
+  .interactive-play__ending-mobile-btn--exit {
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+  }
+
+  .interactive-play__ending-mobile-btn--exit:hover {
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.28);
+    transform: translateY(-1px);
+  }
+
+  .interactive-play__ending-mobile-btn:active {
+    transform: scale(0.98);
+  }
 }
+
 
 /* Small mobile devices (< 640px) */
 @media (max-width: 640px) {
@@ -460,6 +519,23 @@
   justify-content: center;
   gap: 0.75rem;
   width: 100%;
+  animation: previewToolbarEnter 0.35s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+@keyframes previewToolbarEnter {
+  0% {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(6px);
+  }
+  75% {
+    pointer-events: none;
+  }
+  100% {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
 }
 
 .interactive-play__preview-btn {
@@ -477,6 +553,7 @@
   font-size: 0.8125rem;
   font-weight: 600;
   cursor: pointer;
+  touch-action: manipulation;
   transition: all 0.2s ease;
 }
 

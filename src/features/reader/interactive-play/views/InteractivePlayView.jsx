@@ -1,5 +1,5 @@
-import React, { useState, useCallback } from "react";
-import { X, ChevronLeft, ChevronRight, Share2, Download, ChevronUp, Check, Loader2, RotateCcw } from "lucide-react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import { X, ChevronLeft, ChevronRight, Share2, Download, ChevronUp, Check, Loader2, RotateCcw, ArrowLeft } from "lucide-react";
 import { PlayHeader } from "../components/PlayHeader/PlayHeader";
 import { SceneArtwork } from "../components/SceneArtwork/SceneArtwork";
 import { NarrativeCard } from "../components/NarrativeCard/NarrativeCard";
@@ -12,7 +12,6 @@ import { useStorySession } from "../hooks/useStorySession";
 import { useStoryKeyboard } from "../hooks/useStoryKeyboard";
 import { ErrorBoundary } from "@/components/common";
 import { AlertToast } from "@/components/myui/AlertToast";
-import tokenManager from "@/core/services/tokenManager";
 import "./InteractivePlayView.css";
 
 /**
@@ -55,11 +54,21 @@ export function InteractivePlayView() {
     currentScene.sceneId === latestScene.sceneId
   );
 
+  /* Final scene conclusion: no remaining choices and generation complete */
+  const isEnding = Boolean(
+    isLatestScene &&
+    !generatingScene &&
+    !currentScene?.isPending &&
+    !currentScene?.chosenNodeId &&
+    (!currentScene?.nodes || currentScene.nodes.length === 0)
+  );
+
   const isCurrentActive = Boolean(
     isLatestScene &&
     !currentScene?.isPending &&
     !currentScene?.chosenNodeId &&
-    !generatingScene
+    !generatingScene &&
+    !isEnding
   );
 
   const totalScenes = storyMetadata?.storyScenes || storyMetadata?.sceneCount || 14;
@@ -189,6 +198,9 @@ export function InteractivePlayView() {
               disabled={!isCurrentActive}
               chosenNodeId={currentScene.chosenNodeId}
               isGenerating={generatingScene || currentScene.isPending}
+              isEnding={isEnding}
+              onRestart={() => setShowRestartConfirm(true)}
+              onExit={() => setShowExitConfirm(true)}
             />
           </div>
         </ErrorBoundary>
@@ -220,6 +232,28 @@ export function InteractivePlayView() {
             <div className="interactive-play__choices-trigger-icon-wrap" aria-hidden="true">
               <Loader2 size={16} className="interactive-play__pro-spinner" strokeWidth={2.4} />
             </div>
+          </div>
+        ) : isEnding ? (
+          /* Ending State: Two prominent actions side-by-side (Restart & Exit) */
+          <div className="interactive-play__ending-mobile-bar">
+            <button
+              type="button"
+              className="interactive-play__ending-mobile-btn interactive-play__ending-mobile-btn--restart"
+              onClick={() => setShowRestartConfirm(true)}
+              aria-label="إعادة بدء القصة"
+            >
+              <RotateCcw size={16} strokeWidth={2.4} />
+              <span>إعادة بدء القصة</span>
+            </button>
+            <button
+              type="button"
+              className="interactive-play__ending-mobile-btn interactive-play__ending-mobile-btn--exit"
+              onClick={() => setShowExitConfirm(true)}
+              aria-label="الخروج من القصة"
+            >
+              <span>الخروج</span>
+              <ArrowLeft size={16} strokeWidth={2.4} />
+            </button>
           </div>
         ) : isCurrentActive ? (
           /* Active Choice State: Centered text, no "4 choices" badge */
@@ -282,6 +316,15 @@ export function InteractivePlayView() {
         chosenNodeId={currentScene.chosenNodeId}
         isGenerating={generatingScene || currentScene.isPending}
         sceneId={currentScene.sceneNumber || currentScene.sceneId}
+        isEnding={isEnding}
+        onRestart={() => {
+          setIsChoicesSheetOpen(false);
+          setShowRestartConfirm(true);
+        }}
+        onExit={() => {
+          setIsChoicesSheetOpen(false);
+          setShowExitConfirm(true);
+        }}
       />
 
       {/* Image Preview Modal */}
@@ -319,9 +362,23 @@ export function InteractivePlayView() {
 }
 
 /**
+ * Safely triggers an in-browser download of a Blob by creating an ephemeral object URL.
+ */
+function triggerBlobDownload(blob, filename) {
+  const blobUrl = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = blobUrl;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+}
+
+/**
  * Triggers a direct file download of an image onto the user's device.
- * Attempts authenticated blob fetch first, falls back to canvas blob extraction,
- * and finally anchor tag download.
+ * Uses a Cloudflare edge-proxy fallback to safely obtain image bytes for
+ * Blob downloads, preventing unwanted full-page navigation away from the application.
  */
 async function downloadImageToDevice(imageUrl, filename) {
   if (!imageUrl) return false;
@@ -337,45 +394,40 @@ async function downloadImageToDevice(imageUrl, filename) {
     return true;
   }
 
-  // 2. Fetch with blob + ngrok bypass + auth headers
+  // 2. Direct simple fetch (without custom auth headers to avoid S3 presigned CORS rejection)
   try {
-    const headers = {
-      "ngrok-skip-browser-warning": "true",
-    };
-    const token = tokenManager?.getToken?.();
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
-
-    const res = await fetch(imageUrl, {
-      method: "GET",
-      headers,
-    });
-
+    const res = await fetch(imageUrl, { method: "GET" });
     if (res.ok) {
       const blob = await res.blob();
-      const blobUrl = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = blobUrl;
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      setTimeout(() => URL.revokeObjectURL(blobUrl), 4000);
+      triggerBlobDownload(blob, filename);
       return true;
     }
   } catch {
-    // Proceed to canvas extraction fallback
+    // CORS restricted on direct origin, proceed to proxy
   }
 
-  // 3. Canvas extraction fallback
+  // 3. Cloudflare-backed proxy fetch with Access-Control-Allow-Origin: *
   try {
+    const proxyUrl = `https://images.weserv.nl/?url=${encodeURIComponent(imageUrl)}`;
+    const res = await fetch(proxyUrl, { method: "GET" });
+    if (res.ok) {
+      const blob = await res.blob();
+      triggerBlobDownload(blob, filename);
+      return true;
+    }
+  } catch {
+    // Proxy fetch failed, proceed to canvas fallback
+  }
+
+  // 4. Canvas extraction fallback via proxy
+  try {
+    const proxyUrl = `https://images.weserv.nl/?url=${encodeURIComponent(imageUrl)}`;
     const img = new Image();
     img.crossOrigin = "anonymous";
     await new Promise((resolve, reject) => {
       img.onload = resolve;
       img.onerror = reject;
-      img.src = imageUrl;
+      img.src = proxyUrl;
     });
 
     const canvas = document.createElement("canvas");
@@ -386,25 +438,19 @@ async function downloadImageToDevice(imageUrl, filename) {
 
     const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
     if (blob) {
-      const blobUrl = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = blobUrl;
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      setTimeout(() => URL.revokeObjectURL(blobUrl), 4000);
+      triggerBlobDownload(blob, filename);
       return true;
     }
   } catch {
-    // Canvas tainted or blocked
+    // Canvas extraction fallback failed
   }
 
-  // 4. Force download via programmatic anchor
+  // 5. Non-destructive fallback: open in new tab (never navigate current window away)
   try {
     const link = document.createElement("a");
     link.href = imageUrl;
-    link.download = filename;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -415,11 +461,12 @@ async function downloadImageToDevice(imageUrl, filename) {
 }
 
 /**
- * Inline image preview modal with carousel navigation and share/download actions.
+ * Inline image preview modal with carousel navigation, ghost-tap protection, and actions.
  */
 function ImagePreview({ scenes = [], previewImage, onClose }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [downloading, setDownloading] = useState(false);
+  const openTimestampRef = useRef(0);
 
   const initialIndex = scenes.findIndex((s) => s.sceneImage === previewImage);
 
@@ -431,27 +478,42 @@ function ImagePreview({ scenes = [], previewImage, onClose }) {
     }
   }
 
+  useEffect(() => {
+    if (previewImage) {
+      openTimestampRef.current = Date.now();
+    }
+  }, [previewImage]);
+
+  // Prevents accidental touch-bleed or synthetic click propagation from previous view
+  const isGhostTap = useCallback(() => {
+    return Date.now() - openTimestampRef.current < 450;
+  }, []);
+
   const handleNext = useCallback(
     (e) => {
       e?.stopPropagation();
+      if (isGhostTap()) return;
       if (scenes.length > 0) setCurrentIndex((p) => (p + 1) % scenes.length);
     },
-    [scenes.length]
+    [scenes.length, isGhostTap]
   );
 
   const handlePrev = useCallback(
     (e) => {
       e?.stopPropagation();
+      if (isGhostTap()) return;
       if (scenes.length > 0) setCurrentIndex((p) => (p - 1 + scenes.length) % scenes.length);
     },
-    [scenes.length]
+    [scenes.length, isGhostTap]
   );
 
   const currentScene = scenes[currentIndex];
 
   const handleShare = useCallback(
     async (e) => {
+      e?.preventDefault();
       e?.stopPropagation();
+      if (isGhostTap()) return;
       if (!currentScene?.sceneImage) return;
 
       if (navigator.share) {
@@ -476,12 +538,14 @@ function ImagePreview({ scenes = [], previewImage, onClose }) {
         }
       }
     },
-    [currentScene, currentIndex]
+    [currentScene, currentIndex, isGhostTap]
   );
 
   const handleDownload = useCallback(
     async (e) => {
+      e?.preventDefault();
       e?.stopPropagation();
+      if (isGhostTap()) return;
       if (!currentScene?.sceneImage || downloading) return;
 
       setDownloading(true);
@@ -499,7 +563,7 @@ function ImagePreview({ scenes = [], previewImage, onClose }) {
         setDownloading(false);
       }
     },
-    [currentScene, currentIndex, downloading]
+    [currentScene, currentIndex, downloading, isGhostTap]
   );
 
   if (!previewImage) return null;
