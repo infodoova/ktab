@@ -184,6 +184,7 @@ export function useLogin() {
           shape: "rectangular",
           logo_alignment: "left",
           width: containerWidth,
+          locale: "ar",
         });
         setIsGoogleReady(true);
       } catch (err) {
@@ -199,7 +200,7 @@ export function useLogin() {
       if (!existingScript) {
         const script = document.createElement("script");
         script.id = "google-gsi-client";
-        script.src = "https://accounts.google.com/gsi/client";
+        script.src = "https://accounts.google.com/gsi/client?hl=ar";
         script.async = true;
         script.defer = true;
         script.onload = renderGoogleBtn;

@@ -1,0 +1,60 @@
+/* ==========================================================================
+   TRANSITION MODE ICONS — HIGH-CRAFT EDITORIAL VECTOR ILLUSTRATIONS
+   Apple-inspired tactile aesthetics for Curl, Flip3D, and Slide.
+   Dynamic micro-interactions and smooth transforms on hover.
+   ========================================================================== */
+
+.ktab-transition-icon {
+  display: block;
+  flex-shrink: 0;
+  color: inherit;
+  transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: visible;
+  pointer-events: none;
+}
+
+/* ── Interactive Sub-Elements Micro-Animations ───────────────────────── */
+.ktab-icon-curl-leaf {
+  transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: 24px 42px;
+}
+
+.ktab-icon-flip-top-sheet {
+  transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: 26px 12px;
+}
+
+.ktab-icon-slide-front-sheet {
+  transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ktab-icon-slide-rear-sheet {
+  transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Parent Card Hover Dynamics (Desktop 1:1 Card & Mobile Popover) ──── */
+.ktab-mode-square-card:hover .ktab-icon-curl-leaf,
+.ktab-mode-card-option:hover .ktab-icon-curl-leaf {
+  transform: translate(-1.5px, -1.5px) scale(1.05);
+}
+
+.ktab-mode-square-card:hover .ktab-icon-flip-top-sheet,
+.ktab-mode-card-option:hover .ktab-icon-flip-top-sheet {
+  transform: translateY(-2px);
+}
+
+.ktab-mode-square-card:hover .ktab-icon-slide-front-sheet,
+.ktab-mode-card-option:hover .ktab-icon-slide-front-sheet {
+  transform: translateX(-2px);
+}
+
+.ktab-mode-square-card:hover .ktab-icon-slide-rear-sheet,
+.ktab-mode-card-option:hover .ktab-icon-slide-rear-sheet {
+  transform: translateX(1.5px);
+}
+
+/* ── Active Selection Subtle Glow & Pop ──────────────────────────────── */
+.ktab-mode-square-card--active .ktab-transition-icon,
+.ktab-mode-card-option--active .ktab-transition-icon {
+  transform: scale(1.02);
+}

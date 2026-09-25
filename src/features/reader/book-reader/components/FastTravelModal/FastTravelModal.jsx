@@ -9,7 +9,7 @@ import "./FastTravelModal.css";
  * Zero percentage calculations - pure tactile page node selection.
  */
 export function FastTravelModal(props) {
-  const { isOpen, onClose } = props;
+  const { isOpen, onClose, theme = "pure-white" } = props;
 
   const {
     chunks,
@@ -31,7 +31,7 @@ export function FastTravelModal(props) {
       aria-label="الانتقال المباشر بين الصفحات"
     >
       <div
-        className="ktab-reader-modal-card ktab-fast-travel-card"
+        className={`ktab-reader-modal-card ktab-fast-travel-card ktab-fast-travel-card--theme-${theme}`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Mobile Drag Indicator Handle */}

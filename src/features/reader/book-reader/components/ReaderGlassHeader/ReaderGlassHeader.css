@@ -30,6 +30,105 @@
   transform: translateY(-24px) !important;
 }
 
+/* Top Book Title Anchor (Clean editorial typography, completely non-copyable) */
+.ktab-reader-title-anchor {
+  position: fixed;
+  top: 16px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 120;
+  pointer-events: none !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  -webkit-touch-callout: none !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Default / Mobile & Tablet / iPad (<= 1366px): Centered */
+@media (max-width: 1366px) {
+  .ktab-reader-title-anchor {
+    top: 12px !important;
+    height: 42px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    max-width: calc(100vw - 120px) !important;
+    justify-content: center !important;
+  }
+
+  /* When tools open on mobile & iPad, smoothly hide the title so it never collides with the dock */
+  .ktab-reader-title-anchor--tools-open {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transform: translateX(-50%) translateY(-10px) !important;
+  }
+}
+
+/* PC Desktop (> 1366px): Placed on the right next to top tools, leaving center free */
+@media (min-width: 1367px) {
+  .ktab-reader-title-anchor {
+    left: auto !important;
+    right: 80px !important;
+    top: 18px !important;
+    height: 42px !important;
+    transform: none !important;
+    max-width: 400px !important;
+    justify-content: flex-end !important;
+    text-align: right !important;
+    transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+}
+
+.ktab-reader-title-text {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: var(--font-arabic, "Tajawal", system-ui, sans-serif);
+  color: #0f172a;
+  opacity: 0.85;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  direction: rtl;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  -webkit-touch-callout: none !important;
+  -webkit-user-drag: none !important;
+  pointer-events: none !important;
+  cursor: default !important;
+}
+
+.ktab-reader-header--theme-charcoal-dark .ktab-reader-title-text,
+.dark .ktab-reader-title-text {
+  color: #f8fafc !important;
+  opacity: 0.85 !important;
+}
+
+.ktab-reader-header--theme-warm-cream .ktab-reader-title-text {
+  color: #2c251e !important;
+  opacity: 0.85 !important;
+}
+
+.ktab-reader-header--theme-paper-sepia .ktab-reader-title-text {
+  color: #2b2118 !important;
+  opacity: 0.85 !important;
+}
+
 .ktab-reader-dock {
   display: flex;
   align-items: center;
@@ -295,13 +394,30 @@
   color: #ffffff;
 }
 
-/* Desktop Defaults for Mobile-specific Header Elements */
-.ktab-mobile-launcher-btn,
-.ktab-mobile-close-btn,
-.ktab-mobile-divider,
-.ktab-mobile-close-group,
-.ktab-mobile-dock-backdrop {
+/* Desktop Defaults: On wide desktop monitors (≥ 1180px), the horizontal floating dock is replaced by the
+   top launcher button and the right-side 1:1 squares drawer.
+   On mobile phones and iPads / tablets (< 1180px), the floating liquid glass dock is used. */
+@media (min-width: 1180px) {
+  .ktab-reader-dock {
+    display: none !important;
+  }
+}
+
+/* Collapsed state is hidden across all viewports until launcher is tapped */
+.ktab-reader-dock--collapsed {
   display: none !important;
+  pointer-events: none !important;
+}
+
+/* Only hide mobile close group on wide desktop (≥ 1180px) */
+@media (min-width: 1180px) {
+  .ktab-mobile-launcher-btn,
+  .ktab-mobile-close-btn,
+  .ktab-mobile-divider,
+  .ktab-mobile-close-group,
+  .ktab-mobile-dock-backdrop {
+    display: none !important;
+  }
 }
 
 .ktab-reader-dock__tools {
@@ -358,10 +474,10 @@
 }
 
 .ktab-theme-card-option--active .ktab-theme-mini-page {
-  border-color: var(--brand-teal, #5de3ba) !important;
+  border-color: #0f172a !important;
   box-shadow: 
-    0 0 0 2.5px rgba(93, 227, 186, 0.5),
-    0 8px 24px rgba(93, 227, 186, 0.3) !important;
+    0 0 0 2.5px rgba(15, 23, 42, 0.25),
+    0 8px 24px rgba(0, 0, 0, 0.12) !important;
 }
 
 .ktab-theme-mini-line {
@@ -389,12 +505,12 @@
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: var(--brand-teal, #5de3ba);
-  color: #0b0f19;
+  background: #0f172a;
+  color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
 }
 
 .ktab-theme-card-name {
@@ -441,8 +557,8 @@
 }
 
 .ktab-voice-popover-item--active {
-  background: rgba(93, 227, 186, 0.15) !important;
-  border-color: rgba(93, 227, 186, 0.5) !important;
+  background: rgba(15, 23, 42, 0.08) !important;
+  border-color: rgba(15, 23, 42, 0.28) !important;
 }
 
 .ktab-voice-neutral-badge {
@@ -475,8 +591,8 @@
 }
 
 .ktab-voice-popover-desc {
-  font-size: 10px;
-  color: #64748b;
+  font-size: 10.5px;
+  color: #475569;
   max-width: 140px;
   white-space: nowrap;
   overflow: hidden;
@@ -488,8 +604,8 @@
   font-weight: 700;
   padding: 3px 8px;
   border-radius: 9999px;
-  background: rgba(0, 0, 0, 0.05);
-  color: #475569;
+  background: rgba(0, 0, 0, 0.06);
+  color: #334155;
 }
 
 /* ── 3. Ambient Background Sound Popover ────────────────────────────── */
@@ -520,9 +636,9 @@
 }
 
 .ktab-ambient-popover-item--active {
-  background: rgba(93, 227, 186, 0.18) !important;
-  border-color: rgba(93, 227, 186, 0.5) !important;
-  color: var(--brand-teal-deep, #0d9488);
+  background: rgba(15, 23, 42, 0.08) !important;
+  border-color: rgba(15, 23, 42, 0.28) !important;
+  color: #0f172a !important;
 }
 
 .ktab-ambient-icon-badge {
@@ -543,8 +659,8 @@
 }
 
 .ktab-ambient-desc {
-  font-size: 10px;
-  color: #64748b;
+  font-size: 10.5px;
+  color: #475569;
 }
 
 /* ── 4. Font Size Stepper Popover ───────────────────────────────────── */
@@ -656,10 +772,10 @@
 .ktab-reader-header--theme-charcoal-dark .ktab-glass-circle-btn--playing,
 .ktab-book-display-root--charcoal-dark .ktab-glass-circle-btn--playing,
 .dark .ktab-glass-circle-btn--playing {
-  background: var(--brand-teal, #5de3ba) !important;
-  border-color: var(--brand-teal, #5de3ba) !important;
+  background: #ffffff !important;
+  border-color: #ffffff !important;
   color: #0b0f19 !important;
-  box-shadow: 0 0 18px rgba(93, 227, 186, 0.45) !important;
+  box-shadow: 0 0 18px rgba(255, 255, 255, 0.3) !important;
 }
 
 .ktab-reader-header--theme-charcoal-dark .ktab-glass-circle-btn--active,
@@ -674,9 +790,9 @@
 .ktab-reader-header--theme-charcoal-dark .ktab-glass-circle-btn--ambient-on,
 .ktab-book-display-root--charcoal-dark .ktab-glass-circle-btn--ambient-on,
 .dark .ktab-glass-circle-btn--ambient-on {
-  background: rgba(93, 227, 186, 0.18) !important;
-  border-color: var(--brand-teal, #5de3ba) !important;
-  color: var(--brand-teal, #5de3ba) !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+  color: #ffffff !important;
 }
 
 .ktab-reader-dock--theme-charcoal-dark .ktab-mobile-close-btn,
@@ -747,6 +863,46 @@
   background: rgba(255, 255, 255, 0.08) !important;
 }
 
+.ktab-glass-popover--theme-charcoal-dark .ktab-voice-popover-desc,
+.ktab-glass-popover--theme-charcoal-dark .ktab-ambient-desc {
+  color: #94a3b8 !important;
+}
+
+.ktab-glass-popover--theme-charcoal-dark .ktab-voice-popover-tag {
+  color: #cbd5e1 !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+}
+
+/* Active Item in Charcoal Dark: Crisp White & Slate Glow */
+.ktab-glass-popover--theme-charcoal-dark .ktab-voice-popover-item--active,
+.ktab-glass-popover--theme-charcoal-dark .ktab-ambient-popover-item--active {
+  background: rgba(255, 255, 255, 0.14) !important;
+  border-color: rgba(255, 255, 255, 0.38) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+}
+
+.ktab-glass-popover--theme-charcoal-dark .ktab-voice-popover-item--active .ktab-voice-popover-label,
+.ktab-glass-popover--theme-charcoal-dark .ktab-ambient-popover-item--active .ktab-ambient-label {
+  color: #ffffff !important;
+}
+
+.ktab-glass-popover--theme-charcoal-dark .ktab-voice-popover-item--active .ktab-voice-popover-desc,
+.ktab-glass-popover--theme-charcoal-dark .ktab-ambient-popover-item--active .ktab-ambient-desc {
+  color: #e2e8f0 !important;
+}
+
+.ktab-glass-popover--theme-charcoal-dark .ktab-voice-popover-item--active .ktab-voice-neutral-badge,
+.ktab-glass-popover--theme-charcoal-dark .ktab-ambient-popover-item--active .ktab-ambient-icon-badge {
+  background: rgba(255, 255, 255, 0.22) !important;
+  color: #ffffff !important;
+}
+
+.ktab-glass-popover--theme-charcoal-dark .ktab-voice-popover-item--active svg,
+.ktab-glass-popover--theme-charcoal-dark .ktab-ambient-popover-item--active svg {
+  color: #ffffff !important;
+}
+
 .ktab-glass-popover--theme-charcoal-dark .ktab-voice-neutral-badge,
 .ktab-glass-popover--theme-charcoal-dark .ktab-ambient-icon-badge {
   background: rgba(255, 255, 255, 0.08) !important;
@@ -763,6 +919,90 @@
   background: rgba(255, 255, 255, 0.05) !important;
   border-color: rgba(255, 255, 255, 0.08) !important;
   color: #cbd5e1 !important;
+}
+
+/* ── Warm Cream Popover High-Contrast Overrides ───────────────────── */
+.ktab-glass-popover--theme-warm-cream .ktab-popover-title {
+  color: #2c2824 !important;
+}
+
+.ktab-glass-popover--theme-warm-cream .ktab-popover-subtitle {
+  color: #6d6358 !important;
+}
+
+.ktab-glass-popover--theme-warm-cream .ktab-voice-popover-label,
+.ktab-glass-popover--theme-warm-cream .ktab-ambient-label {
+  color: #2c2824 !important;
+}
+
+.ktab-glass-popover--theme-warm-cream .ktab-voice-popover-desc,
+.ktab-glass-popover--theme-warm-cream .ktab-ambient-desc {
+  color: #6d6358 !important;
+}
+
+.ktab-glass-popover--theme-warm-cream .ktab-voice-popover-tag {
+  color: #4a4238 !important;
+  background: rgba(44, 40, 36, 0.08) !important;
+}
+
+.ktab-glass-popover--theme-warm-cream .ktab-voice-popover-item,
+.ktab-glass-popover--theme-warm-cream .ktab-ambient-popover-item {
+  background: rgba(44, 40, 36, 0.03) !important;
+  border-color: rgba(44, 40, 36, 0.09) !important;
+}
+
+.ktab-glass-popover--theme-warm-cream .ktab-voice-popover-item:hover,
+.ktab-glass-popover--theme-warm-cream .ktab-ambient-popover-item:hover {
+  background: rgba(44, 40, 36, 0.07) !important;
+}
+
+.ktab-glass-popover--theme-warm-cream .ktab-voice-popover-item--active,
+.ktab-glass-popover--theme-warm-cream .ktab-ambient-popover-item--active {
+  background: rgba(44, 40, 36, 0.1) !important;
+  border-color: rgba(44, 40, 36, 0.3) !important;
+  color: #2c2824 !important;
+}
+
+/* ── Paper Sepia Popover High-Contrast Overrides ───────────────────── */
+.ktab-glass-popover--theme-paper-sepia .ktab-popover-title {
+  color: #3d3224 !important;
+}
+
+.ktab-glass-popover--theme-paper-sepia .ktab-popover-subtitle {
+  color: #6e5d47 !important;
+}
+
+.ktab-glass-popover--theme-paper-sepia .ktab-voice-popover-label,
+.ktab-glass-popover--theme-paper-sepia .ktab-ambient-label {
+  color: #3d3224 !important;
+}
+
+.ktab-glass-popover--theme-paper-sepia .ktab-voice-popover-desc,
+.ktab-glass-popover--theme-paper-sepia .ktab-ambient-desc {
+  color: #6e5d47 !important;
+}
+
+.ktab-glass-popover--theme-paper-sepia .ktab-voice-popover-tag {
+  color: #4f402e !important;
+  background: rgba(61, 50, 36, 0.08) !important;
+}
+
+.ktab-glass-popover--theme-paper-sepia .ktab-voice-popover-item,
+.ktab-glass-popover--theme-paper-sepia .ktab-ambient-popover-item {
+  background: rgba(61, 50, 36, 0.04) !important;
+  border-color: rgba(61, 50, 36, 0.1) !important;
+}
+
+.ktab-glass-popover--theme-paper-sepia .ktab-voice-popover-item:hover,
+.ktab-glass-popover--theme-paper-sepia .ktab-ambient-popover-item:hover {
+  background: rgba(61, 50, 36, 0.08) !important;
+}
+
+.ktab-glass-popover--theme-paper-sepia .ktab-voice-popover-item--active,
+.ktab-glass-popover--theme-paper-sepia .ktab-ambient-popover-item--active {
+  background: rgba(61, 50, 36, 0.12) !important;
+  border-color: rgba(61, 50, 36, 0.35) !important;
+  color: #3d3224 !important;
 }
 
 /* ── Warm Cream & Paper Sepia Themes ─────────────────────────────── */
@@ -818,15 +1058,22 @@
   background: rgba(170, 155, 130, 0.35) !important;
 }
 
-/* Popover Backdrop Overlay */
+/* Popover & Tools Backdrop Overlays */
 .ktab-glass-popover-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 120;
+  z-index: 135;
   background: rgba(10, 12, 18, 0.25);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   animation: ktabBackdropFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ktab-tools-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 110;
+  background: transparent;
 }
 
 @keyframes ktabBackdropFadeIn {
@@ -902,6 +1149,29 @@
     transition: all 0.32s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
+  /* Center Title on Mobile - Exactly aligned with back and launcher buttons */
+  .ktab-reader-title-anchor {
+    top: 12px !important;
+    height: 42px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    max-width: calc(100vw - 120px) !important;
+    z-index: 125 !important;
+  }
+
+  .ktab-reader-title-anchor .ktab-reader-title-text {
+    font-size: 13px !important;
+    line-height: 42px !important;
+    text-align: center !important;
+  }
+
+  /* When mobile dock is expanded, smoothly hide the title so they never collide */
+  .ktab-reader-title-anchor--tools-open {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transform: translateX(-50%) translateY(-10px) !important;
+  }
+
   .ktab-reader-dock-anchor--expanded,
   .ktab-reader-dock-anchor--closing {
     left: 12px;
@@ -925,45 +1195,9 @@
     will-change: width, transform;
   }
 
-  /* ── 1. Collapsed State: Single Circular Button (Menu Icon) ── */
+  /* ── 1. Collapsed State: Hidden on Mobile Until Launcher is Clicked ── */
   .ktab-reader-dock--collapsed {
-    width: 40px !important;
-    max-width: 40px !important;
-    height: 40px !important;
-    padding: 0 !important;
-    border-radius: 50% !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
-  }
-
-  .ktab-reader-dock--collapsed .ktab-mobile-launcher-btn {
-    display: inline-flex !important;
-    width: 40px !important;
-    height: 40px !important;
-    border-radius: 50% !important;
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    animation: ktabMobileLauncherPop 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-
-  @keyframes ktabMobileLauncherPop {
-    0% {
-      opacity: 0;
-      transform: scale(0.6) rotate(-90deg);
-    }
-    100% {
-      opacity: 1;
-      transform: scale(1) rotate(0deg);
-    }
-  }
-
-  .ktab-reader-dock--collapsed .ktab-mobile-close-group,
-  .ktab-reader-dock--collapsed .ktab-reader-dock__tools {
     display: none !important;
-    opacity: 0 !important;
     pointer-events: none !important;
   }
 
@@ -1034,7 +1268,8 @@
     transition: opacity 0.18s ease, transform 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
   }
 
-  .ktab-reader-dock--expanded .ktab-mobile-launcher-btn {
+  .ktab-reader-dock--expanded .ktab-mobile-launcher-btn,
+  .ktab-reader-dock-anchor--expanded > .ktab-glass-btn-anchor {
     display: none !important;
   }
 
@@ -1214,4 +1449,556 @@
     max-width: 100% !important;
     width: 100% !important;
   }
+
+  /* 5. Modes Popover on Mobile */
+  .ktab-modes-cards-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  .ktab-mode-mini-page {
+    width: 100% !important;
+    max-width: 68px !important;
+    height: 74px !important;
+    padding: 6px 4px !important;
+    margin: 0 auto;
+  }
+
+  .ktab-mode-card-name {
+    font-size: 10px !important;
+  }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   IPAD & TABLET FLOATING DOCK (769px to 1179px)
+   Rich liquid glass capsule bar expanding from top-right with all tools.
+   ═══════════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════════
+   IPAD & TABLET FLOATING DOCK (769px to 1366px - Both Vertical & Horizontal)
+   Rich liquid glass capsule bar expanding at the top with button hide.
+   ═══════════════════════════════════════════════════════════════════ */
+@media (min-width: 769px) and (max-width: 1366px) {
+  .ktab-reader-dock-anchor--expanded {
+    top: 12px !important;
+    right: 50% !important;
+    left: auto !important;
+    transform: translateX(50%) !important;
+    width: auto !important;
+    max-width: calc(100vw - 32px) !important;
+    justify-content: center !important;
+  }
+
+  .ktab-reader-dock-anchor--expanded > .ktab-glass-btn-anchor {
+    display: none !important;
+  }
+
+  .ktab-reader-dock--expanded {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 6px 14px !important;
+    border-radius: 9999px !important;
+    width: auto !important;
+    max-width: none !important;
+    min-height: 52px !important;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.16), inset 0 1.5px 2px rgba(255, 255, 255, 0.95) !important;
+    animation: ktabMobileDockOpen 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .ktab-reader-dock--expanded .ktab-mobile-close-group {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    height: 100% !important;
+  }
+
+  .ktab-reader-dock--expanded .ktab-mobile-close-btn {
+    display: inline-flex !important;
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 50% !important;
+    background: rgba(0, 0, 0, 0.06) !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    color: #0f172a !important;
+  }
+
+  .ktab-reader-dock--expanded .ktab-mobile-divider {
+    display: block !important;
+    width: 1px !important;
+    height: 28px !important;
+    background: rgba(0, 0, 0, 0.12) !important;
+    margin: 0 4px !important;
+  }
+
+  .ktab-reader-dock--expanded .ktab-reader-dock__tools {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 6px !important;
+    width: auto !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+
+  .ktab-reader-dock--expanded .ktab-glass-circle-btn {
+    width: 38px !important;
+    height: 38px !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* When dock is expanded on iPad, hide standalone back button */
+  .ktab-reader-back-anchor--hidden-mobile {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transform: translateX(-24px) scale(0.85) !important;
+  }
+
+  /* Popover positioning on iPad: centered underneath the dock */
+  .ktab-glass-popover {
+    position: fixed !important;
+    top: 72px !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+    width: auto !important;
+    min-width: 320px !important;
+    max-width: 460px !important;
+    border-radius: 24px !important;
+  }
+}
+
+/* ── Modes Popover (Exact Match to Theme Popover Design) ── */
+.ktab-modes-popover {
+  min-width: 300px;
+}
+
+.ktab-modes-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.ktab-mode-card-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  padding: 4px 2px;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+
+.ktab-mode-card-option:hover {
+  transform: translateY(-2px);
+}
+
+.ktab-mode-mini-page {
+  position: relative;
+  width: 66px;
+  height: 76px;
+  border-radius: 12px;
+  border: 1.5px solid transparent;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.ktab-mode-card-option:hover .ktab-mode-mini-page {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.14);
+}
+
+.ktab-mode-card-option--active .ktab-mode-mini-page {
+  border-color: #0f172a !important;
+  box-shadow: 
+    0 0 0 2.5px rgba(15, 23, 42, 0.25),
+    0 8px 24px rgba(0, 0, 0, 0.12) !important;
+}
+
+.ktab-glass-popover--theme-charcoal-dark .ktab-mode-card-option--active .ktab-mode-mini-page,
+.dark .ktab-mode-card-option--active .ktab-mode-mini-page {
+  border-color: #ffffff !important;
+  box-shadow: 
+    0 0 0 2.5px rgba(255, 255, 255, 0.35),
+    0 8px 24px rgba(255, 255, 255, 0.15) !important;
+}
+
+.ktab-mode-mini-line {
+  height: 3px;
+  border-radius: 9999px;
+  opacity: 0.35;
+  width: 85%;
+}
+
+.ktab-mode-mini-line--header {
+  height: 4px;
+  width: 50%;
+  opacity: 0.65;
+  margin-bottom: 2px;
+}
+
+.ktab-mode-mini-line--short {
+  width: 55%;
+}
+
+/* Subtle motion badges */
+.ktab-mode-curl-badge {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 17px;
+  height: 17px;
+  background: linear-gradient(135deg, transparent 48%, rgba(0, 0, 0, 0.16) 50%);
+  border-top-right-radius: 3px;
+  border-top: 1px solid rgba(255, 255, 255, 0.45);
+  border-right: 1px solid rgba(255, 255, 255, 0.45);
+}
+
+.ktab-glass-popover--theme-charcoal-dark .ktab-mode-curl-badge,
+.dark .ktab-mode-curl-badge {
+  background: linear-gradient(135deg, transparent 48%, rgba(255, 255, 255, 0.2) 50%);
+  border-top: 1px solid rgba(255, 255, 255, 0.45);
+  border-right: 1px solid rgba(255, 255, 255, 0.45);
+}
+
+.ktab-mode-vertical-indicator {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.55;
+  color: inherit;
+}
+
+.ktab-mode-slide-indicator {
+  position: absolute;
+  bottom: 6px;
+  left: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.55;
+  color: inherit;
+}
+
+.ktab-mode-check-badge {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #0f172a;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  z-index: 5;
+}
+
+.ktab-glass-popover--theme-charcoal-dark .ktab-mode-check-badge,
+.dark .ktab-mode-check-badge {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+.ktab-mode-card-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: #334155;
+  white-space: nowrap;
+}
+
+.ktab-mode-card-option--active .ktab-mode-card-name {
+  color: #0f172a;
+  font-weight: 800;
+}
+
+.ktab-glass-popover--theme-charcoal-dark .ktab-mode-card-name,
+.dark .ktab-mode-card-name {
+  color: #f8fafc !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   PC DESKTOP RIGHT-SIDE REVEALED PANEL (2-COLUMN GRID OF 1:1 SQUARES)
+   Mirrors the left mode selector symmetrically, with no heavy container box.
+   ═══════════════════════════════════════════════════════════════════ */
+.ktab-reader-pc-drawer {
+  position: fixed !important;
+  top: 76px !important;
+  right: 20px !important;
+  transform: none !important;
+  z-index: 125;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.9) !important;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.16), inset 0 1.5px 2px rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(40px) saturate(200%) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(200%) !important;
+  border-radius: 28px !important;
+  padding: 18px !important;
+  user-select: none;
+  animation: ktabPcDrawerEnter 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.ktab-reader-pc-drawer--theme-charcoal-dark {
+  background: linear-gradient(135deg, rgba(22, 28, 40, 0.96) 0%, rgba(15, 19, 28, 0.92) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.1) !important;
+  color: #f8fafc !important;
+}
+
+.ktab-reader-pc-drawer--theme-warm-cream {
+  background: linear-gradient(135deg, rgba(251, 247, 238, 0.96) 0%, rgba(245, 238, 220, 0.90) 100%) !important;
+  border: 1px solid rgba(212, 196, 173, 0.45) !important;
+  color: #2c251e !important;
+}
+
+.ktab-reader-pc-drawer--theme-paper-sepia {
+  background: linear-gradient(135deg, rgba(244, 236, 216, 0.96) 0%, rgba(235, 225, 197, 0.90) 100%) !important;
+  border: 1px solid rgba(206, 187, 155, 0.45) !important;
+  color: #2b2118 !important;
+}
+
+/* Hide PC drawer on all mobile phones, tablets, and iPads (both portrait & landscape <= 1366px) */
+@media (max-width: 1366px) {
+  .ktab-reader-pc-drawer {
+    display: none !important;
+  }
+}
+
+@keyframes ktabPcDrawerEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.ktab-reader-pc-drawer--closing {
+  animation: ktabPcDrawerLeave 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+  pointer-events: none !important;
+}
+
+@keyframes ktabPcDrawerLeave {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.96);
+  }
+}
+
+.ktab-reader-pc-drawer__header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin-bottom: 2px;
+  text-align: center;
+}
+
+.ktab-reader-pc-drawer__title {
+  font-size: 13.5px;
+  font-weight: 800;
+  font-family: var(--font-arabic, "Tajawal", system-ui, sans-serif);
+  letter-spacing: -0.01em;
+}
+
+.ktab-reader-pc-drawer__sub {
+  font-size: 11px;
+  opacity: 0.65;
+  font-weight: 500;
+  font-family: var(--font-arabic, "Tajawal", system-ui, sans-serif);
+}
+
+.ktab-reader-pc-drawer__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 104px);
+  gap: 14px;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 1:1 Square Tool Button (Apple Monochromatic Style - Larger & Professional) */
+.ktab-pc-tool-square {
+  position: relative;
+  width: 104px;
+  height: 104px;
+  aspect-ratio: 1 / 1;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  outline: none;
+  padding: 10px 8px;
+  font-family: var(--font-arabic, "Tajawal", system-ui, sans-serif);
+  text-align: center;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.2s ease,
+              box-shadow 0.2s ease,
+              background 0.2s ease;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.ktab-pc-tool-square:hover {
+  transform: translateY(-2.5px) scale(1.02);
+}
+
+.ktab-pc-tool-square:active {
+  transform: scale(0.96);
+}
+
+.ktab-pc-tool-square--active {
+  border-color: #0f172a !important;
+  box-shadow: 
+    0 0 0 1.5px #0f172a,
+    0 8px 24px rgba(15, 23, 42, 0.16) !important;
+}
+
+.ktab-pc-tool-square__icon {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ktab-pc-tool-square--active .ktab-pc-tool-square__icon {
+  color: #0f172a;
+}
+
+.ktab-reader-pc-drawer--theme-charcoal-dark .ktab-pc-tool-square--active,
+.dark .ktab-pc-tool-square--active {
+  border-color: #ffffff !important;
+  box-shadow: 
+    0 0 0 1.5px #ffffff,
+    0 8px 24px rgba(255, 255, 255, 0.2) !important;
+}
+
+.ktab-reader-pc-drawer--theme-charcoal-dark .ktab-pc-tool-square--active .ktab-pc-tool-square__icon,
+.dark .ktab-pc-tool-square--active .ktab-pc-tool-square__icon {
+  color: #ffffff;
+}
+
+.ktab-pc-tool-square__label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5px;
+  width: 100%;
+}
+
+.ktab-pc-tool-square__title {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: inherit;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.ktab-pc-tool-square__sub {
+  font-size: 9.5px;
+  font-weight: 500;
+  opacity: 0.65;
+  color: inherit;
+  line-height: 1.1;
+  white-space: nowrap;
+  max-width: 90px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ktab-pc-tool-square--active .ktab-pc-tool-square__title {
+  font-weight: 800;
+}
+
+/* ── Theme Adaptations for Right PC Drawer ─────────────────────────── */
+
+/* 1. Pure White Theme */
+.ktab-reader-pc-drawer--theme-pure-white {
+  color: #0f172a;
+}
+.ktab-reader-pc-drawer--theme-pure-white .ktab-pc-tool-square {
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+.ktab-reader-pc-drawer--theme-pure-white .ktab-pc-tool-square:hover {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.16);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* 2. Warm Cream Theme */
+.ktab-reader-pc-drawer--theme-warm-cream {
+  color: #2c2824;
+}
+.ktab-reader-pc-drawer--theme-warm-cream .ktab-pc-tool-square {
+  background: rgba(251, 247, 238, 0.88);
+  border: 1px solid rgba(44, 40, 36, 0.1);
+  box-shadow: 0 4px 16px rgba(44, 40, 36, 0.05);
+}
+.ktab-reader-pc-drawer--theme-warm-cream .ktab-pc-tool-square:hover {
+  background: #fbf7ee;
+  border-color: rgba(44, 40, 36, 0.2);
+  box-shadow: 0 8px 24px rgba(44, 40, 36, 0.09);
+}
+
+/* 3. Paper Sepia Theme */
+.ktab-reader-pc-drawer--theme-paper-sepia {
+  color: #3d3224;
+}
+.ktab-reader-pc-drawer--theme-paper-sepia .ktab-pc-tool-square {
+  background: rgba(244, 236, 216, 0.88);
+  border: 1px solid rgba(61, 50, 36, 0.12);
+  box-shadow: 0 4px 16px rgba(61, 50, 36, 0.06);
+}
+.ktab-reader-pc-drawer--theme-paper-sepia .ktab-pc-tool-square:hover {
+  background: #f4ecd8;
+  border-color: rgba(61, 50, 36, 0.24);
+  box-shadow: 0 8px 24px rgba(61, 50, 36, 0.1);
+}
+
+/* 4. Charcoal Dark Theme */
+.ktab-reader-pc-drawer--theme-charcoal-dark {
+  color: #f1f5f9;
+}
+.ktab-reader-pc-drawer--theme-charcoal-dark .ktab-pc-tool-square {
+  background: rgba(22, 26, 36, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+.ktab-reader-pc-drawer--theme-charcoal-dark .ktab-pc-tool-square:hover {
+  background: rgba(30, 36, 50, 0.92);
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55);
+}
+
+
+

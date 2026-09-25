@@ -14,6 +14,8 @@ export const useReaderPreferencesStore = create(
       volume: 0.7,
       isMuted: false,
       theme: "pure-white", // "pure-white" | "warm-cream" | "paper-sepia" | "charcoal-dark"
+      transitionMode: "curl", // "curl" | "flip3d" | "slide"
+      showFlipSelector: true,
 
       setFontSize: (fontSize) => set({ fontSize }),
       setVoice: (voice) => set({ voice }),
@@ -21,6 +23,9 @@ export const useReaderPreferencesStore = create(
       setVolume: (volume) => set({ volume }),
       setIsMuted: (isMuted) => set({ isMuted }),
       setTheme: (theme) => set({ theme }),
+      setTransitionMode: (transitionMode) => set({ transitionMode }),
+      setShowFlipSelector: (showFlipSelector) => set({ showFlipSelector }),
+      toggleFlipSelector: () => set((state) => ({ showFlipSelector: !state.showFlipSelector })),
 
       toggleMute: () => set((state) => ({ isMuted: !state.isMuted })),
 

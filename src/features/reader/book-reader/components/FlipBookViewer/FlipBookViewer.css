@@ -1,7 +1,7 @@
-
 /* ==========================================================================
    FLIPBOOK VIEWER STANDALONE STYLESHEET
-   Apple-inspired, ultra-clean single-page editorial book presentation
+   Kindle / Eleven Reader single-page presentation with fluid slide/fade shifts,
+   clean typography, and responsive edge tap zones.
    ========================================================================== */
 
 .ktab-flipbook-container {
@@ -13,7 +13,8 @@
   position: relative;
   user-select: none;
   overflow: hidden;
-  direction: ltr !important; /* Critical: keeps PageFlip canvas coordinates LTR centered */
+  direction: ltr !important;
+  touch-action: pan-y;
   transition: background-color 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -34,7 +35,7 @@
   background-color: #0a0c10;
 }
 
-/* TTS Word Highlighter - Clean Yellow Accent */
+/* TTS Word Highlighter */
 .tts-active-word {
   background: var(--highlight-yellow, #fde047) !important;
   color: #000000 !important;
@@ -47,84 +48,214 @@
   -webkit-box-decoration-break: clone;
 }
 
-/* Enforce Single-Page Fullscreen Dimensions in PageFlip Engine */
-.ktab-book-flip-engine,
-.stf__parent {
-  width: var(--single-page-width) !important;
-  max-width: var(--single-page-width) !important;
-  height: var(--single-page-height) !important;
-  margin: 0 auto !important;
-  direction: ltr !important;
-  position: relative !important;
-  display: block !important;
+/* Kindle-Style Stage */
+.ktab-kindle-stage {
+  position: relative;
+  margin: 0 auto;
+  user-select: none;
+  touch-action: pan-y;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden !important;
+  border-radius: 14px;
 }
 
-.stf__wrapper::before,
-.stf__wrapper::after {
-  display: none !important;
-}
-
-.stf__wrapper {
-  margin: 0 auto !important;
-  width: 100% !important;
-  height: 100% !important;
-}
-
-.stf__block {
-  width: 100% !important;
-  height: 100% !important;
-}
-
-.stf__item {
-  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.12),
-              0 2px 10px rgba(0, 0, 0, 0.04);
-  border-radius: 12px;
+/* Single Page Card */
+.ktab-single-page {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 14px;
+  box-sizing: border-box;
   overflow: hidden;
-  transform-style: preserve-3d !important;
-  will-change: transform;
-  contain: layout style;
-  transition: background-color 0.25s ease;
+  box-shadow: 0 16px 42px -10px rgba(0, 0, 0, 0.1),
+              0 2px 10px rgba(0, 0, 0, 0.04);
+  transition: background-color 0.25s ease, border-color 0.25s ease;
+  will-change: transform, opacity;
 }
 
-/* Theme Backgrounds mapped directly to stf__item and book-page for instant theme switching */
-.ktab-reader-theme--pure-white .stf__item,
-.ktab-reader-theme--pure-white .ktab-book-page {
-  background-color: #ffffff !important;
+/* Page Themes */
+.ktab-book-page--pure-white {
+  background-color: #ffffff;
   color: #0f172a;
+  border: 1px solid rgba(0, 0, 0, 0.07);
 }
 
-.ktab-reader-theme--warm-cream .stf__item,
-.ktab-reader-theme--warm-cream .ktab-book-page {
-  background-color: #fbf7ee !important;
+.ktab-book-page--warm-cream {
+  background-color: #fbf7ee;
   color: #2c2824;
+  border: 1px solid rgba(44, 40, 36, 0.08);
 }
 
-.ktab-reader-theme--paper-sepia .stf__item,
-.ktab-reader-theme--paper-sepia .ktab-book-page {
-  background-color: #f4ecd8 !important;
+.ktab-book-page--paper-sepia {
+  background-color: #f4ecd8;
   color: #3d3224;
+  border: 1px solid rgba(61, 50, 36, 0.1);
 }
 
-.ktab-reader-theme--charcoal-dark .stf__item,
-.ktab-reader-theme--charcoal-dark .ktab-book-page {
-  background-color: #12151c !important;
+.ktab-book-page--charcoal-dark {
+  background-color: #12151c;
   color: #f1f5f9;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.65),
               0 2px 12px rgba(0, 0, 0, 0.4);
 }
 
-/* Single Book Page Wrapper */
-.ktab-book-page {
-  width: 100%;
-  height: 100%;
-  position: relative;
-  direction: rtl !important;
-  box-sizing: border-box;
-  will-change: transform;
-  contain: layout style;
+/* Kindle-Style Page Transitions */
+.ktab-single-page--active {
+  animation: ktabPageFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Front Face: Inner Text Content Container */
+.ktab-single-page--shift-next {
+  animation: ktabPageShiftNext 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.ktab-single-page--shift-prev {
+  animation: ktabPageShiftPrev 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes ktabPageFadeIn {
+  from {
+    opacity: 0.85;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes ktabPageShiftNext {
+  from {
+    opacity: 0.4;
+    transform: translateX(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes ktabPageShiftPrev {
+  from {
+    opacity: 0.4;
+    transform: translateX(-18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ── 3D Page Flip Architecture ────────────────────────────────────────── */
+.ktab-stage--flip3d {
+  perspective: 2200px;
+  perspective-origin: 50% 50%;
+}
+
+.ktab-underlying-page {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 14px;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.ktab-3d-card {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transform-origin: left center;
+  transition: transform 0.44s cubic-bezier(0.2, 0.8, 0.25, 1);
+  will-change: transform;
+  z-index: 10;
+}
+
+.ktab-3d-card--flipping-next {
+  transform: rotateY(-180deg);
+}
+
+.ktab-3d-card--flipping-prev {
+  animation: ktab3DFlipPrev 0.44s cubic-bezier(0.2, 0.8, 0.25, 1) forwards;
+}
+
+@keyframes ktab3DFlipPrev {
+  from {
+    transform: rotateY(-180deg);
+  }
+  to {
+    transform: rotateY(0deg);
+  }
+}
+
+.ktab-3d-card__face {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 14px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.ktab-3d-card__face--front {
+  transform: rotateY(0deg);
+  z-index: 2;
+  box-shadow: 0 16px 42px -10px rgba(0, 0, 0, 0.1),
+              0 2px 10px rgba(0, 0, 0, 0.04);
+}
+
+.ktab-3d-card__face--back {
+  transform: rotateY(180deg);
+  z-index: 1;
+  background: var(--bg-primary);
+  color: #94a3b8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: none;
+  border: none;
+}
+
+.ktab-card-back-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  user-select: none;
+  opacity: 0.55;
+}
+
+.ktab-card-back-logo {
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
+  background: rgba(148, 163, 184, 0.12);
+  color: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  box-shadow: none;
+}
+
+.ktab-card-back-title {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: inherit;
+  font-family: var(--font-arabic, "Tajawal", system-ui, sans-serif);
+}
+
+
+/* Page Text Content Container */
 .ktab-book-page__content-wrap {
   width: 100%;
   height: 100%;
@@ -132,17 +263,17 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 44px 28px 36px;
+  padding: 52px 36px 44px;
   box-sizing: border-box;
   background-color: inherit;
   position: relative;
   z-index: 2;
-  transition: opacity 0.15s ease;
 }
 
 @media (min-width: 768px) {
   .ktab-book-page__content-wrap {
-    padding: 56px 48px 40px;
+    padding: 60px 58px 48px;
+    justify-content: center;
   }
 }
 
@@ -150,171 +281,22 @@
   width: 100%;
   max-width: 100%;
   max-height: calc(100% - 48px);
+  margin: auto 0;
   overflow: hidden;
   text-align: justify;
   text-align-last: start;
   font-family: var(--font-arabic, "Tajawal", system-ui, sans-serif);
-  user-select: text;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  -webkit-text-size-adjust: 100% !important;
+  text-size-adjust: 100% !important;
   word-spacing: 0.02em;
   direction: rtl;
   outline: none;
   word-break: break-word;
   overflow-wrap: break-word;
-}
-
-/* Back Face: Solid Color with Centered Ktab Brand Logo (Only shown on turning leaf) */
-.ktab-book-page__backface {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  display: none !important;
-  align-items: center;
-  justify-content: center;
-  z-index: 1;
-  pointer-events: none;
-  box-sizing: border-box;
-  background-color: inherit;
-}
-
-/* During peel / flip: Target ONLY the active turning leaf (assigned z-index: 5 by PageFlip).
-   Static pages (z-index: 1) and bottomPage (revealed next page, z-index: 3) NEVER match this. */
-.stf__item[style*="z-index: 5"] .ktab-book-page__content-wrap,
-.stf__item[style*="z-index:5"] .ktab-book-page__content-wrap {
-  opacity: 0 !important;
-  visibility: hidden !important;
-}
-
-.stf__item[style*="z-index: 5"] .ktab-book-page__backface,
-.stf__item[style*="z-index:5"] .ktab-book-page__backface {
-  display: flex !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  transform: none !important;
-  z-index: 10 !important;
-  background-color: inherit !important;
-}
-
-.ktab-reader-theme--pure-white .ktab-book-page__backface {
-  background-color: #ffffff !important;
-}
-
-.ktab-reader-theme--warm-cream .ktab-book-page__backface {
-  background-color: #fbf7ee !important;
-}
-
-.ktab-reader-theme--paper-sepia .ktab-book-page__backface {
-  background-color: #f4ecd8 !important;
-}
-
-.ktab-reader-theme--charcoal-dark .ktab-book-page__backface {
-  background-color: #12151c !important;
-}
-
-.ktab-book-page__backface-inner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  opacity: 0.88;
-  user-select: none;
-}
-
-.ktab-book-backface-logo {
-  width: 68px;
-  height: 68px;
-  object-fit: contain;
-  pointer-events: none;
-  user-select: none;
-}
-
-/* Hide accidental dog-ear fold corner element */
-.stf__corner {
-  display: none !important;
-}
-
-/* Full-Screen Mobile Paper Engine: Zero Borders, Zero Margins, Edge-to-Edge */
-@media (max-width: 767px) {
-  .ktab-flipbook-container {
-    width: 100% !important;
-    height: 100% !important;
-    height: 100dvh !important;
-    max-width: 100% !important;
-    max-height: 100dvh !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    border-radius: 0 !important;
-    background-color: transparent !important;
-    overflow: hidden !important;
-    touch-action: none !important;
-  }
-
-  .ktab-book-flip-engine,
-  .stf__parent {
-    width: 100% !important;
-    max-width: 100% !important;
-    height: 100% !important;
-    height: 100dvh !important;
-    max-height: 100dvh !important;
-    margin: 0 auto !important;
-    border-radius: 0 !important;
-    overflow: hidden !important;
-  }
-
-  .stf__wrapper,
-  .stf__block {
-    width: 100% !important;
-    height: 100% !important;
-    margin: 0 auto !important;
-  }
-
-  .stf__item {
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    border: none !important;
-  }
-
-  .ktab-book-page {
-    width: 100% !important;
-    height: 100% !important;
-    border-radius: 0 !important;
-    border: none !important;
-  }
-
-  .ktab-book-page__content-wrap {
-    padding: 56px 20px calc(44px + env(safe-area-inset-bottom, 0px)) !important;
-    width: 100% !important;
-    height: 100% !important;
-    box-sizing: border-box !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-  }
-
-  .ktab-book-page__text {
-    width: 100% !important;
-    max-width: 100% !important;
-    max-height: calc(100% - 24px) !important;
-    text-align: justify !important;
-    text-align-last: start !important;
-    word-break: break-word !important;
-    overflow-wrap: break-word !important;
-    margin: auto 0 !important;
-  }
-
-  .ktab-book-page__footer {
-    bottom: calc(12px + env(safe-area-inset-bottom, 0px)) !important;
-    z-index: 20 !important;
-  }
-
-  .ktab-book-page__number {
-    font-size: 12px !important;
-    font-weight: 700 !important;
-    opacity: 0.65 !important;
-    letter-spacing: 0.12em !important;
-  }
 }
 
 /* Page Number Footer */
@@ -341,13 +323,64 @@
   color: inherit;
 }
 
-/* Tactile Edge Flip Zones (Subtle click targets for desktop & active tap zones for mobile) */
+/* ── Luxury Minimalist End Page (صفحة النهاية / خاتمة الكتاب) ────────── */
+.ktab-book-page__content-wrap--end {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  padding: 40px 24px !important;
+  height: 100% !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.ktab-book-end-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  margin: auto;
+  user-select: none;
+  animation: ktabEndPageFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes ktabEndPageFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ktab-book-end-page__title {
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1.4;
+  margin: 0 0 12px;
+  color: inherit;
+  letter-spacing: -0.015em;
+  font-family: var(--font-arabic, "Tajawal", system-ui, sans-serif);
+}
+
+.ktab-book-end-page__author {
+  font-size: 18px;
+  font-weight: 500;
+  opacity: 0.65;
+  margin: 0;
+  color: inherit;
+  font-family: var(--font-arabic, "Tajawal", system-ui, sans-serif);
+  letter-spacing: 0.01em;
+}
+
+/* Tactile Edge Flip Zones (Tap to Flip & Desktop Hover Pills) */
 .ktab-flip-edge-trigger {
   position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 12%;
-  max-width: 90px;
   z-index: 30;
   cursor: pointer;
   display: flex;
@@ -362,33 +395,58 @@
   outline: none;
 }
 
-.ktab-flip-edge-trigger:hover {
+.ktab-flip-edge-trigger:hover:not(:disabled) {
   opacity: 1;
 }
 
-.ktab-flip-edge-trigger--prev {
-  right: 0;
+.ktab-flip-edge-trigger--disabled {
+  pointer-events: none;
+  opacity: 0 !important;
 }
 
+/* Horizontal Triggers: Left and Right Edge Zones spanning into margins */
 .ktab-flip-edge-trigger--next {
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: max(160px, calc((100vw - var(--single-page-width, 700px)) / 2 + 70px));
+  max-width: 48vw;
+}
+
+.ktab-flip-edge-trigger--prev {
+  top: 0;
+  bottom: 0;
   left: 0;
+  width: max(160px, calc((100vw - var(--single-page-width, 700px)) / 2 + 70px));
+  max-width: 48vw;
 }
 
-@media (max-width: 767px) {
-  .ktab-flip-edge-trigger {
-    width: 20% !important;
-    max-width: 80px !important;
-    opacity: 1 !important;
-    background: transparent !important;
-    -webkit-tap-highlight-color: transparent !important;
-    touch-action: manipulation !important;
-  }
+/* Vertical Triggers: Top and Bottom Edge Zones */
+.ktab-flip-edge-trigger--top {
+  top: 0;
+  left: 20%;
+  right: 20%;
+  height: max(64px, calc((100vh - var(--single-page-height, 860px)) / 2 + 30px));
+  max-height: 110px;
+  align-items: flex-start;
+  padding-top: 14px;
+  z-index: 31;
 }
 
-/* ── Tactile Flip Edge Arrow Pills (Themed Across All 4 Reader Themes) ── */
+.ktab-flip-edge-trigger--bottom {
+  bottom: 0;
+  left: 20%;
+  right: 20%;
+  height: max(64px, calc((100vh - var(--single-page-height, 860px)) / 2 + 30px));
+  max-height: 110px;
+  align-items: flex-end;
+  padding-bottom: 14px;
+  z-index: 31;
+}
+
 .ktab-flip-edge-pill {
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -403,61 +461,58 @@
               box-shadow 0.22s ease;
 }
 
-.ktab-flip-edge-trigger:hover .ktab-flip-edge-pill {
+.ktab-flip-edge-trigger:hover:not(:disabled) .ktab-flip-edge-pill {
   transform: scale(1.08);
 }
 
-.ktab-flip-edge-trigger:active .ktab-flip-edge-pill {
+.ktab-flip-edge-trigger:active:not(:disabled) .ktab-flip-edge-pill {
   transform: scale(0.95);
 }
 
-/* 1. Pure White Theme */
+/* Theme Pill Variants */
 .ktab-reader-theme--pure-white .ktab-flip-edge-pill {
   background: rgba(255, 255, 255, 0.9);
   border: 1px solid rgba(0, 0, 0, 0.1);
   color: #0f172a;
 }
-.ktab-reader-theme--pure-white .ktab-flip-edge-trigger:hover .ktab-flip-edge-pill {
+.ktab-reader-theme--pure-white .ktab-flip-edge-trigger:hover:not(:disabled) .ktab-flip-edge-pill {
   background: #ffffff;
   border-color: rgba(0, 0, 0, 0.2);
   color: #000000;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.14);
 }
 
-/* 2. Warm Cream Theme */
 .ktab-reader-theme--warm-cream .ktab-flip-edge-pill {
   background: rgba(251, 247, 238, 0.9);
   border: 1px solid rgba(44, 40, 36, 0.14);
   color: #2c2824;
 }
-.ktab-reader-theme--warm-cream .ktab-flip-edge-trigger:hover .ktab-flip-edge-pill {
+.ktab-reader-theme--warm-cream .ktab-flip-edge-trigger:hover:not(:disabled) .ktab-flip-edge-pill {
   background: #fbf7ee;
   border-color: rgba(44, 40, 36, 0.28);
   color: #171412;
   box-shadow: 0 6px 20px rgba(44, 40, 36, 0.12);
 }
 
-/* 3. Paper Sepia Theme */
 .ktab-reader-theme--paper-sepia .ktab-flip-edge-pill {
   background: rgba(244, 236, 216, 0.92);
   border: 1px solid rgba(61, 50, 36, 0.16);
   color: #3d3224;
 }
-.ktab-reader-theme--paper-sepia .ktab-flip-edge-trigger:hover .ktab-flip-edge-pill {
+.ktab-reader-theme--paper-sepia .ktab-flip-edge-trigger:hover:not(:disabled) .ktab-flip-edge-pill {
   background: #ece2c8;
   border-color: rgba(61, 50, 36, 0.32);
   color: #241c12;
   box-shadow: 0 6px 20px rgba(61, 50, 36, 0.14);
 }
 
-/* 4. Charcoal Dark Theme (Crisp Dark Glass & High Contrast Glow) */
 .ktab-reader-theme--charcoal-dark .ktab-flip-edge-pill {
   background: rgba(28, 33, 44, 0.9);
   border: 1px solid rgba(255, 255, 255, 0.16);
   color: #f1f5f9;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
 }
-.ktab-reader-theme--charcoal-dark .ktab-flip-edge-trigger:hover .ktab-flip-edge-pill {
+.ktab-reader-theme--charcoal-dark .ktab-flip-edge-trigger:hover:not(:disabled) .ktab-flip-edge-pill {
   background: #252c3d;
   border-color: rgba(255, 255, 255, 0.32);
   color: #ffffff;
@@ -514,7 +569,7 @@
   letter-spacing: -0.01em;
 }
 
-/* Empty State Card (When Book Has No Text in Database) */
+/* Empty State Card */
 .ktab-book-empty-container {
   display: flex;
   align-items: center;
@@ -570,4 +625,85 @@
   line-height: 1.6;
   opacity: 0.7;
   margin: 0;
+}
+
+/* Mobile & Tablet / iPad Full-Bleed Edge-to-Edge Experience */
+@media (max-width: 1024px) {
+  .ktab-single-page,
+  .ktab-kindle-stage,
+  .ktab-kindle-slide-page {
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  .ktab-book-page__content-wrap {
+    padding: 60px 24px calc(40px + env(safe-area-inset-bottom, 0px)) !important;
+    width: 100% !important;
+    height: 100% !important;
+    box-sizing: border-box !important;
+    justify-content: center !important;
+  }
+
+  .ktab-book-page__content-wrap--end {
+    padding: 36px 18px calc(36px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .ktab-book-end-page__title {
+    font-size: 26px !important;
+  }
+
+  .ktab-book-end-page__author {
+    font-size: 16px !important;
+  }
+
+  .ktab-book-page__text {
+    width: 100% !important;
+    max-width: 780px !important;
+    max-height: calc(100% - 24px) !important;
+    margin: auto 0 !important;
+  }
+
+  .ktab-book-page__footer {
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+    z-index: 20 !important;
+  }
+
+  .ktab-book-page__number {
+    font-size: 12.5px !important;
+    font-weight: 700 !important;
+    opacity: 0.65 !important;
+    letter-spacing: 0.12em !important;
+  }
+
+  .ktab-flip-edge-trigger--next,
+  .ktab-flip-edge-trigger--prev,
+  .ktab-flip-edge-trigger--top,
+  .ktab-flip-edge-trigger--bottom {
+    pointer-events: none !important;
+    display: none !important;
+  }
+}
+
+/* Specific iPad & Tablet spacing for natural height-filling reading layout (portrait & landscape) */
+@media (min-width: 768px) and (max-width: 1366px) {
+  .ktab-book-page__content-wrap {
+    padding: 68px 56px calc(48px + env(safe-area-inset-bottom, 0px)) !important;
+    justify-content: center !important;
+    align-items: center !important;
+    height: 100% !important;
+  }
+
+  .ktab-book-page__text {
+    width: 100% !important;
+    max-width: min(840px, calc(100vw - 110px)) !important;
+    max-height: calc(100% - 36px) !important;
+    margin: auto 0 !important;
+    align-self: center !important;
+    text-align: justify !important;
+    text-align-last: start !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    letter-spacing: -0.01em;
+  }
 }

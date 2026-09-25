@@ -270,4 +270,146 @@
     margin: 0.65rem auto 0;
     flex-shrink: 0;
   }
+
+  .ktab-fast-travel-card--theme-charcoal-dark,
+  .ktab-book-display-root--charcoal-dark .ktab-fast-travel-card,
+  .dark .ktab-fast-travel-card {
+    border-top: 1px solid rgba(255, 255, 255, 0.16) !important;
+  }
+
+  .ktab-fast-travel-card--theme-warm-cream {
+    border-top: 1px solid rgba(210, 195, 170, 0.6) !important;
+  }
+
+  .ktab-fast-travel-card--theme-paper-sepia {
+    border-top: 1px solid rgba(61, 50, 36, 0.16) !important;
+  }
+}
+
+/* ── Theme Adaptations for Fast Travel Modal ───────────────────────── */
+
+/* 1. Charcoal Dark Theme & System Dark Mode */
+.ktab-fast-travel-card--theme-charcoal-dark,
+.ktab-book-display-root--charcoal-dark .ktab-fast-travel-card,
+.dark .ktab-fast-travel-card {
+  background: linear-gradient(135deg, rgba(26, 32, 46, 0.96) 0%, rgba(15, 19, 28, 0.94) 100%) !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  color: #f1f5f9 !important;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.75), inset 0 1px 1.5px rgba(255, 255, 255, 0.16) !important;
+}
+
+.ktab-fast-travel-card--theme-charcoal-dark .ktab-reader-modal__header,
+.ktab-book-display-root--charcoal-dark .ktab-fast-travel-card .ktab-reader-modal__header,
+.dark .ktab-fast-travel-card .ktab-reader-modal__header {
+  border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.ktab-fast-travel-card--theme-charcoal-dark .ktab-reader-modal__title,
+.ktab-book-display-root--charcoal-dark .ktab-fast-travel-card .ktab-reader-modal__title,
+.dark .ktab-fast-travel-card .ktab-reader-modal__title {
+  color: #f8fafc !important;
+}
+
+.ktab-fast-travel-card--theme-charcoal-dark .ktab-reader-modal__subtitle,
+.ktab-book-display-root--charcoal-dark .ktab-fast-travel-card .ktab-reader-modal__subtitle,
+.dark .ktab-fast-travel-card .ktab-reader-modal__subtitle {
+  color: #94a3b8 !important;
+}
+
+.ktab-fast-travel-card--theme-charcoal-dark .ktab-reader-modal__close-btn,
+.ktab-book-display-root--charcoal-dark .ktab-fast-travel-card .ktab-reader-modal__close-btn,
+.dark .ktab-fast-travel-card .ktab-reader-modal__close-btn {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  color: #cbd5e1 !important;
+}
+
+.ktab-fast-travel-card--theme-charcoal-dark .ktab-reader-modal__close-btn:hover,
+.ktab-book-display-root--charcoal-dark .ktab-fast-travel-card .ktab-reader-modal__close-btn:hover,
+.dark .ktab-fast-travel-card .ktab-reader-modal__close-btn:hover {
+  background: #ffffff !important;
+  color: #0b0f19 !important;
+}
+
+.ktab-fast-travel-card--theme-charcoal-dark .ktab-chunk-tab-btn,
+.ktab-book-display-root--charcoal-dark .ktab-fast-travel-card .ktab-chunk-tab-btn,
+.dark .ktab-fast-travel-card .ktab-chunk-tab-btn {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: #94a3b8 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.ktab-fast-travel-card--theme-charcoal-dark .ktab-chunk-tab-btn--active,
+.ktab-book-display-root--charcoal-dark .ktab-fast-travel-card .ktab-chunk-tab-btn--active,
+.dark .ktab-fast-travel-card .ktab-chunk-tab-btn--active {
+  background: #ffffff !important;
+  color: #0b0f19 !important;
+  border-color: #ffffff !important;
+}
+
+.ktab-fast-travel-card--theme-charcoal-dark .ktab-chunks-nav-arrow,
+.ktab-book-display-root--charcoal-dark .ktab-fast-travel-card .ktab-chunks-nav-arrow,
+.dark .ktab-fast-travel-card .ktab-chunks-nav-arrow {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #cbd5e1 !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+.ktab-fast-travel-card--theme-charcoal-dark .ktab-page-node,
+.ktab-book-display-root--charcoal-dark .ktab-fast-travel-card .ktab-page-node,
+.dark .ktab-fast-travel-card .ktab-page-node {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: #cbd5e1 !important;
+}
+
+.ktab-fast-travel-card--theme-charcoal-dark .ktab-page-node:hover,
+.ktab-book-display-root--charcoal-dark .ktab-fast-travel-card .ktab-page-node:hover,
+.dark .ktab-fast-travel-card .ktab-page-node:hover {
+  background: rgba(255, 255, 255, 0.16) !important;
+  color: #ffffff !important;
+}
+
+.ktab-fast-travel-card--theme-charcoal-dark .ktab-page-node--active,
+.ktab-book-display-root--charcoal-dark .ktab-fast-travel-card .ktab-page-node--active,
+.dark .ktab-fast-travel-card .ktab-page-node--active {
+  background: #ffffff !important;
+  color: #0b0f19 !important;
+  border-color: #ffffff !important;
+  box-shadow: 0 4px 16px rgba(255, 255, 255, 0.25) !important;
+}
+
+.ktab-fast-travel-card--theme-charcoal-dark .ktab-reader-modal__handle-bar,
+.dark .ktab-fast-travel-card .ktab-reader-modal__handle-bar {
+  background: rgba(255, 255, 255, 0.22) !important;
+}
+
+/* 2. Warm Cream Theme */
+.ktab-fast-travel-card--theme-warm-cream {
+  background: linear-gradient(135deg, rgba(251, 247, 238, 0.96) 0%, rgba(245, 238, 220, 0.94) 100%) !important;
+  border-color: rgba(210, 195, 170, 0.6) !important;
+  color: #2c2824 !important;
+}
+.ktab-fast-travel-card--theme-warm-cream .ktab-reader-modal__title {
+  color: #2c2824 !important;
+}
+.ktab-fast-travel-card--theme-warm-cream .ktab-page-node {
+  background: rgba(44, 40, 36, 0.04) !important;
+  border-color: rgba(44, 40, 36, 0.08) !important;
+  color: #2c2824 !important;
+}
+
+/* 3. Paper Sepia Theme */
+.ktab-fast-travel-card--theme-paper-sepia {
+  background: linear-gradient(135deg, rgba(244, 236, 216, 0.96) 0%, rgba(235, 225, 197, 0.94) 100%) !important;
+  border-color: rgba(61, 50, 36, 0.16) !important;
+  color: #3d3224 !important;
+}
+.ktab-fast-travel-card--theme-paper-sepia .ktab-reader-modal__title {
+  color: #3d3224 !important;
+}
+.ktab-fast-travel-card--theme-paper-sepia .ktab-page-node {
+  background: rgba(61, 50, 36, 0.05) !important;
+  border-color: rgba(61, 50, 36, 0.1) !important;
+  color: #3d3224 !important;
 }

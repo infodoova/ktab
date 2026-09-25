@@ -1,16 +1,16 @@
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useMemo, useRef, useEffect, useCallback } from "react";
 
 /**
  * Custom hook encapsulating UI state and interaction handlers for ReaderGlassHeader.
- * Manages mobile toolbar expansion, smooth closing animation lifecycle,
- * font percentage metrics, and focus-clearing action clicks.
+ * Manages universal tools panel expansion (for both desktop side panel and mobile dock),
+ * smooth closing animation lifecycle, font percentage metrics, and focus-clearing action clicks.
  */
 export function useReaderGlassHeader({
   fontSize = 18,
   isControlsVisible = true,
   isLocked = false,
 }) {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isToolsOpen, setIsToolsOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const closeTimerRef = useRef(null);
 
@@ -22,12 +22,48 @@ export function useReaderGlassHeader({
     };
   }, []);
 
+  const openTools = useCallback(() => {
+    if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    setIsClosing(false);
+    setIsToolsOpen(true);
+  }, []);
+
+  const closeTools = useCallback(() => {
+    if (!isToolsOpen || isClosing) return;
+    setIsClosing(true);
+    if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    closeTimerRef.current = setTimeout(() => {
+      setIsToolsOpen(false);
+      setIsClosing(false);
+    }, 240);
+  }, [isToolsOpen, isClosing]);
+
+  const toggleTools = useCallback(() => {
+    if (isToolsOpen) {
+      closeTools();
+    } else {
+      openTools();
+    }
+  }, [isToolsOpen, closeTools, openTools]);
+
+  // Handle Escape key to close tools panel if open
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape" && isToolsOpen) {
+        closeTools();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isToolsOpen, closeTools]);
+
   const fontPercent = useMemo(
     () => Math.round((fontSize / 18) * 100),
     [fontSize]
   );
 
-  const isHidden = !isControlsVisible || isLocked;
+  const isHidden = isLocked;
 
   /**
    * Clears button focus before firing the action callback to prevent
@@ -40,27 +76,15 @@ export function useReaderGlassHeader({
     callback?.();
   };
 
-  const openMobileMenu = () => {
-    if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
-    setIsClosing(false);
-    setIsMobileMenuOpen(true);
-  };
-
-  const closeMobileMenu = () => {
-    if (!isMobileMenuOpen || isClosing) return;
-    setIsClosing(true);
-    if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
-    closeTimerRef.current = setTimeout(() => {
-      setIsMobileMenuOpen(false);
-      setIsClosing(false);
-    }, 250);
-  };
-
   return {
-    isMobileMenuOpen,
+    isToolsOpen,
+    isMobileMenuOpen: isToolsOpen, // backwards compatibility
     isClosing,
-    openMobileMenu,
-    closeMobileMenu,
+    toggleTools,
+    openTools,
+    closeTools,
+    openMobileMenu: openTools,
+    closeMobileMenu: closeTools,
     fontPercent,
     isHidden,
     handleActionClick,
@@ -68,3 +92,4 @@ export function useReaderGlassHeader({
 }
 
 export default useReaderGlassHeader;
+

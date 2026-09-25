@@ -1,0 +1,110 @@
+/* ==========================================================================
+   3D VERTICAL UPWARD SHEET FLIP TRANSITION
+   - Continuous uninterrupted page text with zero dividing seam lines.
+   - Smooth 3D upward perspective flip with realistic lighting and elevation.
+   - Hardware-accelerated transforms for 60fps mobile & desktop performance.
+   ========================================================================== */
+
+.ktab-vertical-flip-stage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  perspective: 1800px;
+  perspective-origin: 50% 100%;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  touch-action: pan-y pan-x;
+  overflow: hidden;
+  border-radius: 14px;
+}
+
+/* Underlying Page Layer (Pre-rendered smoothly underneath) */
+.ktab-vertical-page-underlying {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 14px;
+  z-index: 5;
+  pointer-events: none;
+  overflow: hidden;
+  box-shadow: 0 12px 36px -10px rgba(0, 0, 0, 0.12);
+  transform: translate3d(0, 0, 0);
+  will-change: transform, opacity;
+  animation: ktabUnderlyingRise 0.30s cubic-bezier(0.2, 0.8, 0.25, 1) forwards;
+}
+
+@keyframes ktabUnderlyingRise {
+  0% {
+    transform: scale(0.97) translate3d(0, 12px, 0);
+    opacity: 0.88;
+  }
+  100% {
+    transform: scale(1) translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+
+/* Continuous Active Page Sheet */
+.ktab-vertical-page-sheet {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 14px;
+  box-sizing: border-box;
+  overflow: hidden;
+  z-index: 10;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  box-shadow: 0 12px 36px -10px rgba(0, 0, 0, 0.12),
+              0 2px 8px rgba(0, 0, 0, 0.04);
+  transform-origin: 50% 0%;
+}
+
+/* Next Transition: Page lifts and flips up with 3D angle */
+.ktab-vertical-page-sheet--flipping-up {
+  animation: ktabVerticalFlipUp 0.30s cubic-bezier(0.2, 0.8, 0.25, 1) forwards;
+  pointer-events: none;
+}
+
+@keyframes ktabVerticalFlipUp {
+  0% {
+    transform: translate3d(0, 0, 0) rotateX(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(0, -100%, 0) rotateX(34deg) scale(0.96);
+    opacity: 0;
+  }
+}
+
+/* Prev Transition: Previous page flips down from top into place */
+.ktab-vertical-page-sheet--flipping-down {
+  animation: ktabVerticalFlipDown 0.30s cubic-bezier(0.2, 0.8, 0.25, 1) forwards;
+  pointer-events: none;
+}
+
+@keyframes ktabVerticalFlipDown {
+  0% {
+    transform: translate3d(0, -100%, 0) rotateX(34deg) scale(0.96);
+    opacity: 0;
+  }
+  100% {
+    transform: translate3d(0, 0, 0) rotateX(0deg) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Mobile, Tablet & iPad full-bleed adjustments */
+@media (max-width: 1024px) {
+  .ktab-vertical-flip-stage,
+  .ktab-vertical-page-underlying,
+  .ktab-vertical-page-sheet {
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+}

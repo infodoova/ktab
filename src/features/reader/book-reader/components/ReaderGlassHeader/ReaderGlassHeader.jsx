@@ -12,7 +12,7 @@ import {
   Unlock,
   Check,
   Volume2,
-  Menu,
+  SlidersHorizontal,
   X,
   VolumeX,
   CloudRain,
@@ -20,9 +20,19 @@ import {
   TreePalm,
   Maximize,
   Minimize,
+  BookOpen,
+  MoveUp,
+  ArrowLeft,
 } from "lucide-react";
-import { THEMES_LIST, VOICES_LIST, AMBIENT_EFFECTS } from "../../constants/readerConstants";
+import {
+  THEMES_LIST,
+  VOICES_LIST,
+  AMBIENT_EFFECTS,
+  TRANSITION_MODES,
+  ALLOW_RIGHT_CLICK,
+} from "../../constants/readerConstants";
 import { useReaderGlassHeader } from "../../hooks/useReaderGlassHeader";
+import { TransitionModeIcon } from "../TransitionModeIcon/TransitionModeIcon";
 import "./ReaderGlassHeader.css";
 
 const AMBIENT_ICON_MAP = {
@@ -33,14 +43,16 @@ const AMBIENT_ICON_MAP = {
 };
 
 /**
- * Apple visionOS / iOS 18 Liquid Glass Floating Dock & Controls.
- * - Mobile: Displays a single elegant launcher button that smoothly animates open
- *   to reveal all tools with an X close button, preventing screen clutter.
- * - Desktop: Full horizontal liquid glass floating dock.
- * - Root-level popovers with touch isolation to guarantee smooth scrolling on mobile.
+ * Editorial Liquid Glass Reader Controls.
+ * - Header: Single elegant launcher button in top-right corner on both PC and mobile.
+ * - PC: Pressing the launcher reveals a dedicated right-side panel filled with 1:1 square
+ *   tools with text underneath, balancing the left-side mode selector and filling side space.
+ *   Re-pressing collapses the panel smoothly.
+ * - Mobile: Pressing expands the compact floating dock.
  */
 export function ReaderGlassHeader(props) {
   const {
+    bookTitle = "",
     onBack,
     isPlaying = false,
     onTogglePlay,
@@ -52,6 +64,8 @@ export function ReaderGlassHeader(props) {
     onFontSizeChange,
     theme = "pure-white",
     onSelectTheme,
+    transitionMode = "curl",
+    onSelectTransitionMode,
     activePopover = null,
     onTogglePopover,
     onOpenFastTravel,
@@ -63,10 +77,10 @@ export function ReaderGlassHeader(props) {
   } = props;
 
   const {
-    isMobileMenuOpen,
+    isToolsOpen,
     isClosing,
-    openMobileMenu,
-    closeMobileMenu,
+    toggleTools,
+    closeTools,
     fontPercent,
     isHidden,
     handleActionClick,
@@ -75,6 +89,82 @@ export function ReaderGlassHeader(props) {
     isControlsVisible,
     isLocked,
   });
+
+  // PC 1:1 Square Tools Grid configuration (Symmetrical, high-contrast Apple style)
+  const pcTools = [
+    {
+      id: "play",
+      label: "قراءة صوتية",
+      sub: isPlaying ? "إيقاف مؤقت" : "بدء الاستماع",
+      icon: isPlaying ? Pause : Play,
+      isActive: isPlaying,
+      onClick: (e) => handleActionClick(e, onTogglePlay),
+    },
+    {
+      id: "voices",
+      label: "صوت القارئ",
+      sub: VOICES_LIST.find((v) => v.id === voice)?.label || "الأصوات",
+      icon: Headphones,
+      isActive: activePopover === "voices",
+      onClick: (e) => handleActionClick(e, () => onTogglePopover?.("voices")),
+    },
+    {
+      id: "ambient",
+      label: "أصوات هادئة",
+      sub: AMBIENT_EFFECTS.find((eff) => eff.id === effect)?.label || "الخلفية",
+      icon: effect !== "none" ? (AMBIENT_ICON_MAP[effect] || CloudRain) : Volume2,
+      isActive: effect !== "none" || activePopover === "ambient",
+      onClick: (e) => handleActionClick(e, () => onTogglePopover?.("ambient")),
+    },
+    {
+      id: "font",
+      label: "حجم الخط",
+      sub: `${fontPercent}% (${fontSize}px)`,
+      icon: Type,
+      isActive: activePopover === "font",
+      onClick: (e) => handleActionClick(e, () => onTogglePopover?.("font")),
+    },
+    {
+      id: "theme",
+      label: "المظهر والألوان",
+      sub: THEMES_LIST.find((t) => t.id === theme)?.name || "السمات",
+      icon: Palette,
+      isActive: activePopover === "theme",
+      onClick: (e) => handleActionClick(e, () => onTogglePopover?.("theme")),
+    },
+    {
+      id: "modes",
+      label: "تقليب الصفحات",
+      sub: TRANSITION_MODES.find((m) => m.id === transitionMode)?.shortTitle || "حركة الصفحات",
+      icon: BookOpen,
+      isActive: activePopover === "modes",
+      onClick: (e) => handleActionClick(e, () => onTogglePopover?.("modes")),
+    },
+    {
+      id: "fastTravel",
+      label: "فهرس الصفحات",
+      sub: "انتقال سريع",
+      icon: Compass,
+      isActive: false,
+      onClick: (e) => handleActionClick(e, onOpenFastTravel),
+    },
+    {
+      id: "fullscreen",
+      label: "ملء الشاشة",
+      sub: isFullscreen ? "إنهاء العرض" : "عرض كامل",
+      icon: isFullscreen ? Minimize : Maximize,
+      isActive: isFullscreen,
+      onClick: (e) => handleActionClick(e, onToggleFullscreen),
+    },
+    {
+      id: "lock",
+      label: "قفل الشاشة",
+      sub: "وضع التركيز",
+      icon: Lock,
+      isActive: isLocked,
+      onClick: (e) => handleActionClick(e, onToggleLock),
+    },
+  ];
 
   return (
     <>
@@ -101,7 +191,7 @@ export function ReaderGlassHeader(props) {
       <div
         className={`ktab-reader-back-anchor ktab-reader-header--theme-${theme} ${
           isHidden ? "ktab-reader-controls--hidden" : ""
-        } ${isMobileMenuOpen && !isClosing ? "ktab-reader-back-anchor--hidden-mobile" : ""}`}
+        } ${isToolsOpen && !isClosing ? "ktab-reader-back-anchor--hidden-mobile" : ""}`}
       >
         <div className="ktab-glass-btn-anchor">
           <button
@@ -118,7 +208,35 @@ export function ReaderGlassHeader(props) {
         </div>
       </div>
 
-      {/* 3. Backdrop overlay for dismissing popovers or mobile expanded menu cleanly */}
+      {/* 2.5 Top Book Title (Clean typography, completely non-selectable and copy-protected) */}
+      {bookTitle && (
+        <div
+          className={`ktab-reader-title-anchor ktab-reader-header--theme-${theme} ${
+            isHidden ? "ktab-reader-controls--hidden" : ""
+          } ${isToolsOpen ? "ktab-reader-title-anchor--tools-open" : ""}`}
+          aria-label={`عنوان الكتاب: ${bookTitle}`}
+          onCopy={(e) => e.preventDefault()}
+          onCut={(e) => e.preventDefault()}
+          onContextMenu={(e) => {
+            if (!ALLOW_RIGHT_CLICK) e.preventDefault();
+          }}
+          onSelectStart={(e) => e.preventDefault()}
+        >
+          <span
+            className="ktab-reader-title-text"
+            onCopy={(e) => e.preventDefault()}
+            onCut={(e) => e.preventDefault()}
+            onContextMenu={(e) => {
+              if (!ALLOW_RIGHT_CLICK) e.preventDefault();
+            }}
+            onSelectStart={(e) => e.preventDefault()}
+          >
+            {bookTitle}
+          </span>
+        </div>
+      )}
+
+      {/* 3. Backdrop overlay for dismissing popovers or tools menu cleanly */}
       {activePopover && (
         <div
           className="ktab-glass-popover-backdrop"
@@ -126,17 +244,17 @@ export function ReaderGlassHeader(props) {
           aria-hidden="true"
         />
       )}
-      {isMobileMenuOpen && !activePopover && (
+      {isToolsOpen && !activePopover && (
         <div
-          className={`ktab-mobile-dock-backdrop ${
-            isClosing ? "ktab-mobile-dock-backdrop--closing" : ""
+          className={`ktab-tools-backdrop ${
+            isClosing ? "ktab-tools-backdrop--closing" : ""
           }`}
-          onClick={closeMobileMenu}
+          onClick={closeTools}
           aria-hidden="true"
         />
       )}
 
-      {/* 4. Top-Level Liquid Glass Popovers (Rendered outside dock to avoid overflow clipping and touch interference) */}
+      {/* 4. Top-Level Liquid Glass Popovers */}
       {activePopover === "voices" && (
         <div
           className={`ktab-glass-popover ktab-voices-popover ktab-glass-popover--theme-${theme}`}
@@ -185,7 +303,7 @@ export function ReaderGlassHeader(props) {
                     </div>
                   </div>
                   <div className="flex items-center gap-1.5 flex-shrink-0">
-                    {isSelected && <Check size={16} strokeWidth={2.8} className="text-teal-500" />}
+                    {isSelected && <Check size={16} strokeWidth={2.8} />}
                     <span className="ktab-voice-popover-tag">
                       {isMale ? "قارئ" : "قارئة"}
                     </span>
@@ -243,7 +361,7 @@ export function ReaderGlassHeader(props) {
                       <span className="ktab-ambient-desc">{eff.desc}</span>
                     </div>
                   </div>
-                  {isSelected && <Check size={16} strokeWidth={2.8} className="text-teal-500" />}
+                  {isSelected && <Check size={16} strokeWidth={2.8} />}
                 </button>
               );
             })}
@@ -299,7 +417,6 @@ export function ReaderGlassHeader(props) {
             </button>
           </div>
 
-          {/* Live Font Sample Preview */}
           <div className="ktab-font-preview-box">
             <span style={{ fontSize: `${fontSize}px` }}>
               أبجد هوز حطي كلمن • كتاب يروي الفكر
@@ -381,40 +498,128 @@ export function ReaderGlassHeader(props) {
         </div>
       )}
 
-      {/* 5. Apple Liquid Glass Dock on Maximum Right */}
+      {/* 5. Flip Animation Mode Popover (Mobile & Tablet) */}
+      {activePopover === "modes" && (
+        <div
+          className={`ktab-glass-popover ktab-modes-popover ktab-glass-popover--theme-${theme}`}
+          onClick={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
+          onTouchMove={(e) => e.stopPropagation()}
+          dir="rtl"
+        >
+          <div className="ktab-popover-header">
+            <div className="flex items-center justify-between w-full">
+              <span className="ktab-popover-title">تقليب الصفحات</span>
+              <button
+                type="button"
+                className="ktab-popover-close-btn"
+                onClick={() => onTogglePopover?.(null)}
+                aria-label="إغلاق"
+              >
+                <X size={15} />
+              </button>
+            </div>
+            <span className="ktab-popover-subtitle">
+              اختر أسلوب الحركة والانتقال بين صفحات الكتاب
+            </span>
+          </div>
+
+          <div className="ktab-modes-cards-grid">
+            {TRANSITION_MODES.map((m) => {
+              const isSelected = transitionMode === m.id;
+              const activeThemeObj = THEMES_LIST.find((t) => t.id === theme) || THEMES_LIST[0];
+
+              return (
+                <button
+                  key={m.id}
+                  type="button"
+                  className={`ktab-mode-card-option ${
+                    isSelected ? "ktab-mode-card-option--active" : ""
+                  }`}
+                  onClick={() => {
+                    onSelectTransitionMode?.(m.id);
+                    onTogglePopover?.(null);
+                  }}
+                  title={m.desc}
+                >
+                  <div
+                    className="ktab-mode-mini-page"
+                    style={{
+                      backgroundColor: activeThemeObj.bgPreview,
+                      borderColor: isSelected ? undefined : activeThemeObj.borderPreview,
+                      color: activeThemeObj.textPreview,
+                    }}
+                  >
+                    <TransitionModeIcon mode={m.id} size={44} />
+
+                    {isSelected && (
+                      <div className="ktab-mode-check-badge">
+                        <Check size={12} strokeWidth={3.5} />
+                      </div>
+                    )}
+                  </div>
+
+                  <span className="ktab-mode-card-name">
+                    {m.id === "curl"
+                      ? "ورق واقعي"
+                      : m.id === "flip3d"
+                      ? "تقليب رأسي"
+                      : "انزلاق أفقي"}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* 6. Universal Single Launcher Button in Top-Right Corner */}
       <div
         className={`ktab-reader-dock-anchor ktab-reader-header--theme-${theme} ${
           isHidden ? "ktab-reader-controls--hidden" : ""
-        } ${isMobileMenuOpen ? "ktab-reader-dock-anchor--expanded" : ""} ${
+        } ${isToolsOpen ? "ktab-reader-dock-anchor--expanded" : ""} ${
           isClosing ? "ktab-reader-dock-anchor--closing" : ""
         }`}
       >
+        {/* Top-Right Circular Launcher Button */}
+        <div className="ktab-glass-btn-anchor">
+          <button
+            type="button"
+            className={`ktab-glass-circle-btn ${
+              isToolsOpen ? "ktab-glass-circle-btn--active" : ""
+            }`}
+            onClick={(e) => handleActionClick(e, toggleTools)}
+            aria-label={isToolsOpen ? "إغلاق قائمة الأدوات" : "أدوات وخيارات القارئ"}
+            title={isToolsOpen ? "إغلاق" : "الأدوات"}
+          >
+            {isToolsOpen ? (
+              <X size={18} strokeWidth={2.4} />
+            ) : (
+              <SlidersHorizontal size={18} strokeWidth={2.2} />
+            )}
+          </button>
+          {!isToolsOpen && (
+            <span className="ktab-glass-tooltip" role="tooltip">
+              أدوات القارئ
+            </span>
+          )}
+        </div>
+
+        {/* Mobile-Only Expanded Floating Dock */}
         <div
           className={`ktab-reader-dock ktab-reader-dock--theme-${theme} ${
-            isMobileMenuOpen
+            isToolsOpen
               ? "ktab-reader-dock--expanded"
               : "ktab-reader-dock--collapsed"
           } ${isClosing ? "ktab-reader-dock--closing" : ""}`}
           role="toolbar"
-          aria-label="أدوات القارئ"
+          aria-label="أدوات القارئ للجوال"
         >
-          {/* Mobile Launcher Button: Visible on mobile when collapsed */}
-          <button
-            type="button"
-            className="ktab-glass-circle-btn ktab-mobile-launcher-btn"
-            onClick={openMobileMenu}
-            aria-label="أدوات وخيارات القارئ"
-            title="الأدوات"
-          >
-            <Menu size={18} strokeWidth={2.4} />
-          </button>
-
-          {/* Mobile Close Button & Divider: Visible when expanded on mobile */}
           <div className="ktab-mobile-close-group">
             <button
               type="button"
               className="ktab-glass-circle-btn ktab-mobile-close-btn"
-              onClick={closeMobileMenu}
+              onClick={closeTools}
               aria-label="إغلاق قائمة الأدوات"
               title="إغلاق"
             >
@@ -423,9 +628,8 @@ export function ReaderGlassHeader(props) {
             <div className="ktab-mobile-divider" aria-hidden="true" />
           </div>
 
-          {/* Tools Container (1 row on desktop flex, 2 rows of 4 on mobile grid) */}
           <div className="ktab-reader-dock__tools">
-            {/* Action 1: Play / Pause TTS */}
+            {/* Play/Pause */}
             <div className="ktab-glass-btn-anchor">
               <button
                 type="button"
@@ -433,20 +637,13 @@ export function ReaderGlassHeader(props) {
                   isPlaying ? "ktab-glass-circle-btn--playing" : ""
                 }`}
                 onClick={(e) => handleActionClick(e, onTogglePlay)}
-                aria-label={isPlaying ? "إيقاف القراءة الصوتية" : "بدء الاستماع"}
+                aria-label={isPlaying ? "إيقاف القراءة" : "بدء الاستماع"}
               >
-                {isPlaying ? (
-                  <Pause size={18} strokeWidth={2.4} />
-                ) : (
-                  <Play size={18} strokeWidth={2.4} />
-                )}
+                {isPlaying ? <Pause size={17} strokeWidth={2.4} /> : <Play size={17} strokeWidth={2.4} />}
               </button>
-              <span className="ktab-glass-tooltip" role="tooltip">
-                {isPlaying ? "إيقاف مؤقت" : "بدء الاستماع"}
-              </span>
             </div>
 
-            {/* Action 2: Voices Selector */}
+            {/* Voices */}
             <div className="ktab-glass-btn-anchor">
               <button
                 type="button"
@@ -454,41 +651,31 @@ export function ReaderGlassHeader(props) {
                   activePopover === "voices" ? "ktab-glass-circle-btn--active" : ""
                 }`}
                 onClick={(e) => handleActionClick(e, () => onTogglePopover?.("voices"))}
-                aria-label="اختيار صوت القارئ"
+                aria-label="أصوات القراء"
               >
-                <Headphones size={18} strokeWidth={2.2} />
+                <Headphones size={17} strokeWidth={2.2} />
               </button>
-              {activePopover !== "voices" && (
-                <span className="ktab-glass-tooltip" role="tooltip">
-                  أصوات القراء
-                </span>
-              )}
             </div>
 
-            {/* Action 3: Ambient Background Sound */}
+            {/* Ambient */}
             <div className="ktab-glass-btn-anchor">
               <button
                 type="button"
                 className={`ktab-glass-circle-btn ${
                   effect !== "none" ? "ktab-glass-circle-btn--ambient-on" : ""
-                } ${activePopover === "ambient" ? "ktab-glass-circle-btn--active" : ""}`}
+                }`}
                 onClick={(e) => handleActionClick(e, () => onTogglePopover?.("ambient"))}
-                aria-label="المؤثرات الصوتية وأصوات الخلفية"
+                aria-label="المؤثرات الصوتية"
               >
                 {effect === "none" ? (
-                  <Volume2 size={18} strokeWidth={2.2} />
+                  <Volume2 size={17} strokeWidth={2.2} />
                 ) : (
-                  React.createElement(AMBIENT_ICON_MAP[effect] || CloudRain, { size: 18, strokeWidth: 2.2 })
+                  React.createElement(AMBIENT_ICON_MAP[effect] || CloudRain, { size: 17, strokeWidth: 2.2 })
                 )}
               </button>
-              {activePopover !== "ambient" && (
-                <span className="ktab-glass-tooltip" role="tooltip">
-                  أصوات الخلفية
-                </span>
-              )}
             </div>
 
-            {/* Action 4: Font Size Stepper */}
+            {/* Font */}
             <div className="ktab-glass-btn-anchor">
               <button
                 type="button"
@@ -496,18 +683,13 @@ export function ReaderGlassHeader(props) {
                   activePopover === "font" ? "ktab-glass-circle-btn--active" : ""
                 }`}
                 onClick={(e) => handleActionClick(e, () => onTogglePopover?.("font"))}
-                aria-label="تكبير وتصغير حجم الخط"
+                aria-label="حجم الخط"
               >
-                <Type size={18} strokeWidth={2.2} />
+                <Type size={17} strokeWidth={2.2} />
               </button>
-              {activePopover !== "font" && (
-                <span className="ktab-glass-tooltip" role="tooltip">
-                  حجم الخط ({fontPercent}%)
-                </span>
-              )}
             </div>
 
-            {/* Action 5: Theme Colors & Background */}
+            {/* Theme */}
             <div className="ktab-glass-btn-anchor">
               <button
                 type="button"
@@ -515,33 +697,40 @@ export function ReaderGlassHeader(props) {
                   activePopover === "theme" ? "ktab-glass-circle-btn--active" : ""
                 }`}
                 onClick={(e) => handleActionClick(e, () => onTogglePopover?.("theme"))}
-                aria-label="ألوان وخلفية القراءة"
+                aria-label="المظهر والألوان"
               >
-                <Palette size={18} strokeWidth={2.2} />
+                <Palette size={17} strokeWidth={2.2} />
               </button>
-              {activePopover !== "theme" && (
-                <span className="ktab-glass-tooltip" role="tooltip">
-                  المظهر والألوان
-                </span>
-              )}
             </div>
 
-            {/* Action 6: Fast Travel */}
+            {/* Transition Modes (Mobile Popover Trigger) */}
+            <div className="ktab-glass-btn-anchor">
+              <button
+                type="button"
+                className={`ktab-glass-circle-btn ${
+                  activePopover === "modes" ? "ktab-glass-circle-btn--active" : ""
+                }`}
+                onClick={(e) => handleActionClick(e, () => onTogglePopover?.("modes"))}
+                aria-label="تقليب الصفحات"
+                title="تقليب الصفحات"
+              >
+                <BookOpen size={17} strokeWidth={2.2} />
+              </button>
+            </div>
+
+            {/* Fast Travel */}
             <div className="ktab-glass-btn-anchor">
               <button
                 type="button"
                 className="ktab-glass-circle-btn"
                 onClick={(e) => handleActionClick(e, onOpenFastTravel)}
-                aria-label="فهرس الصفحات والتنقل السريع"
+                aria-label="فهرس الصفحات"
               >
-                <Compass size={18} strokeWidth={2.2} />
+                <Compass size={17} strokeWidth={2.2} />
               </button>
-              <span className="ktab-glass-tooltip" role="tooltip">
-                فهرس الصفحات
-              </span>
             </div>
 
-            {/* Action 7: True Fullscreen Toggle */}
+            {/* Fullscreen */}
             <div className="ktab-glass-btn-anchor">
               <button
                 type="button"
@@ -549,39 +738,54 @@ export function ReaderGlassHeader(props) {
                   isFullscreen ? "ktab-glass-circle-btn--active" : ""
                 }`}
                 onClick={(e) => handleActionClick(e, onToggleFullscreen)}
-                aria-label={isFullscreen ? "الخروج من وضع ملء الشاشة" : "وضع ملء الشاشة الكامل"}
-                title={isFullscreen ? "الخروج من ملء الشاشة" : "ملء الشاشة"}
+                aria-label="ملء الشاشة"
               >
-                {isFullscreen ? (
-                  <Minimize size={18} strokeWidth={2.2} />
-                ) : (
-                  <Maximize size={18} strokeWidth={2.2} />
-                )}
+                {isFullscreen ? <Minimize size={17} strokeWidth={2.2} /> : <Maximize size={17} strokeWidth={2.2} />}
               </button>
-              <span className="ktab-glass-tooltip" role="tooltip">
-                {isFullscreen ? "إنهاء ملء الشاشة" : "ملء الشاشة"}
-              </span>
-            </div>
-
-            {/* Action 8: Focus Lock */}
-            <div className="ktab-glass-btn-anchor">
-              <button
-                type="button"
-                className="ktab-glass-circle-btn"
-                onClick={(e) => handleActionClick(e, onToggleLock)}
-                aria-label="قفل الشاشة وإخفاء الأدوات للتركيز"
-              >
-                <Lock size={18} strokeWidth={2.2} />
-              </button>
-              <span className="ktab-glass-tooltip" role="tooltip">
-                قفل الشاشة
-              </span>
             </div>
           </div>
         </div>
       </div>
+
+      {/* 7. PC Desktop Right-Side Revealed Panel (2-Column Grid of 1:1 Squares) */}
+      {isToolsOpen && (
+        <aside
+          className={`ktab-reader-pc-drawer ktab-reader-pc-drawer--theme-${theme} ${
+            isClosing ? "ktab-reader-pc-drawer--closing" : ""
+          }`}
+          aria-label="أدوات القارئ والتحكم"
+          dir="rtl"
+        >
+          <div className="ktab-reader-pc-drawer__grid">
+            {pcTools.map((tool) => {
+              const IconComp = tool.icon;
+              return (
+                <button
+                  key={tool.id}
+                  type="button"
+                  className={`ktab-pc-tool-square ${
+                    tool.isActive ? "ktab-pc-tool-square--active" : ""
+                  }`}
+                  onClick={tool.onClick}
+                  aria-label={tool.label}
+                  title={`${tool.label} - ${tool.sub}`}
+                >
+                  <div className="ktab-pc-tool-square__icon">
+                    <IconComp size={22} strokeWidth={2.2} />
+                  </div>
+                  <div className="ktab-pc-tool-square__label">
+                    <span className="ktab-pc-tool-square__title">{tool.label}</span>
+                    <span className="ktab-pc-tool-square__sub">{tool.sub}</span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </aside>
+      )}
     </>
   );
 }
 
 export default ReaderGlassHeader;
+

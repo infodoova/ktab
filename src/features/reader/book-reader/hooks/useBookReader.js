@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect, useCallback } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { fetchBookContent, saveReadingProgress } from "../services/bookReaderService";
+import { fetchBookDetailsById } from "@/features/reader/book-details/services/bookDetailsService";
 import { AlertToast } from "@/components/myui/AlertToast";
 import { useAuthStore, useReaderPreferencesStore } from "@/core/store";
 import { useReaderTTS } from "./useReaderTTS";
@@ -13,8 +14,6 @@ import {
 import rainFile from "@/assets/audio/rain.mp3";
 import windFile from "@/assets/audio/wind.mp3";
 import natureFile from "@/assets/audio/nature.mp3";
-
-import { FAKE_BIG_TEST_BOOK } from "@/fakedataorassets/testData";
 
 const EFFECT_FILES = {
   rain: rainFile,
@@ -43,18 +42,39 @@ export function useBookReader() {
     cycleVolume,
     theme = "pure-white",
     setTheme,
+    transitionMode = "curl",
+    setTransitionMode,
   } = useReaderPreferencesStore();
 
   const [isLocked, setIsLocked] = useState(false);
   const [isControlsVisible, setIsControlsVisible] = useState(true);
   const [activePopover, setActivePopover] = useState(null); // "theme" | "font" | "ambient" | "voices" | null
   const [activeModal, setActiveModal] = useState(null); // "fastTravel" | null
+  const location = useLocation();
+  const [bookTitle, setBookTitle] = useState(() => {
+    return (
+      location?.state?.bookTitle ||
+      location?.state?.title ||
+      location?.state?.book?.title ||
+      ""
+    );
+  });
+  const [bookAuthor, setBookAuthor] = useState(() => {
+    return (
+      location?.state?.bookAuthor ||
+      location?.state?.author ||
+      location?.state?.book?.author ||
+      location?.state?.authorName ||
+      location?.state?.book?.authorName ||
+      ""
+    );
+  });
   const [totalPages, setTotalPages] = useState(1);
 
   const bookRef = useRef(null);
   const [bookText, setBookText] = useState("");
   const [loadingText, setLoadingText] = useState(true);
-  const [wordsPerPage] = useState(110);
+  const [wordsPerPage] = useState(80);
 
   const handleFontSizeChange = (newSize) => {
     setFontSize(newSize);
@@ -108,10 +128,39 @@ export function useBookReader() {
           .replace(/\b(null|undefined)\b/gi, "")
           .trim();
 
-        // If server book has no extracted text in DB, use FAKE_BIG_TEST_BOOK for rapid pagination testing
-        const finalContent = cleaned && cleaned.length >= 50 ? cleaned : FAKE_BIG_TEST_BOOK;
+        // Use authentic backend text directly
+        const finalContent = cleaned;
 
         if (active) {
+          if (data?.title || data?.bookTitle || data?.name) {
+            setBookTitle(data.title || data.bookTitle || data.name);
+          }
+          if (data?.author || data?.authorName || data?.authors) {
+            const rawAuth = data?.author || data?.authorName || data?.authors;
+            const authStr = Array.isArray(rawAuth)
+              ? rawAuth.map((a) => (typeof a === "string" ? a : a?.name || a?.authorName)).filter(Boolean).join("، ")
+              : (typeof rawAuth === "string" ? rawAuth : "");
+            if (authStr) setBookAuthor(authStr);
+          }
+
+          if (!bookTitle || !bookAuthor) {
+            fetchBookDetailsById(id)
+              .then((metaRes) => {
+                if (!active) return;
+                if (metaRes?.data?.title || metaRes?.data?.name) {
+                  setBookTitle(metaRes.data.title || metaRes.data.name);
+                }
+                const rawAuth = metaRes?.data?.author || metaRes?.data?.authorName || metaRes?.data?.authors;
+                if (rawAuth) {
+                  const authStr = Array.isArray(rawAuth)
+                    ? rawAuth.map((a) => (typeof a === "string" ? a : a?.name || a?.authorName)).filter(Boolean).join("، ")
+                    : (typeof rawAuth === "string" ? rawAuth : "");
+                  if (authStr) setBookAuthor(authStr);
+                }
+              })
+              .catch(() => {});
+          }
+
           setBookText(finalContent);
           const wordEstimate = finalContent.trim().split(/\s+/).filter(Boolean).length;
           const pageEstimate = Math.max(1, Math.ceil(wordEstimate / 110));
@@ -371,14 +420,14 @@ export function useBookReader() {
       const pages = generatedPagesRef.current;
       if (nextPage <= pages.length) {
         const nextInfo = pages[nextPage - 1];
-        if (nextInfo) {
+        if (nextInfo && !nextInfo.isEndPage) {
           startPageStream(
             {
               bookId: id,
               voiceId: voice,
               startWord: nextInfo.startWord,
               endWord: nextInfo.endWord,
-              isLastPage: nextPage === pages.length,
+              isLastPage: nextPage === pages.length - 1,
             },
             nextInfo.startChar,
             { prefetch: true }
@@ -399,20 +448,25 @@ export function useBookReader() {
         const pages = generatedPagesRef.current;
         const info = pages[newPage - 1];
         if (info) {
+          if (info.isEndPage) {
+            cancelStream();
+            togglePlay();
+            return;
+          }
           startPageStream(
             {
               bookId: id,
               voiceId: voice,
               startWord: info.startWord,
               endWord: info.endWord,
-              isLastPage: newPage === pages.length,
+              isLastPage: newPage === pages.length - 1,
             },
             info.startChar
           );
         }
       }
     },
-    [isPlaying, id, voice, token, startPageStream]
+    [isPlaying, id, voice, token, startPageStream, cancelStream, togglePlay]
   );
 
 
@@ -420,7 +474,7 @@ export function useBookReader() {
     if (!isPlaying) {
       const pages = generatedPagesRef.current;
       const info = pages[currentPage - 1];
-      if (info) {
+      if (info && !info.isEndPage) {
         await togglePlay();
         startPageStream(
           {
@@ -428,7 +482,7 @@ export function useBookReader() {
             voiceId: voice,
             startWord: info.startWord,
             endWord: info.endWord,
-            isLastPage: currentPage === pages.length,
+            isLastPage: currentPage === pages.length - 1,
           },
           info.startChar
         );
@@ -472,19 +526,8 @@ export function useBookReader() {
         handleClosePopover();
         return;
       }
-      if (
-        e.target.closest("button") ||
-        e.target.closest(".ktab-glass-circle-btn") ||
-        e.target.closest(".ktab-flip-edge-trigger") ||
-        e.target.closest(".ktab-glass-popover") ||
-        e.target.closest(".ktab-reader-dock") ||
-        e.target.closest(".ktab-mobile-page-nav")
-      ) {
-        return;
-      }
-      toggleControls();
     },
-    [activePopover, handleClosePopover, toggleControls]
+    [activePopover, handleClosePopover]
   );
 
   const handleBack = useCallback(() => {
@@ -599,6 +642,8 @@ export function useBookReader() {
     handleBack,
     handleRootClick,
     bookRef,
+    bookTitle,
+    bookAuthor,
     bookText,
     loadingText,
     wordsPerPage,
@@ -614,6 +659,8 @@ export function useBookReader() {
     theme,
     handleSelectTheme,
     handleCycleTheme,
+    transitionMode,
+    handleSelectTransitionMode: setTransitionMode,
     isLocked,
     handleToggleLock,
     isFullscreen,

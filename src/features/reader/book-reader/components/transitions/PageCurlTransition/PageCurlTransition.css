@@ -1,0 +1,164 @@
+/* ==========================================================================
+   PHYSICAL 3D PAGE CURL TRANSITION (STPAGEFLIP ENGINE)
+   - Real paper mesh flexion, corner drag physics, dynamic polygon clipping.
+   - Strictly bounded single page: overflow hidden, zero left-side bleed.
+   - Solid branded theme reverse sheet with centered BrandIcon on turning flap.
+   - Hardware-accelerated shadows with natural multiply blending.
+   ========================================================================== */
+
+.ktab-page-curl-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden !important;
+  border-radius: 14px;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  box-sizing: border-box;
+}
+
+@media (max-width: 1024px) {
+  .ktab-page-curl-wrap {
+    border-radius: 0 !important;
+  }
+}
+
+/* StPageFlip root container overrides to lock single-page dimensions */
+.ktab-page-curl-container,
+.stf__parent {
+  position: relative;
+  display: block;
+  overflow: hidden !important;
+  border-radius: inherit;
+  margin: 0 auto !important;
+  box-sizing: border-box;
+}
+
+.stf__wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden !important;
+  border-radius: inherit;
+  box-sizing: border-box;
+}
+
+.stf__block {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden !important;
+  border-radius: inherit;
+  box-sizing: border-box;
+}
+
+/* Individual Page Leaf */
+.ktab-page-curl-leaf {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
+
+.ktab-page-curl-content {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Backface Emblem (Hidden by default on stationary reading page) */
+.ktab-page-curl-backface {
+  display: none;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   REVERSE LEAF: SOLID THEME COLOR WITH CENTERED KTAB LOGO
+   Triggered on the dynamically cloned element when the leaf curls over.
+   ═══════════════════════════════════════════════════════════════════ */
+.ktab-page-curl-leaf--back {
+  background-color: var(--bg-primary) !important;
+}
+
+.ktab-page-curl-leaf--back .ktab-page-curl-content {
+  display: none !important;
+}
+
+.ktab-page-curl-leaf--back .ktab-page-curl-backface {
+  display: flex !important;
+}
+
+.ktab-curl-brand-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.ktab-curl-brand-img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  opacity: 0.5;
+  filter: grayscale(100%);
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Theme-specific styles for the turning leaf backface */
+.ktab-page-curl-leaf--theme-pure-white.ktab-page-curl-leaf--back {
+  background-color: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.ktab-page-curl-leaf--theme-warm-cream.ktab-page-curl-leaf--back {
+  background-color: #fbf7ee !important;
+  border: 1px solid rgba(44, 40, 36, 0.07);
+}
+
+.ktab-page-curl-leaf--theme-paper-sepia.ktab-page-curl-leaf--back {
+  background-color: #f4ecd8 !important;
+  border: 1px solid rgba(61, 50, 36, 0.08);
+}
+
+.ktab-page-curl-leaf--theme-charcoal-dark.ktab-page-curl-leaf--back {
+  background-color: #12151c !important;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ktab-page-curl-leaf--theme-charcoal-dark .ktab-curl-brand-img {
+  filter: grayscale(100%) brightness(2.2);
+  opacity: 0.65;
+}
+
+/* StPageFlip Hardware-accelerated Shadow Customization */
+.stf__outerShadow,
+.stf__innerShadow,
+.stf__hardShadow,
+.stf__hardInnerShadow {
+  pointer-events: none !important;
+  mix-blend-mode: multiply;
+}
+
+.ktab-reader-theme--charcoal-dark .stf__outerShadow,
+.ktab-reader-theme--charcoal-dark .stf__innerShadow {
+  mix-blend-mode: soft-light;
+  opacity: 0.55;
+}

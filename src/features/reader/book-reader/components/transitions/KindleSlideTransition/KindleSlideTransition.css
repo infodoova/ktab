@@ -1,0 +1,67 @@
+/* ==========================================================================
+   KINDLE SLIDE TRANSITION STYLESHEET
+   Hardware-accelerated e-ink slide & fade with zero landing glitch on mobile.
+   ========================================================================== */
+
+.ktab-kindle-slide-wrap {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
+
+.ktab-kindle-slide-page {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 14px;
+  box-sizing: border-box;
+  overflow: hidden;
+  box-shadow: 0 16px 42px -10px rgba(0, 0, 0, 0.1),
+              0 2px 10px rgba(0, 0, 0, 0.04);
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  perspective: 1000px;
+  will-change: transform, opacity;
+}
+
+.ktab-kindle-slide-page--active {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+.ktab-kindle-slide-page--shift-next {
+  animation: ktabKindleShiftNext 0.32s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+}
+
+.ktab-kindle-slide-page--shift-prev {
+  animation: ktabKindleShiftPrev 0.32s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+}
+
+@keyframes ktabKindleShiftNext {
+  0% {
+    opacity: 0.2;
+    transform: translate3d(32px, 0, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes ktabKindleShiftPrev {
+  0% {
+    opacity: 0.2;
+    transform: translate3d(-32px, 0, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}

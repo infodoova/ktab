@@ -2,8 +2,8 @@ import React from "react";
 import { FlipBookViewer } from "../components/FlipBookViewer";
 import { ReaderGlassHeader } from "../components/ReaderGlassHeader";
 import { FastTravelModal } from "../components/FastTravelModal";
-import { MobilePageNav } from "../components/MobilePageNav";
 import { useBookReader } from "../hooks/useBookReader";
+import { ALLOW_RIGHT_CLICK } from "../constants/readerConstants";
 import { ErrorBoundary } from "@/components/common";
 import "./BookDisplayView.css";
 
@@ -18,6 +18,8 @@ export function BookDisplayView() {
     handleBack,
     handleRootClick,
     bookRef,
+    bookTitle,
+    bookAuthor,
     bookText,
     loadingText,
     wordsPerPage,
@@ -29,6 +31,8 @@ export function BookDisplayView() {
     handleFontSizeChange,
     theme,
     handleSelectTheme,
+    transitionMode,
+    handleSelectTransitionMode,
     isPlaying,
     currentPage,
     totalPages,
@@ -56,9 +60,16 @@ export function BookDisplayView() {
       dir="rtl"
       className={`ktab-book-display-root ktab-book-display-root--${theme}`}
       onClick={handleRootClick}
+      onCopy={(e) => e.preventDefault()}
+      onCut={(e) => e.preventDefault()}
+      onContextMenu={(e) => {
+        if (!ALLOW_RIGHT_CLICK) e.preventDefault();
+      }}
+      onSelectStart={(e) => e.preventDefault()}
     >
       {/* Apple Liquid Glass Floating Dock Controls */}
       <ReaderGlassHeader
+        bookTitle={bookTitle}
         onBack={handleBack}
         isPlaying={isPlaying}
         onTogglePlay={handleTogglePlay}
@@ -70,6 +81,8 @@ export function BookDisplayView() {
         onFontSizeChange={handleFontSizeChange}
         theme={theme}
         onSelectTheme={handleSelectTheme}
+        transitionMode={transitionMode}
+        onSelectTransitionMode={handleSelectTransitionMode}
         activePopover={activePopover}
         onTogglePopover={handleTogglePopover}
         onOpenFastTravel={handleOpenFastTravel}
@@ -98,9 +111,14 @@ export function BookDisplayView() {
             fontSize={fontSize}
             wordsPerPage={wordsPerPage}
             theme={theme}
+            transitionMode={transitionMode}
             isRTL={true}
+            isLocked={isLocked}
             onPageChange={handlePageChange}
             onPagesGenerated={onPagesGenerated}
+            bookTitle={bookTitle}
+            bookAuthor={bookAuthor}
+            onBack={handleBack}
           />
         </ErrorBoundary>
       </main>
@@ -111,18 +129,8 @@ export function BookDisplayView() {
         onClose={handleCloseModal}
         currentPage={currentPage}
         totalPages={totalPages}
-        onGoToPage={handleGoToPage}
-      />
-
-      {/* Mobile Bottom Page Navigation Bar (Swipe Prev & Next + Center Page Indicator) */}
-      <MobilePageNav
-        currentPage={currentPage}
-        totalPages={totalPages}
-        isLocked={isLocked}
         theme={theme}
-        onPrevPage={handlePrevPage}
-        onNextPage={handleNextPage}
-        onOpenFastTravel={handleOpenFastTravel}
+        onGoToPage={handleGoToPage}
       />
     </div>
   );

@@ -2,6 +2,13 @@
  * Reader Constants: Voices, Ambient Sound Effects, and Background Themes.
  */
 
+/**
+ * Developer Debug Flag: Controls whether right-click (context menu) is permitted.
+ * Set to `true` to keep right-click enabled for debugging and DOM inspection.
+ * Set to `false` when ready to re-lock right-click in production.
+ */
+export const ALLOW_RIGHT_CLICK = false;
+
 export const VOICES_LIST = [
   {
     id: "IES4nrmZdUBHByLBde0P",
@@ -96,3 +103,25 @@ export const THEMES_LIST = [
     borderPreview: "#2a2f3d",
   },
 ];
+
+export const TRANSITION_MODES = [
+  {
+    id: "curl",
+    title: "ورق واقعي",
+    shortTitle: "ورق واقعي",
+    desc: "محاكاة واقعية ثلاثية الأبعاد لثني وتقليب الورق باللمس.",
+  },
+  {
+    id: "flip3d",
+    title: "تقليب رأسي",
+    shortTitle: "تقليب رأسي",
+    desc: "انتقال رأسي ثلاثي الأبعاد للأعلى والأسفل بحركة انسيابية متصلة.",
+  },
+  {
+    id: "slide",
+    title: "انزلاق أفقي",
+    shortTitle: "انزلاق أفقي",
+    desc: "حركة أفقية هادئة وسلسة مريحة للعين كأجهزة القراءة الإلكترونية.",
+  },
+];
+

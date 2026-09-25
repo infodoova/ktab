@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import { useReaderPreferencesStore } from "@/core/store";
 
 /**
  * Normalizes input text by removing null/undefined stringified artifacts and standardizing line breaks.
@@ -76,9 +77,8 @@ export function paginate(tokens, wordsPerPageArray) {
 }
 
 /**
- * Custom hook encapsulating all business logic, pagination calculations,
- * viewport dimension adaptations, imperative bookRef methods, wheel navigation,
- * and mobile touch gestures for FlipBookViewer.
+ * Custom hook managing single-page reader presentation, responsive page calculations,
+ * smooth Kindle/Eleven Reader page shift animations, touch swipes, and TTS synchronization.
  */
 export function useFlipBookViewer({
   bookRef,
@@ -87,16 +87,23 @@ export function useFlipBookViewer({
   fontSize = 18,
   wordsPerPage = 110,
   theme = "pure-white",
+  transitionMode: propTransitionMode,
   onPageChange,
   onPagesGenerated,
   readOnly = false,
+  bookTitle = "",
+  bookAuthor = "",
+  onBack,
 }) {
-  const containerRef = useRef(null);
-  const flipRef = useRef(null);
+  const storeTransitionMode = useReaderPreferencesStore((s) => s.transitionMode);
+  const transitionMode = propTransitionMode || storeTransitionMode || "curl";
+  const curlRef = useRef(null);
 
+  const containerRef = useRef(null);
   const [delayedReady, setDelayedReady] = useState(false);
   const delayRef = useRef(null);
 
+  // Viewport dimensions
   const getViewportDimensions = useCallback(() => {
     if (typeof window === "undefined") return { width: 390, height: 844 };
     const width = document.documentElement.clientWidth || window.innerWidth;
@@ -113,22 +120,35 @@ export function useFlipBookViewer({
   const [windowDimensions, setWindowDimensions] = useState(getViewportDimensions);
 
   useEffect(() => {
+    let rafId = null;
+
     function handleResize() {
-      setWindowDimensions(getViewportDimensions());
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        setWindowDimensions(getViewportDimensions());
+      });
+    }
+
+    function handleOrientation() {
+      handleResize();
+      // On iOS Safari, viewport metrics settle 100-300ms after physical rotation
+      setTimeout(handleResize, 120);
+      setTimeout(handleResize, 300);
     }
 
     if (typeof window !== "undefined") {
       window.addEventListener("resize", handleResize);
+      window.addEventListener("orientationchange", handleOrientation);
       window.visualViewport?.addEventListener("resize", handleResize);
-      window.visualViewport?.addEventListener("scroll", handleResize);
       handleResize();
     }
 
     return () => {
+      if (rafId) cancelAnimationFrame(rafId);
       if (typeof window !== "undefined") {
         window.removeEventListener("resize", handleResize);
+        window.removeEventListener("orientationchange", handleOrientation);
         window.visualViewport?.removeEventListener("resize", handleResize);
-        window.visualViewport?.removeEventListener("scroll", handleResize);
       }
     };
   }, [getViewportDimensions]);
@@ -142,53 +162,127 @@ export function useFlipBookViewer({
   }, [loading]);
 
   const ready = !loading && delayedReady;
-
   const { width: vw, height: vh } = windowDimensions;
+
+  const isTouchDevice = useMemo(() => {
+    return (
+      typeof window !== "undefined" &&
+      ("ontouchstart" in window ||
+        navigator.maxTouchPoints > 0 ||
+        (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1))
+    );
+  }, []);
+
   const isMobile = vw < 768;
 
+  // Identify iPads and all tablets in both portrait and landscape orientation, including HTML5 fullscreen
+  const isIPadOrTablet = useMemo(() => {
+    if (typeof window === "undefined") return false;
+    const isAppleTablet =
+      /iPad|Tablet|PlayBook/i.test(navigator.userAgent) ||
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+
+    const minDim = Math.min(vw, vh);
+    const maxDim = Math.max(vw, vh);
+
+    // Standard & Pro iPads (Mini 768x1024, 10.2" 810x1080, Air 834x1194, Pro 12.9" 1024x1366)
+    const hasTabletDimensions =
+      minDim >= 600 && minDim <= 1100 && maxDim >= 900 && maxDim <= 1450;
+
+    return (
+      isAppleTablet ||
+      hasTabletDimensions ||
+      (isTouchDevice && vw >= 768 && vw <= 1366) ||
+      (isTouchDevice && minDim >= 600 && minDim <= 1100)
+    );
+  }, [vw, vh, isTouchDevice]);
+
+  // Fullscreen edge-to-edge layout for all mobile phones, iPads, and tablets (portrait & landscape)
+  const isMobileOrTablet = isMobile || isIPadOrTablet || (vw <= 1366 && isTouchDevice);
+  const isDesktop = !isMobileOrTablet && vw > 1366;
+
+  // Single-page height & width: Fullscreen edge-to-edge on mobile, iPads, & tablets; elegant wide card on PC
   const pageHeight = useMemo(() => {
-    if (isMobile) {
+    if (isMobileOrTablet) {
       return vh;
     }
-    return Math.floor(Math.min(vh * 0.95, vh - 24));
-  }, [isMobile, vh]);
+    return Math.floor(Math.min(vh * 0.94, vh - 32));
+  }, [isMobileOrTablet, vh]);
 
   const pageWidth = useMemo(() => {
-    if (isMobile) {
+    if (isMobileOrTablet) {
       return vw;
     }
-    const proportionalWidth = Math.floor(pageHeight * 0.72);
-    return Math.floor(Math.min(vw * 0.88, proportionalWidth, 840));
-  }, [isMobile, vw, pageHeight]);
+    // PC / Desktop (> 1366px): Wider editorial card style
+    const proportionalWidth = Math.floor(pageHeight * 0.78);
+    return Math.floor(Math.min(vw * 0.58, proportionalWidth, 860));
+  }, [isMobileOrTablet, vw, pageHeight]);
 
-  const safeFontSize = Math.min(22, Math.max(14, fontSize));
-  const dynamicFontSize = `${safeFontSize}px`;
-  const dynamicLineHeight = isMobile ? "1.65" : "1.85";
+  // Enhanced font size and line height calibrated for comfortable reading density on iPad & mobile
+  const effectiveFontSize = useMemo(() => {
+    const base = Math.min(28, Math.max(14, fontSize));
+    if (isIPadOrTablet) {
+      // Scale font comfortably for iPad Retina display across windowed and fullscreen modes
+      return Math.round(base * 1.28);
+    }
+    if (isDesktop) return Math.max(base, 19);
+    return base;
+  }, [fontSize, isIPadOrTablet, isDesktop]);
+
+  const dynamicFontSize = `${effectiveFontSize}px`;
+  const dynamicLineHeight = isIPadOrTablet ? "1.86" : (isMobile ? "1.75" : "1.88");
+
+  // Consistent 110 words (~650 chars) across standard mobile/desktop; doubled to 220 words (~1,300 chars) on iPads/tablets
+  const BASE_WORDS_PER_PAGE = wordsPerPage || 110;
 
   const calculatedWordsPerPage = useMemo(() => {
-    const lineH = isMobile ? 1.65 : 1.85;
-    const pixelsPerLine = safeFontSize * lineH;
-    const paddingY = isMobile ? 140 : 150;
-    const availableHeight = Math.max(100, pageHeight - paddingY);
-    const linesThatFit = Math.floor(availableHeight / pixelsPerLine);
-    const paddingX = isMobile ? 52 : 90;
-    const availableWidth = Math.max(100, pageWidth - paddingX);
-    const wordsPerLine = Math.floor(availableWidth / (safeFontSize * 0.95));
+    if (isIPadOrTablet) {
+      return BASE_WORDS_PER_PAGE * 2; // 220 words
+    }
+    return BASE_WORDS_PER_PAGE; // 110 words
+  }, [isIPadOrTablet, BASE_WORDS_PER_PAGE]);
 
-    const safetyLimit = Math.floor(linesThatFit * wordsPerLine * 0.65);
-    const finalWords = Math.min(wordsPerPage, safetyLimit);
+  // Smooth loading state when user switches flip modes to prevent UI hitching
+  const [isModeSwitching, setIsModeSwitching] = useState(false);
+  const prevModeRef = useRef(transitionMode);
 
-    return Math.max(12, finalWords);
-  }, [safeFontSize, isMobile, pageHeight, pageWidth, wordsPerPage]);
+  useEffect(() => {
+    if (prevModeRef.current !== transitionMode) {
+      prevModeRef.current = transitionMode;
+      setIsModeSwitching(true);
+      const timer = setTimeout(() => {
+        setIsModeSwitching(false);
+      }, 320);
+      return () => clearTimeout(timer);
+    }
+  }, [transitionMode]);
 
   const normalizedText = useMemo(() => normalizeText(text), [text]);
   const tokens = useMemo(() => tokenize(normalizedText), [normalizedText]);
-  const pages = useMemo(
-    () => paginate(tokens, calculatedWordsPerPage),
-    [tokens, calculatedWordsPerPage]
-  );
+  const pages = useMemo(() => {
+    const contentPages = paginate(tokens, calculatedWordsPerPage);
+    if (contentPages.length > 0) {
+      return [
+        ...contentPages,
+        {
+          isEndPage: true,
+          startWord: tokens.length,
+          endWord: tokens.length,
+          wordCount: 0,
+        },
+      ];
+    }
+    return contentPages;
+  }, [tokens, calculatedWordsPerPage]);
   const totalPages = pages.length;
 
+  // Single Page Index (0-indexed)
+  const [currentPageIndex, setCurrentPageIndex] = useState(0);
+  const [transitionDir, setTransitionDir] = useState(null); // 'next' | 'prev' | null
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const transitionTimeoutRef = useRef(null);
+
+  // Notify parent of generated page structure
   useEffect(() => {
     if (onPagesGenerated && pages.length > 0) {
       const pageInfo = pages.map((page, index) => ({
@@ -198,67 +292,266 @@ export function useFlipBookViewer({
         wordCount: page.wordCount,
         startChar: tokens[page.startWord]?.startChar ?? 0,
         endChar: tokens[page.endWord - 1]?.endChar ?? 0,
+        isEndPage: Boolean(page.isEndPage),
       }));
       onPagesGenerated(pageInfo);
     }
   }, [pages, tokens, onPagesGenerated]);
 
-  const handleFlipPrev = useCallback(() => {
-    const flip = flipRef.current?.pageFlip?.();
-    if (!flip) return;
-    if (flip.getState?.() === "flipping") return;
+  const transitionDuration = useMemo(() => {
+    if (transitionMode === "curl") return 440;
+    if (transitionMode === "flip3d") return 300;
+    return 220;
+  }, [transitionMode]);
 
-    try {
-      flip.flipPrev();
-    } catch {
-      try {
-        flip.turnToPrevPage?.();
-      } catch {
-        // Ignored
-      }
-    }
-  }, []);
+  /* ==========================================================================
+     PAGE TURNS (CURL, 3D FLIP, & KINDLE SLIDE)
+     ========================================================================== */
+  const handlePageFlipFromEngine = useCallback((pageNum) => {
+    const targetIdx = Math.max(0, Math.min(pageNum - 1, totalPages - 1));
+    setCurrentPageIndex(targetIdx);
+    onPageChange?.(pageNum);
+  }, [totalPages, onPageChange]);
+
+  const handleCurlTurnNext = useCallback(() => {
+    if (currentPageIndex >= totalPages - 1) return;
+    const nextIdx = currentPageIndex + 1;
+    setCurrentPageIndex(nextIdx);
+    onPageChange?.(nextIdx + 1);
+  }, [currentPageIndex, totalPages, onPageChange]);
+
+  const handleCurlTurnPrev = useCallback(() => {
+    if (currentPageIndex <= 0) return;
+    const prevIdx = currentPageIndex - 1;
+    setCurrentPageIndex(prevIdx);
+    onPageChange?.(prevIdx + 1);
+  }, [currentPageIndex, onPageChange]);
+
+  const lastFlipTimeRef = useRef(0);
 
   const handleFlipNext = useCallback(() => {
-    const flip = flipRef.current?.pageFlip?.();
-    if (!flip) return;
-    if (flip.getState?.() === "flipping") return;
+    const now = Date.now();
+    if (now - lastFlipTimeRef.current < 450) return;
+    lastFlipTimeRef.current = now;
 
-    try {
-      flip.flipNext();
-    } catch {
-      try {
-        flip.turnToNextPage?.();
-      } catch {
-        // Ignored
-      }
+    if (currentPageIndex >= totalPages - 1) return;
+    if (transitionMode === "curl" && curlRef.current?.triggerCurlNext) {
+      curlRef.current.triggerCurlNext();
+      return;
     }
-  }, []);
+    if (isTransitioning) return;
 
-  // Imperative bookRef binding for TTS audio sync and programmatic navigation
+    const nextIdx = currentPageIndex + 1;
+
+    clearTimeout(transitionTimeoutRef.current);
+    setTransitionDir("next");
+    setIsTransitioning(true);
+    setCurrentPageIndex(nextIdx);
+    onPageChange?.(nextIdx + 1);
+
+    transitionTimeoutRef.current = setTimeout(() => {
+      setIsTransitioning(false);
+      setTransitionDir(null);
+    }, transitionDuration);
+  }, [
+    currentPageIndex,
+    totalPages,
+    transitionMode,
+    isTransitioning,
+    transitionDuration,
+    onPageChange,
+  ]);
+
+  const handleFlipPrev = useCallback(() => {
+    const now = Date.now();
+    if (now - lastFlipTimeRef.current < 450) return;
+    lastFlipTimeRef.current = now;
+
+    if (currentPageIndex <= 0) return;
+    if (transitionMode === "curl" && curlRef.current?.triggerCurlPrev) {
+      curlRef.current.triggerCurlPrev();
+      return;
+    }
+    if (isTransitioning) return;
+
+    const prevIdx = currentPageIndex - 1;
+
+    clearTimeout(transitionTimeoutRef.current);
+    setTransitionDir("prev");
+    setIsTransitioning(true);
+    setCurrentPageIndex(prevIdx);
+    onPageChange?.(prevIdx + 1);
+
+    transitionTimeoutRef.current = setTimeout(() => {
+      setIsTransitioning(false);
+      setTransitionDir(null);
+    }, transitionDuration);
+  }, [
+    currentPageIndex,
+    transitionMode,
+    isTransitioning,
+    transitionDuration,
+    onPageChange,
+  ]);
+
+  const goToPage = useCallback(
+    (targetPage) => {
+      const now = Date.now();
+      if (now - lastFlipTimeRef.current < 450) return;
+      lastFlipTimeRef.current = now;
+
+      const p = Math.min(Math.max(1, targetPage), totalPages);
+      const targetIdx = p - 1;
+      if (targetIdx === currentPageIndex) return;
+
+      if (transitionMode === "curl" && curlRef.current?.goToPage) {
+        curlRef.current.goToPage(p);
+        return;
+      }
+
+      clearTimeout(transitionTimeoutRef.current);
+      setTransitionDir(targetIdx > currentPageIndex ? "next" : "prev");
+      setIsTransitioning(true);
+      setCurrentPageIndex(targetIdx);
+      onPageChange?.(p);
+
+      transitionTimeoutRef.current = setTimeout(() => {
+        setIsTransitioning(false);
+        setTransitionDir(null);
+      }, transitionDuration);
+    },
+    [currentPageIndex, totalPages, transitionMode, transitionDuration, onPageChange]
+  );
+
+  /* ==========================================================================
+     TOUCH & POINTER SWIPE GESTURE DETECTION (MOBILE & TABLET)
+     Universal full-screen swiping with natural sensitivity & edge tap support
+     ========================================================================== */
+  const touchDataRef = useRef({
+    startX: 0,
+    startY: 0,
+    startTime: 0,
+    active: false,
+  });
+
+  const handleTouchStart = useCallback(
+    (e) => {
+      if (readOnly) return;
+      // Only ignore touches on explicit control buttons or open popovers
+      if (
+        e.target.closest(
+          ".ktab-flip-edge-trigger, .ktab-glass-circle-btn, .ktab-reader-mode-hide-btn, .ktab-glass-popover, .ktab-reader-pc-drawer, input, textarea, select, [role='dialog']"
+        )
+      ) {
+        return;
+      }
+      const t = e.touches[0];
+      if (!t) return;
+
+      touchDataRef.current = {
+        startX: t.clientX,
+        startY: t.clientY,
+        startTime: Date.now(),
+        active: true,
+      };
+    },
+    [readOnly]
+  );
+
+  const handleTouchEnd = useCallback(
+    (e) => {
+      const data = touchDataRef.current;
+      if (!data.active) return;
+      data.active = false;
+
+      if (!e.changedTouches || e.changedTouches.length === 0) return;
+      const t = e.changedTouches[0];
+      const dx = t.clientX - data.startX;
+      const dy = t.clientY - data.startY;
+      const dt = Math.max(1, Date.now() - data.startTime);
+      const absDx = Math.abs(dx);
+      const absDy = Math.abs(dy);
+      const velocityX = absDx / dt;
+      const velocityY = absDy / dt;
+
+      // 1. Universal Gestural Swiping (Swipe anywhere on screen)
+      if (absDx > absDy && (absDx > 20 || velocityX > 0.16)) {
+        if (dx < 0) {
+          handleFlipNext();
+        } else {
+          handleFlipPrev();
+        }
+        return;
+      }
+
+      if (absDy >= absDx && (absDy > 20 || velocityY > 0.16)) {
+        if (dy < 0) {
+          handleFlipNext();
+        } else {
+          handleFlipPrev();
+        }
+        return;
+      }
+
+      // 2. Quick Tap on screen edges (< 320ms and < 15px movement)
+      if (absDx < 15 && absDy < 15 && dt < 320) {
+        const clientX = t.clientX;
+        const clientY = t.clientY;
+        const windowW = window.innerWidth;
+        const windowH = window.innerHeight;
+
+        // Max Right (Right 35%) -> Next Page
+        if (clientX > windowW * 0.65) {
+          handleFlipNext();
+          return;
+        }
+
+        // Max Left (Left 35%) -> Previous Page
+        if (clientX < windowW * 0.35) {
+          handleFlipPrev();
+          return;
+        }
+
+        // Max Down/Bottom (Bottom 20%) -> Next Page
+        if (clientY > windowH * 0.80) {
+          handleFlipNext();
+          return;
+        }
+
+        // Max Top (Top 20%) -> Previous Page
+        if (clientY < windowH * 0.20) {
+          handleFlipPrev();
+          return;
+        }
+      }
+    },
+    [handleFlipNext, handleFlipPrev]
+  );
+
+  /* ==========================================================================
+     IMPERATIVE bookRef BINDINGS FOR TTS & CONTROLS
+     ========================================================================== */
   useEffect(() => {
     if (!bookRef) return;
     bookRef.current = bookRef.current || {};
 
-    bookRef.current.pageFlip = () => flipRef.current?.pageFlip?.();
-    bookRef.current.nextPage = () => handleFlipNext();
-    bookRef.current.prevPage = () => handleFlipPrev();
+    bookRef.current.nextPage = handleFlipNext;
+    bookRef.current.prevPage = handleFlipPrev;
+    bookRef.current.goToPage = goToPage;
     bookRef.current.totalPages = totalPages;
     bookRef.current.totalWords = tokens.length;
     bookRef.current.totalChars = normalizedText.length;
 
-    bookRef.current.getCurrentPageNumber = () => {
-      const flip = flipRef.current?.pageFlip?.();
-      if (!flip) return 1;
-      return (flip.getCurrentPageIndex?.() ?? 0) + 1;
-    };
+    bookRef.current.getCurrentPageNumber = () => currentPageIndex + 1;
 
-    bookRef.current.goToPage = (page) => {
-      const flip = flipRef.current?.pageFlip?.();
-      if (!flip) return;
-      const p = Math.min(Math.max(1, page), totalPages);
-      flip.flip(p - 1);
-    };
+    // Backward compatibility wrapper for callers referencing pageFlip()
+    bookRef.current.pageFlip = () => ({
+      flipNext: handleFlipNext,
+      flipPrev: handleFlipPrev,
+      flip: (pageNum) => goToPage(pageNum + 1),
+      getCurrentPageIndex: () => currentPageIndex,
+      getPageCount: () => totalPages,
+    });
 
     bookRef.current.getWordRangeForPage = (page) => {
       const p = Math.min(Math.max(1, page), totalPages);
@@ -304,11 +597,20 @@ export function useFlipBookViewer({
     };
 
     bookRef.current.getTokenByIndex = (wordIndex) => tokens[wordIndex] || null;
-  }, [bookRef, pages, tokens, normalizedText, totalPages, handleFlipNext, handleFlipPrev]);
+  }, [
+    bookRef,
+    pages,
+    tokens,
+    normalizedText,
+    totalPages,
+    currentPageIndex,
+    handleFlipNext,
+    handleFlipPrev,
+    goToPage,
+  ]);
 
   // Mouse wheel pagination listener
   const lastWheelTimeRef = useRef(0);
-
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
@@ -322,60 +624,77 @@ export function useFlipBookViewer({
 
       if (Math.abs(e.deltaY) < 20) return;
 
-      const flip = flipRef.current?.pageFlip?.();
-      if (!flip) return;
-
       e.preventDefault();
       lastWheelTimeRef.current = now;
 
       if (e.deltaY > 0) {
-        flip.flipNext();
+        handleFlipNext();
       } else {
-        flip.flipPrev();
+        handleFlipPrev();
       }
     };
 
     el.addEventListener("wheel", onWheel, { passive: false });
     return () => el.removeEventListener("wheel", onWheel);
-  }, []);
+  }, [handleFlipNext, handleFlipPrev]);
 
-  // Mobile Touch Swipe Gesture Detection (Left in RTL = Next; Right in RTL = Prev)
-  const touchStartRef = useRef(null);
+  // Comprehensive Keyboard navigation (Arrows, PageUp/Down, Space)
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      if (readOnly) return;
+      if (e.target.closest("input, textarea, select, [contenteditable='true']")) return;
 
-  const handleTouchStart = (e) => {
-    if (!isMobile) return;
-    const touch = e.touches[0];
-    touchStartRef.current = {
-      x: touch.clientX,
-      y: touch.clientY,
-      time: Date.now(),
-    };
-  };
+      switch (e.key) {
+        // Next page triggers: Right arrow (RTL Next), Down arrow, PageDown, Space
+        case "ArrowRight":
+        case "ArrowDown":
+        case "PageDown":
+          e.preventDefault();
+          handleFlipNext();
+          break;
 
-  const handleTouchEnd = (e) => {
-    if (!isMobile || !touchStartRef.current) return;
-    const touch = e.changedTouches[0];
-    const dx = touch.clientX - touchStartRef.current.x;
-    const dy = touch.clientY - touchStartRef.current.y;
-    const dt = Date.now() - touchStartRef.current.time;
-    touchStartRef.current = null;
+        // Previous page triggers: Left arrow (RTL Prev), Up arrow, PageUp
+        case "ArrowLeft":
+        case "ArrowUp":
+        case "PageUp":
+          e.preventDefault();
+          handleFlipPrev();
+          break;
 
-    if (Math.abs(dx) > 30 && Math.abs(dx) > Math.abs(dy) * 1.1 && dt < 650) {
-      if (dx < 0) {
-        handleFlipNext();
-      } else {
-        handleFlipPrev();
+        case " ":
+          e.preventDefault();
+          if (e.shiftKey) {
+            handleFlipPrev();
+          } else {
+            handleFlipNext();
+          }
+          break;
+
+        default:
+          break;
       }
-    }
-  };
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [readOnly, handleFlipNext, handleFlipPrev]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => clearTimeout(transitionTimeoutRef.current);
+  }, []);
 
   return {
     containerRef,
-    flipRef,
     ready,
     loading,
+    isModeSwitching,
     pages,
     tokens,
+    totalPages,
+    currentPageIndex,
+    transitionDir,
+    isTransitioning,
     pageWidth,
     pageHeight,
     isMobile,
@@ -383,11 +702,20 @@ export function useFlipBookViewer({
     readOnly,
     dynamicFontSize,
     dynamicLineHeight,
+    goToPage,
     handleFlipPrev,
     handleFlipNext,
     handleTouchStart,
     handleTouchEnd,
     onPageChange,
+    transitionMode,
+    curlRef,
+    handlePageFlipFromEngine,
+    handleCurlTurnNext,
+    handleCurlTurnPrev,
+    bookTitle,
+    bookAuthor,
+    onBack,
   };
 }
 
