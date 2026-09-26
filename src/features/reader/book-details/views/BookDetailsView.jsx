@@ -11,6 +11,7 @@ import {
   FullUserRatesModal,
   BookDetailsSkeleton,
   BookDetailsFooter,
+  TalkToBook,
 } from "../components";
 import { useBookDetails } from "../hooks/useBookDetails";
 import "./BookDetailsView.css";
@@ -192,6 +193,18 @@ export function BookDetailsView() {
         onScrollToTop={handleScrollToTop}
         currentYear={currentYear}
       />
+
+      {/* 5. Talk-to-Book Floating Action Ball & Conversational Modal */}
+      {bookData && (
+        <TalkToBook
+          key={`talk-to-book-${bookId}`}
+          bookId={bookId}
+          bookTitle={bookData?.title || ""}
+          authorName={bookData?.authorName || ""}
+          genre={bookData?.genre || bookData?.mainGenreName || ""}
+          description={bookData?.description || ""}
+        />
+      )}
     </div>
   );
 }

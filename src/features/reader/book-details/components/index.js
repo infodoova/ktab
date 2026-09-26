@@ -7,3 +7,4 @@ export { SimilarBooks } from "./SimilarBooks/SimilarBooks";
 export { FullUserRatesModal } from "./FullUserRatesModal";
 export { BookDetailsSkeleton } from "./BookDetailsSkeleton/BookDetailsSkeleton";
 export { BookDetailsFooter } from "./BookDetailsFooter/BookDetailsFooter";
+export { TalkToBook } from "./TalkToBook";

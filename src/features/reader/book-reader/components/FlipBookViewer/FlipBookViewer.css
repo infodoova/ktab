@@ -48,6 +48,21 @@
   -webkit-box-decoration-break: clone;
 }
 
+/* Talk-to-Book Verbatim Citation Highlight: Clean Simple Background, No Light or Shadows */
+.talk-to-book-citation-highlight {
+  background-color: var(--highlight-yellow-soft, #fef08a) !important;
+  color: var(--brand-black, #0f172a) !important;
+  border-radius: 3px;
+  padding: 0.05em 0.2em;
+  display: inline;
+  border: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+  animation: none !important;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
 /* Kindle-Style Stage */
 .ktab-kindle-stage {
   position: relative;

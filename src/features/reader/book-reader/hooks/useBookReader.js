@@ -404,6 +404,58 @@ export function useBookReader() {
     }
   }, []);
 
+  // Jump automatically to target cited page from query param (?page=X) or location state
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const pageParam = searchParams.get("page");
+    const snippetParam =
+      searchParams.get("snippet") ||
+      searchParams.get("highlight") ||
+      location?.state?.highlightSnippet ||
+      location?.state?.highlightText;
+
+    const targetPage = parseInt(
+      pageParam || location?.state?.targetPage || location?.state?.initialPage,
+      10
+    );
+
+    if (!loadingText) {
+      const timer = setTimeout(() => {
+        // 1. If a verbatim snippet is provided, find its exact dynamic page and highlight it
+        if (snippetParam && bookRef.current?.findAndHighlightSnippet) {
+          const resolvedPage = bookRef.current.findAndHighlightSnippet(snippetParam);
+          if (resolvedPage) {
+            setCurrentPage(resolvedPage);
+            // Clean up the URL and navigation state so browser refresh loads cleanly without re-highlighting
+            navigate(location.pathname, { replace: true, state: {} });
+            if (window.history?.replaceState) {
+              window.history.replaceState({}, document.title, location.pathname);
+            }
+            return;
+          }
+        }
+
+        // 2. Fallback to specified page number if snippet was not found or not provided
+        if (targetPage > 0 && bookRef.current?.goToPage) {
+          bookRef.current.goToPage(targetPage, true);
+          setCurrentPage(targetPage);
+          navigate(location.pathname, { replace: true, state: {} });
+          if (window.history?.replaceState) {
+            window.history.replaceState({}, document.title, location.pathname);
+          }
+        }
+      }, 350);
+      return () => clearTimeout(timer);
+    }
+  }, [location.search, location?.state, loadingText]);
+
+  // Clean snippet highlights on unmount
+  useEffect(() => {
+    return () => {
+      bookRef.current?.clearSnippetHighlights?.();
+    };
+  }, []);
+
   // TTS Hook
   const {
     isPlaying,

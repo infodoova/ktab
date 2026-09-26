@@ -30,9 +30,11 @@ export function sanitizeHtml(dirtyHtml, options = {}) {
     ALLOWED_TAGS: [
       "p", "br", "b", "i", "em", "strong", "span", "div",
       "h1", "h2", "h3", "h4", "h5", "h6",
-      "ul", "ol", "li", "blockquote", "code", "pre", "a"
+      "ul", "ol", "li", "blockquote", "code", "pre", "a",
+      "hr", "table", "thead", "tbody", "tr", "th", "td",
+      "sup", "sub", "del", "s"
     ],
-    ALLOWED_ATTR: ["href", "target", "rel", "class", "dir"],
+    ALLOWED_ATTR: ["href", "target", "rel", "class", "dir", "title", "data-page"],
     ...options,
   });
 }

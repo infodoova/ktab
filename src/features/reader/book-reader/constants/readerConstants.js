@@ -7,7 +7,7 @@
  * Set to `true` to keep right-click enabled for debugging and DOM inspection.
  * Set to `false` when ready to re-lock right-click in production.
  */
-export const ALLOW_RIGHT_CLICK = false;
+export const ALLOW_RIGHT_CLICK = true;
 
 export const VOICES_LIST = [
   {

@@ -330,10 +330,22 @@ export const PageCurlTransition = React.forwardRef(function PageCurlTransition(
       try {
         const pf = flipBookRef.current?.pageFlip();
         if (!pf) return;
-        const targetSpread = pageNum - 1;
+        const targetSpread = Math.max(0, pageNum - 1);
         const currentSpread = pf.getPageCollection()?.getCurrentSpreadIndex();
         if (targetSpread === currentSpread) return;
 
+        // Use native StPageFlip direct page transition API
+        if (typeof pf.turnToPage === "function") {
+          pf.turnToPage(targetSpread);
+          return;
+        }
+
+        if (typeof pf.flip === "function") {
+          pf.flip(targetSpread);
+          return;
+        }
+
+        // Fallback to flipController animation if direct method unavailable
         if (targetSpread > currentSpread) {
           pf.getPageCollection()?.setCurrentSpreadIndex(targetSpread - 1);
           const fc = pf.getFlipController();

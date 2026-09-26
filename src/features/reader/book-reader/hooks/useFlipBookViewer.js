@@ -395,25 +395,24 @@ export function useFlipBookViewer({
   ]);
 
   const goToPage = useCallback(
-    (targetPage) => {
+    (targetPage, force = false) => {
       const now = Date.now();
-      if (now - lastFlipTimeRef.current < 450) return;
+      if (!force && now - lastFlipTimeRef.current < 450) return;
       lastFlipTimeRef.current = now;
 
       const p = Math.min(Math.max(1, targetPage), totalPages);
       const targetIdx = p - 1;
       if (targetIdx === currentPageIndex) return;
 
-      if (transitionMode === "curl" && curlRef.current?.goToPage) {
-        curlRef.current.goToPage(p);
-        return;
-      }
-
       clearTimeout(transitionTimeoutRef.current);
       setTransitionDir(targetIdx > currentPageIndex ? "next" : "prev");
       setIsTransitioning(true);
       setCurrentPageIndex(targetIdx);
       onPageChange?.(p);
+
+      if (transitionMode === "curl" && curlRef.current?.goToPage) {
+        curlRef.current.goToPage(p);
+      }
 
       transitionTimeoutRef.current = setTimeout(() => {
         setIsTransitioning(false);
@@ -597,6 +596,95 @@ export function useFlipBookViewer({
     };
 
     bookRef.current.getTokenByIndex = (wordIndex) => tokens[wordIndex] || null;
+
+    /**
+     * Searches for a verbatim text snippet across the book's full content, locates
+     * which dynamic reader page it falls on, navigates to it, and highlights the passage.
+     *
+     * @param {string} snippet
+     * @returns {number|null} Target page number if resolved, null otherwise
+     */
+    bookRef.current.findAndHighlightSnippet = (snippet) => {
+      if (!snippet || typeof snippet !== "string" || !normalizedText) return null;
+
+      const cleanSnippet = snippet.trim();
+      if (!cleanSnippet) return null;
+
+      // 1. Direct substring search in normalized text
+      let matchCharIndex = normalizedText.indexOf(cleanSnippet);
+
+      // 2. Arabic diacritics/orthography tolerant fallback search
+      if (matchCharIndex === -1) {
+        const normalizeAr = (s) =>
+          s
+            .replace(/[\u064B-\u065F\u0670]/g, "")
+            .replace(/[إأآا]/g, "ا")
+            .replace(/[ىي]/g, "ي")
+            .replace(/ة/g, "ه")
+            .replace(/[^\w\s\u0600-\u06FF]/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+
+        const normBook = normalizeAr(normalizedText);
+        const normTarget = normalizeAr(cleanSnippet);
+        const normIndex = normBook.indexOf(normTarget);
+
+        if (normIndex !== -1) {
+          const ratio = normIndex / normBook.length;
+          matchCharIndex = Math.floor(ratio * normalizedText.length);
+        }
+      }
+
+      if (matchCharIndex === -1) return null;
+
+      const targetPage = bookRef.current.getPageForChar(matchCharIndex);
+      if (!targetPage) return null;
+
+      // Programmatically flip to the resolved dynamic page without debounce delay
+      goToPage(targetPage, true);
+
+      // Highlight the matched tokens on the page once rendered
+      const applyHighlights = () => {
+        const matchEndChar = matchCharIndex + cleanSnippet.length;
+        const matchedTokens = [];
+
+        tokens.forEach((t, idx) => {
+          if (t.endChar >= matchCharIndex && t.startChar <= matchEndChar) {
+            matchedTokens.push(idx);
+          }
+        });
+
+        matchedTokens.forEach((wordIdx) => {
+          const el = document.querySelector(`[data-word-index="${wordIdx}"]`);
+          if (el) {
+            el.classList.add("talk-to-book-citation-highlight");
+          }
+        });
+
+        if (matchedTokens.length > 0) {
+          const firstEl = document.querySelector(`[data-word-index="${matchedTokens[0]}"]`);
+          if (firstEl) {
+            firstEl.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+        }
+      };
+
+      setTimeout(() => {
+        bookRef.current.clearSnippetHighlights?.();
+        applyHighlights();
+      }, 350);
+
+      // Redundant secondary check after flip animation concludes
+      setTimeout(applyHighlights, 750);
+
+      return targetPage;
+    };
+
+    bookRef.current.clearSnippetHighlights = () => {
+      document.querySelectorAll(".talk-to-book-citation-highlight").forEach((el) => {
+        el.classList.remove("talk-to-book-citation-highlight");
+      });
+    };
   }, [
     bookRef,
     pages,
