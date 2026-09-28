@@ -18,7 +18,11 @@ const MAX_QUESTION_LENGTH = 350;
  * @returns {string[]}
  */
 function generateTailoredPrompts({ bookTitle, authorName, genre, description }) {
-  const title = bookTitle ? `«${bookTitle}»` : "هذا العمل";
+  // Extract primary title before colon/dash subtitles to ensure concise, non-overflowing prompts on mobile
+  const rawTitle = bookTitle ? bookTitle.split(/[:\-–—]/)[0].trim() : "";
+  const title = rawTitle
+    ? `«${rawTitle.length > 25 ? rawTitle.slice(0, 23).trim() + "..." : rawTitle}»`
+    : "هذا العمل";
   const author = authorName && authorName !== "مؤلف غير معروف" ? authorName : null;
   const isMemoirOrHistory =
     /مذكرات|سيرة|تاريخ|سياس|دبلوماس|وثائق/i.test(genre || "") ||

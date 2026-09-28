@@ -7,7 +7,7 @@ import {
   BookPlus,
   User,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+
 
 /**
  * Pure presentation component for Book hero data, stats, and rating modal.
@@ -262,28 +262,28 @@ export function BookData({
 
             <div className="flex items-center justify-between gap-4 pt-2">
               {isReviewed && (
-                <Button
+                <button
                   variant="ghost"
                   onClick={onDeleteReview}
                   className="text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-xl"
                 >
                   حذف التقييم
-                </Button>
+                </button>
               )}
               <div className="flex items-center gap-3 mr-auto">
-                <Button
+                <button
                   variant="ghost"
                   onClick={() => setIsRatingModalOpen(false)}
                   className="text-white/40 hover:text-white rounded-xl"
                 >
                   إلغاء
-                </Button>
-                <Button
+                </button>
+                <button
                   onClick={onSubmitReview}
                   className="btn-premium px-8 rounded-xl text-white font-bold"
                 >
                   حفظ
-                </Button>
+                </button>
               </div>
             </div>
           </div>

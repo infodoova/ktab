@@ -17,17 +17,18 @@ export const AUTHOR_NAV_ITEMS = [
     icon: LayoutDashboard,
     path: "/author/control",
   },
-  {
-    name: "AuthorMyStories",
-    label: "قصصي التفاعلية",
-    icon: FolderOpen,
-    path: "/author/my-stories",
-  },
+
   {
     name: "AuthorMyBooks",
     label: "مكتبتي الخاصة",
     icon: LibraryIcon,
     path: "/author/my-books",
+  },
+    {
+    name: "AuthorMyStories",
+    label: "قصصي التفاعلية",
+    icon: FolderOpen,
+    path: "/author/my-stories",
   },
   {
     name: "AuthorRatings",
@@ -35,12 +36,12 @@ export const AUTHOR_NAV_ITEMS = [
     icon: Star,
     path: "/author/ratings",
   },
-  {
-    name: "AuthorAITools",
-    label: "أدوات الذكاء الاصطناعي",
-    icon: Sparkles,
-    path: "/author/ai-tools",
-  },
+  // {
+  //   name: "AuthorAITools",
+  //   label: "أدوات الذكاء الاصطناعي",
+  //   icon: Sparkles,
+  //   path: "/author/ai-tools",
+  // },
   // {
   //   name: "AuthorSettings",
   //   label: "الإعدادات",

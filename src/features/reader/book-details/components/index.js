@@ -8,3 +8,6 @@ export { FullUserRatesModal } from "./FullUserRatesModal";
 export { BookDetailsSkeleton } from "./BookDetailsSkeleton/BookDetailsSkeleton";
 export { BookDetailsFooter } from "./BookDetailsFooter/BookDetailsFooter";
 export { TalkToBook } from "./TalkToBook";
+export { AIComponent } from "./AIComponent";
+export { BookData } from "./BookData";
+export { UserRates } from "./UserRates";

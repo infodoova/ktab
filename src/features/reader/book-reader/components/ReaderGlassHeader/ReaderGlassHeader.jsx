@@ -4,7 +4,7 @@ import {
   Play,
   Pause,
   Headphones,
-  Sparkles,
+  Paintbrush,
   Type,
   Palette,
   Compass,
@@ -69,6 +69,7 @@ export function ReaderGlassHeader(props) {
     activePopover = null,
     onTogglePopover,
     onOpenFastTravel,
+    onOpenImageGen,
     isLocked = false,
     onToggleLock,
     isFullscreen = false,
@@ -149,6 +150,14 @@ export function ReaderGlassHeader(props) {
       onClick: (e) => handleActionClick(e, onOpenFastTravel),
     },
     {
+      id: "imageGen",
+      label: "صورة الصفحة",
+      sub: "توليد بالذكاء الاصطناعي",
+      icon: Paintbrush,
+      isActive: false,
+      onClick: (e) => handleActionClick(e, onOpenImageGen),
+    },
+    {
       id: "fullscreen",
       label: "ملء الشاشة",
       sub: isFullscreen ? "إنهاء العرض" : "عرض كامل",
@@ -220,7 +229,6 @@ export function ReaderGlassHeader(props) {
           onContextMenu={(e) => {
             if (!ALLOW_RIGHT_CLICK) e.preventDefault();
           }}
-          onSelectStart={(e) => e.preventDefault()}
         >
           <span
             className="ktab-reader-title-text"
@@ -229,7 +237,6 @@ export function ReaderGlassHeader(props) {
             onContextMenu={(e) => {
               if (!ALLOW_RIGHT_CLICK) e.preventDefault();
             }}
-            onSelectStart={(e) => e.preventDefault()}
           >
             {bookTitle}
           </span>
@@ -354,7 +361,7 @@ export function ReaderGlassHeader(props) {
                 >
                   <div className="flex items-center gap-3">
                     <div className="ktab-ambient-icon-badge">
-                      {React.createElement(AMBIENT_ICON_MAP[eff.id] || Sparkles, { size: 16 })}
+                      {React.createElement(AMBIENT_ICON_MAP[eff.id] || Volume2, { size: 16 })}
                     </div>
                     <div className="flex flex-col text-right">
                       <span className="ktab-ambient-label">{eff.label}</span>
@@ -727,6 +734,19 @@ export function ReaderGlassHeader(props) {
                 aria-label="فهرس الصفحات"
               >
                 <Compass size={17} strokeWidth={2.2} />
+              </button>
+            </div>
+
+            {/* AI Image Generation */}
+            <div className="ktab-glass-btn-anchor">
+              <button
+                type="button"
+                className="ktab-glass-circle-btn"
+                onClick={(e) => handleActionClick(e, onOpenImageGen)}
+                aria-label="توليد صورة الصفحة بالذكاء الاصطناعي"
+                title="صورة الصفحة"
+              >
+                <Paintbrush size={17} strokeWidth={2.2} />
               </button>
             </div>
 

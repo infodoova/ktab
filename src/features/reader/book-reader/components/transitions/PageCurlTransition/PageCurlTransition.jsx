@@ -74,10 +74,40 @@ if (!PageFlip._ktabSinglePagePatched) {
     }
   };
 
+  const hookPagePrototype = (instance) => {
+    try {
+      const pageCollection = instance.getPageCollection();
+      const loadedPages = pageCollection?.getPages();
+      if (loadedPages && loadedPages.length > 0) {
+        const proto = Object.getPrototypeOf(loadedPages[0]);
+        if (proto && !proto._ktabBackfaceHooked) {
+          proto._ktabBackfaceHooked = true;
+          const origNewTemporaryCopy = proto.newTemporaryCopy;
+          proto.newTemporaryCopy = function () {
+            const copy = origNewTemporaryCopy.apply(this, arguments);
+            if (this.copiedElement) {
+              this.copiedElement.classList.add("ktab-page-curl-leaf--back");
+              const contentEl = this.copiedElement.querySelector(".ktab-page-curl-content");
+              if (contentEl) contentEl.style.display = "none";
+              const backfaceEl = this.copiedElement.querySelector(".ktab-page-curl-backface");
+              if (backfaceEl) {
+                backfaceEl.style.display = "flex";
+                backfaceEl.style.visibility = "visible";
+                backfaceEl.style.opacity = "1";
+              }
+            }
+            return copy;
+          };
+        }
+      }
+    } catch (err) {}
+  };
+
   const origLoadFromHTML = PageFlip.prototype.loadFromHTML;
   PageFlip.prototype.loadFromHTML = function () {
     const res = origLoadFromHTML.apply(this, arguments);
     configureSinglePage(this);
+    hookPagePrototype(this);
     if (this.pages && typeof this.setting?.startPage === "number") {
       this.pages.show(this.setting.startPage);
     }
@@ -88,6 +118,7 @@ if (!PageFlip._ktabSinglePagePatched) {
   PageFlip.prototype.updateFromHtml = function () {
     const res = origUpdateFromHtml.apply(this, arguments);
     configureSinglePage(this);
+    hookPagePrototype(this);
     return res;
   };
 
@@ -267,6 +298,14 @@ export const PageCurlTransition = React.forwardRef(function PageCurlTransition(
             const copy = origNewTemporaryCopy.apply(this, arguments);
             if (this.copiedElement) {
               this.copiedElement.classList.add("ktab-page-curl-leaf--back");
+              const contentEl = this.copiedElement.querySelector(".ktab-page-curl-content");
+              if (contentEl) contentEl.style.display = "none";
+              const backfaceEl = this.copiedElement.querySelector(".ktab-page-curl-backface");
+              if (backfaceEl) {
+                backfaceEl.style.display = "flex";
+                backfaceEl.style.visibility = "visible";
+                backfaceEl.style.opacity = "1";
+              }
             }
             return copy;
           };
@@ -406,7 +445,7 @@ export const PageCurlTransition = React.forwardRef(function PageCurlTransition(
         autoSize={false}
         startPage={currentPageIndex}
         drawShadow={true}
-        maxShadowOpacity={0.75}
+        maxShadowOpacity={0.25}
         flippingTime={560}
         useMouseEvents={true}
         swipeDistance={25}

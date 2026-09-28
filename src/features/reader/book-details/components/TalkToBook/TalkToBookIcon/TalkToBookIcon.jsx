@@ -1,5 +1,6 @@
 import React from "react";
 import brandIconImg from "@/assets/logo/BrandIcon.png";
+import "./TalkToBookIcon.css";
 
 /**
  * Ktab official brand emblem component for Talk-to-Book.

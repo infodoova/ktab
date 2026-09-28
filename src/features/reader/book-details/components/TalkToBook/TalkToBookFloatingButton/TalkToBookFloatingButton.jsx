@@ -1,5 +1,6 @@
 import React from "react";
-import { TalkToBookIcon } from "./TalkToBookIcon";
+import { TalkToBookIcon } from "../TalkToBookIcon";
+import "./TalkToBookFloatingButton.css";
 
 /**
  * Editorial Apple-style fixed floating ball button situated at the bottom-right corner.

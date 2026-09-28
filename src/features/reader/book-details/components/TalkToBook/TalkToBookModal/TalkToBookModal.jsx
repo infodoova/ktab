@@ -12,8 +12,8 @@ import {
   Check,
   AlertCircle,
 } from "lucide-react";
-import { TalkToBookIcon } from "./TalkToBookIcon";
-import { TalkToBookMessageContent } from "./TalkToBookMessageContent";
+import { TalkToBookIcon } from "../TalkToBookIcon";
+import { TalkToBookMessageContent } from "../TalkToBookMessageContent";
 
 /**
  * Conversational book assistant dialog.
@@ -191,8 +191,10 @@ export function TalkToBookModal({
                     } ${isOffTopic ? "talk-to-book-msg--off-topic" : ""}`}
                   >
                     {!isUser && (
-                      <div className="talk-to-book-msg__avatar">
-                        <TalkToBookIcon size={13} />
+                      <div className="talk-to-book-msg__avatar-wrap">
+                        <div className="talk-to-book-msg__avatar" aria-hidden="true">
+                          <TalkToBookIcon size={12} />
+                        </div>
                       </div>
                     )}
 
@@ -203,34 +205,35 @@ export function TalkToBookModal({
                         if (sel && sel.length > 0) return;
                         if (onCopyMessage) onCopyMessage(msg.id, msg.content);
                       }}
-                      title="انقر لنسخ النص"
                     >
-                      {/* Copy Action Control */}
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (onCopyMessage) onCopyMessage(msg.id, msg.content);
-                        }}
-                        className={`talk-to-book-msg__copy-btn ${
-                          isCopied ? "talk-to-book-msg__copy-btn--copied" : ""
-                        }`}
-                        title={isCopied ? "تم النسخ" : "نسخ النص"}
-                        aria-label={isCopied ? "تم النسخ" : "نسخ النص"}
-                      >
-                        {isCopied ? (
-                          <>
-                            <Check size={12} strokeWidth={2.4} />
-                            <span className="talk-to-book-msg__copy-label">تم النسخ</span>
-                          </>
-                        ) : (
-                          <Copy size={12} strokeWidth={2} />
-                        )}
-                      </button>
+                      {/* Copy Action Control (Assistant only to prevent bubble layout distortion on user prompts) */}
+                      {!isUser && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (onCopyMessage) onCopyMessage(msg.id, msg.content);
+                          }}
+                          className={`talk-to-book-msg__copy-btn ${
+                            isCopied ? "talk-to-book-msg__copy-btn--copied" : ""
+                          }`}
+                          title={isCopied ? "تم النسخ" : "نسخ النص"}
+                          aria-label={isCopied ? "تم النسخ" : "نسخ النص"}
+                        >
+                          {isCopied ? (
+                            <>
+                              <Check size={12} strokeWidth={2.4} />
+                              <span className="talk-to-book-msg__copy-label">تم النسخ</span>
+                            </>
+                          ) : (
+                            <Copy size={12} strokeWidth={2} />
+                          )}
+                        </button>
+                      )}
 
-                      {/* Message Text Content: plain for user, rich markdown for assistant */}
+                      {/* Message Text Content: plain for user with automatic text direction, rich markdown for assistant */}
                       {isUser ? (
-                        <p className="talk-to-book-msg__text">{msg.content}</p>
+                        <p className="talk-to-book-msg__text" dir="auto">{msg.content}</p>
                       ) : (
                         <TalkToBookMessageContent
                           content={msg.content}
@@ -350,6 +353,7 @@ export function TalkToBookModal({
                   rows={2}
                   disabled={isLoading}
                   maxLength={maxChars}
+                  dir="auto"
                 />
 
                 <div className="talk-to-book-dialog__composer-footer">

@@ -27,6 +27,8 @@ export function DetailsDrawer({
   footer,
   width = "520px",
   className = "",
+  headerActions = null,
+  onBackdropClick = null,
 }) {
   const { isMobile } = useDetailsDrawer({ isOpen, onClose });
 
@@ -35,7 +37,7 @@ export function DetailsDrawer({
       {isOpen && (
         <div
           className={`ktab-details-drawer-backdrop ${className}`}
-          onClick={onClose}
+          onClick={onBackdropClick || onClose}
           role="dialog"
           aria-modal="true"
           aria-label={typeof title === "string" ? title : "تفاصيل"}
@@ -87,15 +89,18 @@ export function DetailsDrawer({
                   <p className="ktab-details-drawer-subtitle">{subtitle}</p>
                 )}
               </div>
-              <button
-                type="button"
-                onClick={onClose}
-                className="ktab-details-drawer-close-btn"
-                aria-label="إغلاق"
-                title="إغلاق"
-              >
-                <X size={18} />
-              </button>
+              <div className="ktab-details-drawer-header-actions">
+                {headerActions}
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="ktab-details-drawer-close-btn"
+                  aria-label="إغلاق"
+                  title="إغلاق"
+                >
+                  <X size={18} />
+                </button>
+              </div>
             </div>
 
             {/* Scrollable Content Body */}

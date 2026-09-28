@@ -19,6 +19,8 @@
   transition: background-color 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   touch-action: pan-y;
   overscroll-behavior: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 /* Theme Variant Backgrounds */
@@ -36,6 +38,31 @@
 
 .ktab-book-display-root--charcoal-dark {
   background-color: #0a0c10;
+}
+
+/* ── Rich Ambient Gradients during AI Image Generation Mode ── */
+.ktab-book-display-root--image-gen-active.ktab-book-display-root--pure-white {
+  background: radial-gradient(circle at 18% 22%, rgba(93, 227, 186, 0.1) 0%, transparent 45%),
+              radial-gradient(circle at 82% 78%, rgba(148, 163, 184, 0.25) 0%, transparent 50%),
+              linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+}
+
+.ktab-book-display-root--image-gen-active.ktab-book-display-root--warm-cream {
+  background: radial-gradient(circle at 18% 22%, rgba(93, 227, 186, 0.09) 0%, transparent 45%),
+              radial-gradient(circle at 82% 78%, rgba(200, 180, 145, 0.35) 0%, transparent 50%),
+              linear-gradient(135deg, #ece1c8 0%, #dfd0b0 100%);
+}
+
+.ktab-book-display-root--image-gen-active.ktab-book-display-root--paper-sepia {
+  background: radial-gradient(circle at 18% 22%, rgba(93, 227, 186, 0.08) 0%, transparent 45%),
+              radial-gradient(circle at 82% 78%, rgba(185, 160, 125, 0.32) 0%, transparent 50%),
+              linear-gradient(135deg, #ded0ad 0%, #d1bd94 100%);
+}
+
+.ktab-book-display-root--image-gen-active.ktab-book-display-root--charcoal-dark {
+  background: radial-gradient(circle at 18% 22%, rgba(93, 227, 186, 0.12) 0%, transparent 45%),
+              radial-gradient(circle at 82% 78%, rgba(30, 41, 59, 0.65) 0%, transparent 50%),
+              linear-gradient(135deg, #0d1015 0%, #050709 100%);
 }
 
 /* Main Viewport Canvas - Edge-to-edge max reach */
@@ -59,3 +86,215 @@
   width: 100%;
   max-width: 480px;
 }
+
+/* ── AI Image Generation Active Mode ────────────────────────────────────── */
+
+/* Allow text highlighting specifically on the book page while image generation mode is active */
+.ktab-book-display-root--image-gen-active .ktab-flipbook-container,
+.ktab-book-display-root--image-gen-active .ktab-kindle-stage,
+.ktab-book-display-root--image-gen-active .ktab-single-page,
+.ktab-book-display-root--image-gen-active .ktab-book-page__content-wrap,
+.ktab-book-display-root--image-gen-active .ktab-book-page__text {
+  user-select: text !important;
+  -webkit-user-select: text !important;
+  cursor: text !important;
+}
+
+/* Signature brand teal highlight styling when highlighting text */
+.ktab-book-display-root--image-gen-active .ktab-book-page__text ::selection,
+.ktab-book-display-root--image-gen-active .ktab-3page-preview-sheet__body ::selection {
+  background-color: var(--brand-teal-glow, rgba(93, 227, 186, 0.45)) !important;
+  color: inherit !important;
+}
+
+/* ── 3-Page Preview Sheet beside the AI Image Generator Modal ── */
+.ktab-3page-preview-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  box-sizing: border-box;
+  animation: fadeIn3Page 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeIn3Page {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.ktab-3page-preview-sheet {
+  width: 100%;
+  max-width: 680px;
+  height: calc(100vh - 2.5rem);
+  max-height: calc(100vh - 2.5rem);
+  display: flex;
+  flex-direction: column;
+  border-radius: 1.5rem;
+  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Themes for 3-Page Preview Sheet */
+.ktab-3page-preview-sheet--pure-white {
+  background-color: #ffffff;
+  color: #0a0a0a;
+}
+
+.ktab-3page-preview-sheet--warm-cream {
+  background-color: #f5eedc;
+  color: #1a1714;
+}
+
+.ktab-3page-preview-sheet--paper-sepia {
+  background-color: #ebe1c5;
+  color: #1f1a14;
+}
+
+.ktab-3page-preview-sheet--charcoal-dark {
+  background-color: #14171d;
+  color: #f1f5f9;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+@media (min-width: 1024px) {
+  .ktab-book-display-root--image-gen-active .ktab-3page-preview-wrapper {
+    padding-left: 500px; /* Leaves clear space for the 460px details drawer modal on desktop */
+  }
+}
+
+/* Full-Screen 3-Page Continuous Sheet for Mobile & iPads (< 1024px) */
+@media (max-width: 1023px) {
+  .ktab-book-display-root--image-gen-active .ktab-book-display-canvas {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  .ktab-book-display-root--image-gen-active .ktab-3page-preview-wrapper,
+  .ktab-3page-preview-wrapper {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    max-width: 100vw !important;
+    max-height: 100dvh !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    z-index: 50 !important;
+    border-radius: 0 !important;
+  }
+
+  .ktab-book-display-root--image-gen-active .ktab-3page-preview-sheet,
+  .ktab-3page-preview-sheet {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+  }
+
+  .ktab-book-display-root--image-gen-active .ktab-3page-preview-sheet__body,
+  .ktab-3page-preview-sheet__body {
+    padding: 1.25rem 1.25rem 8.5rem 1.25rem !important; /* Space at bottom so text scrolls cleanly above collapsed dock */
+    line-height: 1.85 !important;
+  }
+}
+
+.ktab-3page-preview-sheet__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 2.25rem 2.5rem;
+  line-height: 1.85;
+  user-select: text !important;
+  -webkit-user-select: text !important;
+  cursor: text;
+  overscroll-behavior: contain;
+}
+
+.ktab-3page-section {
+  margin-bottom: 2.25rem;
+}
+
+.ktab-3page-section:last-child {
+  margin-bottom: 0.5rem;
+}
+
+.ktab-3page-section__divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 1.75rem 0 1.25rem;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  pointer-events: none !important;
+}
+
+.ktab-3page-section:first-child .ktab-3page-section__divider {
+  margin-top: 0;
+}
+
+.ktab-3page-section__divider::before,
+.ktab-3page-section__divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border-subtle, rgba(0, 0, 0, 0.08));
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  pointer-events: none !important;
+}
+
+.ktab-3page-section__pill {
+  font-size: 0.775rem;
+  font-weight: 600;
+  padding: 0.25rem 0.85rem;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.04);
+  color: var(--text-subtle, #64748b);
+  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.06));
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  pointer-events: none !important;
+  letter-spacing: -0.01em;
+}
+
+.ktab-3page-section__divider ::selection,
+.ktab-3page-section__pill ::selection {
+  background: transparent !important;
+  color: inherit !important;
+}
+
+.ktab-3page-preview-sheet--charcoal-dark .ktab-3page-section__divider::before,
+.ktab-3page-preview-sheet--charcoal-dark .ktab-3page-section__divider::after {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.ktab-3page-preview-sheet--charcoal-dark .ktab-3page-section__pill {
+  background: rgba(255, 255, 255, 0.06);
+  color: #94a3b8;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.ktab-3page-section__text {
+  margin: 0;
+  font-family: var(--font-arabic), serif;
+  text-align: justify;
+  text-justify: inter-word;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+

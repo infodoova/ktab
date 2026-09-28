@@ -1,6 +1,6 @@
 import React from "react";
 import { Sparkles, Bot, Wand2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+
 
 const AI_TOOLS = [
   { id: "summary", label: "تلخيص ذكي" },
@@ -75,17 +75,17 @@ export function AIComponent({
               نظام التحليل جاهز للاستخدام
             </span>
             <div className="flex items-center justify-between md:justify-end gap-4 md:gap-6 w-full md:w-auto">
-              <Button
+              <button
                 variant="ghost"
                 onClick={() => setAiInput("")}
                 className="text-white/30 hover:text-red-500 font-bold uppercase text-[10px] tracking-widest px-0"
               >
                 إعادة تعيين
-              </Button>
-              <Button className="btn-premium text-white rounded-xl md:rounded-2xl h-14 md:h-16 px-8 md:px-12 font-bold uppercase text-[10px] md:text-xs tracking-[0.1em] transition-all active:scale-95 shadow-xl shrink-0">
+              </button>
+              <button className="btn-premium text-white rounded-xl md:rounded-2xl h-14 md:h-16 px-8 md:px-12 font-bold uppercase text-[10px] md:text-xs tracking-[0.1em] transition-all active:scale-95 shadow-xl shrink-0">
                 <Bot className="w-5 h-5 md:w-6 md:h-6 ml-2 md:ml-3" strokeWidth={3} />
                 توليد التحليل
-              </Button>
+              </button>
             </div>
           </div>
         </div>

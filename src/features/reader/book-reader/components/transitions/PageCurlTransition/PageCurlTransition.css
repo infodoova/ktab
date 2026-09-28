@@ -90,17 +90,25 @@
 /* ═══════════════════════════════════════════════════════════════════
    REVERSE LEAF: SOLID THEME COLOR WITH CENTERED KTAB LOGO
    Triggered on the dynamically cloned element when the leaf curls over.
+   Ensures complete opacity and renders the iconic monochrome emblem.
    ═══════════════════════════════════════════════════════════════════ */
 .ktab-page-curl-leaf--back {
   background-color: var(--bg-primary) !important;
+  isolation: isolate;
 }
 
 .ktab-page-curl-leaf--back .ktab-page-curl-content {
   display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 
 .ktab-page-curl-leaf--back .ktab-page-curl-backface {
   display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  z-index: 10 !important;
 }
 
 .ktab-curl-brand-logo {
@@ -113,32 +121,53 @@
 }
 
 .ktab-curl-brand-img {
-  width: 64px;
-  height: 64px;
+  width: 72px;
+  height: 72px;
   object-fit: contain;
-  opacity: 0.5;
-  filter: grayscale(100%);
   user-select: none;
   pointer-events: none;
+  filter: grayscale(100%) brightness(0);
+  opacity: 0.55;
+  transition: opacity 0.2s ease;
 }
 
-/* Theme-specific styles for the turning leaf backface */
-.ktab-page-curl-leaf--theme-pure-white.ktab-page-curl-leaf--back {
+/* Light themes: solid opaque background and crisp solid dark emblem */
+.ktab-page-curl-leaf--theme-pure-white.ktab-page-curl-leaf--back,
+.ktab-page-curl-leaf--theme-pure-white.ktab-page-curl-leaf--back .ktab-page-curl-backface {
   background-color: #ffffff !important;
   border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
-.ktab-page-curl-leaf--theme-warm-cream.ktab-page-curl-leaf--back {
+.ktab-page-curl-leaf--theme-pure-white .ktab-curl-brand-img {
+  filter: grayscale(100%) brightness(0);
+  opacity: 0.55;
+}
+
+.ktab-page-curl-leaf--theme-warm-cream.ktab-page-curl-leaf--back,
+.ktab-page-curl-leaf--theme-warm-cream.ktab-page-curl-leaf--back .ktab-page-curl-backface {
   background-color: #fbf7ee !important;
   border: 1px solid rgba(44, 40, 36, 0.07);
 }
 
-.ktab-page-curl-leaf--theme-paper-sepia.ktab-page-curl-leaf--back {
+.ktab-page-curl-leaf--theme-warm-cream .ktab-curl-brand-img {
+  filter: grayscale(100%) brightness(0);
+  opacity: 0.55;
+}
+
+.ktab-page-curl-leaf--theme-paper-sepia.ktab-page-curl-leaf--back,
+.ktab-page-curl-leaf--theme-paper-sepia.ktab-page-curl-leaf--back .ktab-page-curl-backface {
   background-color: #f4ecd8 !important;
   border: 1px solid rgba(61, 50, 36, 0.08);
 }
 
-.ktab-page-curl-leaf--theme-charcoal-dark.ktab-page-curl-leaf--back {
+.ktab-page-curl-leaf--theme-paper-sepia .ktab-curl-brand-img {
+  filter: grayscale(100%) brightness(0);
+  opacity: 0.55;
+}
+
+/* Dark theme: solid charcoal background with crisp bright emblem */
+.ktab-page-curl-leaf--theme-charcoal-dark.ktab-page-curl-leaf--back,
+.ktab-page-curl-leaf--theme-charcoal-dark.ktab-page-curl-leaf--back .ktab-page-curl-backface {
   background-color: #12151c !important;
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
@@ -154,11 +183,12 @@
 .stf__hardShadow,
 .stf__hardInnerShadow {
   pointer-events: none !important;
-  mix-blend-mode: multiply;
+  mix-blend-mode: multiply !important;
+  opacity: 0.35 !important;
 }
 
 .ktab-reader-theme--charcoal-dark .stf__outerShadow,
 .ktab-reader-theme--charcoal-dark .stf__innerShadow {
-  mix-blend-mode: soft-light;
-  opacity: 0.55;
+  mix-blend-mode: soft-light !important;
+  opacity: 0.55 !important;
 }

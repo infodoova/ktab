@@ -86,6 +86,13 @@
   text-overflow: ellipsis;
 }
 
+.ktab-details-drawer-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
 .ktab-details-drawer-close-btn {
   display: inline-flex;
   align-items: center;

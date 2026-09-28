@@ -1,7 +1,8 @@
 import React, { useMemo } from "react";
 import { marked } from "marked";
 import { sanitizeHtml } from "@/lib/sanitize";
-import { cleanLlmJsonAnswer } from "../../services/talkToBookService";
+import { cleanLlmJsonAnswer } from "../../../services/talkToBookService";
+import "./TalkToBookMessageContent.css";
 
 // Configure standard GitHub-flavored markdown with soft break conversion
 marked.setOptions({
@@ -34,7 +35,6 @@ function prepareMarkdownSource(rawText) {
   processed = processed.replace(/(^|\n)(#{1,6})([^\s#])/g, "$1$2 $3");
 
   // 3. Convert Arabic ordinals and section headers at line starts into structured markdown headings (###)
-  // Matches: أولاً، ثانياً، ثالثاً... المحور الأول... الخلاصة... الخاتمة...
   const arabicOrdinals =
     "(?:أولاً|ثانياً|ثالثاً|رابعاً|خامساً|سادساً|سابعاً|ثامناً|تاسعاً|عاشراً|حادي عشر|ثاني عشر|المحور الأول|المحور الثاني|المحور الثالث|المحور الرابع|المحور الخامس|الخلاصة المكثفة|الخلاصة|خاتمة|استنتاج)";
   const ordinalRegex = new RegExp(
@@ -47,13 +47,13 @@ function prepareMarkdownSource(rawText) {
   });
 
   // 4. Normalize numbered list variations: "1- " or "1) " into standard markdown "1. "
-  processed = processed.replace(/(^|\n)(\d+)[\-\)]\s+/g, "$1$2. ");
+  processed = processed.replace(/(^|\n)(\d+)[-)]\s+/g, "$1$2. ");
 
   // 5. Convert bullet variations (•, ▪, ◆) into standard markdown "- "
   processed = processed.replace(/(^|\n)[•▪◆]\s+/g, "$1- ");
 
   // 6. Ensure lists have an empty line before them so Marked treats them as a <ul> / <ol>
-  processed = processed.replace(/([^\n])\n([0-9]+\.|\-|\*)\s+/g, "$1\n\n$2 ");
+  processed = processed.replace(/([^\n])\n([0-9]+\.|-|\*)\s+/g, "$1\n\n$2 ");
 
   // 7. Render inline book page citations [صفحة 15] or [ص 15] as clickable badges
   processed = processed.replace(
@@ -94,8 +94,8 @@ function prepareMarkdownSource(rawText) {
 export function TalkToBookMessageContent({
   content,
   isUser = false,
-  citations = [],
-  onCitationClick,
+  citations: _citations = [],
+  onCitationClick: _onCitationClick,
   onPageClick,
 }) {
   const formattedHtml = useMemo(() => {

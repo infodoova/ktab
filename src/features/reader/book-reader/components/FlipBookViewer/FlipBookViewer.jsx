@@ -80,7 +80,6 @@ export function FlipBookViewer(props) {
             onContextMenu={(e) => {
               if (!ALLOW_RIGHT_CLICK) e.preventDefault();
             }}
-            onSelectStart={(e) => e.preventDefault()}
           >
             <div className="ktab-book-end-page">
               <h2 className="ktab-book-end-page__title">النهاية</h2>
@@ -118,7 +117,6 @@ export function FlipBookViewer(props) {
           onContextMenu={(e) => {
             if (!ALLOW_RIGHT_CLICK) e.preventDefault();
           }}
-          onSelectStart={(e) => e.preventDefault()}
         >
           <div
             className="ktab-book-page__text"
