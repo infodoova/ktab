@@ -473,29 +473,31 @@ export function usePageImageGen({
   }, []);
 
   /**
-   * Native Share API with clipboard fallback.
+   * Direct programmatic share helper.
    */
   const handleShareImage = useCallback(
     async (imageUrl) => {
       const url = imageUrl || activeJob?.imageUrl;
       if (!url) return;
 
-      if (navigator.share) {
+      const title = bookTitle ? `لوحة من: ${bookTitle}` : "لوحة كتاب";
+      const customText = `لوحة فنية مُولّدة لكتاب "${bookTitle || "كِتَاب"}"`;
+
+      if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
         try {
           await navigator.share({
-            title: bookTitle ? `لوحة من: ${bookTitle}` : "لوحة كتاب",
+            title,
+            text: customText,
             url,
           });
-          return;
         } catch (err) {
-          if (err.name === "AbortError") return;
+          if (err.name !== "AbortError") {
+            navigator.clipboard?.writeText(url);
+          }
         }
+      } else {
+        navigator.clipboard?.writeText(url);
       }
-
-      navigator.clipboard
-        .writeText(url)
-        .then(() => AlertToast("تم نسخ رابط الصورة", "SUCCESS"))
-        .catch(() => AlertToast("تعذر نسخ الرابط", "ERROR"));
     },
     [activeJob, bookTitle]
   );

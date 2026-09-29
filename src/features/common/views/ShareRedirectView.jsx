@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
-import { isAllowedRedirectUrl } from "@/lib/sanitize";
+import { isAllowedRedirectUrl, sanitizeId } from "@/lib/sanitize";
 import { AlertToast } from "@/components/myui/AlertToast";
 import logger from "@/lib/logger";
 
@@ -11,7 +11,24 @@ export function ShareRedirectView() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const encrypted = params.get("r");
+    const bookId = params.get("b");
+    const page = params.get("p");
 
+    // 1. Direct Book Short Link Resolution
+    if (bookId) {
+      const cleanBookId = sanitizeId(bookId);
+      if (cleanBookId) {
+        if (page) {
+          const cleanPage = sanitizeId(page);
+          navigate(`/reader/display/${cleanBookId}?page=${cleanPage}`, { replace: true });
+        } else {
+          navigate(`/reader/BookDetails/${cleanBookId}`, { replace: true });
+        }
+        return;
+      }
+    }
+
+    // 2. Base64 / Encrypted Path Resolution
     if (!encrypted) {
       navigate("/", { replace: true });
       return;

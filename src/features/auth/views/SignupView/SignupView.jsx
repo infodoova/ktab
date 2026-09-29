@@ -1,6 +1,6 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Eye, EyeOff, ArrowLeft, ArrowRight } from "lucide-react";
 import logo from "@/assets/logo/logo.png";
 import { Select } from "@/components/myui/forms";
@@ -15,6 +15,12 @@ import "./SignupView.css";
  * - Clean, uncluttered 2-step input progression
  */
 export function SignupView() {
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const redirectTarget = searchParams.get("redirect");
+  const backUrl = redirectTarget && redirectTarget.startsWith("/") ? redirectTarget : "/";
+  const loginLink = location.search ? `/login${location.search}` : "/login";
+
   const {
     step,
     nextStep,
@@ -34,7 +40,7 @@ export function SignupView() {
   } = useSignup();
 
   return (
-    <AuthLayout backUrl="/">
+    <AuthLayout backUrl={backUrl}>
       <div className="signup-view-container" dir="rtl">
         {!verifyOpen ? (
           <>
@@ -261,7 +267,7 @@ export function SignupView() {
             <footer className="signup-footer">
               <p className="signup-footer-text">
                 لديك حساب بالفعل؟
-                <Link to="/login" className="signup-footer-link">
+                <Link to={loginLink} className="signup-footer-link">
                   سجل دخولك الآن
                 </Link>
               </p>

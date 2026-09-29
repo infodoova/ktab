@@ -1,0 +1,128 @@
+.ktab-book-filter-tabs-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  margin-bottom: 1.25rem;
+  padding: 0.25rem 0;
+}
+
+.ktab-book-filter-tabs-scroll {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 0.25rem 0.125rem;
+  flex: 1;
+}
+
+.ktab-book-filter-tabs-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.ktab-book-filter-scroll-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  color: var(--primary-text);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.18s ease;
+  box-shadow: var(--btn-action-shadow);
+}
+
+.ktab-book-filter-scroll-btn:hover {
+  background: var(--bg-secondary);
+  border-color: var(--glass-border);
+  color: var(--brand-black);
+}
+
+.ktab-book-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.95rem;
+  border-radius: 9999px;
+  font-size: 0.84rem;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  background: var(--bg-primary);
+  color: var(--text-muted);
+  border: 1px solid var(--border-card);
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+
+.ktab-book-filter-chip:hover {
+  color: var(--primary-text);
+  border-color: var(--brand-black);
+  background: var(--bg-secondary);
+}
+
+.ktab-book-filter-chip--active {
+  background: var(--brand-black);
+  color: var(--brand-white);
+  border-color: var(--brand-black);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.ktab-book-filter-chip--active:hover {
+  background: var(--brand-black-hover);
+  color: var(--brand-white);
+  border-color: var(--brand-black-hover);
+}
+
+.ktab-book-filter-chip__icon {
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
+.ktab-book-filter-chip__label {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ktab-book-filter-chip__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1;
+  padding: 0.15rem 0.45rem;
+  border-radius: 9999px;
+  background: var(--bg-secondary);
+  color: var(--text-muted);
+  min-width: 1.15rem;
+  letter-spacing: -0.01em;
+  transition: all 0.18s ease;
+}
+
+.ktab-book-filter-chip--active .ktab-book-filter-chip__count {
+  background: rgba(255, 255, 255, 0.22);
+  color: var(--brand-white);
+}
+
+.ktab-book-filter-chip:hover:not(.ktab-book-filter-chip--active) .ktab-book-filter-chip__count {
+  background: var(--border-subtle);
+  color: var(--brand-black);
+}
+
+@media (max-width: 640px) {
+  .ktab-book-filter-scroll-btn {
+    display: none;
+  }
+}
+

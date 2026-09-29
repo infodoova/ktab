@@ -1,0 +1,181 @@
+/* ==========================================================================
+   BOOK PAGE SKELETON STYLESHEET
+   Light Mode Apple Books-inspired layout with fluid shimmer wave
+   ========================================================================== */
+
+.ktab-page-skeleton-wrapper {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  pointer-events: none;
+  box-sizing: border-box;
+  padding: 12px;
+}
+
+.ktab-page-skeleton-sheet {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  box-sizing: border-box;
+  box-shadow: 0 16px 42px -10px rgba(0, 0, 0, 0.1),
+              0 2px 10px rgba(0, 0, 0, 0.04);
+  transition: background-color 0.25s ease, border-color 0.25s ease;
+  will-change: transform, opacity;
+}
+
+/* Page themes matching FlipBookViewer */
+.ktab-page-skeleton-sheet.ktab-book-page--pure-white {
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+}
+
+.ktab-page-skeleton-sheet.ktab-book-page--warm-cream {
+  background-color: #fbf7ee;
+  border: 1px solid rgba(44, 40, 36, 0.08);
+}
+
+.ktab-page-skeleton-sheet.ktab-book-page--paper-sepia {
+  background-color: #f4ecd8;
+  border: 1px solid rgba(61, 50, 36, 0.1);
+}
+
+.ktab-page-skeleton-sheet.ktab-book-page--charcoal-dark {
+  background-color: #12151c;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.65),
+              0 2px 12px rgba(0, 0, 0, 0.4);
+}
+
+.ktab-page-skeleton__content {
+  width: 100%;
+  height: 100%;
+  padding: 44px 48px 36px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
+  .ktab-page-skeleton__content {
+    padding: 24px 20px 20px;
+  }
+}
+
+/* Header */
+.ktab-page-skeleton__header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.ktab-page-skeleton__ghost-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  opacity: 0.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 60%;
+  line-height: 1.2;
+}
+
+.ktab-page-skeleton__divider {
+  width: 100%;
+  height: 1px;
+  background: var(--border-subtle, rgba(0, 0, 0, 0.06));
+}
+
+.ktab-page-skeleton-sheet.ktab-book-page--charcoal-dark .ktab-page-skeleton__divider {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Body & Paragraphs */
+.ktab-page-skeleton__body {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  flex: 1;
+}
+
+.ktab-page-skeleton__paragraph {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Shimmer Line Base */
+.ktab-page-skeleton__line {
+  position: relative;
+  height: 14px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.ktab-page-skeleton-sheet.ktab-book-page--warm-cream .ktab-page-skeleton__line {
+  background: rgba(44, 40, 36, 0.07);
+}
+
+.ktab-page-skeleton-sheet.ktab-book-page--paper-sepia .ktab-page-skeleton__line {
+  background: rgba(61, 50, 36, 0.08);
+}
+
+.ktab-page-skeleton-sheet.ktab-book-page--charcoal-dark .ktab-page-skeleton__line {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.ktab-page-skeleton__line--header {
+  width: 32%;
+  height: 12px;
+}
+
+.ktab-page-skeleton__line--page-num {
+  width: 28px;
+  height: 10px;
+  margin: 0 auto;
+}
+
+/* Shimmer Wave Animation (RTL sweep) */
+.ktab-page-skeleton__line::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.65) 50%,
+    transparent 100%
+  );
+  animation: ktabSkeletonShimmerRtl 1.8s infinite cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ktab-page-skeleton-sheet.ktab-book-page--charcoal-dark .ktab-page-skeleton__line::after {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.12) 50%,
+    transparent 100%
+  );
+}
+
+@keyframes ktabSkeletonShimmerRtl {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+/* Footer */
+.ktab-page-skeleton__footer {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

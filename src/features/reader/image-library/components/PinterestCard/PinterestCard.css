@@ -1,0 +1,168 @@
+.ktab-pinterest-card {
+  position: relative;
+  break-inside: avoid;
+  margin-bottom: 0.65rem;
+  background: var(--bg-secondary);
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-subtle);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.22s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+@media (min-width: 640px) {
+  .ktab-pinterest-card {
+    margin-bottom: 1.25rem;
+    border-radius: 1rem;
+  }
+}
+
+.ktab-pinterest-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.09);
+  border-color: var(--glass-border);
+}
+
+.ktab-pinterest-card:focus-visible {
+  outline: 2px solid var(--brand-teal);
+  outline-offset: 2px;
+}
+
+/* Media box strictly respects proportional aspect ratio */
+.ktab-pinterest-card__media-box {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: inherit;
+}
+
+.ktab-pinterest-card__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: 0;
+  transition: opacity 0.35s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ktab-pinterest-card__img--loaded {
+  opacity: 1;
+}
+
+.ktab-pinterest-card:hover .ktab-pinterest-card__img--loaded {
+  transform: scale(1.025);
+}
+
+.ktab-pinterest-card__skeleton {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    var(--bg-secondary) 25%,
+    rgba(0, 0, 0, 0.04) 50%,
+    var(--bg-secondary) 75%
+  );
+  background-size: 200% 100%;
+  animation: ktabCardSkeletonShimmer 1.5s infinite;
+}
+
+@keyframes ktabCardSkeletonShimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Hover Quick Action Overlay (Pinterest style) */
+.ktab-pinterest-card__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.3) 0%,
+    transparent 35%,
+    transparent 65%,
+    rgba(0, 0, 0, 0.45) 100%
+  );
+  opacity: 0;
+  visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 0.45rem;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+  z-index: 2;
+}
+
+@media (min-width: 640px) {
+  .ktab-pinterest-card__overlay {
+    padding: 0.75rem;
+  }
+}
+
+.ktab-pinterest-card:hover .ktab-pinterest-card__overlay {
+  opacity: 1;
+  visibility: visible;
+}
+
+.ktab-pinterest-card__overlay-top {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.ktab-pinterest-card__overlay-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.35rem;
+}
+
+.ktab-pinterest-card__actions-group {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.ktab-pinterest-card__action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--brand-black);
+  border: none;
+  cursor: pointer;
+  transition: transform 0.16s ease, background 0.16s ease, color 0.16s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+}
+
+@media (min-width: 640px) {
+  .ktab-pinterest-card__action-btn {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+.ktab-pinterest-card__action-btn:hover {
+  transform: scale(1.08);
+  background: #ffffff;
+  color: var(--brand-teal-deep);
+}
+
+.ktab-pinterest-card__action-btn--danger:hover {
+  background: var(--color-danger);
+  color: #ffffff;
+}

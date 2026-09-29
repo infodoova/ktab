@@ -1,5 +1,6 @@
 import React from "react";
 import { Play, Bookmark, Share, Star, Loader2 } from "lucide-react";
+import { ShareMenu } from "@/components/common";
 import "./BookHero.css";
 
 /**
@@ -169,17 +170,24 @@ export function BookHero({
             </button>
 
 
-            {/* Apple Share Button (iOS Style) */}
-            <button
-              type="button"
-              onClick={onShare}
-              className="apple-book-hero__icon-btn"
-              aria-label="مشاركة الكتاب"
-              title="مشاركة رابط الكتاب"
-              id="btn-share-book"
+            {/* Apple Share Button (Mobile Native / Desktop Dropdown) */}
+            <ShareMenu
+              bookId={id}
+              title={title}
+              authorName={authorName}
+              align="left"
+              direction="down"
             >
-              <Share size={17} />
-            </button>
+              <button
+                type="button"
+                className="apple-book-hero__icon-btn"
+                aria-label="مشاركة الكتاب"
+                title="مشاركة رابط الكتاب"
+                id="btn-share-book"
+              >
+                <Share size={17} />
+              </button>
+            </ShareMenu>
           </div>
         </div>
       </div>

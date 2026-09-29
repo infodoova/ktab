@@ -7,3 +7,4 @@ export { InteractivePlayView } from "./interactive-play/views/InteractivePlayVie
 export { AchievementsView } from "./achievements/views/AchievementsView";
 export { ReaderProfileView } from "./profile/views/ReaderProfileView";
 export { ReaderSettingsView } from "./settings/views/ReaderSettingsView";
+export { BookImageLibraryView } from "./image-library/views/BookImageLibraryView";

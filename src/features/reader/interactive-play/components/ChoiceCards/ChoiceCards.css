@@ -15,7 +15,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 0.125rem 0.25rem;
+  padding: 0 0.5rem 0.25rem;
 }
 
 .ktab-choice-cards__label {
@@ -226,6 +226,9 @@
 }
 
 @media (min-width: 1440px) {
+  .ktab-choice-cards__header {
+    padding: 0 0.65rem 0.25rem;
+  }
   .ktab-choice-cards__label {
     font-size: 0.9375rem;
   }

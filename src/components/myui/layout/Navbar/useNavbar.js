@@ -29,6 +29,7 @@ export function useNavbar({
   const [internalMobileSearchOpen, setInternalMobileSearchOpen] = useState(false);
   const [internalSearchQuery, setInternalSearchQuery] = useState("");
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [expandedMenus, setExpandedMenus] = useState({});
 
   const mobileSearchInputRef = useRef(null);
   const userMenuRef = useRef(null);
@@ -153,6 +154,30 @@ export function useNavbar({
     return location.pathname.startsWith(path);
   };
 
+  const toggleMenu = (path) => {
+    setExpandedMenus((prev) => ({
+      ...prev,
+      [path]: !(prev[path] ?? true),
+    }));
+  };
+
+  const isMenuOpen = (link) => {
+    if (!link.subItems) return false;
+    if (expandedMenus[link.path] !== undefined) {
+      return expandedMenus[link.path];
+    }
+    return link.subItems.some(
+      (s) => location.pathname === s.path || location.pathname.startsWith(s.path)
+    );
+  };
+
+  const isSubItemActive = (subPath) => {
+    if (subPath === "/reader/library") {
+      return location.pathname === "/reader/library";
+    }
+    return location.pathname === subPath || location.pathname.startsWith(subPath);
+  };
+
   const logo = isDark ? logoDarkImg : logoImg;
 
   const firstName =
@@ -176,6 +201,9 @@ export function useNavbar({
     isUserLoaded,
     links,
     isLinkActive,
+    isSubItemActive,
+    toggleMenu,
+    isMenuOpen,
     logo,
     brandIcon: brandIconImg,
     mobileOpen,

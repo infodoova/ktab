@@ -1,5 +1,9 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+
+// Module-level flag so Google SDK is only initialized once per page load,
+// surviving React StrictMode double-invocations and component remounts.
+let _googleInitialized = false;
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "@/core/store/authStore";
 import { tokenManager } from "@/core/services/tokenManager";
 import { loginApi, googleLoginApi, completeGoogleRegistrationApi } from "@/core/api/authApi";
@@ -15,6 +19,7 @@ import logger from "@/lib/logger";
  */
 export function useLogin() {
   const navigate = useNavigate();
+  const location = useLocation();
   const setAuth = useAuthStore((state) => state.setAuth);
   const googleBtnRef = useRef(null);
 
@@ -44,6 +49,23 @@ export function useLogin() {
   }, []);
 
   const navigateAfterAuth = (user) => {
+    const params = new URLSearchParams(location.search || window.location.search);
+    const redirectParam = params.get("redirect");
+    const stateTarget = location?.state?.from;
+    const target = redirectParam || stateTarget;
+
+    // Validate that target is a safe relative internal route and not an auth loop
+    if (
+      target &&
+      typeof target === "string" &&
+      target.startsWith("/") &&
+      !target.startsWith("/login") &&
+      !target.startsWith("/signup")
+    ) {
+      navigate(target, { replace: true });
+      return;
+    }
+
     const destination = getRoleDefaultRoute(user?.role);
     navigate(destination, { replace: true });
   };
@@ -147,54 +169,49 @@ export function useLogin() {
 
   const handleCredentialRef = useRef(handleGoogleCredentialResponse);
   handleCredentialRef.current = handleGoogleCredentialResponse;
-  const isGoogleInitializedRef = useRef(false);
+  // isGoogleInitializedRef intentionally uses module-level flag (see top of file)
 
   // Mount and initialize Google Identity Services SDK
   useEffect(() => {
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
     if (!clientId || resetOpen || googleRoleOpen) return;
 
-    const renderGoogleBtn = () => {
-      if (!window.google?.accounts?.id || !googleBtnRef.current) return;
+    const initGoogle = () => {
+      if (!window.google?.accounts?.id) return;
 
-      if (!isGoogleInitializedRef.current) {
+      if (!_googleInitialized) {
         window.google.accounts.id.initialize({
           client_id: clientId,
           callback: (res) => handleCredentialRef.current?.(res),
+          auto_select: false,
         });
-        isGoogleInitializedRef.current = true;
+        _googleInitialized = true;
       }
 
-      try {
-        // Clear previous render tree to prevent duplicate/ghost buttons on re-render
-        if (googleBtnRef.current) {
+      if (googleBtnRef.current) {
+        try {
           googleBtnRef.current.innerHTML = "";
+          const containerWidth = googleBtnRef.current.parentElement?.offsetWidth || 380;
+          const targetWidth = Math.min(400, Math.max(280, containerWidth));
+          window.google.accounts.id.renderButton(googleBtnRef.current, {
+            type: "standard",
+            theme: "outline",
+            size: "large",
+            text: "continue_with",
+            shape: "rectangular",
+            logo_alignment: "center",
+            width: targetWidth,
+            locale: "ar",
+          });
+        } catch (e) {
+          logger.error("Failed to render Google button:", e);
         }
-
-        const containerWidth = Math.min(
-          400,
-          Math.max(280, googleBtnRef.current?.offsetWidth || 400)
-        );
-
-        window.google.accounts.id.renderButton(googleBtnRef.current, {
-          type: "standard",
-          theme: "outline",
-          size: "large",
-          text: "continue_with",
-          shape: "rectangular",
-          logo_alignment: "left",
-          width: containerWidth,
-          locale: "ar",
-        });
-        setIsGoogleReady(true);
-      } catch (err) {
-        logger.error("Failed to render Google button:", err);
-        setIsGoogleReady(false);
       }
+      setIsGoogleReady(true);
     };
 
     if (window.google?.accounts?.id) {
-      renderGoogleBtn();
+      initGoogle();
     } else {
       const existingScript = document.getElementById("google-gsi-client");
       if (!existingScript) {
@@ -203,10 +220,10 @@ export function useLogin() {
         script.src = "https://accounts.google.com/gsi/client?hl=ar";
         script.async = true;
         script.defer = true;
-        script.onload = renderGoogleBtn;
+        script.onload = initGoogle;
         document.body.appendChild(script);
       } else {
-        existingScript.addEventListener("load", renderGoogleBtn);
+        existingScript.addEventListener("load", initGoogle);
       }
     }
   }, [resetOpen, googleRoleOpen]);
@@ -266,8 +283,14 @@ export function useLogin() {
   };
 
   const triggerGooglePrompt = () => {
+    try {
+      document.cookie = "g_state=;path=/;expires=Thu, 01 Jan 1970 00:00:01 GMT";
+    } catch {}
+
     if (window.google?.accounts?.id) {
-      window.google.accounts.id.prompt(() => {});
+      window.google.accounts.id.prompt();
+    } else {
+      AlertToast("جاري تهيئة خدمة Google، يرجى المحاولة بعد لحظات...", "INFO");
     }
   };
 

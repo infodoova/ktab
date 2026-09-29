@@ -1,0 +1,14 @@
+.ktab-image-library-view {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 1.5rem 1.75rem 4rem;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 768px) {
+  .ktab-image-library-view {
+    padding: 1rem 1rem 3rem;
+  }
+}

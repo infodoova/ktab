@@ -88,20 +88,32 @@ export function useBookDetails(bookId) {
     }
   }, [bookId]);
 
-  // Share action: copies direct link to clipboard
-  const handleShareBook = useCallback(() => {
-    if (typeof window === "undefined") return;
-    try {
-      if (navigator.clipboard?.writeText) {
-        navigator.clipboard.writeText(window.location.href);
-        AlertToast("تم نسخ رابط الكتاب إلى الحافظة بنجاح.", "SUCCESS");
-      } else {
-        AlertToast("يرجى نسخ الرابط من شريط العنوان.", "INFO");
+  // Share Helper for direct programmatic calls
+  const handleShareBook = useCallback(async () => {
+    if (typeof window === "undefined" || !bookId) return;
+
+    const origin = window.location.origin;
+    const shortUrl = `${origin}/share?b=${encodeURIComponent(bookId)}`;
+    const title = bookData?.title ? `كتاب: ${bookData.title}` : "تطبيق كِتَاب";
+    const authorPart = bookData?.authorName ? ` للكاتب ${bookData.authorName}` : "";
+    const text = `اقرأ ${title}${authorPart} على تطبيق كِتَاب:`;
+
+    if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
+      try {
+        await navigator.share({
+          title,
+          text,
+          url: shortUrl,
+        });
+      } catch (err) {
+        if (err.name !== "AbortError") {
+          navigator.clipboard?.writeText(shortUrl);
+        }
       }
-    } catch {
-      AlertToast("تعذر نسخ الرابط.", "ERROR");
+    } else {
+      navigator.clipboard?.writeText(shortUrl);
     }
-  }, []);
+  }, [bookId, bookData?.title, bookData?.authorName]);
 
   // 2. Fetch Review State
   const fetchReviewState = useCallback(async () => {
@@ -197,12 +209,17 @@ export function useBookDetails(bookId) {
   }, [bookId]);
 
   useEffect(() => {
+    // Reset window and document scroll position so book preview opens from the top
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    if (document.documentElement) document.documentElement.scrollTop = 0;
+    if (document.body) document.body.scrollTop = 0;
+
     fetchBookDetails();
     fetchReviewState();
     fetchAssignmentState();
     loadReviews();
     loadSimilarBooks();
-  }, [fetchBookDetails, fetchReviewState, fetchAssignmentState, loadReviews, loadSimilarBooks]);
+  }, [bookId, fetchBookDetails, fetchReviewState, fetchAssignmentState, loadReviews, loadSimilarBooks]);
 
   // Handle Review Submit / Edit
   const handleSubmitReview = async () => {
@@ -271,6 +288,10 @@ export function useBookDetails(bookId) {
 
   // Toggle Library Assignment via POST /api/v1/library/assignBook
   const handleToggleAssign = async () => {
+    if (!user?.userId) {
+      navigate(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
+      return;
+    }
     if (isAssignLoading) return;
     setIsAssignLoading(true);
 
@@ -302,7 +323,13 @@ export function useBookDetails(bookId) {
   };
 
   // Declarative UI Event Handlers (Zero JS in JSX)
-  const handleOpenReviewModal = useCallback(() => setIsRatingModalOpen(true), []);
+  const handleOpenReviewModal = useCallback(() => {
+    if (!user?.userId) {
+      navigate(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
+      return;
+    }
+    setIsRatingModalOpen(true);
+  }, [user?.userId, navigate]);
   const handleCloseReviewModal = useCallback(() => setIsRatingModalOpen(false), []);
   const handleOpenFullRatesModal = useCallback(() => setIsFullRatesOpen(true), []);
   const handleCloseFullRatesModal = useCallback(() => setIsFullRatesOpen(false), []);

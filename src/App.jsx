@@ -7,6 +7,7 @@ import {
   ErrorBoundary,
   RouteErrorBoundary,
   TopLoadingBar,
+  ScrollToTop,
 } from "./components/common";
 
 /**
@@ -52,6 +53,7 @@ function renderRouteElement(route) {
 function App() {
   return (
     <ErrorBoundary variant="page">
+      <ScrollToTop />
       <Routes>
         {routes.map((route, index) => (
           <Route

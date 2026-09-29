@@ -28,6 +28,9 @@ const ReaderProfileView = lazy(() =>
 const ReaderSettingsView = lazy(() =>
   import("../../../features/reader/settings/views/ReaderSettingsView")
 );
+const BookImageLibraryView = lazy(() =>
+  import("../../../features/reader/image-library/views/BookImageLibraryView")
+);
 
 /**
  * Reader Role Protected Routes
@@ -44,15 +47,13 @@ export const readerRoutes = [
     name: "ReaderBookDetails",
     path: "/reader/BookDetails/:id",
     component: BookDetailsView,
-    guard: "role",
-    roles: ["READER"],
   },
   {
     name: "ReaderBookDisplay",
     path: "/reader/display/:id",
     component: BookDisplayView,
     guard: "role",
-    roles: ["READER"],
+    roles: ["READER", "AUTHOR", "LIBRARIAN", "LIBRARY_ADMIN", "PUBLISHER", "ADMIN"],
   },
   {
     name: "ReaderAchievements",
@@ -86,6 +87,20 @@ export const readerRoutes = [
     name: "ReaderLibrary",
     path: "/reader/library",
     component: LibraryView,
+    guard: "role",
+    roles: ["READER"],
+  },
+  {
+    name: "ReaderImageLibrary",
+    path: "/reader/image-library",
+    component: BookImageLibraryView,
+    guard: "role",
+    roles: ["READER"],
+  },
+  {
+    name: "ReaderBookImageLibrary",
+    path: "/reader/book-image-library",
+    component: BookImageLibraryView,
     guard: "role",
     roles: ["READER"],
   },

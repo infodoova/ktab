@@ -1,0 +1,130 @@
+.ktab-del-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: var(--backdrop-dark);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  animation: ktabDelFadeIn 0.2s ease-out;
+}
+
+@keyframes ktabDelFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.ktab-del-modal-box {
+  background: var(--bg-primary);
+  border-radius: 1.25rem;
+  width: 100%;
+  max-width: 440px;
+  padding: 2rem 1.75rem;
+  border: 1px solid var(--border-card);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  animation: ktabDelPop 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes ktabDelPop {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.ktab-del-modal-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--color-danger);
+  margin-bottom: 1.25rem;
+}
+
+.ktab-del-modal-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--brand-black);
+  margin: 0 0 0.65rem;
+}
+
+.ktab-del-modal-desc {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+  margin: 0 0 1.75rem;
+}
+
+.ktab-del-modal-book-name {
+  color: var(--primary-text);
+  font-weight: 600;
+}
+
+.ktab-del-modal-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.ktab-del-modal-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.ktab-del-modal-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.ktab-del-modal-btn--confirm {
+  background: var(--color-danger);
+  color: #ffffff;
+}
+
+.ktab-del-modal-btn--confirm:hover:not(:disabled) {
+  background: #dc2626;
+  transform: translateY(-1px);
+}
+
+.ktab-del-modal-btn--cancel {
+  background: var(--bg-secondary);
+  color: var(--primary-text);
+  border: 1px solid var(--border-subtle);
+}
+
+.ktab-del-modal-btn--cancel:hover:not(:disabled) {
+  background: var(--border-subtle);
+}
+
+.ktab-del-modal-spinner {
+  animation: ktabSpin 1s linear infinite;
+}

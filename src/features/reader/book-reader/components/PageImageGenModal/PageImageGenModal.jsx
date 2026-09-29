@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { DetailsDrawer } from "@/components/common/DetailsDrawer";
+import { ShareMenu } from "@/components/common";
 import { usePageImageGen } from "../../hooks/usePageImageGen";
 import "./PageImageGenModal.css";
 
@@ -147,7 +148,6 @@ export function PageImageGenModal(props) {
     handleGenerate,
     handleResetSelection,
     handleResetJob,
-    handleShareImage,
     handleDownloadImage,
   } = usePageImageGen({
     bookId,
@@ -208,7 +208,11 @@ export function PageImageGenModal(props) {
       <DetailsDrawer
         isOpen={isOpen && !isCollapsed}
         onClose={onClose}
-        onBackdropClick={() => setIsCollapsed(true)}
+        onBackdropClick={() => {
+          if (typeof window !== "undefined" && window.innerWidth < 1024) {
+            setIsCollapsed(true);
+          }
+        }}
         headerActions={collapseButton}
         title="توليد صورة المشهد"
         subtitle={subtitle}
@@ -253,14 +257,21 @@ export function PageImageGenModal(props) {
             />
           </div>
           <div className="ktab-img-result__bar">
-            <button
-              type="button"
-              className="ktab-img-result__btn"
-              onClick={() => handleShareImage(activeJob.imageUrl)}
+            <ShareMenu
+              url={activeJob.imageUrl}
+              title={bookTitle ? `لوحة من: ${bookTitle}` : "لوحة كتاب"}
+              text={`لوحة فنية مُولّدة لكتاب "${bookTitle || "كِتَاب"}"`}
+              align="right"
+              direction="up"
             >
-              <Share2 size={15} />
-              <span>مشاركة</span>
-            </button>
+              <button
+                type="button"
+                className="ktab-img-result__btn"
+              >
+                <Share2 size={15} />
+                <span>مشاركة</span>
+              </button>
+            </ShareMenu>
             <button
               type="button"
               className="ktab-img-result__btn"

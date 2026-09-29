@@ -4,6 +4,7 @@ import { useFlipBookViewer } from "../../hooks/useFlipBookViewer";
 import { KindleSlideTransition } from "../transitions/KindleSlideTransition";
 import { Flip3DTransition } from "../transitions/Flip3DTransition";
 import { PageCurlTransition } from "../transitions/PageCurlTransition";
+import { BookPageSkeleton } from "../BookPageSkeleton";
 import { ALLOW_RIGHT_CLICK } from "../../constants/readerConstants";
 import "./FlipBookViewer.css";
 
@@ -164,7 +165,14 @@ export function FlipBookViewer(props) {
       }}
       dir="ltr"
     >
-      {loading && <BookLoader />}
+      {(loading || pages.length === 0) && (
+        <BookPageSkeleton
+          theme={theme}
+          pageWidth={pageWidth}
+          pageHeight={pageHeight}
+          bookTitle={bookTitle}
+        />
+      )}
       {isModeSwitching && <BookLoader text="جاري تجهيز نمط القراءة…" />}
 
       {/* Tactile Edge Flip Zones (Tap to Turn & Desktop Hover Pills) */}
@@ -260,20 +268,7 @@ export function FlipBookViewer(props) {
         </>
       )}
 
-      {/* Graceful Empty State */}
-      {ready && pages.length === 0 && (
-        <div className="ktab-book-empty-container" dir="rtl">
-          <div className="ktab-book-empty-card">
-            <div className="ktab-book-empty-icon">
-              <BookOpen size={32} strokeWidth={1.8} />
-            </div>
-            <h3 className="ktab-book-empty-title">لا يتوفر نص مكتوب لهذا الكتاب في الخادم</h3>
-            <p className="ktab-book-empty-desc">
-              تم الاستعلام عن محتوى الكتاب من خادم الـ API، ولكن قاعدة البيانات لا تحتوي على نص مستخرج لهذا المعرف حتى الآن.
-            </p>
-          </div>
-        </div>
-      )}
+
 
       {/* Book Stage: Routes cleanly to the selected transition engine */}
       {ready && currentPage && (

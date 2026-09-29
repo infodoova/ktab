@@ -1,0 +1,218 @@
+.ktab-img-drawer__content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 0.25rem 0 1.5rem;
+}
+
+/* Big Image Preview Box */
+.ktab-img-drawer__media-box {
+  width: 100%;
+  border-radius: 1rem;
+  overflow: hidden;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+.ktab-img-drawer__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Book Banner Card */
+.ktab-img-drawer__book-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.75rem;
+}
+
+.ktab-img-drawer__book-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.ktab-img-drawer__book-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--brand-teal-deep);
+}
+
+.ktab-img-drawer__book-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--brand-black);
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ktab-img-drawer__book-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--brand-black);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  padding: 0.35rem 0.75rem;
+  border-radius: 9999px;
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: all 0.16s ease;
+}
+
+.ktab-img-drawer__book-link:hover {
+  background: var(--brand-black);
+  color: var(--brand-white);
+}
+
+/* Section & Quotes */
+.ktab-img-drawer__section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ktab-img-drawer__section-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-subtle);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.ktab-img-drawer__quote {
+  padding: 0.85rem 1rem;
+  background: var(--bg-secondary);
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-subtle);
+}
+
+.ktab-img-drawer__quote-text {
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--primary-text);
+  margin: 0;
+  font-style: italic;
+}
+
+.ktab-img-drawer__stylenotes-text {
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+  margin: 0;
+  padding: 0.75rem;
+  background: var(--bg-secondary);
+  border-radius: 0.65rem;
+  border: 1px solid var(--border-subtle);
+}
+
+/* Specs Grid */
+.ktab-img-drawer__specs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: var(--bg-secondary);
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-subtle);
+}
+
+.ktab-img-drawer__spec-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.ktab-img-drawer__spec-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-subtle);
+}
+
+.ktab-img-drawer__spec-val {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--primary-text);
+}
+
+.ktab-img-drawer__spec-icon {
+  color: var(--brand-teal-deep);
+}
+
+/* Sticky Footer Action Buttons */
+.ktab-img-drawer__footer-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+}
+
+.ktab-img-drawer__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.65rem 1rem;
+  border-radius: 0.625rem;
+  font-size: 0.84rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.ktab-img-drawer__btn--download {
+  flex: 1.5;
+  background: var(--brand-black);
+  color: var(--brand-white);
+}
+
+.ktab-img-drawer__btn--download:hover {
+  background: var(--brand-black-hover);
+}
+
+.ktab-img-drawer__btn--share {
+  flex: 1;
+  background: var(--bg-secondary);
+  color: var(--primary-text);
+  border: 1px solid var(--border-card);
+}
+
+.ktab-img-drawer__btn--share:hover {
+  background: var(--border-subtle);
+}
+
+.ktab-img-drawer__btn--delete {
+  background: transparent;
+  color: var(--color-danger);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  padding: 0.65rem 0.85rem;
+}
+
+.ktab-img-drawer__btn--delete:hover {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: var(--color-danger);
+}

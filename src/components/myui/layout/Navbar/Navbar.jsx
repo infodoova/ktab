@@ -8,6 +8,7 @@ import {
   MoreVertical,
   LogOut,
   SlidersHorizontal,
+  ChevronDown,
 } from "lucide-react";
 import { useNavbar } from "./useNavbar";
 import "./Navbar.css";
@@ -38,6 +39,9 @@ export function Navbar({
     isUserLoaded,
     links,
     isLinkActive,
+    isSubItemActive,
+    toggleMenu,
+    isMenuOpen,
     logo,
     brandIcon,
     mobileOpen,
@@ -201,19 +205,66 @@ export function Navbar({
                   {links.map((link) => {
                     const Icon = link.icon;
                     const active = isLinkActive(link.path);
+                    const hasSub = Array.isArray(link.subItems) && link.subItems.length > 0;
+                    const open = hasSub && isMenuOpen(link);
 
                     return (
-                      <Link
-                        key={link.path}
-                        to={link.path}
-                        onClick={() => setMobileOpen(false)}
-                        className={`ktab-nav-item ${active ? "ktab-nav-item--active" : "ktab-nav-item--inactive"}`}
-                      >
-                        <span className="ktab-nav-item__icon-wrapper">
-                          <Icon size={18} strokeWidth={active ? 2.2 : 1.8} />
-                        </span>
-                        <span className="ktab-nav-item__label">{link.label}</span>
-                      </Link>
+                      <div key={link.path} className="ktab-nav-group">
+                        <div className="ktab-nav-item-row">
+                          <Link
+                            to={link.path}
+                            onClick={() => {
+                              if (!hasSub) {
+                                setMobileOpen(false);
+                              } else {
+                                toggleMenu(link.path);
+                              }
+                            }}
+                            className={`ktab-nav-item ${active ? "ktab-nav-item--active" : "ktab-nav-item--inactive"}`}
+                          >
+                            <span className="ktab-nav-item__icon-wrapper">
+                              <Icon size={18} strokeWidth={active ? 2.2 : 1.8} />
+                            </span>
+                            <span className="ktab-nav-item__label">{link.label}</span>
+                          </Link>
+                          {hasSub && (
+                            <button
+                              type="button"
+                              className="ktab-nav-item__chevron-btn"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleMenu(link.path);
+                              }}
+                              aria-label={open ? "طي القائمة" : "توسيع القائمة"}
+                            >
+                              <ChevronDown
+                                size={15}
+                                className={`ktab-nav-item__chevron ${open ? "ktab-nav-item__chevron--open" : ""}`}
+                              />
+                            </button>
+                          )}
+                        </div>
+
+                        {hasSub && open && (
+                          <div className="ktab-nav-subitems-wrap">
+                            {link.subItems.map((sub) => {
+                              const subActive = isSubItemActive(sub.path);
+                              return (
+                                <Link
+                                  key={sub.path}
+                                  to={sub.path}
+                                  onClick={() => setMobileOpen(false)}
+                                  className={`ktab-nav-subitem ${
+                                    subActive ? "ktab-nav-subitem--active" : ""
+                                  }`}
+                                >
+                                  <span className="ktab-nav-subitem__label">{sub.label}</span>
+                                </Link>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
                     );
                   })}
                 </nav>
@@ -320,23 +371,69 @@ export function Navbar({
             {links.map((link) => {
               const Icon = link.icon;
               const active = isLinkActive(link.path);
+              const hasSub = Array.isArray(link.subItems) && link.subItems.length > 0;
+              const open = hasSub && isMenuOpen(link);
 
               return (
-                <Link
-                  key={link.path}
-                  to={link.path}
-                  title={collapsed ? link.label : undefined}
-                  className={`ktab-nav-item ${active ? "ktab-nav-item--active" : "ktab-nav-item--inactive"} ${
-                    collapsed ? "ktab-nav-item--collapsed" : ""
-                  }`}
-                >
-                  <span className="ktab-nav-item__icon-wrapper">
-                    <Icon size={18} strokeWidth={active ? 2.2 : 1.8} />
-                  </span>
-                  {!collapsed && (
-                    <span className="ktab-nav-item__label">{link.label}</span>
+                <div key={link.path} className="ktab-nav-group">
+                  <div className="ktab-nav-item-row">
+                    <Link
+                      to={link.path}
+                      title={collapsed ? link.label : undefined}
+                      onClick={() => {
+                        if (hasSub && !collapsed) {
+                          toggleMenu(link.path);
+                        }
+                      }}
+                      className={`ktab-nav-item ${active ? "ktab-nav-item--active" : "ktab-nav-item--inactive"} ${
+                        collapsed ? "ktab-nav-item--collapsed" : ""
+                      }`}
+                    >
+                      <span className="ktab-nav-item__icon-wrapper">
+                        <Icon size={18} strokeWidth={active ? 2.2 : 1.8} />
+                      </span>
+                      {!collapsed && (
+                        <span className="ktab-nav-item__label">{link.label}</span>
+                      )}
+                    </Link>
+
+                    {hasSub && !collapsed && (
+                      <button
+                        type="button"
+                        className="ktab-nav-item__chevron-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleMenu(link.path);
+                        }}
+                        aria-label={open ? "طي القائمة" : "توسيع القائمة"}
+                      >
+                        <ChevronDown
+                          size={15}
+                          className={`ktab-nav-item__chevron ${open ? "ktab-nav-item__chevron--open" : ""}`}
+                        />
+                      </button>
+                    )}
+                  </div>
+
+                  {hasSub && !collapsed && open && (
+                    <div className="ktab-nav-subitems-wrap">
+                      {link.subItems.map((sub) => {
+                        const subActive = isSubItemActive(sub.path);
+                        return (
+                          <Link
+                            key={sub.path}
+                            to={sub.path}
+                            className={`ktab-nav-subitem ${
+                              subActive ? "ktab-nav-subitem--active" : ""
+                            }`}
+                          >
+                            <span className="ktab-nav-subitem__label">{sub.label}</span>
+                          </Link>
+                        );
+                      })}
+                    </div>
                   )}
-                </Link>
+                </div>
               );
             })}
           </nav>

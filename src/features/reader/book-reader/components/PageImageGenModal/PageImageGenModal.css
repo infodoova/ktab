@@ -19,6 +19,16 @@
     pointer-events: auto;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.16);
   }
+
+  /* Remove collapse/show text toggle button on PCs since reader text is already fully visible */
+  .ktab-img-collapse-toggle-btn {
+    display: none !important;
+  }
+
+  /* Ensure collapsed bottom dock is strictly hidden on desktop */
+  .ktab-img-collapsed-dock {
+    display: none !important;
+  }
 }
 
 /* ── Result Card ────────────────────────────────────────────────────────── */

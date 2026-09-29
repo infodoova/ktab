@@ -28,7 +28,11 @@ export function RoleGuard({ allowedRoles = [], children }) {
       const isAuth = useAuthStore.getState().isAuthenticated;
 
       if (!isAuth || !currentUser) {
-        navigate("/login", { replace: true });
+        const returnUrl = window.location.pathname + window.location.search;
+        navigate(`/login?redirect=${encodeURIComponent(returnUrl)}`, {
+          replace: true,
+          state: { from: returnUrl },
+        });
         return;
       }
 

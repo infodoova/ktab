@@ -91,7 +91,8 @@ export function useCodeVerify({ email } = {}) {
       AlertToast(data?.message || "تم تأكيد الحساب بنجاح", "SUCCESS");
 
       setTimeout(() => {
-        navigate("/login");
+        const search = window.location.search;
+        navigate(search ? `/login${search}` : "/login");
       }, 1000);
     } catch (error) {
       logger.error("Verification error:", error);

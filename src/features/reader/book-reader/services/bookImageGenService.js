@@ -1,7 +1,10 @@
 import { getHelper, postHelper, deleteHelper } from "@/core/api/apiHelpers";
 import { sanitizeId } from "@/lib/sanitize";
 
-const API_BASE = import.meta.env.VITE_API_URL || "";
+const RAW_API_BASE = (import.meta.env.VITE_API_URL || "").trim().replace(/\/$/, "");
+const API_BASE = RAW_API_BASE.endsWith("/api/v1")
+  ? RAW_API_BASE
+  : (RAW_API_BASE ? `${RAW_API_BASE}/api/v1` : "/api/v1");
 
 /**
  * Service for AI Book Page Image Generation and Gallery Management.
@@ -130,13 +133,16 @@ export async function fetchImageDetails(bookId, imageId) {
  * @param {number} [params.size=12]
  * @returns {Promise<{ status: number, message: string, data: Object }>}
  */
-export async function fetchAllReaderImages({ bookId, page = 0, size = 12 } = {}) {
+export async function fetchAllReaderImages({ bookId, page = 0, size = 12, sort } = {}) {
   const queryParams = new URLSearchParams();
   if (bookId !== undefined && bookId !== null && String(bookId).trim()) {
     queryParams.append("bookId", encodeURIComponent(sanitizeId(bookId)));
   }
   queryParams.append("page", Math.max(0, parseInt(page, 10) || 0));
   queryParams.append("size", Math.max(1, parseInt(size, 10) || 12));
+  if (sort) {
+    queryParams.append("sort", sort);
+  }
 
   return getHelper({
     url: `${API_BASE}/reader/images?${queryParams.toString()}`,

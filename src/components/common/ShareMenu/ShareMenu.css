@@ -1,0 +1,36 @@
+/* ==========================================================================
+   KTAB SHARE ACTION STYLES
+   - Mobile: Triggers native OS share sheet.
+   - PC: 1-click copy link with smooth checkmark and toast feedback.
+   ========================================================================== */
+
+.ktab-share-menu-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Copied state styling on trigger button */
+.ktab-share-btn--copied {
+  color: var(--brand-teal, #5de3ba) !important;
+  border-color: var(--brand-teal, #5de3ba) !important;
+  transform: scale(1.05);
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ktab-share-btn__check {
+  animation: ktabCheckPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  color: var(--brand-teal, #5de3ba);
+}
+
+@keyframes ktabCheckPop {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

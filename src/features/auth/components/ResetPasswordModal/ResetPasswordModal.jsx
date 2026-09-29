@@ -1,21 +1,18 @@
 import React from "react";
-import {
-  Input,
-  Label,
-  Button,
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSlot,
-} from "@/components/myui/forms";
-import { Eye, EyeOff, X, ArrowRight, ArrowLeft } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Eye, EyeOff, X, ArrowLeft, ArrowRight } from "lucide-react";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/myui/forms";
+import logo from "@/assets/logo/logo.png";
 import { useResetPassword } from "../../hooks/useResetPassword";
+import "./ResetPasswordModal.css";
 
 /**
- * Password reset flow component.
- * Can be rendered directly inline replacing the auth form (inline=true),
- * or as a standalone modal (inline=false).
+ * Editorial Password Reset Component (Eleven Reader & Apple Light Mode).
+ * Supports both inline rendering inside auth layouts and standalone modal dialogues.
  *
- * @param {{ onClose: () => void, inline?: boolean }} props
+ * @param {Object} props
+ * @param {() => void} props.onClose - Action to close or return from reset flow
+ * @param {boolean} [props.inline=false] - Whether to render inline inside auth layout
  */
 export function ResetPasswordModal({ onClose, inline = false }) {
   const {
@@ -42,230 +39,289 @@ export function ResetPasswordModal({ onClose, inline = false }) {
     savePassword,
   } = useResetPassword({ onClose });
 
-  const content = (
-    <div
-      className={
-        inline
-          ? "w-full max-w-[460px] flex flex-col"
-          : "w-full max-w-md bg-[var(--glass-bg)] backdrop-blur-md shadow-[var(--shadow-soft)] rounded-3xl px-8 py-10 border border-[var(--glass-border)] animate-fadeIn"
-      }
-      dir="rtl"
-    >
-      {/* Title */}
-      <h1 className="text-3xl font-black text-[var(--brand-black, #0a0a0a)] text-center mb-2 tracking-tight">
-        إعادة تعيين كلمة المرور
-      </h1>
+  const renderContent = () => (
+    <div className="reset-flow-container" dir="rtl">
+      {/* Header */}
+      <header className="reset-header">
+        {inline && (
+          <Link to="/" className="reset-logo-link" aria-label="الصفحة الرئيسية">
+            <img src={logo} alt="Ktab Logo" className="reset-logo-img" />
+          </Link>
+        )}
 
-      <p className="text-center text-[#64748b] text-sm leading-relaxed mb-8">
-        {step === 1 && "أدخل بريدك الإلكتروني لاستعادة كلمة المرور"}
-        {step === 2 && "أدخل رمز التحقق المرسل إلى بريدك الإلكتروني"}
-        {step === 3 && "قم بإنشاء كلمة مرور جديدة لحسابك"}
-      </p>
+        {/* 3-Step Pill Progress Bar */}
+        <div className="reset-stepper" aria-hidden="true">
+          <span
+            className={`reset-stepper-bar ${
+              step >= 1 ? (step === 1 ? "is-active" : "is-completed") : ""
+            }`}
+          />
+          <span
+            className={`reset-stepper-bar ${
+              step >= 2 ? (step === 2 ? "is-active" : "is-completed") : ""
+            }`}
+          />
+          <span
+            className={`reset-stepper-bar ${
+              step >= 3 ? (step === 3 ? "is-active" : "is-completed") : ""
+            }`}
+          />
+        </div>
+
+        <h1 className="reset-title">
+          {step === 1 && "استعادة كلمة المرور"}
+          {step === 2 && "رمز التحقق"}
+          {step === 3 && "كلمة مرور جديدة"}
+        </h1>
+
+        <p className="reset-subtitle">
+          {step === 1 && "أدخل بريدك الإلكتروني لتلقي رمز التحقق واستعادة حسابك"}
+          {step === 2 && (
+            <>
+              أدخل رمز التحقق المكون من 6 أرقام المرسل إلى{" "}
+              <span className="reset-email-highlight">{email}</span>
+            </>
+          )}
+          {step === 3 && "قم بإنشاء كلمة مرور قوية وجديدة لتأمين حسابك"}
+        </p>
+      </header>
 
       {/* STEP 1: Enter Email */}
       {step === 1 && (
-        <div className="space-y-6">
-          <div className="space-y-2">
-            <Label className="text-[var(--brand-black, #0a0a0a)] font-bold text-xs">
+        <form
+          className="reset-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            sendEmail();
+          }}
+        >
+          <div className="reset-field-wrap">
+            <label className="reset-label" htmlFor="resetEmail">
               البريد الإلكتروني
-            </Label>
-            <Input
+            </label>
+            <input
+              id="resetEmail"
               type="email"
               value={email}
-              placeholder="example@mail.com"
               onChange={(e) => setEmail(e.target.value)}
-              className="bg-white h-12 text-sm rounded-xl border-black/10 focus-visible:ring-black/20"
+              placeholder="name@example.com"
+              className={`reset-input ${errors.email ? "has-error" : ""}`}
+              autoComplete="email"
+              autoFocus
             />
             {errors.email && (
-              <p className="text-red-600 text-xs">{errors.email}</p>
+              <p className="reset-error-msg">{errors.email}</p>
             )}
           </div>
 
-          <div className="flex gap-3 pt-2">
-            <Button
-              type="button"
+          <div className="reset-actions-wrap">
+            <button
+              type="submit"
               disabled={loading}
-              onClick={sendEmail}
-              className="w-1/2 h-12 text-black font-bold rounded-xl transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50"
-              style={{ background: "var(--brand-teal, #5de3ba)" }}
+              className="reset-btn-primary"
             >
-              <span>{loading ? "جاري الإرسال..." : "التالي"}</span>
-              <ArrowLeft className="w-4 mr-2" />
-            </Button>
+              <span>{loading ? "جاري الإرسال..." : "إرسال رمز التحقق"}</span>
+              {!loading && <ArrowLeft size={16} strokeWidth={2.4} />}
+            </button>
 
-            <Button
-              type="button"
-              onClick={onClose}
-              className="w-1/2 h-12 bg-black/5 text-black rounded-xl hover:bg-[var(--brand-teal-soft,#e6faf4)] hover:border-[var(--brand-teal,#5de3ba)] border border-transparent font-bold transition-all"
-            >
-              <ArrowRight className="w-4 ml-2" /> إلغاء
-            </Button>
+            {onClose && (
+              <button
+                type="button"
+                onClick={onClose}
+                className="reset-btn-secondary"
+              >
+                <ArrowRight size={16} strokeWidth={2.4} />
+                <span>العودة لتسجيل الدخول</span>
+              </button>
+            )}
           </div>
-        </div>
+        </form>
       )}
 
       {/* STEP 2: Enter OTP Code */}
       {step === 2 && (
-        <div className="space-y-8">
-          <div dir="ltr" className="flex justify-center">
-            <InputOTP maxLength={6} value={code} onChange={setCode}>
-              <InputOTPGroup className="flex gap-3">
-                {[...Array(6)].map((_, i) => (
-                  <InputOTPSlot
-                    key={i}
-                    index={i}
-                    className="
-                      !w-12 !h-14
-                      text-xl font-bold
-                      bg-white
-                      border border-black/10
-                      rounded-xl
-                    "
-                  />
-                ))}
-              </InputOTPGroup>
-            </InputOTP>
+        <form
+          className="reset-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            verifyCode();
+          }}
+        >
+          <div className="reset-otp-wrap">
+            <div dir="ltr">
+              <InputOTP
+                maxLength={6}
+                value={code}
+                onChange={setCode}
+                autoFocus
+              >
+                <InputOTPGroup>
+                  {[...Array(6)].map((_, i) => (
+                    <InputOTPSlot
+                      key={i}
+                      index={i}
+                      hasError={Boolean(errors.code)}
+                    />
+                  ))}
+                </InputOTPGroup>
+              </InputOTP>
+            </div>
+
+            {errors.code && (
+              <p className="reset-error-msg">{errors.code}</p>
+            )}
+
+            {cooldown > 0 ? (
+              <p className="reset-cooldown-text">
+                إعادة إرسال الرمز خلال <strong>{cooldown}</strong> ثانية
+              </p>
+            ) : (
+              <button
+                type="button"
+                onClick={resendCode}
+                disabled={loading}
+                className="reset-resend-link"
+              >
+                لم يصلك الرمز؟ إعادة الإرسال
+              </button>
+            )}
           </div>
 
-          {errors.code && (
-            <p className="text-red-600 text-xs text-center">{errors.code}</p>
-          )}
-
-          <p className="text-center text-black/60 text-sm">
-            {cooldown > 0 ? (
-              <>
-                إعادة الإرسال خلال <b>{cooldown}</b> ثانية
-              </>
-            ) : (
-              <span
-                onClick={resendCode}
-                className="cursor-pointer text-black font-semibold hover:text-[var(--brand-teal-dark,#4ed4ab)] hover:underline transition-colors"
-              >
-                إعادة إرسال الرمز
-              </span>
-            )}
-          </p>
-
-          <div className="flex gap-3">
-            <Button
-              type="button"
+          <div className="reset-actions-wrap">
+            <button
+              type="submit"
               disabled={code.length < 6 || loading}
-              onClick={verifyCode}
-              className="w-1/2 h-12 text-black font-bold rounded-xl transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50"
-              style={{ background: "var(--brand-teal, #5de3ba)" }}
+              className="reset-btn-primary"
             >
-              <span>التالي</span>
-              <ArrowLeft className="w-4 mr-2" />
-            </Button>
+              <span>المتابعة</span>
+              <ArrowLeft size={16} strokeWidth={2.4} />
+            </button>
 
-            <Button
+            <button
               type="button"
               onClick={() => setStep(1)}
-              className="w-1/2 h-12 bg-black/5 text-black rounded-xl hover:bg-[var(--brand-teal-soft,#e6faf4)] hover:border-[var(--brand-teal,#5de3ba)] border border-transparent font-bold transition-all"
+              className="reset-btn-secondary"
             >
-              <ArrowRight className="w-4 ml-2" /> رجوع
-            </Button>
+              <ArrowRight size={16} strokeWidth={2.4} />
+              <span>تعديل البريد الإلكتروني</span>
+            </button>
           </div>
-        </div>
+        </form>
       )}
 
       {/* STEP 3: Enter New Password */}
       {step === 3 && (
-        <div className="space-y-6">
-          <div className="space-y-2">
-            <Label className="text-[var(--brand-black, #0a0a0a)] font-bold text-xs">
+        <form
+          className="reset-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            savePassword();
+          }}
+        >
+          {/* New Password */}
+          <div className="reset-field-wrap">
+            <label className="reset-label" htmlFor="resetNewPassword">
               كلمة المرور الجديدة
-            </Label>
-            <div className="relative">
-              <Input
+            </label>
+            <div className="reset-password-wrap">
+              <input
+                id="resetNewPassword"
                 type={showPw ? "text" : "password"}
                 value={newPw}
                 onChange={(e) => setNewPw(e.target.value)}
-                placeholder="8 أحرف تشمل حروفاً كبيرة وصغيرة ورقماً ورمزاً"
-                className="bg-white h-12 rounded-xl border-black/10 pr-12 text-right"
+                placeholder="أدخل كلمة المرور الجديدة"
+                className={`reset-input reset-password-input ${errors.newPw ? "has-error" : ""}`}
+                autoComplete="new-password"
+                autoFocus
               />
               <button
                 type="button"
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-black/60 hover:text-[var(--brand-teal,#5de3ba)] transition-colors"
                 onClick={() => setShowPw(!showPw)}
+                className="reset-eye-btn"
+                aria-label={showPw ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
               >
-                {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
+                {showPw ? <EyeOff size={17} /> : <Eye size={17} />}
               </button>
             </div>
             {errors.newPw && (
-              <p className="text-red-600 text-xs">{errors.newPw}</p>
+              <p className="reset-error-msg">{errors.newPw}</p>
             )}
+            <p className="reset-helper-hint">
+              يجب أن تحتوي على 8 أحرف على الأقل، تشمل حروفاً كبيرة وصغيرة ورقماً ورمزاً.
+            </p>
           </div>
 
-          <div className="space-y-2">
-            <Label className="text-[var(--brand-black, #0a0a0a)] font-bold text-xs">
-              تأكيد كلمة المرور
-            </Label>
-            <div className="relative">
-              <Input
+          {/* Confirm Password */}
+          <div className="reset-field-wrap">
+            <label className="reset-label" htmlFor="resetConfirmPassword">
+              تأكيد كلمة المرور الجديدة
+            </label>
+            <div className="reset-password-wrap">
+              <input
+                id="resetConfirmPassword"
                 type={showConfirm ? "text" : "password"}
                 value={confirmPw}
                 onChange={(e) => setConfirmPw(e.target.value)}
                 placeholder="أعد إدخال كلمة المرور"
-                className="bg-white h-12 rounded-xl border-black/10 pr-12 text-right"
+                className={`reset-input reset-password-input ${errors.confirmPw ? "has-error" : ""}`}
+                autoComplete="new-password"
               />
               <button
                 type="button"
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-black/60 hover:text-[var(--brand-teal,#5de3ba)] transition-colors"
                 onClick={() => setShowConfirm(!showConfirm)}
+                className="reset-eye-btn"
+                aria-label={showConfirm ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
               >
-                {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
+                {showConfirm ? <EyeOff size={17} /> : <Eye size={17} />}
               </button>
             </div>
             {errors.confirmPw && (
-              <p className="text-red-600 text-xs">{errors.confirmPw}</p>
+              <p className="reset-error-msg">{errors.confirmPw}</p>
             )}
           </div>
 
-          <div className="flex gap-3 pt-2">
-            <Button
-              type="button"
+          <div className="reset-actions-wrap">
+            <button
+              type="submit"
               disabled={loading}
-              onClick={savePassword}
-              className="w-1/2 h-12 text-black font-bold rounded-xl transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50"
-              style={{ background: "var(--brand-teal, #5de3ba)" }}
+              className="reset-btn-primary"
             >
-              <span>{loading ? "جاري الحفظ..." : "حفظ كلمة المرور"}</span>
-              <ArrowLeft className="w-4 mr-2" />
-            </Button>
+              <span>{loading ? "جاري الحفظ..." : "حفظ كلمة المرور الجديدة"}</span>
+              {!loading && <ArrowLeft size={16} strokeWidth={2.4} />}
+            </button>
 
-            <Button
+            <button
               type="button"
               onClick={() => setStep(2)}
-              className="w-1/2 h-12 bg-black/5 text-black rounded-xl hover:bg-[var(--brand-teal-soft,#e6faf4)] hover:border-[var(--brand-teal,#5de3ba)] border border-transparent font-bold transition-all"
+              className="reset-btn-secondary"
             >
-              <ArrowRight className="w-4 ml-2" /> رجوع
-            </Button>
+              <ArrowRight size={16} strokeWidth={2.4} />
+              <span>رجوع للرمز</span>
+            </button>
           </div>
-        </div>
+        </form>
       )}
     </div>
   );
 
   if (inline) {
-    return content;
+    return renderContent();
   }
 
   return (
-    <div
-      dir="rtl"
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-white px-4 py-8 overflow-y-auto custom-scrollbar font-sans"
-    >
-      {onClose && (
-        <button
-          onClick={onClose}
-          className="absolute left-6 top-6 text-black/50 hover:text-black transition"
-          aria-label="إغلاق"
-        >
-          <X className="w-6 h-6" />
-        </button>
-      )}
-      {content}
+    <div className="reset-modal-backdrop" dir="rtl">
+      <div className="reset-modal-card">
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="reset-modal-close-btn"
+            aria-label="إغلاق النافذة"
+          >
+            <X size={18} />
+          </button>
+        )}
+        {renderContent()}
+      </div>
     </div>
   );
 }

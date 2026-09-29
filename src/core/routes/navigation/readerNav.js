@@ -2,6 +2,7 @@ import {
   SquareLibrary,
   BookOpen,
   FolderOpen,
+  Sparkles,
   ArchiveIcon,
   Settings,
 } from "lucide-react";
@@ -21,6 +22,18 @@ export const READER_NAV_ITEMS = [
     label: "المكتبة",
     icon: BookOpen,
     path: "/reader/library",
+    subItems: [
+      {
+        name: "ReaderCatalog",
+        label: " الكتب",
+        path: "/reader/library",
+      },
+      {
+        name: "ReaderImageLibrary",
+        label: "معرض الصور",
+        path: "/reader/image-library",
+      },
+    ],
   },
   {
     name: "ReaderInteractiveStories",

@@ -19,13 +19,26 @@ export function GuestGuard({ children }) {
 
   useEffect(() => {
     if (isInitialized && isAuthenticated && user && !isSwitchingAccount) {
+      const params = new URLSearchParams(location.search);
+      const redirectParam = params.get("redirect");
+      if (
+        redirectParam &&
+        typeof redirectParam === "string" &&
+        redirectParam.startsWith("/") &&
+        !redirectParam.startsWith("/login") &&
+        !redirectParam.startsWith("/signup")
+      ) {
+        navigate(redirectParam, { replace: true });
+        return;
+      }
+
       const destination = getRoleDefaultRoute(user.role);
       // Only bounce away from guest routes if user actually has a valid dedicated dashboard
       if (destination && destination !== "/") {
         navigate(destination, { replace: true });
       }
     }
-  }, [isInitialized, isAuthenticated, user, navigate, isSwitchingAccount]);
+  }, [isInitialized, isAuthenticated, user, navigate, isSwitchingAccount, location.search]);
 
   if (!isInitialized) return null;
 

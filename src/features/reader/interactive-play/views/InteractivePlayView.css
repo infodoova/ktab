@@ -79,9 +79,10 @@
  * card edges as floating controls.
  */
 .interactive-play__cards-row {
+  position: relative;
   display: grid;
-  /* arrows take 0 space; artwork=2fr; narrative=3fr */
-  grid-template-columns: 0 minmax(0, 2fr) minmax(0, 3fr) 0;
+  /* artwork=2fr; narrative=3fr — matches choice cards width below */
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
   gap: 1rem;
   align-items: stretch;
   flex: 1;
@@ -107,26 +108,34 @@
 
 @media (min-width: 1024px) {
   .interactive-play__nav-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 2rem;
-    height: 100%;
-    background: transparent;
-    border: none;
-    color: rgba(255, 255, 255, 0.3);
-    font-size: 1.75rem;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    background: rgba(18, 22, 34, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1.5rem;
     font-weight: 300;
     line-height: 1;
     cursor: pointer;
-    transition: color 0.2s ease;
+    transition: all 0.2s ease;
     padding: 0;
-    flex-shrink: 0;
-    align-self: center;
   }
 
   .interactive-play__nav-arrow:hover:not(:disabled) {
-    color: rgba(255, 255, 255, 0.8);
+    background: rgba(30, 38, 58, 0.9);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #ffffff;
+    transform: translateY(-50%) scale(1.06);
   }
 
   .interactive-play__nav-arrow:disabled {
@@ -134,8 +143,15 @@
     pointer-events: none;
   }
 
-  .interactive-play__nav-arrow--prev { margin-left: -0.5rem; }
-  .interactive-play__nav-arrow--next { margin-right: -0.5rem; }
+  .interactive-play__nav-arrow--prev {
+    left: -1rem;
+    margin: 0;
+  }
+
+  .interactive-play__nav-arrow--next {
+    right: -1rem;
+    margin: 0;
+  }
 }
 
 /* ── Choices Row: desktop only ─────────────────────────────── */
@@ -175,7 +191,7 @@
   }
 
   .interactive-play__cards-row {
-    grid-template-columns: 0 minmax(0, 1.8fr) minmax(0, 3fr) 0;
+    grid-template-columns: minmax(0, 1.8fr) minmax(0, 3fr);
   }
 }
 

@@ -1,0 +1,167 @@
+.ktab-pinterest-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* CSS Multi-Column Masonry Layout: 2 Columns on Mobile */
+.ktab-pinterest-grid {
+  column-count: 2;
+  column-gap: 0.65rem;
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .ktab-pinterest-grid {
+    column-count: 2;
+    column-gap: 0.85rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .ktab-pinterest-grid {
+    column-count: 3;
+    column-gap: 1.15rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  .ktab-pinterest-grid {
+    column-count: 4;
+    column-gap: 1.25rem;
+  }
+}
+
+/* Skeleton Loading Cards */
+.ktab-pinterest-grid__skeleton-card {
+  break-inside: avoid;
+  margin-bottom: 1.5rem;
+  border-radius: 0.875rem;
+  background: linear-gradient(
+    90deg,
+    var(--bg-secondary) 25%,
+    rgba(0, 0, 0, 0.05) 50%,
+    var(--bg-secondary) 75%
+  );
+  background-size: 200% 100%;
+  animation: ktabGridSkeletonShimmer 1.5s infinite;
+  border: 1px solid var(--border-subtle);
+  width: 100%;
+}
+
+@keyframes ktabGridSkeletonShimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Empty State */
+.ktab-pinterest-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 4.5rem 1.5rem;
+  background: var(--bg-primary);
+  border-radius: 1rem;
+  border: 1px dashed var(--border-card);
+  margin: 1.5rem 0;
+}
+
+.ktab-pinterest-empty__icon-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--bg-secondary);
+  color: var(--text-muted);
+  margin-bottom: 1.25rem;
+  border: 1px solid var(--border-subtle);
+}
+
+.ktab-pinterest-empty__title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--brand-black);
+  margin: 0 0 0.5rem;
+}
+
+.ktab-pinterest-empty__desc {
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+  max-width: 480px;
+  margin: 0 0 1.5rem;
+}
+
+.ktab-pinterest-empty__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.4rem;
+  border-radius: 9999px;
+  background: var(--brand-black);
+  color: var(--brand-white);
+  font-size: 0.88rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.ktab-pinterest-empty__btn:hover {
+  background: var(--brand-black-hover);
+  transform: translateY(-1px);
+}
+
+/* Load More Pagination */
+.ktab-pinterest-loadmore-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 2.5rem 0 1.5rem;
+}
+
+.ktab-pinterest-loadmore-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 2rem;
+  border-radius: 9999px;
+  background: var(--bg-primary);
+  color: var(--primary-text);
+  border: 1px solid var(--border-card);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: var(--btn-action-shadow);
+}
+
+.ktab-pinterest-loadmore-btn:hover:not(:disabled) {
+  border-color: var(--brand-black);
+  background: var(--bg-secondary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.ktab-pinterest-loadmore-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.ktab-pinterest-spinner {
+  animation: ktabSpin 1s linear infinite;
+  color: var(--brand-teal-deep);
+}
+
+@keyframes ktabSpin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
