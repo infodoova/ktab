@@ -14,7 +14,7 @@ export function ChoiceCards({
   chosenNodeId = null,
   isGenerating = false,
   isEnding = false,
-  onRestart,
+  /* onRestart, */
   onExit,
 }) {
   const isStoryEnd = Boolean(
@@ -34,7 +34,7 @@ export function ChoiceCards({
           </div>
 
           <div className="ktab-choice-cards__ending-actions">
-            <button
+            {/* <button
               type="button"
               className="ktab-choice-cards__ending-btn ktab-choice-cards__ending-btn--restart"
               onClick={onRestart}
@@ -42,7 +42,7 @@ export function ChoiceCards({
             >
               <RotateCcw size={16} strokeWidth={2.2} />
               <span>إعادة بدء القصة</span>
-            </button>
+            </button> */}
 
             <button
               type="button"

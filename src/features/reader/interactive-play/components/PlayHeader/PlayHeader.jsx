@@ -12,7 +12,7 @@ import "./PlayHeader.css";
 export function PlayHeader({
   title,
   onBack,
-  onRestart,
+  /* onRestart, */
   sceneHistory,
   currentScene,
   onGoToScene,
@@ -57,10 +57,12 @@ export function PlayHeader({
     };
   }, [menuOpen]);
 
+  /*
   const handleRestartClick = () => {
     setMenuOpen(false);
     onRestart?.();
   };
+  */
 
   const handleBackClick = () => {
     setMenuOpen(false);
@@ -97,7 +99,7 @@ export function PlayHeader({
 
             {menuOpen && (
               <div className="play-header__dropdown-menu" role="menu">
-                <button
+                {/* <button
                   type="button"
                   className="play-header__dropdown-item"
                   role="menuitem"
@@ -106,7 +108,7 @@ export function PlayHeader({
                   <RotateCcw size={15} />
                   <span>إعادة بدء القصة</span>
                 </button>
-                <div className="play-header__dropdown-divider" role="separator" />
+                <div className="play-header__dropdown-divider" role="separator" /> */}
                 <button
                   type="button"
                   className="play-header__dropdown-item play-header__dropdown-item--exit"
@@ -135,7 +137,7 @@ export function PlayHeader({
 
       {/* Left Column (in RTL): Action buttons (Desktop only; hidden on mobile to give timeline maximum space) */}
       <div className="play-header__actions-slot">
-        <button
+        {/* <button
           type="button"
           className="play-header__action-btn"
           onClick={onRestart}
@@ -144,7 +146,7 @@ export function PlayHeader({
         >
           <RotateCcw size={14} />
           <span className="play-header__action-label">إعادة</span>
-        </button>
+        </button> */}
 
         <button
           type="button"
