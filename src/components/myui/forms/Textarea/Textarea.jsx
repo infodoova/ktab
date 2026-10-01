@@ -1,10 +1,11 @@
-import React, { forwardRef, useState } from "react";
+import React, { forwardRef, useState, useRef, useImperativeHandle } from "react";
 import "./Textarea.css";
 
 /**
- * Editorial Apple / Eleven Reader Modern Floating Label Textarea Component.
- * Features animated floating label on press/focus, default max limit validation,
- * live character counter, and labelExtra slot.
+ * Editorial Apple Inset Floating Label Textarea Component.
+ * - Idle: label sits at top-right inside the multiline box.
+ * - Focused or Has Content: label glides into mini header position inside the container.
+ * - Retains subtle background depth, crisp focus ring, and character counter.
  */
 export function TextareaComponent(
   {
@@ -17,7 +18,7 @@ export function TextareaComponent(
     textareaClassName = "",
     disabled = false,
     id,
-    rows = 3,
+    rows = 4,
     maxLength = 300,
     showCount = true,
     value,
@@ -32,6 +33,9 @@ export function TextareaComponent(
 ) {
   const [isFocused, setIsFocused] = useState(false);
   const [internalValue, setInternalValue] = useState(defaultValue || "");
+  const localTextareaRef = useRef(null);
+
+  useImperativeHandle(ref, () => localTextareaRef.current);
 
   const isControlled = value !== undefined;
   const currentValue = isControlled ? (value ?? "") : internalValue;
@@ -63,14 +67,36 @@ export function TextareaComponent(
 
   return (
     <div
-      className={`myui-textarea-wrap ${label ? "myui-textarea-wrap--floating" : ""} ${
+      className={`myui-textarea-wrap ${label ? "has-label" : ""} ${
         error ? "has-error" : ""
       } ${isFocused ? "is-focused" : ""} ${className}`}
       dir="rtl"
     >
-      <div className={`myui-textarea-field-wrap ${label ? "myui-textarea-field-wrap--floating" : ""}`}>
+      <div
+        className={`myui-textarea-field-wrap ${isFloating ? "is-floating" : ""} ${
+          disabled ? "is-disabled" : ""
+        }`}
+        onClick={() => localTextareaRef.current?.focus()}
+      >
+        {label && (
+          <label
+            htmlFor={inputId}
+            className={`myui-textarea-inset-label ${
+              isFloating ? "is-floating" : ""
+            } ${isFocused ? "is-focused" : ""}`}
+          >
+            <span>{label}</span>
+            {required ? (
+              <span className="myui-textarea-required">*</span>
+            ) : (
+              <span className="myui-textarea-optional">(اختياري)</span>
+            )}
+            {labelExtra && <span className="myui-textarea-extra">{labelExtra}</span>}
+          </label>
+        )}
+
         <textarea
-          ref={ref}
+          ref={localTextareaRef}
           id={inputId}
           rows={rows}
           disabled={disabled}
@@ -81,31 +107,12 @@ export function TextareaComponent(
           onFocus={handleFocus}
           onBlur={handleBlur}
           maxLength={maxLength}
-          placeholder={label ? (isFloating ? placeholder : "") : placeholder}
-          className={`myui-textarea ${label ? "myui-textarea--floating" : ""} ${
+          placeholder={label ? (isFocused ? placeholder : "") : placeholder}
+          className={`myui-textarea ${label ? "has-inset-label" : ""} ${
             error ? "has-error" : ""
           } ${textareaClassName}`}
           {...props}
         />
-
-        {label && (
-          <label
-            htmlFor={inputId}
-            className={`myui-textarea-floating-label ${
-              isFloating ? "is-floating" : ""
-            } ${isFocused ? "is-focused" : ""}`}
-          >
-            <span>{label}</span>
-            {required ? (
-              <span className="myui-textarea-required">*</span>
-            ) : (
-              <span className="myui-textarea-optional">(اختياري)</span>
-            )}
-            {labelExtra && (
-              <span className="myui-textarea-extra-inline">{labelExtra}</span>
-            )}
-          </label>
-        )}
       </div>
 
       <div className="myui-textarea-footer">

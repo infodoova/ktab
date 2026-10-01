@@ -31,6 +31,15 @@ const ReaderSettingsView = lazy(() =>
 const BookImageLibraryView = lazy(() =>
   import("../../../features/reader/image-library/views/BookImageLibraryView")
 );
+const StoryBooksView = lazy(() =>
+  import("../../../features/reader/story-books/views/StoryBooksView")
+);
+const NewStoryBookView = lazy(() =>
+  import("../../../features/reader/story-books/views/NewStoryBookView")
+);
+const FlipboardStoryReaderView = lazy(() =>
+  import("../../../features/reader/story-books/views/FlipboardStoryReaderView")
+);
 
 /**
  * Reader Role Protected Routes
@@ -73,6 +82,48 @@ export const readerRoutes = [
     name: "ReaderInteractivePlay",
     path: "/reader/interactive-stories/play",
     component: InteractivePlayView,
+    guard: "role",
+    roles: ["READER"],
+  },
+  {
+    name: "ReaderStoryBooks",
+    path: "/reader/story-books",
+    component: StoryBooksView,
+    guard: "role",
+    roles: ["READER"],
+  },
+  {
+    name: "ReaderStoryBookSingle",
+    path: "/reader/story-book",
+    component: StoryBooksView,
+    guard: "role",
+    roles: ["READER"],
+  },
+  {
+    name: "ReaderNewStoryBook",
+    path: "/reader/story-books/new",
+    component: NewStoryBookView,
+    guard: "role",
+    roles: ["READER"],
+  },
+  {
+    name: "ReaderNewStoryBookSingle",
+    path: "/reader/story-book/new",
+    component: NewStoryBookView,
+    guard: "role",
+    roles: ["READER"],
+  },
+  {
+    name: "ReaderFlipboardStoryReader",
+    path: "/reader/story-books/read/:id",
+    component: FlipboardStoryReaderView,
+    guard: "role",
+    roles: ["READER"],
+  },
+  {
+    name: "ReaderStoryReaderAlias",
+    path: "/reader/story-reader/:id",
+    component: FlipboardStoryReaderView,
     guard: "role",
     roles: ["READER"],
   },

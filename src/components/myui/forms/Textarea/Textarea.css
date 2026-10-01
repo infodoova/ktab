@@ -1,7 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   TEXTAREA — Modern Outlined Floating Label
-   Same animation system as Input: uses transform (translateY + scale)
-   for GPU-composited smooth label float.
+   TEXTAREA — Apple Inset Floating Label Field
+   Refined tactile background, smooth internal float, zero border cuts.
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .myui-textarea-wrap {
@@ -13,7 +12,6 @@
   text-align: right;
   font-family: var(--font-arabic, sans-serif);
   box-sizing: border-box;
-  padding-top: 10px;
 }
 
 /* ── Field Container ── */
@@ -21,31 +19,110 @@
   position: relative;
   width: 100%;
   border-radius: 12px;
-  background-color: var(--bg-primary, #ffffff);
-  border: 1.5px solid var(--border-card, rgba(0, 0, 0, 0.16));
-  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  background-color: var(--bg-secondary, #f8fafc);
+  border: 1px solid var(--border-card, rgba(0, 0, 0, 0.12));
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.025);
+  transition: background-color 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   box-sizing: border-box;
-  min-height: 88px;
+  min-height: 100px;
+  cursor: text;
+  overflow: hidden;
 }
 
-.myui-textarea-field-wrap:hover {
-  border-color: rgba(0, 0, 0, 0.36);
+.myui-textarea-field-wrap:hover:not(.is-disabled) {
+  background-color: #f1f5f9;
+  border-color: rgba(0, 0, 0, 0.22);
 }
 
-/* Focus ring: black border, subtle black glow */
+/* Focus ring: crisp black border, subtle brand teal ambient ring */
 .myui-textarea-wrap.is-focused .myui-textarea-field-wrap {
+  background-color: var(--bg-primary, #ffffff);
   border-color: var(--brand-black, #0a0a0a);
-  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 0 0 3px var(--brand-teal-ambient, rgba(93, 227, 186, 0.25)),
+              0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 /* Error states */
 .myui-textarea-wrap.has-error .myui-textarea-field-wrap {
-  border-color: #ef4444;
+  border-color: var(--color-danger, #ef4444);
+  background-color: var(--bg-primary, #ffffff);
 }
 
 .myui-textarea-wrap.has-error.is-focused .myui-textarea-field-wrap {
-  border-color: #ef4444;
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+  border-color: var(--color-danger, #ef4444);
+  box-shadow: 0 0 0 3px var(--color-danger-glow, rgba(239, 68, 68, 0.15));
+}
+
+.myui-textarea-field-wrap.is-disabled {
+  opacity: 0.55;
+  background-color: rgba(0, 0, 0, 0.04);
+  cursor: not-allowed;
+}
+
+/* ── Apple Inset Floating Label for Textarea ── */
+.myui-textarea-inset-label {
+  position: absolute;
+  right: 16px;
+  top: 14px;
+  transform: translateY(0);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14.5px;
+  font-weight: 500;
+  color: var(--text-subtle, #94a3b8);
+  pointer-events: none;
+  transform-origin: right top;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              top 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              font-size 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              color 0.2s ease,
+              font-weight 0.2s ease;
+  user-select: none;
+  z-index: 2;
+  line-height: 1;
+  background: transparent;
+}
+
+/* Floating state: smoothly glides up inside the container */
+.myui-textarea-inset-label.is-floating {
+  top: 9px;
+  transform: translateY(0) scale(0.78);
+  color: var(--text-muted, #64748b);
+  font-weight: 700;
+}
+
+/* Focused + floating: label turns crisp black */
+.myui-textarea-inset-label.is-floating.is-focused {
+  color: var(--brand-black, #0a0a0a);
+}
+
+/* Error + floating: label turns red */
+.myui-textarea-wrap.has-error .myui-textarea-inset-label.is-floating {
+  color: var(--color-danger, #ef4444);
+}
+
+/* Required asterisk */
+.myui-textarea-required {
+  color: var(--color-danger, #ef4444);
+  font-size: 13px;
+  line-height: 1;
+  font-weight: 700;
+}
+
+/* Optional badge */
+.myui-textarea-optional {
+  color: var(--text-subtle, #94a3b8);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.myui-textarea-extra {
+  display: inline-flex;
+  align-items: center;
 }
 
 /* ── The actual <textarea> ── */
@@ -61,115 +138,24 @@
   box-sizing: border-box;
   outline: none;
   resize: vertical;
-  min-height: 84px;
+  min-height: 96px;
   line-height: 1.6;
 }
 
+/* When inset label is present, push text down */
+.myui-textarea.has-inset-label {
+  padding-top: 26px;
+  padding-bottom: 8px;
+}
+
 .myui-textarea::placeholder {
-  color: #94a3b8;
+  color: var(--text-subtle, #94a3b8);
   font-size: 13.5px;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.15s ease;
 }
 
 .myui-textarea:disabled {
-  opacity: 0.55;
-  background-color: var(--bg-secondary, #f8fafc);
   cursor: not-allowed;
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   FLOATING LABEL
-
-   Default: label sits near the top of the textarea content area (16px down).
-   On focus / has-value: label scales down and translates up to sit on the
-   top border (notch effect).
-   ═══════════════════════════════════════════════════════════════════════════ */
-.myui-textarea-floating-label {
-  position: absolute;
-  right: 12px;
-  top: 16px;
-  transform: translateY(0) scale(1);
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #94a3b8;
-  pointer-events: none;
-  transform-origin: right top;
-  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
-              color 0.2s ease,
-              background-color 0.2s ease,
-              padding 0.2s ease;
-  will-change: transform;
-  user-select: none;
-  z-index: 3;
-  padding: 0 4px;
-  border-radius: 4px;
-  background-color: transparent;
-  line-height: 1;
-}
-
-/*
-  Floating (notch) state:
-  - translateY(-16px) cancels the initial top:16px offset.
-  - Subtracting another 50% of the label's own height centers it on the border.
-  - scale(0.82) shrinks it for mini label look.
-  - White bg masks the border to create the notch.
-*/
-.myui-textarea-floating-label.is-floating {
-  transform: translateY(calc(-16px - 50%)) scale(0.82);
-  color: #64748b;
-  font-weight: 600;
-  background-color: var(--bg-primary, #ffffff);
-  padding: 1px 8px;
-}
-
-/* Focused + floating: label turns black */
-.myui-textarea-floating-label.is-floating.is-focused {
-  color: var(--brand-black, #0a0a0a);
-}
-
-/* Error + floating: label turns red */
-.myui-textarea-wrap.has-error .myui-textarea-floating-label.is-floating {
-  color: #ef4444;
-}
-
-/* ── Required asterisk ── */
-.myui-textarea-required {
-  color: #ef4444;
-  font-size: 13px;
-  line-height: 1;
-  font-weight: 700;
-}
-
-/* ── Optional badge (اختياري) — muted, smaller ── */
-.myui-textarea-optional {
-  color: #b0b8c4;
-  font-size: 11px;
-  font-weight: 500;
-  line-height: 1;
-}
-
-.myui-textarea-floating-label.is-floating .myui-textarea-optional {
-  color: #94a3b8;
-}
-
-.myui-textarea-extra-inline {
-  display: inline-flex;
-  align-items: center;
-  pointer-events: none;
-  line-height: 1;
-  opacity: 0;
-  transform: scale(0.7);
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-
-/* Only show tooltip icon when label is floating (focused or has value) */
-.myui-textarea-floating-label.is-floating .myui-textarea-extra-inline {
-  opacity: 1;
-  pointer-events: auto;
-  transform: scale(1);
 }
 
 /* ── Footer: Error, Helper & Counter ── */
@@ -191,7 +177,7 @@
 .myui-textarea-error {
   font-size: 11.5px;
   font-weight: 600;
-  color: #ef4444;
+  color: var(--color-danger, #ef4444);
   margin: 0;
 }
 
@@ -205,7 +191,7 @@
 .myui-textarea-char-count {
   font-size: 11px;
   font-weight: 600;
-  color: #94a3b8;
+  color: var(--text-subtle, #94a3b8);
   font-variant-numeric: tabular-nums;
   direction: ltr;
   white-space: nowrap;
@@ -213,6 +199,6 @@
 }
 
 .myui-textarea-char-count.is-limit-reached {
-  color: #ef4444;
+  color: var(--color-danger, #ef4444);
   font-weight: 750;
 }

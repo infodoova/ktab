@@ -1,0 +1,13 @@
+/* ==========================================================================
+   FlipboardStoryReaderView Styles
+   ========================================================================== */
+
+.flipboard-story-reader-page {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1000;
+  overflow: hidden;
+  background-color: var(--bg-secondary, #f8fafc);
+}

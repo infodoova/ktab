@@ -40,6 +40,7 @@ export function BookPublishView({ pageName = "نشر كتاب جديد" }) {
           handleSubCategoryChange={publishHook.handleSubCategoryChange}
           handleAgeGroupChange={publishHook.handleAgeGroupChange}
           handleLanguageChange={publishHook.handleLanguageChange}
+          handleHasAudioChange={publishHook.handleHasAudioChange}
           handleDocumentChange={publishHook.handleDocumentChange}
           handleRemoveDocument={publishHook.handleRemoveDocument}
           handleCoverChange={publishHook.handleCoverChange}

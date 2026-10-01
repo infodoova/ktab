@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   SELECT COMPONENT STYLES (Light Mode Apple / Eleven Reader Aesthetic)
+   SELECT COMPONENT STYLES (Apple Inset Aesthetic)
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .myui-select-wrap {
@@ -7,79 +7,97 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
   direction: rtl;
   text-align: right;
   font-family: var(--font-arabic, sans-serif);
   box-sizing: border-box;
 }
 
-.myui-select-label {
-  font-size: 13px;
-  font-weight: 750;
-  color: var(--brand-black, #0a0a0a);
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  user-select: none;
-}
-
-.myui-select-required {
-  color: var(--color-danger, #ef4444);
-  font-size: 14px;
-  font-weight: 750;
-  line-height: 1;
-}
-
 /* Trigger Button */
 .myui-select-trigger {
   width: 100%;
-  height: 48px;
+  height: 56px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 16px;
-  background-color: var(--bg-primary, #ffffff);
+  background-color: var(--bg-secondary, #f8fafc);
   border: 1px solid var(--border-card, rgba(0, 0, 0, 0.12));
   border-radius: 12px;
   font-family: var(--font-arabic, sans-serif);
-  font-size: 14.5px;
-  font-weight: 600;
-  color: var(--brand-black, #0a0a0a);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.025);
   box-sizing: border-box;
   outline: none;
   cursor: pointer;
   user-select: none;
-  transition: all 0.2s ease;
+  transition: background-color 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .myui-select-trigger:hover:not(:disabled) {
-  border-color: rgba(0, 0, 0, 0.25);
+  background-color: #f1f5f9;
+  border-color: rgba(0, 0, 0, 0.22);
 }
 
 .myui-select-trigger.is-open,
-.myui-select-trigger:focus {
+.myui-select-trigger:focus-visible {
+  background-color: var(--bg-primary, #ffffff);
   border-color: var(--brand-black, #0a0a0a);
-  box-shadow: 0 0 0 3px rgba(10, 10, 10, 0.08);
+  box-shadow: 0 0 0 3px var(--brand-teal-ambient, rgba(93, 227, 186, 0.25)),
+              0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .myui-select-trigger.has-error {
-  border-color: #ef4444;
+  border-color: var(--color-danger, #ef4444);
+  background-color: var(--bg-primary, #ffffff);
 }
 
 .myui-select-trigger:disabled {
   opacity: 0.55;
-  background-color: var(--bg-secondary, #f8fafc);
+  background-color: rgba(0, 0, 0, 0.04);
   cursor: not-allowed;
+}
+
+.myui-select-trigger-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+  text-align: right;
+}
+
+.myui-select-inset-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted, #64748b);
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.myui-select-trigger.is-open .myui-select-inset-label {
+  color: var(--brand-black, #0a0a0a);
+}
+
+.myui-select-required {
+  color: var(--color-danger, #ef4444);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
 }
 
 .myui-select-value-wrap {
   display: flex;
   align-items: center;
   gap: 8px;
+  width: 100%;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .myui-select-icon-slot {
@@ -89,15 +107,24 @@
   flex-shrink: 0;
 }
 
-.myui-select-placeholder {
-  color: #94a3b8;
-  font-size: 13.5px;
-  font-weight: 500;
+.myui-select-selected-text {
+  font-size: 14.5px;
+  font-weight: 550;
+  color: var(--brand-black, #0a0a0a);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.25;
 }
 
-.myui-select-selected-text {
-  color: var(--brand-black, #0a0a0a);
-  font-weight: 650;
+.myui-select-placeholder {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--text-subtle, #94a3b8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.25;
 }
 
 .myui-select-chevron {
@@ -189,12 +216,5 @@
   font-size: 11.5px;
   font-weight: 600;
   color: #ef4444;
-  margin: 2px 0 0;
-}
-
-.myui-select-helper {
-  font-size: 11.5px;
-  font-weight: 500;
-  color: var(--text-subtle, #64748b);
   margin: 2px 0 0;
 }

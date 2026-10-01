@@ -3,12 +3,10 @@ import { X, Eye, EyeOff } from "lucide-react";
 import "./Input.css";
 
 /**
- * Editorial Apple / Eleven Reader Modern Floating Label Input Component.
- * Implements the Notched Outline floating label pattern ("Design Bites"):
- * - Idle: label sits centered inside the container.
- * - On Press / Focus or With Content: label glides up onto the top border notch.
- * - Shows optional clear (X) button when content exists.
- * - Built-in max limit validation with live tabular character counter.
+ * Editorial Apple Inset Floating Label Input Component.
+ * - Idle: label sits centered inside the container like a clean placeholder.
+ * - Focused or Has Content: label smoothly glides up inside the container with zero border cuts.
+ * - Retains subtle background depth, crisp focus ring, and fluid micro-animations.
  */
 export function InputComponent(
   {
@@ -40,7 +38,6 @@ export function InputComponent(
 ) {
   const [isFocused, setIsFocused] = useState(false);
   const [internalValue, setInternalValue] = useState(defaultValue || "");
-  // Controls password plaintext reveal. Only active when the original type prop is "password".
   const [showRaw, setShowRaw] = useState(false);
   const localInputRef = useRef(null);
 
@@ -52,7 +49,6 @@ export function InputComponent(
   const hasValue = currentLength > 0;
   const isFloating = Boolean(label) && (isFocused || hasValue);
   const isPassword = type === "password";
-  // When the field is a password type, toggle between masked and plaintext.
   const effectiveType = isPassword ? (showRaw ? "text" : "password") : type;
 
   const inputId = id || (label ? `input-${label.replace(/\s+/g, "-")}` : undefined);
@@ -94,14 +90,36 @@ export function InputComponent(
 
   return (
     <div
-      className={`myui-input-wrap ${label ? "myui-input-wrap--floating" : ""} ${
+      className={`myui-input-wrap ${label ? "has-label" : ""} ${
         error ? "has-error" : ""
       } ${isFocused ? "is-focused" : ""} ${className}`}
       dir="rtl"
     >
-      <div className={`myui-input-field-wrap ${label ? "myui-input-field-wrap--floating" : ""}`}>
+      <div
+        className={`myui-input-field-wrap ${isFloating ? "is-floating" : ""} ${
+          disabled ? "is-disabled" : ""
+        }`}
+        onClick={() => localInputRef.current?.focus()}
+      >
         {icon && iconPosition === "start" && (
           <div className="myui-input-icon myui-input-icon--start">{icon}</div>
+        )}
+
+        {label && (
+          <label
+            htmlFor={inputId}
+            className={`myui-input-inset-label ${
+              isFloating ? "is-floating" : ""
+            } ${isFocused ? "is-focused" : ""}`}
+          >
+            <span>{label}</span>
+            {required ? (
+              <span className="myui-input-required">*</span>
+            ) : (
+              <span className="myui-input-optional">(اختياري)</span>
+            )}
+            {labelExtra && <span className="myui-input-extra">{labelExtra}</span>}
+          </label>
         )}
 
         <input
@@ -116,8 +134,8 @@ export function InputComponent(
           onFocus={handleFocus}
           onBlur={handleBlur}
           maxLength={maxLength}
-          placeholder={label ? (isFloating ? placeholder : "") : placeholder}
-          className={`myui-input ${label ? "myui-input--floating" : ""} ${
+          placeholder={label ? (isFocused ? placeholder : "") : placeholder}
+          className={`myui-input ${label ? "has-inset-label" : ""} ${
             error ? "has-error" : ""
           } ${icon && iconPosition === "start" ? "has-icon-start" : ""} ${
             (icon && iconPosition === "end") || (showClear && hasValue) || isPassword
@@ -126,23 +144,6 @@ export function InputComponent(
           } ${inputClassName}`}
           {...props}
         />
-
-        {label && (
-          <label
-            htmlFor={inputId}
-            className={`myui-input-floating-label ${
-              isFloating ? "is-floating" : ""
-            } ${isFocused ? "is-focused" : ""}`}
-          >
-            <span>{label}</span>
-            {required ? (
-              <span className="myui-input-required">*</span>
-            ) : (
-              <span className="myui-input-optional">(اختياري)</span>
-            )}
-            {labelExtra && <span className="myui-input-extra-inline">{labelExtra}</span>}
-          </label>
-        )}
 
         {/* Clear button — hidden for password fields since eye toggle occupies the same slot */}
         {showClear && hasValue && !disabled && !isPassword && (

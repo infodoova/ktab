@@ -22,6 +22,10 @@ import thumb10 from "@/assets/images/thumbs/listen.webp";
 import thumb11 from "@/assets/images/thumbs/progress.webp";
 import thumb12 from "@/assets/images/thumbs/ai.webp";
 
+import bunnyCover from "@/assets/images/children-stories/bunny.jpg";
+import dinoCover from "@/assets/images/children-stories/dino.jpg";
+import astroCover from "@/assets/images/children-stories/astro.jpg";
+
 import soundSampleAudio from "@/assets/fakes/sound_sample.mp3";
 
 export const FAKE_SOUND_SAMPLE = soundSampleAudio;
@@ -312,6 +316,118 @@ export const FAKE_AUTHOR_REVIEWS = [
     comment: "كتاب مفيد وغني بالأفكار التأملية، أنصح بقراءته ومشاركته.",
   },
 ];
+
+export const FAKE_CHILDREN_STORY_BOOKS = [
+  {
+    id: "child-story-1",
+    title: "مغامرة الأرنب سمسم في الغابة السحرية",
+    subtitle: "رحلة البحث عن الفطر المضيء والكنز المفقود",
+    author: "نورا السالم",
+    illustrator: "استوديو حكايات",
+    cover: bunnyCover,
+    ageGroup: "3-6",
+    ageLabel: "٣-٦ سنوات",
+    category: "مغامرات وخيال",
+    readingTime: "٥ دقائق",
+    pages: 18,
+    isInteractive: true,
+    likesCount: 1420,
+    accentColor: "var(--brand-teal)",
+    summary:
+      "يخرج الأرنب الشجاع سمسم في صباح يوم مشرق بحثاً عن الجزرة الذهبية وسط أشجار الغابة السحرية حيث الفطر المضيء والحيوانات الصديقة.",
+  },
+  {
+    id: "child-story-2",
+    title: "التنين الصغير ونجمة الأمنيات",
+    subtitle: "كيف تعلم التنين اللطيف الطيران بين الغيوم الملونة",
+    author: "كريم عبد الله",
+    illustrator: "منى فؤاد",
+    cover: dinoCover,
+    ageGroup: "3-6",
+    ageLabel: "٣-٦ سنوات",
+    category: "حكايات قبل النوم",
+    readingTime: "٦ دقائق",
+    pages: 22,
+    isInteractive: false,
+    likesCount: 980,
+    accentColor: "#f59e0b",
+    summary:
+      "قصة دافئة وهادئة تروي مغامرة تنين صغير لطيف يحمل بالون نجمة لامعة فوق السحاب الوردي ليعيدها إلى مكانها في السماء قبل أن ينام.",
+  },
+  {
+    id: "child-story-3",
+    title: "رائد الفضاء الصغير وعالم الحلوى",
+    subtitle: "مغامرة كروية بين كواكب الكعك ونجوم السكر",
+    author: "طارق المهندس",
+    illustrator: "ريم البلوشي",
+    cover: astroCover,
+    ageGroup: "6-9",
+    ageLabel: "٦-٩ سنوات",
+    category: "فضاء وخيال علمي",
+    readingTime: "٨ دقائق",
+    pages: 26,
+    isInteractive: true,
+    likesCount: 2310,
+    accentColor: "#38bdf8",
+    summary:
+      "يسافر الطفل ماجد مع قطه رائد الفضاء في مركبته السريعة ليكتشف مجرة مصنوعة بالكامل من الدونات والسكاكر الملونة في رحلة فضائية شيقة وممتعة.",
+  },
+  {
+    id: "child-story-4",
+    title: "سر الشجرة ذات الأوراق الفضية",
+    subtitle: "قصة عن التعاون وحماية الطبيعة",
+    author: "هدى العلي",
+    illustrator: "أحمد كمال",
+    cover: dinoCover,
+    ageGroup: "6-9",
+    ageLabel: "٦-٩ سنوات",
+    category: "عالم الطبيعة",
+    readingTime: "٧ دقائق",
+    pages: 20,
+    isInteractive: true,
+    likesCount: 875,
+    accentColor: "var(--brand-teal)",
+    summary:
+      "تتحد كائنات الغابة الصغيرة لمساعدة الشجرة الفضية القديمة على استعادة بريقها، ليتعلم الجميع أهمية التعاون والصداقة الصادقة.",
+  },
+  {
+    id: "child-story-5",
+    title: "الأميرة سلمى وساعة الزمن الوردية",
+    subtitle: "حكاية ملهمة لتعليم الأطفال تنظيم الوقت",
+    author: "سارة الحمد",
+    illustrator: "استوديو حكايات",
+    cover: bunnyCover,
+    ageGroup: "9-12",
+    ageLabel: "٩-١٢ سنة",
+    category: "قيم وتربية",
+    readingTime: "١٠ دقائق",
+    pages: 32,
+    isInteractive: false,
+    likesCount: 1650,
+    accentColor: "#ec4899",
+    summary:
+      "تجد الأميرة سلمى ساعة أثرية توقف الزمن عند اللحظات السعيدة، لكنها تكتشف سر قيمة الوقت وكيف تصنع من كل دقيقة إنجازاً وفرحاً.",
+  },
+  {
+    id: "child-story-6",
+    title: "الغواصة الصفراء وسر المحيط المرجاني",
+    subtitle: "استكشاف أعماق البحار والكائنات اللامعة",
+    author: "د. سامح مروان",
+    illustrator: "دار الألوان",
+    cover: astroCover,
+    ageGroup: "6-9",
+    ageLabel: "٦-٩ سنوات",
+    category: "عالم الحيوان والبحار",
+    readingTime: "٧ دقائق",
+    pages: 24,
+    isInteractive: true,
+    likesCount: 1890,
+    accentColor: "#14b8a6",
+    summary:
+      "رحلة مشوقة في أعماق المحيط لاكتشاف أسرار الشعاب المرجانية، الدلافين الودودة، وحوت العنبر العملاق في قالب تفاعلي رائع.",
+  },
+];
+
 
 
 

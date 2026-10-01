@@ -1,0 +1,143 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <!-- Warm Editorial Light Alabaster Studio Wall -->
+    <linearGradient id="studioWall" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f8fafc" />
+      <stop offset="40%" stop-color="#f1f5f9" />
+      <stop offset="75%" stop-color="#e2e8f0" />
+      <stop offset="100%" stop-color="#cbd5e1" />
+    </linearGradient>
+
+    <!-- Natural Blonde Scandinavian Oak Desk -->
+    <linearGradient id="oakDesk" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#faedd9" />
+      <stop offset="20%" stop-color="#f3deba" />
+      <stop offset="60%" stop-color="#e2c595" />
+      <stop offset="100%" stop-color="#c9a56e" />
+    </linearGradient>
+
+    <!-- Desk Surface Top Highlight -->
+    <linearGradient id="oakTopHighlight" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#faedd9" stop-opacity="0" />
+    </linearGradient>
+
+    <!-- Ceramic Vase Shading -->
+    <linearGradient id="ceramicVase" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#e2e8f0" />
+      <stop offset="40%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#94a3b8" />
+    </linearGradient>
+
+    <!-- Botanical Leaf Gradient -->
+    <linearGradient id="botanicalLeaf" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#5de3ba" />
+      <stop offset="60%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+
+    <!-- Warm Sunlight Beam -->
+    <linearGradient id="sunBeam" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.45" />
+      <stop offset="60%" stop-color="#fffbeb" stop-opacity="0.25" />
+      <stop offset="100%" stop-color="#fef3c7" stop-opacity="0" />
+    </linearGradient>
+  </defs>
+
+  <!-- 1. Minimalist Studio Wall -->
+  <rect width="1920" height="1080" fill="url(#studioWall)" />
+
+  <!-- Soft Architectural Window Sunlight Angles Across the Wall -->
+  <g fill="url(#sunBeam)">
+    <polygon points="180,0 620,0 840,730 400,730" />
+    <polygon points="760,0 1200,0 1420,730 980,730" />
+  </g>
+
+  <!-- Left: Minimalist Ceramic Vase with Botanical Olive Sprig -->
+  <g transform="translate(180, 520)">
+    <!-- Vase Shadow on Desk -->
+    <ellipse cx="40" cy="214" rx="34" ry="8" fill="#a4804c" opacity="0.3" />
+
+    <!-- Ceramic Fluted Vase Body -->
+    <path d="M 25 100 
+             C 10 140, 10 190, 18 210 
+             L 62 210 
+             C 70 190, 70 140, 55 100 
+             Z" fill="url(#ceramicVase)" />
+    <!-- Vase Neck -->
+    <rect x="28" y="80" width="24" height="22" rx="4" fill="url(#ceramicVase)" />
+    <ellipse cx="40" cy="80" rx="12" ry="4" fill="#64748b" />
+
+    <!-- Elegant Botanical Stems -->
+    <path d="M 40 85 Q 20 20 -10 -40" stroke="#047857" stroke-width="2.5" fill="none" stroke-linecap="round" />
+    <path d="M 40 85 Q 60 10 80 -60" stroke="#047857" stroke-width="2.5" fill="none" stroke-linecap="round" />
+    <path d="M 40 85 Q 40 0 35 -90" stroke="#047857" stroke-width="3" fill="none" stroke-linecap="round" />
+
+    <!-- Minimalist Leaves -->
+    <!-- Stem 1 Leaves -->
+    <ellipse cx="-15" cy="-45" rx="18" ry="8" transform="rotate(-30, -15, -45)" fill="url(#botanicalLeaf)" />
+    <ellipse cx="5" cy="-10" rx="16" ry="7" transform="rotate(-20, 5, -10)" fill="url(#botanicalLeaf)" />
+
+    <!-- Stem 2 Leaves -->
+    <ellipse cx="85" cy="-65" rx="18" ry="8" transform="rotate(35, 85, -65)" fill="url(#botanicalLeaf)" />
+    <ellipse cx="65" cy="-20" rx="16" ry="7" transform="rotate(25, 65, -20)" fill="url(#botanicalLeaf)" />
+
+    <!-- Center Stem Top Leaf -->
+    <ellipse cx="35" cy="-95" rx="20" ry="9" transform="rotate(-5, 35, -95)" fill="url(#botanicalLeaf)" />
+  </g>
+
+  <!-- Right: Designer Wooden Pencil Holder & Artist Tools -->
+  <g transform="translate(1680, 560)">
+    <!-- Cup Shadow -->
+    <ellipse cx="40" cy="174" rx="32" ry="8" fill="#a4804c" opacity="0.3" />
+
+    <!-- Pencils poking out -->
+    <!-- Yellow Pencil -->
+    <polygon points="26,10 32,8 34,110 28,110" fill="#f59e0b" />
+    <polygon points="26,10 32,8 29,0" fill="#fde68a" />
+    <polygon points="28,3 30,2 29,0" fill="#1e293b" />
+
+    <!-- Teal Pencil -->
+    <polygon points="42,15 48,13 46,110 40,110" fill="#5de3ba" />
+    <polygon points="42,15 48,13 45,5" fill="#fde68a" />
+    <polygon points="44,8 46,7 45,5" fill="#1e293b" />
+
+    <!-- Coral Pencil -->
+    <polygon points="56,22 62,20 58,110 52,110" fill="#f43f5e" />
+    <polygon points="56,22 62,20 59,12" fill="#fde68a" />
+    <polygon points="58,15 60,14 59,12" fill="#1e293b" />
+
+    <!-- Ceramic Pencil Cup -->
+    <rect x="18" y="90" width="50" height="82" rx="10" fill="#ffffff" stroke="#e2e8f0" stroke-width="2" />
+    <rect x="22" y="95" width="42" height="72" rx="6" fill="#f8fafc" />
+  </g>
+
+  <!-- 2. Natural Blonde Scandinavian Oak Desk Surface (Bottom 32%) -->
+  <g>
+    <!-- Base Planks -->
+    <rect x="0" y="730" width="1920" height="350" fill="url(#oakDesk)" />
+
+    <!-- Top Bevel Highlight Line -->
+    <rect x="0" y="730" width="1920" height="22" fill="url(#oakTopHighlight)" />
+    <line x1="0" y1="730" x2="1920" y2="730" stroke="#ffffff" stroke-width="3" opacity="0.95" />
+
+    <!-- Plank Seam Grooves -->
+    <line x1="0" y1="815" x2="1920" y2="815" stroke="#9e7b47" stroke-width="2" opacity="0.35" />
+    <line x1="0" y1="816" x2="1920" y2="816" stroke="#ffffff" stroke-width="1" opacity="0.4" />
+
+    <line x1="0" y1="900" x2="1920" y2="900" stroke="#9e7b47" stroke-width="2" opacity="0.35" />
+    <line x1="0" y1="901" x2="1920" y2="901" stroke="#ffffff" stroke-width="1" opacity="0.4" />
+
+    <line x1="0" y1="990" x2="1920" y2="990" stroke="#9e7b47" stroke-width="2" opacity="0.35" />
+    <line x1="0" y1="991" x2="1920" y2="991" stroke="#ffffff" stroke-width="1" opacity="0.4" />
+
+    <!-- Subtle Natural Blonde Wood Knots & Texture -->
+    <ellipse cx="360" cy="775" rx="38" ry="8" fill="none" stroke="#9e7b47" stroke-width="1.8" opacity="0.25" />
+    <ellipse cx="1560" cy="860" rx="42" ry="9" fill="none" stroke="#9e7b47" stroke-width="1.8" opacity="0.25" />
+    <ellipse cx="860" cy="945" rx="48" ry="10" fill="none" stroke="#9e7b47" stroke-width="1.8" opacity="0.2" />
+
+    <!-- Soft Ambient Book Shadow Under Book Spread -->
+    <ellipse cx="960" cy="746" rx="570" ry="25" fill="#6d4f26" opacity="0.28" />
+    <ellipse cx="960" cy="743" rx="450" ry="14" fill="#4d3413" opacity="0.22" />
+  </g>
+</svg>

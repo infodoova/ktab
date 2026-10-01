@@ -78,6 +78,7 @@ export function useLibrarianBookForm(props = {}) {
     ageRangeMin: 16,
     ageRangeMax: 24,
     pageCount: 1,
+    hasAudio: false,
     coverFile: null,
     pdfFile: null,
   });
@@ -204,6 +205,7 @@ export function useLibrarianBookForm(props = {}) {
         ageRangeMin: matchedAge?.min ?? min,
         ageRangeMax: matchedAge?.max ?? max,
         pageCount: book.pageCount || 1,
+        hasAudio: Boolean(book.hasAudio),
         coverFile: null,
         pdfFile: null,
       });
@@ -322,6 +324,11 @@ export function useLibrarianBookForm(props = {}) {
       }
       return prev;
     });
+  }, []);
+
+  const handleHasAudioChange = useCallback((checked) => {
+    const val = typeof checked === "boolean" ? checked : Boolean(checked?.target?.checked);
+    setFormData((prev) => ({ ...prev, hasAudio: val }));
   }, []);
 
   // Cover image selection & removal
@@ -460,7 +467,7 @@ export function useLibrarianBookForm(props = {}) {
         ageRangeMin: formData.ageRangeMin,
         ageRangeMax: formData.ageRangeMax,
         pageCount: Math.max(1, Number(formData.pageCount) || 1),
-        hasAudio: false,
+        hasAudio: Boolean(formData.hasAudio),
         status: "PUBLISHED",
       };
 
@@ -554,6 +561,7 @@ export function useLibrarianBookForm(props = {}) {
     handleSubCategoryChange,
     handleAgeGroupChange,
     handleLanguageChange,
+    handleHasAudioChange,
     handleCoverChange,
     handleRemoveCover,
     handleDocumentChange,

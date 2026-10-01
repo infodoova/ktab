@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300..900;1,300..900&family=Tajawal:wght@200;300;400;500;700;800;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;500;600;700;800&family=Montserrat:ital,wght@0,300..900;1,300..900&family=Tajawal:wght@200;300;400;500;700;800;900&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -9,6 +9,7 @@
   /* 1. Define Primary Font Stacks */
   --font-arabic: "Tajawal", "Segoe UI", Tahoma, Arial, sans-serif;
   --font-english: "Montserrat", "Segoe UI", sans-serif;
+  --font-children: "Baloo Bhaijaan 2", "Tajawal", "Segoe UI", sans-serif;
 
   /* 2. Brand Palette (Black, White, and Teal) */
   --brand-black: #0a0a0a;

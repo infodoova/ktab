@@ -96,6 +96,7 @@ export default defineConfig({
   },
 
   build: {
+    assetsInlineLimit: 0,
     chunkSizeWarningLimit: 800,
     terserOptions: {
       compress: {

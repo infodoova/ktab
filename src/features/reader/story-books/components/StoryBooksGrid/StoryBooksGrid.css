@@ -1,0 +1,172 @@
+/* ==========================================================================
+   StoryBooksGrid Styles - Professional Editorial Grid
+   Matching Author Stories Grid responsive layout and skeletons
+   ========================================================================== */
+
+.child-stories-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem 0.75rem;
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .child-stories-grid {
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 1.75rem 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .child-stories-grid {
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 2rem 1.75rem;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Loading Skeleton (Matching Author Story Skeleton)
+   -------------------------------------------------------------------------- */
+.child-story-skeleton-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.child-story-skeleton-card__cover {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 0.85rem;
+  background-color: var(--bg-secondary, #f8fafc);
+  overflow: hidden;
+  position: relative;
+  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
+}
+
+.child-story-skeleton-card__cover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.65) 50%,
+    transparent 100%
+  );
+  animation: childSkeletonShimmer 1.5s infinite cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.child-story-skeleton-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0 0.15rem;
+}
+
+.child-story-skeleton-card__line {
+  height: 12px;
+  border-radius: 4px;
+  background-color: var(--bg-secondary, #f1f5f9);
+  position: relative;
+  overflow: hidden;
+}
+
+.child-story-skeleton-card__line--title {
+  height: 14px;
+  width: 80%;
+}
+
+.child-story-skeleton-card__line--short {
+  height: 10px;
+  width: 50%;
+}
+
+.child-story-skeleton-card__line::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.65) 50%,
+    transparent 100%
+  );
+  animation: childSkeletonShimmer 1.5s infinite cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes childSkeletonShimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* --------------------------------------------------------------------------
+   Empty State (Clean, Editorial, High-Contrast)
+   -------------------------------------------------------------------------- */
+.child-stories-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 4rem 1.5rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.child-stories-empty__title {
+  font-size: 1.125rem;
+  font-weight: 750;
+  color: var(--brand-black, #0a0a0a);
+  margin: 0 0 0.5rem;
+}
+
+.child-stories-empty__desc {
+  font-size: 0.875rem;
+  color: var(--text-muted, #94a3b8);
+  margin: 0 0 1.5rem;
+  max-width: 24rem;
+  line-height: 1.6;
+}
+
+.child-stories-empty__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.child-stories-empty__btn-primary {
+  padding: 0.6rem 1.25rem;
+  background-color: var(--brand-black, #0a0a0a);
+  color: var(--bg-card, #ffffff);
+  border: none;
+  border-radius: var(--radius-full, 9999px);
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.child-stories-empty__btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.child-stories-empty__btn-secondary {
+  padding: 0.6rem 1.25rem;
+  background-color: transparent;
+  color: var(--brand-black, #0a0a0a);
+  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.12));
+  border-radius: var(--radius-full, 9999px);
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.child-stories-empty__btn-secondary:hover {
+  background-color: var(--bg-secondary, #f8fafc);
+}

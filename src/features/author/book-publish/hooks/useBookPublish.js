@@ -155,6 +155,7 @@ export function useBookPublish() {
           subCategory: local.subCategory || "",
           language: local.language || "ar",
           ageGroup: local.ageGroup || "CHILDREN",
+          hasAudio: Boolean(local.hasAudio),
           coverFile: null,
           pdfFile: null,
         };
@@ -167,6 +168,7 @@ export function useBookPublish() {
       subCategory: "",
       language: "ar",
       ageGroup: "CHILDREN",
+      hasAudio: false,
       coverFile: null,
       pdfFile: null,
     };
@@ -200,6 +202,7 @@ export function useBookPublish() {
             subCategory: formData.subCategory,
             language: formData.language,
             ageGroup: formData.ageGroup,
+            hasAudio: Boolean(formData.hasAudio),
           })
         );
       } catch (err) {
@@ -366,6 +369,7 @@ export function useBookPublish() {
       language: matchedLang,
       category: genreId || prev.category,
       subCategory: subGenreId || prev.subCategory,
+      hasAudio: Boolean(draft.hasAudio),
     }));
 
     setExistingData({
@@ -514,7 +518,7 @@ export function useBookPublish() {
         ageRangeMin: min,
         ageRangeMax: max,
         pageCount: Math.max(1, finalPageCount || 1),
-        hasAudio: false,
+        hasAudio: Boolean(formData.hasAudio),
         status: "DRAFT",
       };
 
@@ -607,7 +611,7 @@ export function useBookPublish() {
         ageRangeMin: min,
         ageRangeMax: max,
         pageCount: Math.max(1, finalPageCount || 1),
-        hasAudio: false,
+        hasAudio: Boolean(formData.hasAudio),
         status: "DRAFT",
       };
 
@@ -725,6 +729,14 @@ export function useBookPublish() {
     [handleInputChange]
   );
 
+  const handleHasAudioChange = useCallback(
+    (checked) => {
+      const boolVal = typeof checked === "boolean" ? checked : Boolean(checked?.target?.checked);
+      handleInputChange("hasAudio", boolVal);
+    },
+    [handleInputChange]
+  );
+
   const handleCoverChange = useCallback(
     async (file) => {
       if (!file) {
@@ -826,6 +838,7 @@ export function useBookPublish() {
     handleSubCategoryChange,
     handleAgeGroupChange,
     handleLanguageChange,
+    handleHasAudioChange,
     handleCoverChange,
     handleRemoveCover,
     handleRemoveDocument,

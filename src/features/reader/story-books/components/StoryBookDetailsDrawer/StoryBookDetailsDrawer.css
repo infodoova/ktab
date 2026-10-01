@@ -1,0 +1,236 @@
+/* ==========================================================================
+   StoryBookDetailsDrawer Styles
+   Rendered inside the global left DetailsDrawer shell
+   Strictly Right-Aligned (RTL), High Contrast, Clean Editorial Layout
+   ========================================================================== */
+
+.child-story-drawer__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5, 20px);
+  padding: var(--space-2, 8px) var(--space-6, 24px) var(--space-6, 24px);
+  text-align: right;
+  direction: rtl;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* --------------------------------------------------------------------------
+   1:1 Cover Artwork
+   -------------------------------------------------------------------------- */
+.child-story-drawer__artwork-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--radius-xl, 16px);
+  overflow: hidden;
+  background-color: var(--bg-secondary, #f8fafc);
+  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+}
+
+.child-story-drawer__artwork-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.child-story-drawer__badge-age {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 4px 12px;
+  border-radius: var(--radius-full, 9999px);
+  background-color: rgba(10, 10, 10, 0.76);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 750;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* --------------------------------------------------------------------------
+   Metadata Pills Row (Strictly Right-Aligned)
+   -------------------------------------------------------------------------- */
+.child-story-drawer__pills-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: var(--space-2, 8px);
+  direction: rtl;
+}
+
+.child-story-drawer__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  background-color: var(--bg-secondary, #f8fafc);
+  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
+  border-radius: var(--radius-full, 9999px);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary, #64748b);
+}
+
+/* --------------------------------------------------------------------------
+   Titles & Credits Section (Strictly Right-Aligned)
+   -------------------------------------------------------------------------- */
+.child-story-drawer__meta-section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  text-align: right;
+  direction: rtl;
+  width: 100%;
+}
+
+.child-story-drawer__title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--brand-black, #0a0a0a);
+  margin: 0;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  text-align: right;
+  width: 100%;
+}
+
+.child-story-drawer__subtitle {
+  font-size: 0.875rem;
+  color: var(--text-muted, #94a3b8);
+  margin: 0;
+  line-height: 1.5;
+  text-align: right;
+  width: 100%;
+}
+
+.child-story-drawer__credits {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--space-4, 16px);
+  margin-top: 4px;
+  flex-wrap: wrap;
+  text-align: right;
+  direction: rtl;
+  width: 100%;
+}
+
+.child-story-drawer__credit-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.8125rem;
+}
+
+.child-story-drawer__credit-icon {
+  color: var(--text-muted, #94a3b8);
+}
+
+.child-story-drawer__credit-label {
+  color: var(--text-muted, #94a3b8);
+}
+
+.child-story-drawer__credit-val {
+  font-weight: 700;
+  color: var(--brand-black, #0a0a0a);
+}
+
+/* --------------------------------------------------------------------------
+   Summary Card (Strictly Right-Aligned)
+   -------------------------------------------------------------------------- */
+.child-story-drawer__summary-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: var(--space-4, 16px);
+  background-color: var(--bg-secondary, #f8fafc);
+  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
+  border-radius: var(--radius-xl, 16px);
+  text-align: right;
+  direction: rtl;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.child-story-drawer__summary-heading {
+  font-size: 0.8125rem;
+  font-weight: 750;
+  color: var(--brand-black, #0a0a0a);
+  margin: 0;
+  text-align: right;
+  width: 100%;
+}
+
+.child-story-drawer__summary-text {
+  font-size: 0.84rem;
+  line-height: 1.65;
+  color: var(--text-primary, #334155);
+  margin: 0;
+  text-align: right;
+  width: 100%;
+}
+
+/* --------------------------------------------------------------------------
+   Sticky Action Footer
+   -------------------------------------------------------------------------- */
+.child-story-drawer__footer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3, 12px);
+  width: 100%;
+}
+
+.child-story-drawer__btn-primary {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2, 8px);
+  padding: 11px 20px;
+  background-color: var(--brand-black, #0a0a0a);
+  color: var(--bg-card, #ffffff);
+  border: none;
+  border-radius: var(--radius-full, 9999px);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  min-height: 44px;
+}
+
+.child-story-drawer__btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28);
+}
+
+.child-story-drawer__btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2, 8px);
+  padding: 11px 16px;
+  background-color: var(--bg-card, #ffffff);
+  color: var(--brand-black, #0a0a0a);
+  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.12));
+  border-radius: var(--radius-full, 9999px);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 650;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  min-height: 44px;
+}
+
+.child-story-drawer__btn-secondary:hover {
+  background-color: var(--bg-secondary, #f8fafc);
+  border-color: var(--brand-black, #0a0a0a);
+}

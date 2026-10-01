@@ -83,14 +83,6 @@ export function Select({
       className={`myui-select-wrap ${className}`}
       dir="rtl"
     >
-      {label && (
-        <label htmlFor={selectId} className="myui-select-label">
-          <span>{label}</span>
-          {required && <span className="myui-select-required">*</span>}
-          {labelExtra}
-        </label>
-      )}
-
       {/* Trigger Button */}
       <button
         id={selectId}
@@ -99,21 +91,31 @@ export function Select({
         onClick={() => !disabled && setIsOpen((prev) => !prev)}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
-        className={`myui-select-trigger ${isOpen ? "is-open" : ""} ${
-          error ? "has-error" : ""
-        } ${triggerClassName}`}
+        className={`myui-select-trigger ${label ? "has-inset-label" : ""} ${
+          isOpen ? "is-open" : ""
+        } ${error ? "has-error" : ""} ${triggerClassName}`}
       >
-        <div className="myui-select-value-wrap">
-          {icon && <span className="myui-select-icon-slot">{icon}</span>}
-          <span
-            className={
-              selectedOption
-                ? "myui-select-selected-text"
-                : "myui-select-placeholder"
-            }
-          >
-            {selectedOption ? selectedOption.label : placeholder}
-          </span>
+        <div className="myui-select-trigger-content">
+          {label && (
+            <div className="myui-select-inset-label">
+              <span>{label}</span>
+              {required && <span className="myui-select-required">*</span>}
+              {labelExtra}
+            </div>
+          )}
+
+          <div className="myui-select-value-wrap">
+            {icon && <span className="myui-select-icon-slot">{icon}</span>}
+            <span
+              className={
+                selectedOption
+                  ? "myui-select-selected-text"
+                  : "myui-select-placeholder"
+              }
+            >
+              {selectedOption ? selectedOption.label : placeholder}
+            </span>
+          </div>
         </div>
 
         <ChevronDown

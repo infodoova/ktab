@@ -1,7 +1,7 @@
 import React from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, Headphones } from "lucide-react";
 import { AppLayout } from "@/components/myui/layout";
-import { Input, Textarea, Select } from "@/components/myui/forms";
+import { Input, Textarea, Select, Checkbox } from "@/components/myui/forms";
 import { CoverImageUploader, PdfUploadZone } from "@/components/common/BookForm";
 import { PublishConfirmModal } from "@/components/common/PublishConfirmModal";
 import { useLibrarianBookForm } from "../hooks/useLibrarianBookForm";
@@ -33,6 +33,7 @@ export default function LibrarianBookCreateView() {
     handleSubCategoryChange,
     handleAgeGroupChange,
     handleLanguageChange,
+    handleHasAudioChange,
     handleCoverChange,
     handleRemoveCover,
     handleDocumentChange,
@@ -189,7 +190,29 @@ export default function LibrarianBookCreateView() {
               </div>
             </div>
 
-            {/* 4 & 5. Upload Grid: Book PDF Document + Cover Image */}
+            {/* 4. Audio Edition Option */}
+            <div className={`ktab-book-publish-form__audio-card ${formData.hasAudio ? "is-active" : ""}`}>
+              <div className="ktab-book-publish-form__audio-meta">
+                <div className="ktab-book-publish-form__audio-icon" aria-hidden="true">
+                  <Headphones size={20} />
+                </div>
+                <label htmlFor="librarian-book-has-audio" className="ktab-book-publish-form__audio-content">
+                  <span className="ktab-book-publish-form__audio-title">يتوفر إصدار صوتي للكتاب</span>
+                  <span className="ktab-book-publish-form__audio-hint">
+                    حدد هذا الخيار في حال توفر قراءة صوتية أو ملف صوتي مصاحب للكتاب
+                  </span>
+                </label>
+              </div>
+              <Checkbox
+                id="librarian-book-has-audio"
+                name="hasAudio"
+                checked={Boolean(formData.hasAudio)}
+                onChange={handleHasAudioChange}
+                disabled={submitting}
+              />
+            </div>
+
+            {/* 5. Upload Grid: Book PDF Document + Cover Image */}
             <div className="ktab-book-publish-form__upload-grid">
               <PdfUploadZone
                 pdfFile={formData.pdfFile}

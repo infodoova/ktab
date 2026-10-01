@@ -2,7 +2,7 @@ import {
   SquareLibrary,
   BookOpen,
   FolderOpen,
-  Sparkles,
+  BookMarked,
   ArchiveIcon,
   Settings,
 } from "lucide-react";
@@ -40,6 +40,12 @@ export const READER_NAV_ITEMS = [
     label: "القصص التفاعلية",
     icon: FolderOpen,
     path: "/reader/interactive-stories",
+  },
+  {
+    name: "ReaderStoryBooks",
+    label: "قصص الأطفال",
+    icon: BookMarked,
+    path: "/reader/story-books",
   },
   // {
   //   name: "ReaderAchievements",

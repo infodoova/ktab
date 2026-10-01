@@ -1,7 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   INPUT — Modern Outlined Floating Label
-   Animation: label uses transform (translateY + scale) for GPU-composited
-   smooth motion.
+   INPUT — Apple Inset Floating Label Field
+   Refined tactile background, smooth internal float, zero border cuts.
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .myui-input-wrap {
@@ -13,41 +12,119 @@
   text-align: right;
   font-family: var(--font-arabic, sans-serif);
   box-sizing: border-box;
-  padding-top: 10px;
 }
 
 /* ── Field Container ── */
 .myui-input-field-wrap {
   position: relative;
   width: 100%;
-  height: 52px;
+  height: 56px;
   display: flex;
   align-items: center;
   border-radius: 12px;
-  background-color: var(--bg-primary, #ffffff);
-  border: 1.5px solid var(--border-card, rgba(0, 0, 0, 0.16));
-  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  background-color: var(--bg-secondary, #f8fafc);
+  border: 1px solid var(--border-card, rgba(0, 0, 0, 0.12));
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.025);
+  transition: background-color 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   box-sizing: border-box;
+  cursor: text;
+  overflow: hidden;
 }
 
-.myui-input-field-wrap:hover {
-  border-color: rgba(0, 0, 0, 0.36);
+.myui-input-field-wrap:hover:not(.is-disabled) {
+  background-color: #f1f5f9;
+  border-color: rgba(0, 0, 0, 0.22);
 }
 
-/* Focus ring: black border, subtle black glow */
+/* Focus ring: crisp black border, subtle brand teal ambient ring */
 .myui-input-wrap.is-focused .myui-input-field-wrap {
+  background-color: var(--bg-primary, #ffffff);
   border-color: var(--brand-black, #0a0a0a);
-  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 0 0 3px var(--brand-teal-ambient, rgba(93, 227, 186, 0.25)),
+              0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 /* Error states */
 .myui-input-wrap.has-error .myui-input-field-wrap {
-  border-color: #ef4444;
+  border-color: var(--color-danger, #ef4444);
+  background-color: var(--bg-primary, #ffffff);
 }
 
 .myui-input-wrap.has-error.is-focused .myui-input-field-wrap {
-  border-color: #ef4444;
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+  border-color: var(--color-danger, #ef4444);
+  box-shadow: 0 0 0 3px var(--color-danger-glow, rgba(239, 68, 68, 0.15));
+}
+
+.myui-input-field-wrap.is-disabled {
+  opacity: 0.55;
+  background-color: rgba(0, 0, 0, 0.04);
+  cursor: not-allowed;
+}
+
+/* ── Apple Inset Floating Label ── */
+.myui-input-inset-label {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14.5px;
+  font-weight: 500;
+  color: var(--text-subtle, #94a3b8);
+  pointer-events: none;
+  transform-origin: right top;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              top 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              font-size 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              color 0.2s ease,
+              font-weight 0.2s ease;
+  user-select: none;
+  z-index: 2;
+  line-height: 1;
+  background: transparent;
+}
+
+/* Floating state: smoothly glides up inside the container */
+.myui-input-inset-label.is-floating {
+  top: 9px;
+  transform: translateY(0) scale(0.78);
+  color: var(--text-muted, #64748b);
+  font-weight: 700;
+}
+
+/* Focused + floating: label turns crisp black */
+.myui-input-inset-label.is-floating.is-focused {
+  color: var(--brand-black, #0a0a0a);
+}
+
+/* Error + floating: label turns red */
+.myui-input-wrap.has-error .myui-input-inset-label.is-floating {
+  color: var(--color-danger, #ef4444);
+}
+
+/* Required asterisk */
+.myui-input-required {
+  color: var(--color-danger, #ef4444);
+  font-size: 13px;
+  line-height: 1;
+  font-weight: 700;
+}
+
+/* Optional badge */
+.myui-input-optional {
+  color: var(--text-subtle, #94a3b8);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.myui-input-extra {
+  display: inline-flex;
+  align-items: center;
 }
 
 /* ── The actual <input> ── */
@@ -59,30 +136,38 @@
   padding: 0 16px;
   font-family: var(--font-arabic, sans-serif);
   font-size: 14.5px;
-  font-weight: 500;
+  font-weight: 550;
   color: var(--brand-black, #0a0a0a);
   box-sizing: border-box;
   outline: none;
 }
 
+/* When inset label is present, push input text down so it sits under the label */
+.myui-input.has-inset-label {
+  padding-top: 18px;
+  padding-bottom: 2px;
+}
+
 .myui-input::placeholder {
-  color: #94a3b8;
+  color: var(--text-subtle, #94a3b8);
   font-size: 13.5px;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.15s ease;
 }
 
 .myui-input:disabled {
-  opacity: 0.55;
-  background-color: var(--bg-secondary, #f8fafc);
   cursor: not-allowed;
 }
 
 .myui-input.has-icon-start {
-  padding-right: 42px;
+  padding-right: 44px;
+}
+
+.myui-input-field-wrap:has(.has-icon-start) .myui-input-inset-label {
+  right: 44px;
 }
 
 .myui-input.has-icon-end {
-  padding-left: 42px;
+  padding-left: 44px;
 }
 
 /* ── Icon ── */
@@ -93,7 +178,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #94a3b8;
+  color: var(--text-subtle, #94a3b8);
   pointer-events: none;
   z-index: 2;
 }
@@ -104,104 +189,6 @@
 
 .myui-input-icon--end {
   left: 14px;
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   FLOATING LABEL
-
-   Default: label sits vertically centered inside the container.
-   On focus / has-value: label scales down and translates up to sit on the
-   top border (notch effect).
-
-   Uses a single `transform` property for both translate and scale so
-   the browser composites everything on the GPU.
-   ═══════════════════════════════════════════════════════════════════════════ */
-.myui-input-floating-label {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%) scale(1);
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #94a3b8;
-  pointer-events: none;
-  transform-origin: right center;
-  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
-              color 0.2s ease,
-              background-color 0.2s ease,
-              padding 0.2s ease;
-  will-change: transform;
-  user-select: none;
-  z-index: 3;
-  padding: 0 4px;
-  border-radius: 4px;
-  background-color: transparent;
-  line-height: 1;
-}
-
-/*
-  Floating (notch) state:
-  - translateY brings label from center to sit on the top border line.
-  - Container is 52px, center = 26px. Border sits at ~-26px from center.
-  - scale(0.82) shrinks the label for the mini-label look.
-  - White bg masks the border underneath, creating the notch illusion.
-*/
-.myui-input-floating-label.is-floating {
-  transform: translateY(calc(-50% - 26px)) scale(0.82);
-  color: #64748b;
-  font-weight: 600;
-  background-color: var(--bg-primary, #ffffff);
-  padding: 1px 8px;
-}
-
-/* Focused + floating: label turns black */
-.myui-input-floating-label.is-floating.is-focused {
-  color: var(--brand-black, #0a0a0a);
-}
-
-/* Error + floating: label turns red */
-.myui-input-wrap.has-error .myui-input-floating-label.is-floating {
-  color: #ef4444;
-}
-
-/* ── Required asterisk ── */
-.myui-input-required {
-  color: #ef4444;
-  font-size: 13px;
-  line-height: 1;
-  font-weight: 700;
-}
-
-/* ── Optional badge (اختياري) — muted, smaller ── */
-.myui-input-optional {
-  color: #b0b8c4;
-  font-size: 11px;
-  font-weight: 500;
-  line-height: 1;
-}
-
-.myui-input-floating-label.is-floating .myui-input-optional {
-  color: #94a3b8;
-}
-
-.myui-input-extra-inline {
-  display: inline-flex;
-  align-items: center;
-  pointer-events: none;
-  line-height: 1;
-  opacity: 0;
-  transform: scale(0.7);
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-
-/* Only show tooltip icon when label is floating (focused or has value) */
-.myui-input-floating-label.is-floating .myui-input-extra-inline {
-  opacity: 1;
-  pointer-events: auto;
-  transform: scale(1);
 }
 
 /* ── Circular Clear Button ── */
@@ -227,17 +214,11 @@
 }
 
 .myui-input-clear-btn:hover {
-  background-color: rgba(0, 0, 0, 0.18);
+  background-color: rgba(0, 0, 0, 0.16);
   transform: translateY(-50%) scale(1.08);
 }
 
-/* ── Password Eye Toggle ─────────────────────────────────────────────────── */
-/*
- * Sits at the left edge (LTR-end) of the input, matching the clear button's
- * vertical centering. Always rendered when type="password" so the user can
- * always reveal the value regardless of whether the field has content.
- * tabIndex=-1 prevents it from stealing keyboard focus from the input.
- */
+/* ── Password Eye Toggle ── */
 .myui-input-eye-btn {
   position: absolute;
   left: 12px;
@@ -247,7 +228,7 @@
   height: 28px;
   border-radius: 6px;
   background-color: transparent;
-  color: #94a3b8;
+  color: var(--text-subtle, #94a3b8);
   border: none;
   display: flex;
   align-items: center;
@@ -269,8 +250,6 @@
   outline-offset: 1px;
 }
 
-
-
 /* ── Footer: Error, Helper & Counter ── */
 .myui-input-footer {
   display: flex;
@@ -290,7 +269,7 @@
 .myui-input-error {
   font-size: 11.5px;
   font-weight: 600;
-  color: #ef4444;
+  color: var(--color-danger, #ef4444);
   margin: 0;
 }
 
@@ -304,7 +283,7 @@
 .myui-input-char-count {
   font-size: 11px;
   font-weight: 600;
-  color: #94a3b8;
+  color: var(--text-subtle, #94a3b8);
   font-variant-numeric: tabular-nums;
   direction: ltr;
   white-space: nowrap;
@@ -312,6 +291,6 @@
 }
 
 .myui-input-char-count.is-limit-reached {
-  color: #ef4444;
+  color: var(--color-danger, #ef4444);
   font-weight: 750;
 }

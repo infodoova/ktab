@@ -1,0 +1,189 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <!-- Room Wall Gradient: Cozy Twilight Pastel -->
+    <linearGradient id="wallGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#4a69bd" />
+      <stop offset="35%" stop-color="#6a89cc" />
+      <stop offset="70%" stop-color="#82ccdd" />
+      <stop offset="100%" stop-color="#b8e994" />
+    </linearGradient>
+
+    <!-- Warm Table / Desk Gradient -->
+    <linearGradient id="deskGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#eccc68" />
+      <stop offset="15%" stop-color="#d99b4b" />
+      <stop offset="60%" stop-color="#b87333" />
+      <stop offset="100%" stop-color="#8c4b1d" />
+    </linearGradient>
+
+    <!-- Desk Surface Top Highlight -->
+    <linearGradient id="deskTopHighlight" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffeaa7" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#d99b4b" stop-opacity="0" />
+    </linearGradient>
+
+    <!-- Fluffy Cartoon Cloud Gradient -->
+    <linearGradient id="cloudGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95" />
+      <stop offset="100%" stop-color="#dfe6e9" stop-opacity="0.85" />
+    </linearGradient>
+
+    <!-- Warm Star Glow -->
+    <radialGradient id="starGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fff9d2" stop-opacity="1" />
+      <stop offset="50%" stop-color="#fed330" stop-opacity="0.6" />
+      <stop offset="100%" stop-color="#fed330" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Crescent Moon Glow -->
+    <radialGradient id="moonGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="1" />
+      <stop offset="70%" stop-color="#ffeaa7" stop-opacity="0.5" />
+      <stop offset="100%" stop-color="#ffeaa7" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Fairy Light Bulbs Glow -->
+    <radialGradient id="bulbYellow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="40%" stop-color="#fed330" />
+      <stop offset="100%" stop-color="#fed330" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="bulbTeal" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="40%" stop-color="#5de3ba" />
+      <stop offset="100%" stop-color="#5de3ba" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="bulbPink" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="40%" stop-color="#ff9ff3" />
+      <stop offset="100%" stop-color="#ff9ff3" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <!-- 1. Background Wall -->
+  <rect width="1920" height="1080" fill="url(#wallGrad)" />
+
+  <!-- Stars Background Pattern -->
+  <g opacity="0.65">
+    <!-- Star Group 1 -->
+    <circle cx="160" cy="180" r="18" fill="url(#starGlow)" />
+    <path d="M160,168 L163,177 L172,180 L163,183 L160,192 L157,183 L148,180 L157,177 Z" fill="#ffffff" />
+
+    <circle cx="340" cy="110" r="14" fill="url(#starGlow)" />
+    <path d="M340,102 L342,108 L348,110 L342,112 L340,118 L338,112 L332,110 L338,108 Z" fill="#ffffff" />
+
+    <circle cx="680" cy="160" r="16" fill="url(#starGlow)" />
+    <path d="M680,150 L683,158 L691,160 L683,162 L680,170 L677,162 L669,160 L677,158 Z" fill="#ffffff" />
+
+    <circle cx="1240" cy="140" r="20" fill="url(#starGlow)" />
+    <path d="M1240,128 L1244,137 L1253,140 L1244,143 L1240,152 L1236,143 L1227,140 L1236,137 Z" fill="#ffffff" />
+
+    <circle cx="1580" cy="90" r="15" fill="url(#starGlow)" />
+    <path d="M1580,80 L1583,87 L1590,90 L1583,93 L1580,100 L1577,93 L1570,90 L1577,87 Z" fill="#ffffff" />
+
+    <circle cx="1800" cy="220" r="18" fill="url(#starGlow)" />
+    <path d="M1800,208 L1803,217 L1812,220 L1803,223 L1800,232 L1797,223 L1788,220 L1797,217 Z" fill="#ffffff" />
+
+    <circle cx="210" cy="380" r="4" fill="#ffffff" opacity="0.8" />
+    <circle cx="480" cy="260" r="3" fill="#ffffff" opacity="0.7" />
+    <circle cx="920" cy="100" r="5" fill="#ffffff" opacity="0.9" />
+    <circle cx="1400" cy="270" r="4" fill="#ffffff" opacity="0.8" />
+    <circle cx="1720" cy="360" r="3.5" fill="#ffffff" opacity="0.7" />
+  </g>
+
+  <!-- Cute Crescent Moon (Top Left / Right) -->
+  <g transform="translate(1620, 110)">
+    <circle cx="0" cy="0" r="70" fill="url(#moonGlow)" opacity="0.6" />
+    <path d="M 30 -45 A 55 55 0 1 0 45 40 A 45 45 0 1 1 30 -45 Z" fill="#ffeaa7" />
+    <!-- Cute Sleeping Face on Moon -->
+    <path d="M 5 -10 Q 15 -5 18 5" stroke="#d99b4b" stroke-width="3" fill="none" stroke-linecap="round" />
+    <circle cx="2" cy="12" r="5" fill="#ff7675" opacity="0.4" />
+  </g>
+
+  <!-- Whimsical Cartoon Clouds (Floating in Sky) -->
+  <g fill="url(#cloudGrad)">
+    <!-- Cloud Left -->
+    <g transform="translate(100, 190) scale(0.85)">
+      <path d="M 50 120 
+               A 60 60 0 0 1 150 70 
+               A 75 75 0 0 1 270 60 
+               A 65 65 0 0 1 360 110 
+               A 50 50 0 0 1 390 150 
+               L 50 150 Z" />
+    </g>
+    <!-- Cloud Center Right -->
+    <g transform="translate(1320, 220) scale(0.95)">
+      <path d="M 60 130 
+               A 70 70 0 0 1 180 80 
+               A 85 85 0 0 1 310 70 
+               A 75 75 0 0 1 420 120 
+               A 55 55 0 0 1 450 160 
+               L 60 160 Z" />
+    </g>
+  </g>
+
+  <!-- Charming Cartoon Hanging Garland / Bunting Across Top -->
+  <g opacity="0.9">
+    <!-- Hanging String Curve 1 -->
+    <path d="M 0 30 Q 240 120 480 50 Q 720 130 960 40 Q 1200 130 1440 45 Q 1680 120 1920 30" 
+          stroke="#dfe6e9" stroke-width="2.5" fill="none" stroke-dasharray="6,4" />
+
+    <!-- Cute Triangle Flags -->
+    <!-- Seg 1 -->
+    <polygon points="100,60 140,65 120,125" fill="#ff7675" />
+    <polygon points="170,75 210,80 190,140" fill="#74b9ff" />
+    <polygon points="250,85 290,88 270,145" fill="#55efc4" />
+    <polygon points="330,85 370,80 350,140" fill="#ffeaa7" />
+    <polygon points="410,70 450,65 430,125" fill="#a29bfe" />
+
+    <!-- Seg 2 -->
+    <polygon points="560,70 600,75 580,135" fill="#55efc4" />
+    <polygon points="650,85 690,90 670,150" fill="#ff7675" />
+    <polygon points="740,90 780,88 760,148" fill="#ffeaa7" />
+    <polygon points="830,78 870,72 850,132" fill="#74b9ff" />
+
+    <!-- Seg 3 -->
+    <polygon points="1040,65 1080,72 1060,132" fill="#ff7675" />
+    <polygon points="1130,82 1170,88 1150,148" fill="#a29bfe" />
+    <polygon points="1220,88 1260,85 1240,145" fill="#55efc4" />
+    <polygon points="1310,76 1350,70 1330,130" fill="#ffeaa7" />
+
+    <!-- Seg 4 -->
+    <polygon points="1520,68 1560,75 1540,135" fill="#74b9ff" />
+    <polygon points="1610,85 1650,88 1630,148" fill="#ff7675" />
+    <polygon points="1700,86 1740,80 1720,140" fill="#55efc4" />
+    <polygon points="1790,68 1830,62 1810,122" fill="#ffeaa7" />
+  </g>
+
+  <!-- Glowing Fairy Bulbs Along Garland -->
+  <g>
+    <circle cx="270" cy="85" r="14" fill="url(#bulbYellow)" />
+    <circle cx="760" cy="90" r="14" fill="url(#bulbTeal)" />
+    <circle cx="1240" cy="86" r="14" fill="url(#bulbPink)" />
+    <circle cx="1630" cy="86" r="14" fill="url(#bulbYellow)" />
+  </g>
+
+  <!-- 2. Cozy Wooden Reading Desk / Table (Bottom 32%) -->
+  <g>
+    <!-- Desk Base Planks -->
+    <rect x="0" y="730" width="1920" height="350" fill="url(#deskGrad)" />
+
+    <!-- Top Surface Bevel / Highlight Line -->
+    <rect x="0" y="730" width="1920" height="24" fill="url(#deskTopHighlight)" />
+    <line x1="0" y1="730" x2="1920" y2="730" stroke="#fff9d2" stroke-width="2" opacity="0.6" />
+
+    <!-- Subtle Wooden Plank Lines -->
+    <line x1="0" y1="810" x2="1920" y2="810" stroke="#783e10" stroke-width="2" opacity="0.35" />
+    <line x1="0" y1="895" x2="1920" y2="895" stroke="#783e10" stroke-width="2" opacity="0.35" />
+    <line x1="0" y1="985" x2="1920" y2="985" stroke="#783e10" stroke-width="2" opacity="0.35" />
+
+    <!-- Soft Wood Knots / Grains (Playful cartoon touch) -->
+    <ellipse cx="280" cy="775" rx="35" ry="8" fill="none" stroke="#783e10" stroke-width="2" opacity="0.25" />
+    <ellipse cx="1680" cy="860" rx="42" ry="9" fill="none" stroke="#783e10" stroke-width="2" opacity="0.25" />
+    <ellipse cx="820" cy="940" rx="48" ry="10" fill="none" stroke="#783e10" stroke-width="2" opacity="0.2" />
+
+    <!-- Ambient Shadow Under Where Book Sits in Center -->
+    <ellipse cx="960" cy="745" rx="560" ry="25" fill="#4a2408" opacity="0.35" />
+    <ellipse cx="960" cy="742" rx="440" ry="14" fill="#301602" opacity="0.3" />
+  </g>
+</svg>

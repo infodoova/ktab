@@ -1,0 +1,182 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <!-- Sunset Pastel Sky Gradient -->
+    <linearGradient id="cloudSky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fd79a8" />
+      <stop offset="30%" stop-color="#e056fd" />
+      <stop offset="65%" stop-color="#a29bfe" />
+      <stop offset="85%" stop-color="#fab1a0" />
+      <stop offset="100%" stop-color="#ffeaa7" />
+    </linearGradient>
+
+    <!-- Warm Pastel Birch Wood Desk -->
+    <linearGradient id="birchDesk" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f5cd79" />
+      <stop offset="25%" stop-color="#e1b12c" />
+      <stop offset="65%" stop-color="#c58d20" />
+      <stop offset="100%" stop-color="#9b6811" />
+    </linearGradient>
+
+    <!-- Desk Surface Top Highlight -->
+    <linearGradient id="birchTopHighlight" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#f5cd79" stop-opacity="0" />
+    </linearGradient>
+
+    <!-- Soft Cloud Gradient 1 -->
+    <linearGradient id="softCloud1" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.98" />
+      <stop offset="50%" stop-color="#fdf4ff" stop-opacity="0.92" />
+      <stop offset="100%" stop-color="#f8a5c2" stop-opacity="0.85" />
+    </linearGradient>
+
+    <!-- Soft Cloud Gradient 2 -->
+    <linearGradient id="softCloud2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95" />
+      <stop offset="60%" stop-color="#e8dff5" stop-opacity="0.88" />
+      <stop offset="100%" stop-color="#d6a2e8" stop-opacity="0.8" />
+    </linearGradient>
+
+    <!-- Radiant Glowing Sun -->
+    <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="1" />
+      <stop offset="35%" stop-color="#fff3b0" stop-opacity="0.85" />
+      <stop offset="70%" stop-color="#ffeaa7" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="#ffeaa7" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Star Glow -->
+    <radialGradient id="starGlowCloud" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="1" />
+      <stop offset="50%" stop-color="#fff9d2" stop-opacity="0.7" />
+      <stop offset="100%" stop-color="#fff9d2" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <!-- 1. Background Sky -->
+  <rect width="1920" height="1080" fill="url(#cloudSky)" />
+
+  <!-- Pastel Glowing Sun with Corona -->
+  <g transform="translate(960, 360)">
+    <circle cx="0" cy="0" r="240" fill="url(#sunGlow)" opacity="0.65" />
+    <circle cx="0" cy="0" r="160" fill="url(#sunGlow)" opacity="0.9" />
+    <circle cx="0" cy="0" r="85" fill="#ffffff" opacity="0.95" />
+  </g>
+
+  <!-- Distant Whimsical Rainbow Arch Across Sky -->
+  <g opacity="0.45" stroke-width="12" fill="none" stroke-linecap="round">
+    <path d="M 380 730 A 700 700 0 0 1 1540 730" stroke="#ff7675" />
+    <path d="M 395 730 A 685 685 0 0 1 1525 730" stroke="#ffeaa7" />
+    <path d="M 410 730 A 670 670 0 0 1 1510 730" stroke="#55efc4" />
+    <path d="M 425 730 A 655 655 0 0 1 1495 730" stroke="#74b9ff" />
+    <path d="M 440 730 A 640 640 0 0 1 1480 730" stroke="#a29bfe" />
+  </g>
+
+  <!-- Layer 1: Distant Background Cloud Banks -->
+  <g fill="url(#softCloud2)" opacity="0.8">
+    <path d="M -60 620 
+             Q 120 480 320 540 
+             Q 520 440 720 520 
+             Q 960 410 1200 520 
+             Q 1440 430 1660 520 
+             Q 1840 460 2000 560 
+             L 2000 730 L -60 730 Z" />
+  </g>
+
+  <!-- Layer 2: Main Fluffy Foreground Cloud Castles -->
+  <g fill="url(#softCloud1)">
+    <!-- Left Huge Cloud Formation -->
+    <path d="M -80 730 
+             L -80 500 
+             A 90 90 0 0 1 80 430 
+             A 120 120 0 0 1 280 380 
+             A 140 140 0 0 1 480 440 
+             A 110 110 0 0 1 660 510 
+             A 90 90 0 0 1 760 620 
+             L 760 730 Z" />
+
+    <!-- Right Huge Cloud Formation -->
+    <path d="M 2000 730 
+             L 2000 480 
+             A 95 95 0 0 0 1840 410 
+             A 130 130 0 0 0 1620 370 
+             A 145 145 0 0 0 1410 440 
+             A 105 105 0 0 0 1250 520 
+             A 85 85 0 0 0 1160 630 
+             L 1160 730 Z" />
+  </g>
+
+  <!-- Whimsical Floating Pastel Clouds (Mid Air) -->
+  <g fill="url(#softCloud1)" opacity="0.95">
+    <!-- Center Left Floater -->
+    <g transform="translate(240, 210) scale(0.7)">
+      <path d="M 40 100 A 45 45 0 0 1 120 60 A 60 60 0 0 1 220 50 A 50 50 0 0 1 290 90 A 40 40 0 0 1 310 120 L 40 120 Z" />
+    </g>
+    <!-- Center Right Floater -->
+    <g transform="translate(1380, 190) scale(0.75)">
+      <path d="M 50 110 A 50 50 0 0 1 140 70 A 70 70 0 0 1 250 60 A 55 55 0 0 1 330 100 A 45 45 0 0 1 350 130 L 50 130 Z" />
+    </g>
+  </g>
+
+  <!-- Charming Cartoon Stars & Sparkle Bursts -->
+  <g>
+    <!-- Star 1 -->
+    <circle cx="210" cy="140" r="16" fill="url(#starGlowCloud)" />
+    <polygon points="210,122 215,135 228,140 215,145 210,158 205,145 192,140 205,135" fill="#ffffff" />
+
+    <!-- Star 2 -->
+    <circle cx="480" cy="110" r="14" fill="url(#starGlowCloud)" />
+    <polygon points="480,95 484,106 495,110 484,114 480,125 476,114 465,110 476,106" fill="#ffffff" />
+
+    <!-- Star 3 -->
+    <circle cx="780" cy="180" r="18" fill="url(#starGlowCloud)" />
+    <polygon points="780,162 785,175 798,180 785,185 780,198 775,185 762,180 775,175" fill="#ffffff" />
+
+    <!-- Star 4 -->
+    <circle cx="1180" cy="130" r="15" fill="url(#starGlowCloud)" />
+    <polygon points="1180,115 1184,126 1195,130 1184,134 1180,145 1176,134 1165,130 1176,126" fill="#ffffff" />
+
+    <!-- Star 5 -->
+    <circle cx="1480" cy="100" r="16" fill="url(#starGlowCloud)" />
+    <polygon points="1480,84 1485,96 1497,100 1485,104 1480,116 1475,104 1463,100 1475,96" fill="#ffffff" />
+
+    <!-- Star 6 -->
+    <circle cx="1740" cy="170" r="18" fill="url(#starGlowCloud)" />
+    <polygon points="1740,152 1745,165 1758,170 1745,175 1740,188 1735,175 1722,170 1735,165" fill="#ffffff" />
+
+    <!-- Ambient Sparkle Dots -->
+    <circle cx="340" cy="270" r="3.5" fill="#ffffff" opacity="0.9" />
+    <circle cx="620" cy="240" r="3" fill="#ffffff" opacity="0.8" />
+    <circle cx="920" cy="190" r="4" fill="#ffffff" opacity="0.95" />
+    <circle cx="1320" cy="280" r="3" fill="#ffffff" opacity="0.8" />
+    <circle cx="1620" cy="230" r="3.5" fill="#ffffff" opacity="0.9" />
+  </g>
+
+  <!-- 2. Pastel Birch Desk Surface (Bottom 32%) -->
+  <g>
+    <!-- Base Planks -->
+    <rect x="0" y="730" width="1920" height="350" fill="url(#birchDesk)" />
+
+    <!-- Bevel Highlight -->
+    <rect x="0" y="730" width="1920" height="22" fill="url(#birchTopHighlight)" />
+    <line x1="0" y1="730" x2="1920" y2="730" stroke="#ffffff" stroke-width="2.5" opacity="0.8" />
+
+    <!-- Plank Lines -->
+    <line x1="0" y1="815" x2="1920" y2="815" stroke="#7e520b" stroke-width="2.5" opacity="0.35" />
+    <line x1="0" y1="816" x2="1920" y2="816" stroke="#f5cd79" stroke-width="1" opacity="0.5" />
+
+    <line x1="0" y1="900" x2="1920" y2="900" stroke="#7e520b" stroke-width="2.5" opacity="0.35" />
+    <line x1="0" y1="901" x2="1920" y2="901" stroke="#f5cd79" stroke-width="1" opacity="0.5" />
+
+    <line x1="0" y1="990" x2="1920" y2="990" stroke="#7e520b" stroke-width="2.5" opacity="0.35" />
+    <line x1="0" y1="991" x2="1920" y2="991" stroke="#f5cd79" stroke-width="1" opacity="0.5" />
+
+    <!-- Wood Knots -->
+    <ellipse cx="290" cy="775" rx="36" ry="8" fill="none" stroke="#7e520b" stroke-width="2" opacity="0.25" />
+    <ellipse cx="1640" cy="860" rx="44" ry="9" fill="none" stroke="#7e520b" stroke-width="2" opacity="0.25" />
+
+    <!-- Center Book Shadow -->
+    <ellipse cx="960" cy="746" rx="570" ry="25" fill="#5c3a03" opacity="0.4" />
+    <ellipse cx="960" cy="743" rx="450" ry="14" fill="#3b2401" opacity="0.35" />
+  </g>
+</svg>

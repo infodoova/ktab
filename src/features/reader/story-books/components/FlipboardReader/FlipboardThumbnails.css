@@ -1,0 +1,161 @@
+/* ==========================================================================
+   FlipboardThumbnails Styles - Slide-up filmstrip thumbnails panel
+   ========================================================================== */
+
+.flipboard-thumbnails-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: var(--backdrop-dark, rgba(10, 10, 10, 0.48));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  animation: flipboardFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes flipboardFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.flipboard-thumbnails-drawer {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  background-color: var(--bg-primary, #ffffff);
+  border-top-left-radius: 1.5rem;
+  border-top-right-radius: 1.5rem;
+  box-shadow: 0 -12px 36px rgba(0, 0, 0, 0.15);
+  border-top: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
+  padding: 1.25rem 1.5rem 2rem;
+  box-sizing: border-box;
+  animation: flipboardSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes flipboardSlideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.flipboard-thumbnails__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.06));
+}
+
+.flipboard-thumbnails__title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--brand-black, #0a0a0a);
+  margin: 0;
+}
+
+.flipboard-thumbnails__close-btn {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--bg-secondary, #f8fafc);
+  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
+  color: var(--brand-black, #0a0a0a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.flipboard-thumbnails__close-btn:hover {
+  background-color: var(--brand-black, #0a0a0a);
+  color: #ffffff;
+}
+
+.flipboard-thumbnails__strip {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+.flipboard-thumbnails__strip::-webkit-scrollbar {
+  height: 5px;
+}
+.flipboard-thumbnails__strip::-webkit-scrollbar-thumb {
+  background: var(--border-subtle, rgba(0, 0, 0, 0.15));
+  border-radius: 9999px;
+}
+
+.flipboard-thumb-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  flex-shrink: 0;
+  width: 105px;
+  padding: 0.35rem;
+  border-radius: 0.75rem;
+  transition: transform 0.18s ease;
+}
+
+.flipboard-thumb-card:hover {
+  transform: translateY(-3px);
+}
+
+.flipboard-thumb-card__preview {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 0.65rem;
+  overflow: hidden;
+  background-color: var(--bg-secondary, #f8fafc);
+  border: 2px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
+  transition: all 0.18s ease;
+}
+
+.flipboard-thumb-card--active .flipboard-thumb-card__preview {
+  border-color: var(--brand-teal, #5de3ba);
+  box-shadow: 0 0 0 3px var(--brand-teal-ambient, rgba(93, 227, 186, 0.25));
+}
+
+.flipboard-thumb-card__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.flipboard-thumb-card__num {
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+  background-color: rgba(10, 10, 10, 0.75);
+  color: #ffffff;
+  font-size: 0.625rem;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 9999px;
+}
+
+.flipboard-thumb-card__label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--brand-black, #0a0a0a);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

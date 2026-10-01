@@ -1,0 +1,126 @@
+/* ==========================================================================
+   StoryBookStepper Styles - Multi-step interactive story wizard tracker
+   ========================================================================== */
+
+.child-stepper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  user-select: none;
+}
+
+.child-stepper__track {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 720px;
+  position: relative;
+}
+
+.child-stepper__line {
+  flex: 1;
+  height: 2px;
+  background-color: var(--border-color, #e2e8f0);
+  margin: 0 8px;
+  transition: background-color 0.25s ease;
+}
+
+.child-stepper__line--filled {
+  background-color: var(--brand-black, #0f172a);
+}
+
+.child-stepper__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  border: none;
+  padding: 6px 10px;
+  border-radius: var(--radius-full, 9999px);
+  cursor: pointer;
+  text-align: right;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.child-stepper__item:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.child-stepper__circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8125rem;
+  font-weight: 750;
+  background-color: var(--bg-primary, #f1f5f9);
+  color: var(--text-secondary, #64748b);
+  border: 1.5px solid var(--border-color, #e2e8f0);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+}
+
+.child-stepper__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.child-stepper__label {
+  font-size: 0.8125rem;
+  font-weight: 750;
+  color: var(--text-secondary, #64748b);
+  white-space: nowrap;
+}
+
+.child-stepper__desc {
+  font-size: 0.6875rem;
+  color: var(--text-muted, #94a3b8);
+  white-space: nowrap;
+}
+
+/* Active State */
+.child-stepper__item--active .child-stepper__circle {
+  background-color: var(--brand-black, #0f172a);
+  color: var(--bg-card, #ffffff);
+  border-color: var(--brand-black, #0f172a);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.25);
+  transform: scale(1.05);
+}
+
+.child-stepper__item--active .child-stepper__label {
+  color: var(--brand-black, #0f172a);
+  font-weight: 800;
+}
+
+/* Completed State */
+.child-stepper__item--completed .child-stepper__circle {
+  background-color: var(--brand-teal, #5de3ba);
+  color: var(--brand-black, #0f172a);
+  border-color: var(--brand-teal, #5de3ba);
+}
+
+.child-stepper__item--completed .child-stepper__label {
+  color: var(--brand-black, #0f172a);
+}
+
+@media (max-width: 640px) {
+  .child-stepper__meta {
+    display: none;
+  }
+
+  .child-stepper__line {
+    margin: 0 4px;
+  }
+
+  .child-stepper__circle {
+    width: 28px;
+    height: 28px;
+    font-size: 0.75rem;
+  }
+}

@@ -1,13 +1,13 @@
 import React, { memo } from "react";
-import { Loader2 } from "lucide-react";
-import { Input, Textarea, Select } from "@/components/myui/forms";
+import { Loader2, Headphones } from "lucide-react";
+import { Input, Textarea, Select, Checkbox } from "@/components/myui/forms";
 import { CoverImageUploader } from "../CoverImageUploader";
 import { PdfUploadZone } from "../PdfUploadZone";
 import "./BookPublishForm.css";
 
 /**
  * Unified Editorial Book Publishing Form.
- * Sequential flow: Title -> Description -> Metadata -> PDF Document -> Cover Image -> Actions.
+ * Sequential flow: Title -> Description -> Metadata -> Audio Option -> PDF Document -> Cover Image -> Actions.
  * 
  * Pure declarative component without inline calculations or business logic.
  */
@@ -26,6 +26,7 @@ export const BookPublishForm = memo(function BookPublishForm({
   handleSubCategoryChange,
   handleAgeGroupChange,
   handleLanguageChange,
+  handleHasAudioChange,
   handleDocumentChange,
   handleRemoveDocument,
   handleCoverChange,
@@ -120,7 +121,29 @@ export const BookPublishForm = memo(function BookPublishForm({
           </div>
         </div>
 
-        {/* 4 & 5. Upload Grid: Book Document (PDF) + Cover Image */}
+        {/* 4. Audio Edition Option */}
+        <div className={`book-publish-form__audio-card ${formData.hasAudio ? "is-active" : ""}`}>
+          <div className="book-publish-form__audio-meta">
+            <div className="book-publish-form__audio-icon" aria-hidden="true">
+              <Headphones size={20} />
+            </div>
+            <label htmlFor="book-publish-has-audio" className="book-publish-form__audio-content">
+              <span className="book-publish-form__audio-title">يتوفر إصدار صوتي للكتاب</span>
+              <span className="book-publish-form__audio-hint">
+                حدد هذا الخيار في حال توفر تسجيل صوتي أو قراءة مسموعة مصاحبة للكتاب
+              </span>
+            </label>
+          </div>
+          <Checkbox
+            id="book-publish-has-audio"
+            name="hasAudio"
+            checked={Boolean(formData.hasAudio)}
+            onChange={handleHasAudioChange}
+            disabled={loading}
+          />
+        </div>
+
+        {/* 5. Upload Grid: Book Document (PDF) + Cover Image */}
         <div className="book-publish-form__upload-grid">
           <PdfUploadZone
             pdfFile={formData.pdfFile}
