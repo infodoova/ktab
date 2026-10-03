@@ -1,17 +1,16 @@
 import React, { memo, useState, useCallback, useEffect, useRef } from "react";
-import { MoreVertical, Eye, FileText, FileDown, Trash2 } from "lucide-react";
+import { MoreVertical, BookOpen, FileText, FileDown, Ban } from "lucide-react";
 import brandIconImg from "@/assets/logo/BrandIcon.png";
-import bunnyCover from "@/assets/images/children-stories/bunny.jpg";
+import { getStoryStatusConfig } from "../../constants/storyBooksConstants";
 import "./StoryBookCard.css";
 
 /**
- * Highly professional 1:1 Children's Story Book Card.
- * Adheres strictly to Ktab's Eleven Reader + Apple design standard:
- * - Transparent container with elevated 1:1 square cover
- * - Smooth progressive image loading with shimmer
- * - Subtle frosted-glass meta badges
- * - Floating 3-dots actions menu (Preview, Details, Turn to PDF, Delete)
- * - Clean editorial typography and responsive hover elevation
+ * Editorial 1:1 Children's Story Book Card.
+ * Reflects real backend status and live signed cover artwork:
+ * - Real storybook status badge
+ * - Real child hero name
+ * - Real page count
+ * - Dynamic action options
  */
 export const StoryBookCard = memo(function StoryBookCard({
   story,
@@ -21,13 +20,14 @@ export const StoryBookCard = memo(function StoryBookCard({
   onPreview,
   onDetails,
   onConvertToPdf,
-  onDelete,
+  onCancel,
 }) {
   const [loaded, setLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
   const imgRef = useRef(null);
 
-  // Check if image is already cached/complete when mounting or props change
+  const coverSrc = story?.coverUrl || story?.cover;
+
   useEffect(() => {
     if (imgRef.current && imgRef.current.complete && imgRef.current.naturalWidth > 0) {
       setLoaded(true);
@@ -36,17 +36,12 @@ export const StoryBookCard = memo(function StoryBookCard({
       setLoaded(false);
       setHasError(false);
     }
-  }, [story?.cover]);
+  }, [coverSrc]);
 
   const handleLoad = useCallback(() => setLoaded(true), []);
-  const handleError = useCallback((e) => {
-    if (e?.currentTarget && e.currentTarget.src !== bunnyCover) {
-      e.currentTarget.src = bunnyCover;
-      setLoaded(true);
-    } else {
-      setHasError(true);
-      setLoaded(false);
-    }
+  const handleError = useCallback(() => {
+    setHasError(true);
+    setLoaded(false);
   }, []);
 
   if (!story) return null;
@@ -54,11 +49,21 @@ export const StoryBookCard = memo(function StoryBookCard({
   const {
     id,
     title,
-    author,
-    cover,
-    ageLabel,
-    category,
+    titleAr,
+    childName,
+    childNameAr,
+    status,
+    pageCount,
   } = story;
+
+  const displayTitle = title || titleAr || "قصة مخصصة";
+  const displayChild = childName || childNameAr || "";
+  const isApprovedAndGeneratingChar = status === "STORY_READY" && story?.storyApproved;
+  const statusConfig = isApprovedAndGeneratingChar
+    ? { label: "جاري إعداد مظهر البطل...", color: "#0f172a", bg: "#ffffff", border: "#94a3b8", canRead: false }
+    : getStoryStatusConfig(status);
+  const isReady = status === "READY";
+  const isInProgress = ["DRAFT", "STORY_READY", "CHARACTER_READY", "ILLUSTRATING", "QA", "RENDERING"].includes(status);
 
   return (
     <article
@@ -72,11 +77,11 @@ export const StoryBookCard = memo(function StoryBookCard({
           onClick?.(story);
         }
       }}
-      aria-label={`عرض قصة ${title}`}
+      aria-label={`عرض قصة ${displayTitle}`}
     >
       {/* 1:1 Square Elevated Cover Wrapper */}
       <div className="ktab-child-story-card__cover-wrap">
-        {!cover || hasError ? (
+        {!coverSrc || hasError ? (
           <div className="ktab-child-story-card__fallback-cover">
             <img
               src={brandIconImg}
@@ -90,8 +95,8 @@ export const StoryBookCard = memo(function StoryBookCard({
             {!loaded && <div className="ktab-child-story-card__cover-shimmer" />}
             <img
               ref={imgRef}
-              src={cover}
-              alt={title}
+              src={coverSrc}
+              alt={displayTitle}
               loading="lazy"
               decoding="async"
               onLoad={handleLoad}
@@ -102,6 +107,24 @@ export const StoryBookCard = memo(function StoryBookCard({
                   : "ktab-child-story-card__cover-img--loading"
               }`}
             />
+          </div>
+        )}
+
+        {/* Status Badge */}
+        {status && (
+          <div
+            className="ktab-child-story-card__status-badge"
+            style={{
+              color: statusConfig.color || "#0f172a",
+              backgroundColor: statusConfig.bg || "#ffffff",
+              borderColor: statusConfig.border || statusConfig.color || "#0f172a",
+            }}
+          >
+            <span
+              className={`ktab-child-story-card__status-dot ${(["DRAFT", "ILLUSTRATING", "QA", "RENDERING"].includes(status) || isApprovedAndGeneratingChar) ? "ktab-child-story-card__status-dot--pulsing" : ""}`}
+              style={{ backgroundColor: statusConfig.color || "#0f172a" }}
+            />
+            <span>{statusConfig.label}</span>
           </div>
         )}
 
@@ -125,18 +148,20 @@ export const StoryBookCard = memo(function StoryBookCard({
               className="ktab-child-story-card__menu-dropdown"
               onClick={(e) => e.stopPropagation()}
             >
-              <button
-                type="button"
-                onClick={() => {
-                  onToggleMenu?.(null);
-                  if (onPreview) onPreview(story);
-                  else onClick?.(story);
-                }}
-                className="ktab-child-story-card__menu-item"
-              >
-                <span>معاينة القصة</span>
-                <Eye size={13} strokeWidth={2.2} />
-              </button>
+              {isReady && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onToggleMenu?.(null);
+                    if (onPreview) onPreview(story);
+                    else onClick?.(story);
+                  }}
+                  className="ktab-child-story-card__menu-item"
+                >
+                  <span>قراءة القصة</span>
+                  <BookOpen size={13} strokeWidth={2.2} />
+                </button>
+              )}
 
               <button
                 type="button"
@@ -147,35 +172,40 @@ export const StoryBookCard = memo(function StoryBookCard({
                 }}
                 className="ktab-child-story-card__menu-item"
               >
-                <span>عرض التفاصيل</span>
+                <span>تفاصيل ومتابعة</span>
                 <FileText size={13} strokeWidth={2.2} />
               </button>
 
-              <button
-                type="button"
-                onClick={() => {
-                  onToggleMenu?.(null);
-                  onConvertToPdf?.(story);
-                }}
-                className="ktab-child-story-card__menu-item"
-              >
-                <span>تحويل إلى PDF</span>
-                <FileDown size={13} strokeWidth={2.2} />
-              </button>
+              {isReady && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onToggleMenu?.(null);
+                    onConvertToPdf?.(story);
+                  }}
+                  className="ktab-child-story-card__menu-item"
+                >
+                  <span>تحميل PDF</span>
+                  <FileDown size={13} strokeWidth={2.2} />
+                </button>
+              )}
 
-              <div className="ktab-child-story-card__menu-divider" />
-
-              <button
-                type="button"
-                onClick={() => {
-                  onToggleMenu?.(null);
-                  onDelete?.(story);
-                }}
-                className="ktab-child-story-card__menu-item ktab-child-story-card__menu-item--danger"
-              >
-                <span>حذف القصة</span>
-                <Trash2 size={13} strokeWidth={2.2} />
-              </button>
+              {isInProgress && onCancel && (
+                <>
+                  <div className="ktab-child-story-card__menu-divider" />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onToggleMenu?.(null);
+                      onCancel?.(story);
+                    }}
+                    className="ktab-child-story-card__menu-item ktab-child-story-card__menu-item--danger"
+                  >
+                    <span>إلغاء التوليد</span>
+                    <Ban size={13} strokeWidth={2.2} />
+                  </button>
+                </>
+              )}
             </div>
           )}
         </div>
@@ -183,16 +213,20 @@ export const StoryBookCard = memo(function StoryBookCard({
 
       {/* Editorial Card Body */}
       <div className="ktab-child-story-card__body">
-        <h4 className="ktab-child-story-card__title" title={title}>
-          {title}
+        <h4 className="ktab-child-story-card__title" title={displayTitle}>
+          {displayTitle}
         </h4>
         <div className="ktab-child-story-card__meta">
-          <span className="ktab-child-story-card__author">{author}</span>
-          {category && (
+          {displayChild && (
+            <span className="ktab-child-story-card__author">
+              البطل: {displayChild}
+            </span>
+          )}
+          {pageCount > 0 && (
             <>
-              <span className="ktab-child-story-card__bullet">•</span>
+              {displayChild && <span className="ktab-child-story-card__bullet">•</span>}
               <span className="ktab-child-story-card__detail">
-                {category}
+                {pageCount} صفحة
               </span>
             </>
           )}

@@ -42,35 +42,35 @@
   align-items: center;
   justify-content: flex-start;
   height: 100%;
-  gap: clamp(1rem, 2.4vh, 1.75rem);
+  gap: clamp(1.25rem, 3vh, 2.25rem);
 }
 
-/* Mobile: Image takes upper ~50-52% of viewport, shifted down to clear header */
+/* Mobile: Image shifted down under top buttons with prominent breathing space */
 .flipboard-page--fullscreen .flipboard-page__image-wrap {
-  width: 90vw;
-  max-width: 90vw;
+  width: min(88vw, 340px);
+  max-width: min(88vw, 340px);
   height: auto;
-  max-height: 52vh;
+  max-height: 46vh;
   aspect-ratio: 1 / 1;
   border-radius: 1.35rem;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.32);
-  margin-top: clamp(4.5rem, 9.5vh, 6rem);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+  margin-top: clamp(5.25rem, 12vh, 7.5rem);
   flex-shrink: 0;
 }
 
-/* Mobile: Text anchored below the image with clean spacing */
+/* Mobile: Text anchored below the image with a distinct, clear gap */
 .flipboard-page__text-wrap--glass {
   background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-radius: 1.35rem;
-  padding: 1.1rem 1.45rem 0.95rem;
+  padding: 1.15rem 1.45rem 1rem;
   box-shadow: 0 10px 35px rgba(0, 0, 0, 0.18);
   border: 1px solid rgba(255, 255, 255, 0.95);
-  margin-top: 0;
-  margin-bottom: max(1.25rem, env(safe-area-inset-bottom, 1.25rem));
-  width: 90vw;
-  max-width: 90vw;
+  margin-top: clamp(0.5rem, 1.5vh, 1rem);
+  margin-bottom: 0;
+  width: min(90vw, 360px);
+  max-width: min(90vw, 360px);
   box-sizing: border-box;
 }
 
@@ -142,6 +142,11 @@
   image-rendering: -webkit-optimize-contrast;
   image-rendering: auto;
   transform: translateZ(0);
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+  user-drag: none;
+  pointer-events: none;
 }
 
 /* --------------------------------------------------------------------------
@@ -214,6 +219,11 @@
   height: 100%;
   object-fit: cover;
   display: block;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+  user-drag: none;
+  pointer-events: none;
 }
 
 /* Fullscreen Mobile Cover Page */
@@ -253,26 +263,55 @@
 }
 
 /* --------------------------------------------------------------------------
-   Discrete Page Number Counter
+   Page Footer & Discrete Bottom Counter
    -------------------------------------------------------------------------- */
-.flipboard-page__counter {
-  display: inline-block;
-  margin-top: clamp(0.35rem, 1vh, 0.65rem);
-  font-family: var(--font-children, "Baloo Bhaijaan 2", "Tajawal", sans-serif);
-  font-size: 0.825rem;
-  font-weight: 700;
-  color: var(--text-muted, #64748b);
-  letter-spacing: 0.04em;
-  opacity: 0.85;
+.flipboard-page__footer {
+  margin-top: auto;
+  padding-top: 0.35rem;
+  padding-bottom: 0.45rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
 }
 
-.flipboard-page__text-wrap--glass .flipboard-page__counter {
-  display: block;
-  margin-top: 0.45rem;
-  font-size: 0.825rem;
-  font-weight: 700;
-  color: #475569;
-  text-align: center;
+.flipboard-page__counter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-children, "Baloo Bhaijaan 2", "Tajawal", sans-serif);
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--text-muted, #94a3b8);
+  letter-spacing: 0.04em;
+  opacity: 0.9;
+}
+
+/* Mobile Fullscreen: Frosted pill anchored at bottom center of viewport */
+.flipboard-page--fullscreen .flipboard-page__footer {
+  margin-top: auto;
+  margin-bottom: max(1.1rem, env(safe-area-inset-bottom, 1.1rem));
+  padding: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.flipboard-page--fullscreen .flipboard-page__counter {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #1e293b;
+  min-width: 36px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 800;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.9);
 }
 
 /* --------------------------------------------------------------------------
@@ -310,3 +349,87 @@
     line-height: 1.6;
   }
 }
+
+/* --------------------------------------------------------------------------
+   Simple & Smooth Image Loader
+   -------------------------------------------------------------------------- */
+.flipboard-img-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.flipboard-img-element {
+  opacity: 0;
+  transition: opacity 0.35s ease-in-out;
+}
+
+.flipboard-img-element--loaded {
+  opacity: 1;
+}
+
+.flipboard-img-skeleton {
+  position: absolute;
+  inset: 0;
+  background-color: var(--bg-secondary, #f1f5f9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: inherit;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.flipboard-img-skeleton__shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.45) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: flipboardImgShimmer 1.6s ease-in-out infinite;
+}
+
+@keyframes flipboardImgShimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.flipboard-img-skeleton__spinner {
+  width: 28px;
+  height: 28px;
+  border: 2.5px solid rgba(15, 23, 42, 0.08);
+  border-top-color: var(--brand-teal, #0f766e);
+  border-radius: 50%;
+  animation: flipboardImgSpin 0.8s linear infinite;
+  z-index: 2;
+}
+
+@keyframes flipboardImgSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.flipboard-img-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-secondary, #f8fafc);
+  border-radius: inherit;
+}
+

@@ -1,22 +1,24 @@
 import React, { memo, useState, useEffect } from "react";
-import { Plus, BookX } from "lucide-react";
+import { Plus, BookOpen, SearchX } from "lucide-react";
 import { StoryBookCard } from "../StoryBookCard/StoryBookCard";
 import "./StoryBooksGrid.css";
 
 /**
  * Grid layout for children's 1:1 storybook cards.
- * Handles loading skeleton states, friendly empty states, and fluid responsive grid mapping.
- * Manages active 3-dots action menu with click-outside closure.
+ * Handles loading skeleton states, polished empty states (fresh vs filtered),
+ * and fluid responsive grid mapping.
  */
 export const StoryBooksGrid = memo(function StoryBooksGrid({
   stories = [],
   loading = false,
+  isFiltered = false,
   onCardClick,
   onClearFilters,
   onOpenCreateModal,
   onPreview,
   onDetails,
   onConvertToPdf,
+  onCancel,
   onDelete,
 }) {
   const [openMenuId, setOpenMenuId] = useState(null);
@@ -54,35 +56,63 @@ export const StoryBooksGrid = memo(function StoryBooksGrid({
 
   if (stories.length === 0) {
     return (
-      <div className="child-stories-empty">
-        <div className="child-stories-empty__icon-wrap">
-          <BookX size={36} className="child-stories-empty__icon" />
-        </div>
-        <h3 className="child-stories-empty__title">لم نعثر على أي حكاية مطابقة للبحث</h3>
-        <p className="child-stories-empty__desc">
-          جرّب تغيير كلمات البحث أو الفئة العمرية، أو ابتكر قصة خيالية جديدة ومخصصة لطفلك الآن!
-        </p>
-        <div className="child-stories-empty__actions">
-          {onClearFilters && (
-            <button
-              type="button"
-              className="child-stories-empty__btn-secondary"
-              onClick={onClearFilters}
-            >
-              عرض جميع القصص
-            </button>
-          )}
-          {onOpenCreateModal && (
-            <button
-              type="button"
-              className="child-stories-empty__btn-primary"
-              onClick={onOpenCreateModal}
-            >
-              <Plus size={15} strokeWidth={2.4} />
-              <span>ابتكار قصة جديدة</span>
-            </button>
-          )}
-        </div>
+      <div className="child-stories-empty" dir="rtl">
+        {isFiltered ? (
+          /* Filtered state with 0 results */
+          <>
+            <div className="child-stories-empty__icon-wrap">
+              <SearchX size={26} strokeWidth={1.8} className="child-stories-empty__icon" />
+            </div>
+            <h3 className="child-stories-empty__title">لم نعثر على أي حكاية مطابقة للبحث</h3>
+            <p className="child-stories-empty__desc">
+              جرّب تغيير كلمات البحث أو إعادة ضبط خيارات التصفية للعثور على قصصك.
+            </p>
+            <div className="child-stories-empty__actions">
+              {onClearFilters && (
+                <button
+                  type="button"
+                  className="child-stories-empty__btn-secondary"
+                  onClick={onClearFilters}
+                >
+                  <span>عرض جميع القصص</span>
+                </button>
+              )}
+              {onOpenCreateModal && (
+                <button
+                  type="button"
+                  className="child-stories-empty__btn-primary"
+                  onClick={onOpenCreateModal}
+                >
+                  <Plus size={16} strokeWidth={2.4} />
+                  <span>ابتكار قصة جديدة</span>
+                </button>
+              )}
+            </div>
+          </>
+        ) : (
+          /* Fresh initial state with 0 stories created yet */
+          <>
+            <div className="child-stories-empty__icon-wrap">
+              <BookOpen size={26} strokeWidth={1.8} className="child-stories-empty__icon" />
+            </div>
+            <h3 className="child-stories-empty__title">لا توجد قصص أطفال بعد</h3>
+            <p className="child-stories-empty__desc">
+              ابدأ بإنشاء قصة مصورة ومخصصة لطفلك باسمه ومظهره واهتماماته في خطوات بسيطة.
+            </p>
+            <div className="child-stories-empty__actions">
+              {onOpenCreateModal && (
+                <button
+                  type="button"
+                  className="child-stories-empty__btn-primary"
+                  onClick={onOpenCreateModal}
+                >
+                  <Plus size={16} strokeWidth={2.4} />
+                  <span>ابتكار قصة جديدة</span>
+                </button>
+              )}
+            </div>
+          </>
+        )}
       </div>
     );
   }
@@ -99,6 +129,7 @@ export const StoryBooksGrid = memo(function StoryBooksGrid({
           onPreview={onPreview}
           onDetails={onDetails || onCardClick}
           onConvertToPdf={onConvertToPdf}
+          onCancel={onCancel}
           onDelete={onDelete}
         />
       ))}

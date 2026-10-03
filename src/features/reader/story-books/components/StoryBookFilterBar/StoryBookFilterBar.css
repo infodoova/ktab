@@ -92,7 +92,7 @@
   color: var(--brand-black, #0f172a);
 }
 
-.child-filter-bar__sparkle-icon {
+.child-filter-bar__badge-icon {
   color: var(--brand-teal, #5de3ba);
 }
 

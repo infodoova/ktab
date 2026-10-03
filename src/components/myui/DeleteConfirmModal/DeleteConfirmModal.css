@@ -279,6 +279,9 @@
 
   .ktab-confirm-del__btn-cancel,
   .ktab-confirm-del__btn-confirm {
+    flex: 0 0 auto;
     width: 100%;
+    height: 46px;
+    min-height: 46px;
   }
 }

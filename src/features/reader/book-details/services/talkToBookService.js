@@ -67,7 +67,7 @@ export function cleanLlmJsonAnswer(raw) {
           citedPages = parsed.citedPages;
         }
       }
-    } catch (_) {
+    } catch {
       parsedSuccessfully = false;
     }
 
@@ -162,6 +162,8 @@ export async function askBookQuestion(bookId, question) {
       ? 404
       : response?.status === "TOO_MANY_REQUESTS"
       ? 429
+      : response?.status === "BAD_GATEWAY" || response?.status === 502
+      ? 502
       : 500;
 
   const isSuccess =
@@ -194,6 +196,28 @@ export async function askBookQuestion(bookId, question) {
       source: rawPayload?.source || "INTERNAL_RAG",
       hitCount: typeof rawPayload?.hitCount === "number" ? rawPayload?.hitCount : 0,
     };
+  }
+
+  // Handle Citation Validation Failure / Bad Gateway (HTTP 502)
+  if (
+    statusCode === 502 ||
+    response?.statusCode === 502 ||
+    response?.status === 502 ||
+    response?.status === "BAD_GATEWAY" ||
+    response?.error === "BAD_GATEWAY" ||
+    response?.error === "Bad Gateway" ||
+    response?.error === "INVALID_BOOK_CITATIONS" ||
+    (typeof response?.message === "string" &&
+      (response.message.includes("Invalid citation") ||
+       response.message.includes("InvalidBookCitationsException") ||
+       response.message.includes("502")))
+  ) {
+    const error = new Error(
+      "تعذر توثيق الاقتباسات من صفحات الكتاب بدقة، يرجى إعادة صياغة السؤال."
+    );
+    error.status = 502;
+    error.code = "INVALID_BOOK_CITATIONS";
+    throw error;
   }
 
   // Handle Rate Limiting (HTTP 429)

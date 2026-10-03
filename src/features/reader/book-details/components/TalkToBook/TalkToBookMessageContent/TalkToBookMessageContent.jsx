@@ -22,9 +22,10 @@ marked.setOptions({
  * 8. Wraps book quotes and titles inside «...» with an editorial quote span
  *
  * @param {string} rawText
+ * @param {Array} [citations=[]]
  * @returns {string}
  */
-function prepareMarkdownSource(rawText) {
+function prepareMarkdownSource(rawText, citations = []) {
   if (!rawText || typeof rawText !== "string") return "";
 
   // 1. Strip raw or truncated JSON envelopes (e.g., `{"answer": "..."}`) and unescape literal backslashes
@@ -61,11 +62,26 @@ function prepareMarkdownSource(rawText) {
     '<span class="talk-to-book-inline-page" data-page="$1" title="انقر للانتقال إلى صفحة $1">صفحة $1</span>'
   );
 
-  // 8. Render numbered citations [1]...[99] as simple non-pressable reference text
-  processed = processed.replace(
-    /(?<!\[)\[(\d{1,2})\](?!\]|\()/g,
-    '<span class="talk-to-book-inline-ref">[$1]</span>'
-  );
+  // 8. Render numeric citation badges [1]...[99] linked to citations array
+  processed = processed.replace(/(?<!\[)\[(\d{1,3})\](?!\]|\()/g, (match, digits) => {
+    const citationId = parseInt(digits, 10);
+    const matchedCitation = Array.isArray(citations)
+      ? citations.find((c) => Number(c?.id) === citationId)
+      : null;
+
+    const rawSnippet = matchedCitation?.snippet ? String(matchedCitation.snippet).trim() : "";
+    const escapedSnippet = rawSnippet
+      .replace(/&/g, "&amp;")
+      .replace(/"/g, "&quot;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+
+    const tooltip = escapedSnippet
+      ? `اقتباس [${citationId}]: «${escapedSnippet}» (انقر للانتقال إلى النص في الكتاب)`
+      : `اقتباس [${citationId}] من صفحات الكتاب`;
+
+    return `<button type="button" class="talk-to-book-inline-citation-badge" data-citation-id="${citationId}" title="${tooltip}"><span class="talk-to-book-inline-citation-badge__inner">[${citationId}]</span></button>`;
+  });
 
   // 9. Style book titles and direct quotations inside «...» with an editorial quote span
   processed = processed.replace(
@@ -82,6 +98,7 @@ function prepareMarkdownSource(rawText) {
  * - Headers (`#`, `##`, `###`, `####`)
  * - Bullet lists (`*`, `-`) and numbered lists (`1.`, `2.`)
  * - Blockquotes (`>`), horizontal dividers (`---`), code blocks, and tables
+ * - Interactive numeric citation badges (`[1]`, `[2]`)
  * - Inline page chips (`[صفحة X]`)
  *
  * @param {Object} props
@@ -94,19 +111,39 @@ function prepareMarkdownSource(rawText) {
 export function TalkToBookMessageContent({
   content,
   isUser = false,
-  citations: _citations = [],
-  onCitationClick: _onCitationClick,
+  citations = [],
+  onCitationClick,
   onPageClick,
 }) {
   const formattedHtml = useMemo(() => {
     if (!content || typeof content !== "string") return "";
-    const prepared = prepareMarkdownSource(content);
+    const prepared = prepareMarkdownSource(content, citations);
     const parsedHtml = marked.parse(prepared);
     return sanitizeHtml(parsedHtml);
-  }, [content]);
+  }, [content, citations]);
 
-  // Event delegation to catch clicks on page chips [صفحة X]
+  // Event delegation to catch clicks on citation badges [1], [2] and legacy page chips [صفحة X]
   const handleContainerClick = (e) => {
+    // 1. Numeric citation badges [1], [2]
+    const citationBtn = e.target.closest(".talk-to-book-inline-citation-badge, [data-citation-id]");
+    if (citationBtn && onCitationClick) {
+      e.preventDefault();
+      e.stopPropagation();
+      const citationId = parseInt(citationBtn.getAttribute("data-citation-id"), 10);
+      const matched = Array.isArray(citations)
+        ? citations.find((c) => Number(c?.id) === citationId)
+        : null;
+
+      onCitationClick(
+        matched || {
+          id: citationId,
+          snippet: null,
+        }
+      );
+      return;
+    }
+
+    // 2. Legacy page chips [صفحة X]
     const pageEl = e.target.closest(".talk-to-book-inline-page");
     if (pageEl && onPageClick) {
       const pageNum = parseInt(pageEl.getAttribute("data-page"), 10);

@@ -1,0 +1,239 @@
+/**
+ * FlipboardMobileFold.css
+ * Precision 3D Calendar Half-Fold System for Mobile & Vertical iPad
+ * - Unified base layers for zero-flash page progression
+ * - Strict two-phase 90° face rendering (zero z-fighting & zero inverted text)
+ * - GPU-composited 3D transforms with hardware will-change acceleration
+ * - Subpixel clipping with 200% inner content
+ * - Center tactile crease line
+ */
+
+.flipboard-fold-stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: none;
+  background-color: var(--brand-black, #071916);
+  contain: layout paint;
+}
+
+.flipboard-fold-stage--dragging {
+  cursor: grabbing;
+}
+
+.flipboard-fold-stage img {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+  user-drag: none;
+  pointer-events: none;
+}
+
+/* -------------------------------------------------------------------------
+   1. Base Static Half Layers (Continuous visual baseline)
+   ------------------------------------------------------------------------- */
+.flipboard-fold-base {
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: calc(50% + 0.5px);
+  overflow: hidden;
+  z-index: 1;
+  contain: strict;
+}
+
+.flipboard-fold-base--top {
+  top: 0;
+}
+
+.flipboard-fold-base--bottom {
+  top: 50%;
+}
+
+/* -------------------------------------------------------------------------
+   2. Reusable 50% Half-Clipping Architecture
+   ------------------------------------------------------------------------- */
+.flipboard-half-clip {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+.flipboard-half-inner {
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 200%;
+  display: flex;
+  flex-direction: column;
+}
+
+.flipboard-half-inner--top {
+  top: 0;
+}
+
+.flipboard-half-inner--bottom {
+  top: -100%;
+}
+
+/* -------------------------------------------------------------------------
+   3. 3D Half-Fold Scene & Moving Flap
+   ------------------------------------------------------------------------- */
+.flipboard-fold-3d-scene {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  perspective: 1400px;
+  -webkit-perspective: 1400px;
+  perspective-origin: 50% 50%;
+  -webkit-perspective-origin: 50% 50%;
+  transform-style: flat;
+  overflow: hidden;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.flipboard-fold-flap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: calc(50% + 0.5px);
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  will-change: transform;
+  pointer-events: auto;
+}
+
+/* Swipe UP: Bottom half folds upward around center line */
+.flipboard-fold-flap--next {
+  top: 50%;
+  transform-origin: top center;
+  -webkit-transform-origin: top center;
+}
+
+/* Swipe DOWN: Top half folds downward around center line */
+.flipboard-fold-flap--prev {
+  top: 0;
+  transform-origin: bottom center;
+  -webkit-transform-origin: bottom center;
+}
+
+/* -------------------------------------------------------------------------
+   4. Flap Faces (Phase 1: Front, Phase 2: Back)
+   ------------------------------------------------------------------------- */
+.flipboard-flap-face {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.flipboard-flap-face--front {
+  transform: rotateX(0deg);
+  -webkit-transform: rotateX(0deg);
+}
+
+.flipboard-flap-face--back-next {
+  transform: rotateX(180deg);
+  -webkit-transform: rotateX(180deg);
+}
+
+.flipboard-flap-face--back-prev {
+  transform: rotateX(-180deg);
+  -webkit-transform: rotateX(-180deg);
+}
+
+/* -------------------------------------------------------------------------
+   5. Realistic Sinusoidal Lighting & Shadow Overlays
+   ------------------------------------------------------------------------- */
+.flipboard-flap-shade {
+  position: absolute;
+  inset: 0;
+  background-color: #000;
+  pointer-events: none;
+  z-index: 10;
+  will-change: opacity;
+}
+
+.flipboard-fold-under-shadow {
+  position: absolute;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+  z-index: 5;
+  will-change: opacity;
+}
+
+/* Soft cast shadow on top base when bottom flap lifts towards it */
+.flipboard-fold-under-shadow--top {
+  bottom: 0;
+  height: 60%;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.75) 0%,
+    rgba(0, 0, 0, 0.25) 50%,
+    rgba(0, 0, 0, 0) 100%
+  );
+}
+
+/* Soft cast shadow on bottom base when top flap folds down towards it */
+.flipboard-fold-under-shadow--bottom {
+  top: 0;
+  height: 60%;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.75) 0%,
+    rgba(0, 0, 0, 0.25) 50%,
+    rgba(0, 0, 0, 0) 100%
+  );
+}
+
+/* Ambient shadow around center hinge for exposed lower base */
+.flipboard-fold-under-shadow--hinge-bottom {
+  top: 0;
+  height: 40%;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.5) 0%,
+    rgba(0, 0, 0, 0) 100%
+  );
+}
+
+/* Ambient shadow around center hinge for exposed upper base */
+.flipboard-fold-under-shadow--hinge-top {
+  bottom: 0;
+  height: 40%;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.5) 0%,
+    rgba(0, 0, 0, 0) 100%
+  );
+}
+
+/* -------------------------------------------------------------------------
+   6. Tactile Center Crease Line
+   ------------------------------------------------------------------------- */
+.flipboard-fold-crease {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.22);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.12);
+  z-index: 25;
+  pointer-events: none;
+  transform: translateY(-50%);
+}

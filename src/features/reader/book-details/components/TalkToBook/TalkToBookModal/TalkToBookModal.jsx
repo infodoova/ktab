@@ -177,6 +177,7 @@ export function TalkToBookModal({
               {messages.map((msg) => {
                 const isUser = msg.role === "user";
                 const isOffTopic = msg.source === "REJECTED_OFF_TOPIC";
+                const isError = Boolean(msg.isError || msg.source === "ERROR");
                 const hasSnippets = Array.isArray(msg.citations) && msg.citations.length > 0;
                 const hasPageCitations = !hasSnippets && Array.isArray(msg.citedPages) && msg.citedPages.length > 0;
                 const isCopied = copiedMessageId === msg.id;
@@ -188,7 +189,9 @@ export function TalkToBookModal({
                       isUser
                         ? "talk-to-book-msg--user"
                         : "talk-to-book-msg--assistant"
-                    } ${isOffTopic ? "talk-to-book-msg--off-topic" : ""}`}
+                    } ${isOffTopic ? "talk-to-book-msg--off-topic" : ""} ${
+                      isError ? "talk-to-book-msg--error" : ""
+                    }`}
                   >
                     {!isUser && (
                       <div className="talk-to-book-msg__avatar-wrap">
@@ -262,7 +265,7 @@ export function TalkToBookModal({
                                     if (onCitationClick) onCitationClick(c);
                                   }}
                                   className="talk-to-book-msg__snippet-pill"
-                                  title={c.snippet || (c.page ? `صفحة ${c.page}` : "مرجع الكتاب")}
+                                  title={c.snippet ? `انقر للانتقال إلى: «${c.snippet}»` : "مرجع الكتاب"}
                                 >
                                   <span className="talk-to-book-msg__snippet-badge">[{c.id || i + 1}]</span>
                                   {c.page && <span className="talk-to-book-msg__page-pill">ص {c.page}</span>}
@@ -301,7 +304,12 @@ export function TalkToBookModal({
                             </span>
                           )}
 
-                          {isOffTopic ? (
+                          {isError ? (
+                            <span className="talk-to-book-msg__source-pill talk-to-book-msg__source-pill--error">
+                              <AlertCircle size={12} />
+                              تعذر توثيق الاقتباسات بدقة
+                            </span>
+                          ) : isOffTopic ? (
                             <span className="talk-to-book-msg__source-pill talk-to-book-msg__source-pill--off-topic">
                               <AlertCircle size={12} />
                               خارج نطاق الكتاب

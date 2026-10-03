@@ -770,7 +770,53 @@
   transform: translateY(-1px);
 }
 
-/* Non-pressable reference number in body text: [1], [2] — clean monochrome, no green, no italic */
+/* Interactive numeric citation badges: [1], [2] linked to cited snippets */
+.talk-to-book-inline-citation-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: baseline;
+  font-family: var(--font-english, "Montserrat", -apple-system, sans-serif) !important;
+  font-size: 0.76rem;
+  font-weight: 700;
+  font-style: normal !important;
+  font-variant-numeric: tabular-nums;
+  color: var(--brand-black, #0f172a);
+  background-color: var(--brand-teal-soft, #e6faf4);
+  border: 1px solid rgba(93, 227, 186, 0.6);
+  border-radius: 6px;
+  padding: 0.05rem 0.38rem;
+  margin: 0 0.22rem;
+  cursor: pointer;
+  line-height: 1.25;
+  text-decoration: none;
+  user-select: none;
+  transition: all 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.talk-to-book-inline-citation-badge:hover {
+  background-color: var(--brand-black, #0a0a0a);
+  color: var(--brand-white, #ffffff);
+  border-color: var(--brand-black, #0a0a0a);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(15, 23, 42, 0.12);
+}
+
+.talk-to-book-inline-citation-badge:active {
+  transform: scale(0.95);
+}
+
+.talk-to-book-inline-citation-badge:focus-visible {
+  outline: 2px solid var(--brand-teal, #5de3ba);
+  outline-offset: 1px;
+}
+
+.talk-to-book-inline-citation-badge__inner {
+  display: inline;
+}
+
+/* Fallback non-pressable reference number: [1], [2] */
 .talk-to-book-inline-ref {
   display: inline;
   font-family: var(--font-english, "Montserrat", -apple-system, sans-serif) !important;
@@ -852,6 +898,16 @@
 .talk-to-book-msg__formatted--user .talk-to-book-inline-page:hover {
   background-color: #ffffff;
   color: #0f172a;
+}
+.talk-to-book-msg__formatted--user .talk-to-book-inline-citation-badge {
+  background-color: rgba(255, 255, 255, 0.16);
+  color: var(--brand-white, #ffffff);
+  border-color: rgba(255, 255, 255, 0.28);
+}
+.talk-to-book-msg__formatted--user .talk-to-book-inline-citation-badge:hover {
+  background-color: var(--brand-white, #ffffff);
+  color: var(--brand-black, #0a0a0a);
+  border-color: var(--brand-white, #ffffff);
 }
 .talk-to-book-msg__formatted--user .talk-to-book-inline-ref {
   color: rgba(255, 255, 255, 0.85);
@@ -990,6 +1046,16 @@
 .talk-to-book-msg__source-pill--off-topic {
   color: #64748b;
   font-weight: 500;
+}
+
+.talk-to-book-msg__source-pill--error {
+  color: var(--color-danger, #ef4444);
+  font-weight: 600;
+}
+
+.talk-to-book-msg--error .talk-to-book-msg__bubble {
+  border-color: rgba(239, 68, 68, 0.28);
+  background-color: #ffffff;
 }
 
 /* --------------------------------------------------------------------------

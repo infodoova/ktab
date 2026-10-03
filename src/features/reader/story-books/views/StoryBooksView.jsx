@@ -1,24 +1,25 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/myui/layout";
 import { Plus } from "lucide-react";
 import { AlertToast } from "@/components/myui/AlertToast";
+import { DeleteConfirmModal } from "@/components/myui/DeleteConfirmModal/DeleteConfirmModal";
 import {
   StoryBooksGrid,
   StoryBookDetailsDrawer,
 } from "../components";
 import { useStoryBooks } from "../hooks/useStoryBooks";
+import { storyBooksService } from "../services/storyBooksService";
 import "./StoryBooksView.css";
 
 /**
  * Children's Story Books View for Reader.
- * Strictly follows Author architecture:
- * - Top-bar search & top action button in AppLayout
- * - Dedicated route for creating a new interactive story (/reader/story-books/new)
- * - Clean editorial section header with count
- * - 1:1 interactive story cards grid (mobile 2-column grid)
- * - 3-dots actions menu on each card: Preview, Details, Convert to PDF, Delete
- * - Left slide-over DetailsDrawer for story details
+ * Connected to live Spring Boot API:
+ * - Real storybooks listing
+ * - Dedicated wizard route for creating a new personalized story (/reader/story-books/new)
+ * - 1:1 story cards grid with real status badges and live covers
+ * - Real PDF download via presigned URLs
+ * - Side DetailsDrawer for reviewing generation, approving story/character, or resuming
  */
 export function StoryBooksView({ pageName = "قصص الأطفال" }) {
   const navigate = useNavigate();
@@ -29,15 +30,27 @@ export function StoryBooksView({ pageName = "قصص الأطفال" }) {
     searchQuery,
     setSearchQuery,
     handleClearFilters,
+    isFiltered,
+    fetchStories,
 
-    // Preview Drawer & Actions
+    // Details Drawer & Actions
     selectedStoryForPreview,
     handleCardClick,
     handleClosePreview,
-    handleDeleteStory,
+    handleCancelStory,
   } = useStoryBooks();
 
-  // Navigate to dedicated multi-step creation route (matching Author architecture)
+  const [storyToDelete, setStoryToDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleConfirmDelete = async () => {
+    if (!storyToDelete) return;
+    setDeleting(true);
+    const ok = await handleCancelStory(storyToDelete);
+    setDeleting(false);
+    if (ok) setStoryToDelete(null);
+  };
+
   const handleNavigateToCreate = () => {
     navigate("/reader/story-books/new", {
       state: {
@@ -75,19 +88,40 @@ export function StoryBooksView({ pageName = "قصص الأطفال" }) {
     });
   };
 
+  const handleCardPress = (story) => {
+    if (story?.status === "READY") {
+      handleStartReading(story);
+    } else {
+      handleCardClick(story);
+    }
+  };
+
   const handlePreviewStory = (story) => {
-    handleStartReading(story);
+    if (story?.status === "READY") {
+      handleStartReading(story);
+    } else {
+      handleCardClick(story);
+    }
   };
 
   const handleOpenDetails = (story) => {
     handleCardClick(story);
   };
 
-  const handleConvertToPdf = (story) => {
-    AlertToast(`جاري تجهيز وتحويل قصة «${story.title}» إلى ملف PDF...`, "INFO");
-    setTimeout(() => {
-      AlertToast(`تم إنشاء وتجهيز ملف الـ PDF لقصة «${story.title}» بنجاح`, "SUCCESS");
-    }, 1200);
+  const handleConvertToPdf = async (story) => {
+    if (!story?.id) return;
+    try {
+      AlertToast(`جاري جلب رابط تحميل نسخة الـ PDF لقصة «${story.title}»...`, "INFO");
+      const res = await storyBooksService.getStoryBookDownloadUrl(story.id);
+      if (res?.success && res.url) {
+        window.open(res.url, "_blank");
+        AlertToast("تم تجهيز رابط التحميل بنجاح", "SUCCESS");
+      } else {
+        AlertToast("ملف الـ PDF غير متوفر بعد", "WARNING");
+      }
+    } catch {
+      AlertToast("تعذر تحميل ملف الـ PDF حالياً", "ERROR");
+    }
   };
 
   const countLabel =
@@ -109,35 +143,45 @@ export function StoryBooksView({ pageName = "قصص الأطفال" }) {
       headerActions={headerActions}
     >
       <div className="child-storybooks-page">
-        {/* Editorial Section Header */}
-        <div className="child-storybooks-section-header">
-          <div className="child-storybooks-section-meta">
-            <h2 className="child-storybooks-section-title">قصص الأطفال التفاعلية</h2>
-            <span className="child-storybooks-section-count">
-              {totalCount} {countLabel}
-            </span>
-          </div>
-        </div>
-
-        {/* 1:1 Children Stories Grid (2-column on mobile) */}
+        {/* 1:1 Children Stories Grid */}
         <StoryBooksGrid
           stories={stories}
           loading={loading}
-          onCardClick={handleStartReading}
+          isFiltered={isFiltered}
+          onCardClick={handleCardPress}
           onClearFilters={handleClearFilters}
           onOpenCreateModal={handleNavigateToCreate}
           onPreview={handlePreviewStory}
           onDetails={handleOpenDetails}
           onConvertToPdf={handleConvertToPdf}
-          onDelete={handleDeleteStory}
+          onCancel={setStoryToDelete}
         />
 
-        {/* Story Book Details Drawer (Standard App Left Slide-Over) */}
+        {/* Story Book Details Drawer */}
         <StoryBookDetailsDrawer
           story={selectedStoryForPreview}
           isOpen={Boolean(selectedStoryForPreview)}
           onClose={handleClosePreview}
           onStartReading={handleStartReading}
+          onStatusUpdated={fetchStories}
+          onRequestCancel={(story) => {
+            handleClosePreview();
+            setStoryToDelete(story);
+          }}
+        />
+
+        <DeleteConfirmModal
+          isOpen={Boolean(storyToDelete)}
+          onClose={() => !deleting && setStoryToDelete(null)}
+          onConfirm={handleConfirmDelete}
+          loading={deleting}
+          requireMatch={false}
+          title="حذف القصة"
+          description="هل أنت متأكد من حذف قصة"
+          highlightText={storyToDelete?.titleAr || storyToDelete?.title || ""}
+          subDescription=" سيتم إيقاف إنشائها وإزالتها من قائمتك ولا يمكن التراجع."
+          confirmLabel="نعم، احذف القصة"
+          cancelLabel="تراجع"
         />
       </div>
     </AppLayout>

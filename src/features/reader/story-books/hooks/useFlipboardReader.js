@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import bunnyCover from "@/assets/images/children-stories/bunny.jpg";
 import { getStoryPages } from "../constants/storyPagesData";
 import { storyBooksService } from "../services/storyBooksService";
 import {
@@ -9,20 +8,20 @@ import {
 } from "../constants/readerBackgrounds";
 
 /**
- * Custom hook managing the 3D Flipboard Reader:
+ * Custom hook managing the 3D Flipboard Reader with live backend story data:
  * - Dual-page horizontal 3D book on PC & iPad Landscape
  * - Fullscreen vertical Flipboard on Mobile & iPad Portrait
  * - Book closing 3D animation upon reaching the end
  * - Background gallery management with persistent selection
  * - Web Audio page-flip & book-close synthesis
- * - Zero-flicker state tracking
+ * - Zero mock data
  */
 export function useFlipboardReader(storyId, initialStory = null) {
   const [story, setStory] = useState(initialStory);
-  const [loading, setLoading] = useState(!initialStory);
+  const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
   const [isFlipping, setIsFlipping] = useState(false);
-  const [flipDirection, setFlipDirection] = useState(null); // 'next' | 'prev' | null
+  const [flipDirection, setFlipDirection] = useState(null);
   const [isBookClosed, setIsBookClosed] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
 
@@ -36,9 +35,6 @@ export function useFlipboardReader(storyId, initialStory = null) {
   });
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
 
-  // Screen mode detection:
-  // PC & iPad Landscape: width >= 1024 AND width > height
-  // Mobile & iPad Portrait: width < 1024 OR height >= width
   const checkIsLandscapePC = useCallback(() => {
     if (typeof window === "undefined") return false;
     return window.innerWidth >= 1024 && window.innerWidth > window.innerHeight;
@@ -58,66 +54,88 @@ export function useFlipboardReader(storyId, initialStory = null) {
   const hasMovedSignificantly = useRef(false);
   const flipTimerRef = useRef(null);
 
-  // Fetch story if not passed in state
+  // Fetch live storybook from backend
   useEffect(() => {
-    if (initialStory) {
-      setStory(initialStory);
-      setLoading(false);
-      return;
-    }
-
     let isMounted = true;
     async function loadStory() {
       setLoading(true);
       try {
-        const res = await storyBooksService.getStoryBooks();
-        if (res?.success && res.data && isMounted) {
-          const found =
-            res.data.find((s) => String(s.id) === String(storyId)) || res.data[0];
-          setStory(found);
+        // Attempt 1: Fetch Reader Manifest (returns pages with signed presigned URLs)
+        const manifestRes = await storyBooksService.getStoryBookReader(storyId);
+        if (manifestRes?.success && manifestRes.data && isMounted) {
+          const manifest = manifestRes.data;
+          setStory({
+            id: manifest.bookId,
+            title: manifest.titleAr,
+            titleAr: manifest.titleAr,
+            pages: manifest.pages,
+            cover: manifest.pages?.[0]?.imageUrl || null,
+          });
+          return;
+        }
+
+        // Attempt 2: Fallback to storybook detail
+        const detailRes = await storyBooksService.getStoryBook(storyId);
+        if (detailRes?.success && detailRes.data && isMounted) {
+          const detail = detailRes.data;
+          setStory({
+            id: detail.id,
+            title: detail.titleAr,
+            titleAr: detail.titleAr,
+            childName: detail.childNameAr,
+            pages: detail.pages,
+            status: detail.status,
+            cover: detail.pages?.[0]?.imageUrl || null,
+          });
+          return;
+        }
+
+        // Attempt 3: Initial story if provided
+        if (initialStory && isMounted) {
+          setStory(initialStory);
         }
       } catch {
-        // Fallback gracefully
+        if (initialStory && isMounted) {
+          setStory(initialStory);
+        }
       } finally {
         if (isMounted) setLoading(false);
       }
     }
 
-    loadStory();
+    if (storyId) {
+      loadStory();
+    } else if (initialStory) {
+      setStory(initialStory);
+      setLoading(false);
+    }
+
     return () => {
       isMounted = false;
       if (flipTimerRef.current) clearTimeout(flipTimerRef.current);
     };
   }, [storyId, initialStory]);
 
-  // Generate pages content
+  // Generate pages content dynamically
   const pages = useMemo(() => {
     return getStoryPages(story);
   }, [story]);
 
   const totalPages = pages.length;
 
-  // Preload book cover and story pages in background to guarantee instant rendering
+  // Preload book cover and story pages in background
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined" || !pages || pages.length === 0) return;
 
-    const coverUrl = story?.cover || bunnyCover;
-    if (coverUrl) {
-      const coverImg = new Image();
-      coverImg.src = coverUrl;
-    }
+    pages.forEach((p) => {
+      if (p?.image) {
+        const img = new Image();
+        img.src = p.image;
+      }
+    });
+  }, [pages]);
 
-    if (pages && Array.isArray(pages)) {
-      pages.forEach((p) => {
-        if (p?.image) {
-          const img = new Image();
-          img.src = p.image;
-        }
-      });
-    }
-  }, [story?.cover, pages]);
-
-  // Responsive Dual-Page detection (Desktop / wide landscape tablet vs Portrait/Mobile)
+  // Responsive Dual-Page detection
   useEffect(() => {
     function handleResize() {
       const isLandscapePC = checkIsLandscapePC();
@@ -138,7 +156,7 @@ export function useFlipboardReader(storyId, initialStory = null) {
     };
   }, [checkIsLandscapePC]);
 
-  // Web Audio Synthesis for authentic physical paper turn sound
+  // Web Audio page-flip synthesis
   const playFlipSound = useCallback(() => {
     try {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -149,8 +167,7 @@ export function useFlipboardReader(storyId, initialStory = null) {
       const data = buffer.getChannelData(0);
 
       for (let i = 0; i < bufferSize; i++) {
-        data[i] =
-          (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.022));
+        data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.022));
       }
 
       const noise = ctx.createBufferSource();
@@ -170,11 +187,11 @@ export function useFlipboardReader(storyId, initialStory = null) {
       gain.connect(ctx.destination);
       noise.start();
     } catch {
-      // AudioContext policy suppression fallback
+      // Audio suppression fallback
     }
   }, []);
 
-  // Web Audio synthesis: realistic hardcover book close thud
+  // Web Audio hardcover book close thud
   const playCloseSound = useCallback(() => {
     try {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -185,8 +202,7 @@ export function useFlipboardReader(storyId, initialStory = null) {
       const data = buffer.getChannelData(0);
 
       for (let i = 0; i < bufferSize; i++) {
-        data[i] =
-          (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.038));
+        data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.038));
       }
 
       const noise = ctx.createBufferSource();
@@ -205,7 +221,7 @@ export function useFlipboardReader(storyId, initialStory = null) {
       gain.connect(ctx.destination);
       noise.start();
     } catch {
-      // Audio policy suppression fallback
+      // Audio suppression fallback
     }
   }, []);
 
@@ -217,11 +233,10 @@ export function useFlipboardReader(storyId, initialStory = null) {
     ? currentPage >= maxPage
     : currentPage >= totalPages - 1;
 
-  const canGoNext = !isBookClosed;
+  const canGoNext = !isBookClosed && totalPages > 0;
   const canGoPrev = currentPage > 0 || isBookClosed;
   const step = isDualPage ? 2 : 1;
 
-  // Navigate to Next Page (or Trigger Book Closing if on last page)
   const goToNextPage = useCallback(() => {
     if (isFlipping || isBookClosed) return;
 
@@ -248,7 +263,6 @@ export function useFlipboardReader(storyId, initialStory = null) {
     }, 700);
   }, [isFlipping, isBookClosed, isAtLastPage, step, maxPage, playFlipSound, playCloseSound]);
 
-  // Navigate to Previous Page (or Reopen Book if closed)
   const goToPrevPage = useCallback(() => {
     if (isFlipping) return;
 
@@ -273,7 +287,34 @@ export function useFlipboardReader(storyId, initialStory = null) {
     }, 700);
   }, [isFlipping, isBookClosed, canGoPrev, step, playFlipSound]);
 
-  // Restart Story from beginning (Page 1)
+  const goToNextPageInstant = useCallback(() => {
+    if (isAtLastPage) {
+      playCloseSound();
+      setIsClosing(true);
+      if (flipTimerRef.current) clearTimeout(flipTimerRef.current);
+      flipTimerRef.current = setTimeout(() => {
+        setIsBookClosed(true);
+        setIsClosing(false);
+      }, 650);
+      return;
+    }
+
+    playFlipSound();
+    setCurrentPage((prev) => Math.min(prev + step, maxPage));
+  }, [isAtLastPage, step, maxPage, playFlipSound, playCloseSound]);
+
+  const goToPrevPageInstant = useCallback(() => {
+    if (isBookClosed) {
+      playFlipSound();
+      setIsBookClosed(false);
+      setIsClosing(false);
+      return;
+    }
+
+    playFlipSound();
+    setCurrentPage((prev) => Math.max(prev - step, 0));
+  }, [isBookClosed, step, playFlipSound]);
+
   const restartStory = useCallback(() => {
     playFlipSound();
     setIsClosing(false);
@@ -281,7 +322,6 @@ export function useFlipboardReader(storyId, initialStory = null) {
     setCurrentPage(0);
   }, [playFlipSound]);
 
-  // Direct Page Jump
   const goToPage = useCallback(
     (targetIndex) => {
       if (isFlipping || targetIndex === currentPage) return;
@@ -305,7 +345,6 @@ export function useFlipboardReader(storyId, initialStory = null) {
     [isFlipping, currentPage, isDualPage, maxPage, playFlipSound]
   );
 
-  // Background gallery handlers
   const selectBackground = useCallback((id) => {
     setSelectedBgId(id);
     try {
@@ -337,7 +376,7 @@ export function useFlipboardReader(storyId, initialStory = null) {
     return getReaderBackground(selectedBgId);
   }, [selectedBgId]);
 
-  // Keyboard navigation (RTL & Vertical aware)
+  // Keyboard navigation
   useEffect(() => {
     function handleKeyDown(e) {
       if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
@@ -387,26 +426,14 @@ export function useFlipboardReader(storyId, initialStory = null) {
       touchStartY.current = null;
 
       if (isVerticalMode) {
-        // Vertical flip on mobile & iPad portrait:
-        // Swipe UP (diffY < -35) -> next page
-        // Swipe DOWN (diffY > 35) -> prev page
         if (Math.abs(diffY) > 35 && Math.abs(diffY) > Math.abs(diffX)) {
-          if (diffY < 0) {
-            goToNextPage();
-          } else {
-            goToPrevPage();
-          }
+          if (diffY < 0) goToNextPage();
+          else goToPrevPage();
         }
       } else {
-        // Horizontal flip on PC & iPad landscape:
-        // Swipe Left (diffX < -40) -> next page (in RTL)
-        // Swipe Right (diffX > 40) -> prev page
         if (Math.abs(diffX) > 40 && Math.abs(diffX) > Math.abs(diffY)) {
-          if (diffX < 0) {
-            goToNextPage();
-          } else {
-            goToPrevPage();
-          }
+          if (diffX < 0) goToNextPage();
+          else goToPrevPage();
         }
       }
     },
@@ -510,12 +537,15 @@ export function useFlipboardReader(storyId, initialStory = null) {
     isBookClosed,
     isClosing,
     restartStory,
-    bookCoverImg: story?.cover || bunnyCover,
-    bookTitle: story?.title || "حكاية ممتعة للأطفال",
+    bookCoverImg: story?.cover || story?.coverUrl || "",
+    bookTitle: story?.title || story?.titleAr || "حكاية ممتعة للأطفال",
 
     // Handlers
     goToNextPage,
     goToPrevPage,
+    goToNextPageInstant,
+    goToPrevPageInstant,
+    isAtLastPage,
     goToPage,
     handleTouchStart,
     handleTouchEnd,

@@ -1,27 +1,29 @@
 import React, { memo } from "react";
 import { BookMarked, RotateCcw } from "lucide-react";
-import { AGE_FILTERS, CATEGORY_FILTERS } from "../../constants/storyBooksConstants";
+import { AGE_BANDS } from "../../constants/storyBooksConstants";
 import "./StoryBookFilterBar.css";
 
 /**
- * Filter bar specifically tailored for children's storybooks:
- * Age segmentation pills with friendly emojis and horizontal scrolling category tags.
+ * Filter bar tailored for children's storybooks:
+ * Real age band segmentation pills and counter badge.
  */
 export const StoryBookFilterBar = memo(function StoryBookFilterBar({
-  selectedAge,
+  selectedAge = "ALL",
   onAgeChange,
-  selectedCategory,
-  onCategoryChange,
-  totalCount,
-  isFiltered,
+  totalCount = 0,
+  isFiltered = false,
   onClearFilters,
 }) {
+  const ageOptions = [
+    { id: "ALL", label: "جميع الأعمار" },
+    ...AGE_BANDS.map((a) => ({ id: a.value, label: a.label })),
+  ];
+
   return (
     <div className="child-filter-bar">
-      {/* Top Filter Level: Age Segmentation Pills */}
       <div className="child-filter-bar__age-row">
         <div className="child-filter-bar__age-group" role="tablist" aria-label="تصفية حسب الفئة العمرية">
-          {AGE_FILTERS.map((age) => {
+          {ageOptions.map((age) => {
             const isActive = selectedAge === age.id;
             return (
               <button
@@ -30,7 +32,7 @@ export const StoryBookFilterBar = memo(function StoryBookFilterBar({
                 role="tab"
                 aria-selected={isActive}
                 className={`child-filter-bar__age-btn ${isActive ? "child-filter-bar__age-btn--active" : ""}`}
-                onClick={() => onAgeChange(age.id)}
+                onClick={() => onAgeChange?.(age.id)}
               >
                 <span className="child-filter-bar__age-label">{age.label}</span>
               </button>
@@ -41,8 +43,8 @@ export const StoryBookFilterBar = memo(function StoryBookFilterBar({
         {/* Counter & Clear Action */}
         <div className="child-filter-bar__stats-wrap">
           <div className="child-filter-bar__count-badge">
-            <BookMarked size={14} className="child-filter-bar__sparkle-icon" />
-            <span>{totalCount} قصة للأبطال</span>
+            <BookMarked size={14} className="child-filter-bar__badge-icon" />
+            <span>{totalCount} قصة</span>
           </div>
 
           {isFiltered && (
@@ -50,31 +52,12 @@ export const StoryBookFilterBar = memo(function StoryBookFilterBar({
               type="button"
               className="child-filter-bar__clear-btn"
               onClick={onClearFilters}
-              title="إعادة ضبط كل خيارات التصفية"
+              title="إعادة ضبط خيارات التصفية"
             >
               <RotateCcw size={13} />
               <span>إعادة ضبط</span>
             </button>
           )}
-        </div>
-      </div>
-
-      {/* Bottom Filter Level: Category Pills */}
-      <div className="child-filter-bar__cat-scroll">
-        <div className="child-filter-bar__cat-list">
-          {CATEGORY_FILTERS.map((cat) => {
-            const isActive = selectedCategory === cat.id;
-            return (
-              <button
-                key={cat.id}
-                type="button"
-                className={`child-filter-bar__cat-pill ${isActive ? "child-filter-bar__cat-pill--active" : ""}`}
-                onClick={() => onCategoryChange(cat.id)}
-              >
-                {cat.label}
-              </button>
-            );
-          })}
         </div>
       </div>
     </div>

@@ -416,7 +416,35 @@ export function useTalkToBook({
 
         setMessages((prev) => [...prev, aiMessage]);
       } catch (err) {
-        AlertToast(err.message || "حدث خطأ غير متوقع أثناء معالجة السؤال.", "ERROR");
+        const is502Error =
+          err?.status === 502 ||
+          err?.code === "INVALID_BOOK_CITATIONS" ||
+          (typeof err?.message === "string" &&
+            (err.message.includes("توثيق الاقتباسات") ||
+             err.message.includes("502") ||
+             err.message.includes("Bad Gateway") ||
+             err.message.includes("Invalid citation") ||
+             err.message.includes("InvalidBookCitationsException")));
+
+        const fallbackMessage = is502Error
+          ? "تعذر توثيق الاقتباسات من صفحات الكتاب بدقة، يرجى إعادة صياغة السؤال."
+          : (err?.message || "تعذر إكمال الاستعلام حالياً. يرجى إعادة المحاولة.");
+
+        AlertToast(fallbackMessage, "ERROR");
+
+        const errorAssistantMessage = {
+          id: `ai-err-${Date.now()}`,
+          role: "assistant",
+          content: fallbackMessage,
+          isError: true,
+          citations: [],
+          citedPages: [],
+          cached: false,
+          source: "ERROR",
+          timestamp: new Date().toISOString(),
+        };
+
+        setMessages((prev) => [...prev, errorAssistantMessage]);
       } finally {
         setIsLoading(false);
       }
@@ -484,12 +512,31 @@ export function useTalkToBook({
     (citation) => {
       if (!bookId || !citation) return;
 
-      const pageNumber = typeof citation === "object" ? citation.page : citation;
-      const snippet = typeof citation === "object" ? citation.snippet : null;
+      let pageNumber = typeof citation === "object" ? citation.page : null;
+      let snippet = typeof citation === "object" ? citation.snippet : null;
+      const citationId =
+        typeof citation === "object" ? citation.id : (typeof citation === "number" ? citation : null);
+
+      // If snippet is missing from payload, scan conversation history for matching citation ID
+      if (!snippet && citationId != null) {
+        for (let i = messages.length - 1; i >= 0; i--) {
+          const msg = messages[i];
+          if (Array.isArray(msg?.citations)) {
+            const found = msg.citations.find((c) => Number(c?.id) === Number(citationId));
+            if (found) {
+              if (found.snippet) snippet = found.snippet;
+              if (found.page) pageNumber = found.page;
+              break;
+            }
+          }
+        }
+      }
+
+      setIsOpen(false);
 
       const queryParams = new URLSearchParams();
-      if (pageNumber) queryParams.set("page", pageNumber);
       if (snippet) queryParams.set("snippet", snippet);
+      if (pageNumber) queryParams.set("page", pageNumber);
 
       const queryString = queryParams.toString() ? `?${queryParams.toString()}` : "";
 
@@ -501,7 +548,7 @@ export function useTalkToBook({
         },
       });
     },
-    [bookId, navigate]
+    [bookId, messages, navigate]
   );
 
   /**

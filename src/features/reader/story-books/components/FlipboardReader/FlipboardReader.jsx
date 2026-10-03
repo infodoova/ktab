@@ -8,8 +8,8 @@ import {
   X,
   RotateCcw,
 } from "lucide-react";
-import { FlipboardPage } from "./FlipboardPage";
-import bunnyCover from "@/assets/images/children-stories/bunny.jpg";
+import { FlipboardPage, FlipboardImage } from "./FlipboardPage";
+import { FlipboardMobileFold } from "./FlipboardMobileFold";
 import { useFlipboardReader } from "../../hooks/useFlipboardReader";
 import "./FlipboardReader.css";
 
@@ -59,6 +59,9 @@ export const FlipboardReader = memo(function FlipboardReader({
     // Handlers
     goToNextPage,
     goToPrevPage,
+    goToNextPageInstant,
+    goToPrevPageInstant,
+    isAtLastPage,
     goToPage,
     handleTouchStart,
     handleTouchEnd,
@@ -105,24 +108,6 @@ export const FlipboardReader = memo(function FlipboardReader({
       : restingLeftPage
     : restingLeftPage;
 
-  // 2. Fullscreen Vertical Flipboard Mode (Mobile & iPad Portrait)
-  const verticalActivePage = pages[currentPage] || pages[0];
-  const verticalNextPage =
-    currentPage + 1 < totalPages ? pages[currentPage + 1] : null;
-  const verticalPrevPage = currentPage > 0 ? pages[currentPage - 1] : null;
-
-  const verticalUnderPage = isFlipping
-    ? flipDirection === "next"
-      ? verticalNextPage
-      : verticalActivePage
-    : verticalActivePage;
-
-  const verticalLeafPage = isFlipping
-    ? flipDirection === "next"
-      ? verticalActivePage
-      : verticalPrevPage
-    : null;
-
   return (
     <div
       className={`flipboard-reader-viewport ${
@@ -143,9 +128,11 @@ export const FlipboardReader = memo(function FlipboardReader({
       }
       onTouchStart={(e) => {
         if (isGalleryOpen) closeGallery();
-        handleTouchStart(e);
+        if (!isVerticalMode) handleTouchStart(e);
       }}
-      onTouchEnd={handleTouchEnd}
+      onTouchEnd={(e) => {
+        if (!isVerticalMode) handleTouchEnd(e);
+      }}
       onClick={() => {
         if (isGalleryOpen) closeGallery();
       }}
@@ -278,17 +265,11 @@ export const FlipboardReader = memo(function FlipboardReader({
               <div className="flipboard-closed-book-pages-edge" />
               {/* Front Cover Filled With Artwork */}
               <div className="flipboard-closed-book-front">
-                <img
+                <FlipboardImage
                   src={bookCoverImg || bunnyCover}
                   alt={bookTitle}
                   className="flipboard-closed-book-cover-img"
-                  onError={(e) => {
-                    if (e.currentTarget.src !== bunnyCover) {
-                      e.currentTarget.src = bunnyCover;
-                    }
-                  }}
                   loading="eager"
-                  decoding="sync"
                 />
               </div>
             </div>
@@ -339,7 +320,7 @@ export const FlipboardReader = memo(function FlipboardReader({
           <div
             className={`flipboard-book-container flipboard-book-container--dual ${
               isPointerDown ? "flipboard-book-container--dragging" : ""
-            }`}
+            } ${isFlipping ? "flipboard-book-container--flipping" : ""}`}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
@@ -357,16 +338,12 @@ export const FlipboardReader = memo(function FlipboardReader({
                 }}
                 title={canGoPrev ? "انقر للرجوع للصفحة السابقة" : undefined}
               >
-                {displayRightPage ? (
+                {displayRightPage && (
                   <FlipboardPage
                     page={displayRightPage}
                     pageIndex={currentPage}
                     totalPages={totalPages}
                   />
-                ) : (
-                  <div className="flipboard-dual-empty-back">
-                    <span className="flipboard-dual-empty-brand">كتاب</span>
-                  </div>
                 )}
               </div>
 
@@ -394,7 +371,7 @@ export const FlipboardReader = memo(function FlipboardReader({
                   <FlipboardPage
                     page={{
                       type: "cover",
-                      image: bookCoverImg || bunnyCover,
+                      image: bookCoverImg || "",
                       title: bookTitle,
                     }}
                     pageIndex={currentPage + 1}
@@ -453,75 +430,23 @@ export const FlipboardReader = memo(function FlipboardReader({
         </main>
       ) : (
         /* ------------------------------------------------------------------
-            3. Mode B: Mobile & iPad Portrait (Fullscreen Vertical Flipboard)
-            - 100% full screen edge-to-edge (no margins, no desk, no white box)
-            - Background is inside the page itself
-            - Pure vertical flip motion
-            - Zero page numbers, zero arrows
+            3. Mode B: Mobile & Vertical iPad (Flipboard-Style Calendar Fold)
+            - 100% full screen edge-to-edge
+            - 50% horizontal center hinge fold
+            - Real-time gesture tracking with 1:1 physics & rubber banding
+            - Two 90° phases with sinusoidal lighting & under-shadows
+            - Subtle tactile center crease line
             ------------------------------------------------------------------ */
-        <main
-          className="flipboard-vertical-stage"
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseLeave}
-        >
-          {/* Fullscreen Vertical Container */}
-          <div
-            className="flipboard-vertical-container"
-            onClick={(e) => {
-              if (e.target.closest("button") || e.target.closest("a")) return;
-              const rect = e.currentTarget.getBoundingClientRect();
-              const clickY = e.clientY - rect.top;
-              // Clicking bottom 50% moves next; clicking top 50% moves prev
-              if (clickY > rect.height * 0.5) {
-                if (canGoNext) goToNextPage();
-              } else {
-                if (canGoPrev) goToPrevPage();
-              }
-            }}
-          >
-            {/* Fullscreen Edge-to-Edge Page with Selected Background */}
-            <div
-              className="flipboard-vertical-page-wrapper"
-              style={{
-                backgroundImage: `url("${selectedBg.svg}")`,
-                backgroundColor: selectedBg.accent || "#0a1f1d",
-                backgroundRepeat: "no-repeat",
-                backgroundSize: "cover",
-                backgroundPosition: "center bottom",
-              }}
-            >
-              <FlipboardPage
-                page={verticalUnderPage}
-                pageIndex={currentPage}
-                totalPages={totalPages}
-                isVerticalFullscreen={true}
-              />
-            </div>
-
-            {/* 3D Vertical Flip Leaf */}
-            {isFlipping && verticalLeafPage && (
-              <div
-                className={`flipboard-vertical-leaf-3d flipboard-vertical-leaf-3d--${flipDirection}`}
-                style={{
-                  backgroundImage: `url("${selectedBg.svg}")`,
-                  backgroundColor: selectedBg.accent || "#0a1f1d",
-                  backgroundRepeat: "no-repeat",
-                  backgroundSize: "cover",
-                  backgroundPosition: "center bottom",
-                }}
-              >
-                <FlipboardPage
-                  page={verticalLeafPage}
-                  pageIndex={currentPage}
-                  totalPages={totalPages}
-                  isVerticalFullscreen={true}
-                />
-                <div className="flipboard-vertical-shadow" />
-              </div>
-            )}
-          </div>
+        <main className="flipboard-vertical-stage">
+          <FlipboardMobileFold
+            pages={pages}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            goToNextPage={goToNextPageInstant}
+            goToPrevPage={goToPrevPageInstant}
+            isAtLastPage={isAtLastPage}
+            selectedBg={selectedBg}
+          />
         </main>
       )}
     </div>

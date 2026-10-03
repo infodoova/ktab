@@ -1,6 +1,6 @@
 /* ==========================================================================
    StoryBooksView Styles - Professional Editorial Design (Eleven Reader + Apple)
-   Matches Author architecture with sticky top section header and 1:1 stories grid
+   Clean transparent container with 1:1 stories grid
    ========================================================================== */
 
 .child-storybooks-page {
@@ -10,82 +10,14 @@
   width: 100%;
   max-width: 100%;
   margin: 0;
-  padding: 0 1.25rem 3.5rem 1.25rem;
+  padding: 1.5rem 1.25rem 3.5rem 1.25rem;
   direction: rtl;
   box-sizing: border-box;
 }
 
 @media (min-width: 768px) {
   .child-storybooks-page {
-    padding: 0 2.5rem 5rem 2.5rem;
+    padding: 2rem 2.5rem 5rem 2.5rem;
     gap: var(--space-8, 32px);
   }
-}
-
-/* --------------------------------------------------------------------------
-   Sticky Section Header (Matching Author Architecture)
-   -------------------------------------------------------------------------- */
-.child-storybooks-section-header {
-  position: -webkit-sticky;
-  position: sticky;
-  top: 4rem;
-  z-index: 25;
-  background-color: var(--bg-secondary, #f8fafc);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: auto;
-  gap: 1.25rem;
-  margin-top: 0;
-  margin-right: -2.5rem;
-  margin-left: -2.5rem;
-  padding: 1rem 2.5rem;
-  border-bottom: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
-  box-sizing: border-box;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
-}
-
-@media (max-width: 767px) {
-  .child-storybooks-section-header {
-    top: calc(3.75rem - 1px);
-    margin-top: -1px;
-    margin-right: -1.25rem;
-    margin-left: -1.25rem;
-    padding: 0.75rem 1.25rem 0.875rem 1.25rem;
-  }
-}
-
-.child-storybooks-section-meta {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  min-width: 0;
-  flex-shrink: 0;
-}
-
-.child-storybooks-section-title {
-  font-size: 1.125rem;
-  font-weight: 800;
-  color: var(--brand-black, #0f172a);
-  margin: 0;
-  letter-spacing: -0.01em;
-  white-space: nowrap;
-  line-height: 1.2;
-}
-
-.child-storybooks-section-count {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  white-space: nowrap;
-  flex-shrink: 0;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--text-muted, #94a3b8);
-  font-variant-numeric: tabular-nums;
-  background-color: var(--bg-card, #ffffff);
-  border: 1px solid var(--border-color, #e2e8f0);
-  border-radius: var(--radius-full, 9999px);
-  padding: 2px 10px;
 }
