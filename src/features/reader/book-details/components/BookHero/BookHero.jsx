@@ -119,7 +119,10 @@ export function BookHero({
             {/* Add to My Library / Favorite Toggle Button */}
             <button
               type="button"
-              onClick={onToggleAssign}
+              onClick={(e) => {
+                e.preventDefault();
+                onToggleAssign?.(e);
+              }}
               disabled={isAssignLoading}
               className={`apple-book-hero__btn apple-book-hero__btn--secondary ${
                 isAssigned ? "is-assigned" : ""
@@ -145,7 +148,10 @@ export function BookHero({
             {/* Review Action Button */}
             <button
               type="button"
-              onClick={onOpenReviewModal}
+              onClick={(e) => {
+                e.preventDefault();
+                onOpenReviewModal?.(e);
+              }}
               disabled={isReviewLoading}
               className={`apple-book-hero__btn apple-book-hero__btn--secondary ${
                 isReviewed ? "is-reviewed" : ""

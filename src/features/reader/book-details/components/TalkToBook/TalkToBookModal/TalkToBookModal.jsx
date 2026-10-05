@@ -7,7 +7,7 @@ import {
   BookOpen,
   Zap,
   ExternalLink,
-  Sparkles,
+  Wand2,
   Copy,
   Check,
   AlertCircle,
@@ -72,6 +72,8 @@ const macWindowVariants = {
   },
 };
 
+
+
 export function TalkToBookModal({
   isOpen,
   onClose,
@@ -95,6 +97,25 @@ export function TalkToBookModal({
   messagesEndRef,
   textareaRef,
 }) {
+  // Freeze background scrolling when modal is open
+  React.useEffect(() => {
+    if (!isOpen) return;
+
+    const originalOverflow = document.body.style.overflow;
+    const originalPaddingRight = document.body.style.paddingRight;
+    const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
+
+    document.body.style.overflow = "hidden";
+    if (scrollBarWidth > 0) {
+      document.body.style.paddingRight = `${scrollBarWidth}px`;
+    }
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      document.body.style.paddingRight = originalPaddingRight;
+    };
+  }, [isOpen]);
+
   const canClear =
     (Array.isArray(messages) &&
       (messages.length > 1 || messages.some((m) => m.role === "user"))) ||
@@ -131,20 +152,15 @@ export function TalkToBookModal({
             {/* Header Section */}
             <header className="talk-to-book-dialog__header">
               <div className="talk-to-book-dialog__header-info">
-                <div className="talk-to-book-dialog__header-row">
-                  <div className="talk-to-book-dialog__header-icon-wrap" aria-hidden="true">
-                    <TalkToBookIcon size={15} />
-                  </div>
-                  <div className="talk-to-book-dialog__header-titles">
-                    <h3 className="talk-to-book-dialog__title">
-                      تحدث مع الكتاب
-                    </h3>
-                    {bookTitle && (
-                      <p className="talk-to-book-dialog__book-subtitle" title={bookTitle}>
-                        {bookTitle}
-                      </p>
-                    )}
-                  </div>
+                <div className="talk-to-book-dialog__header-titles">
+                  <h3 className="talk-to-book-dialog__title">
+                    تحدث مع الكتاب
+                  </h3>
+                  {bookTitle && (
+                    <p className="talk-to-book-dialog__book-subtitle" title={bookTitle}>
+                      {bookTitle}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -196,7 +212,7 @@ export function TalkToBookModal({
                     {!isUser && (
                       <div className="talk-to-book-msg__avatar-wrap">
                         <div className="talk-to-book-msg__avatar" aria-hidden="true">
-                          <TalkToBookIcon size={12} />
+                          <TalkToBookIcon size={16} />
                         </div>
                       </div>
                     )}
@@ -332,7 +348,7 @@ export function TalkToBookModal({
               {isLoading && (
                 <div className="talk-to-book-msg talk-to-book-msg--assistant">
                   <div className="talk-to-book-msg__avatar">
-                    <TalkToBookIcon size={13} />
+                    <TalkToBookIcon size={16} />
                   </div>
                   <div className="talk-to-book-msg__bubble talk-to-book-msg__bubble--loading">
                     <div className="talk-to-book-typing-indicator" aria-label="جاري كتابة الإجابة">
@@ -374,7 +390,7 @@ export function TalkToBookModal({
                       aria-label="اقتراح سؤال ذكي"
                       disabled={isLoading}
                     >
-                      <Sparkles size={14} strokeWidth={2} />
+                      <Wand2 size={14} strokeWidth={2} />
                     </button>
 
                     <span

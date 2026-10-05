@@ -1,0 +1,6 @@
+.talk-to-book-icon {
+  display: block;
+  flex-shrink: 0;
+  color: currentColor;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}

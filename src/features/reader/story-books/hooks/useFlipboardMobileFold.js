@@ -108,8 +108,9 @@ export function useFlipboardMobileFold({
       if (isAnimating || isDragging) return;
 
       if (direction === "next") {
-        if (currentPage >= totalPages - 1) {
+        if (isAtLastPage || currentPage >= totalPages - 1) {
           if (onCloseStory) onCloseStory();
+          else if (onNext) onNext();
           return;
         }
         setFoldDirection("next");
@@ -222,7 +223,7 @@ export function useFlipboardMobileFold({
 
       if (diffY < 0) {
         // Dragging UP -> Next Page
-        if (currentPage >= totalPages - 1) {
+        if (isAtLastPage || currentPage >= totalPages - 1) {
           // Boundary rubber-band resistance on last page
           isRubberBanding.current = true;
           const pull = Math.min(1, Math.abs(diffY) / viewportHeight);
@@ -316,8 +317,9 @@ export function useFlipboardMobileFold({
 
       animateToAngle(180, duration, () => {
         if (foldDirection === "next") {
-          if (currentPage >= totalPages - 1) {
+          if (isAtLastPage || currentPage >= totalPages - 1) {
             if (onCloseStory) onCloseStory();
+            else if (onNext) onNext();
           } else {
             if (onNext) onNext();
           }

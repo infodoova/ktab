@@ -496,10 +496,6 @@ export const StoryBookDetailsDrawer = memo(function StoryBookDetailsDrawer({
                     borderColor: statusConfig.border || statusConfig.color || "#0f172a",
                   }}
                 >
-                  <span
-                    className={`child-story-drawer__status-dot ${["DRAFT", "ILLUSTRATING", "QA", "RENDERING"].includes(status) || isWaitingForCharacter ? "child-story-drawer__status-dot--pulsing" : ""}`}
-                    style={{ backgroundColor: statusConfig.color || "#0f172a" }}
-                  />
                   <span>{statusConfig.label}</span>
                 </div>
                 <span className="child-story-drawer__section-percent">{getProgressPercent(status, isStoryApproved)}%</span>

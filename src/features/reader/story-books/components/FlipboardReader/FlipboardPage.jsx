@@ -50,9 +50,8 @@ export const FlipboardImage = memo(function FlipboardImage({
   return (
     <div className="flipboard-img-container">
       {!isLoaded && !hasError && (
-        <div className="flipboard-img-skeleton" aria-hidden="true">
-          <div className="flipboard-img-skeleton__shimmer" />
-          <div className="flipboard-img-skeleton__spinner" />
+        <div className="flipboard-img-loader" aria-hidden="true">
+          <div className="flipboard-img-spinner" />
         </div>
       )}
       {hasError ? (
@@ -78,18 +77,16 @@ export const FlipboardImage = memo(function FlipboardImage({
 });
 
 /**
- * Pure presentation page component strictly designed for children's books:
- * - 1 square (1:1) artwork image per page
- * - 1 to 2 small sentences at max per page
- * - Starts immediately on page 1 with zero delay
- * - Zero bottom buttons across all pages
- * - Ends with the book cover filled
+ * Pure 1:1 Full-Artwork Story Page with Closed Captions (CC) Overlay:
+ * - 100% full-page 1:1 square artwork edge-to-edge
+ * - Narrative text overlaid as cinematic Closed Captions (CC)
+ * - Discreet corner page counter
  */
 export const FlipboardPage = memo(function FlipboardPage({
   page,
   pageIndex,
   totalPages,
-  isVerticalFullscreen = false,
+  isMobileSlot = false,
 }) {
   if (!page) return null;
 
@@ -101,114 +98,55 @@ export const FlipboardPage = memo(function FlipboardPage({
     celebrationText,
   } = page;
 
+  const showCounter = totalPages > 1 && type !== "cover";
+
   return (
     <div
       className={`flipboard-page flipboard-page--${type} ${
-        isVerticalFullscreen ? "flipboard-page--fullscreen" : ""
+        isMobileSlot ? "flipboard-page--mobile-slot" : ""
       }`}
       dir="rtl"
     >
-      {/* ------------------------------------------------------------------
-          1. Cover Page (Book Cover Filled - Placed at the end of the story)
-          ------------------------------------------------------------------ */}
-      {type === "cover" && (
-        <div className="flipboard-page__wrapper flipboard-page__wrapper--cover-filled">
-          <div className="flipboard-page__cover-filled-wrap">
-            {image ? (
-              <FlipboardImage
-                src={image}
-                alt={title || "غلاف الحكاية"}
-                className="flipboard-page__cover-filled-img"
-                loading="eager"
-              />
-            ) : (
-              <div className="flipboard-page__fallback-wrap">
-                <img src={brandIconImg} alt="" className="flipboard-page__fallback-logo" />
-                <h2 className="flipboard-page__fallback-title">{title}</h2>
-              </div>
-            )}
+      <div className="flipboard-page__canvas">
+        {/* 1. Full 1:1 Artwork (Edge-to-Edge) */}
+        {image ? (
+          <FlipboardImage
+            src={image}
+            alt={title || "مشهد القصة"}
+            className="flipboard-page__artwork"
+            loading="eager"
+          />
+        ) : (
+          <div className="flipboard-page__fallback-art">
+            <img src={brandIconImg} alt="" className="flipboard-page__fallback-logo" />
+            {title && <span className="flipboard-page__fallback-title">{title}</span>}
           </div>
-        </div>
-      )}
+        )}
 
-      {/* ------------------------------------------------------------------
-          2. Standard Story Page (1:1 image + 1-2 small sentences)
-          ------------------------------------------------------------------ */}
-      {type === "story" && (
-        <div className="flipboard-page__wrapper">
-          <div className="flipboard-page__image-wrap">
-            {image ? (
-              <FlipboardImage
-                src={image}
-                alt=""
-                className="flipboard-page__image"
-                loading="eager"
-              />
-            ) : (
-              <div className="flipboard-page__image-placeholder">
-                <img src={brandIconImg} alt="" className="flipboard-page__fallback-logo" />
-              </div>
-            )}
-          </div>
-
-          <div
-            className={`flipboard-page__text-wrap ${
-              isVerticalFullscreen ? "flipboard-page__text-wrap--glass" : ""
-            }`}
-          >
-            <p className="flipboard-page__narrative">{narrative}</p>
-          </div>
-
-          {totalPages > 1 && (
-            <div className="flipboard-page__footer">
-              <span className="flipboard-page__counter">
-                {page.pageNumber || pageIndex + 1}
-              </span>
+        {/* 2. Closed Captions (CC) Overlay */}
+        {(narrative || celebrationText || (type === "cover" && title)) && (
+          <div className="flipboard-page__cc-container" dir="rtl">
+            <div className="flipboard-page__cc-pill">
+              {celebrationText && (
+                <span className="flipboard-page__cc-badge">{celebrationText}</span>
+              )}
+              {type === "cover" && !narrative && title && (
+                <span className="flipboard-page__cc-title">{title}</span>
+              )}
+              {narrative && (
+                <p className="flipboard-page__cc-text">{narrative}</p>
+              )}
             </div>
-          )}
-        </div>
-      )}
-
-      {/* ------------------------------------------------------------------
-          3. Ending Narrative Page (Pure text & image, zero buttons)
-          ------------------------------------------------------------------ */}
-      {type === "ending" && (
-        <div className="flipboard-page__wrapper">
-          <div className="flipboard-page__image-wrap">
-            {image ? (
-              <FlipboardImage
-                src={image}
-                alt=""
-                className="flipboard-page__image"
-                loading="eager"
-              />
-            ) : (
-              <div className="flipboard-page__image-placeholder">
-                <img src={brandIconImg} alt="" className="flipboard-page__fallback-logo" />
-              </div>
-            )}
           </div>
+        )}
 
-          <div
-            className={`flipboard-page__text-wrap ${
-              isVerticalFullscreen ? "flipboard-page__text-wrap--glass" : ""
-            }`}
-          >
-            {celebrationText && (
-              <h2 className="flipboard-page__ending-title">{celebrationText}</h2>
-            )}
-            <p className="flipboard-page__narrative">{narrative}</p>
+        {/* 3. Discreet Corner Page Badge */}
+        {showCounter && (
+          <div className="flipboard-page__counter-badge" aria-label={`صفحة ${page.pageNumber || pageIndex + 1}`}>
+            {page.pageNumber || pageIndex + 1}
           </div>
-
-          {totalPages > 1 && (
-            <div className="flipboard-page__footer">
-              <span className="flipboard-page__counter">
-                {page.pageNumber || pageIndex + 1}
-              </span>
-            </div>
-          )}
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 });

@@ -196,47 +196,34 @@
 .apple-book-reviews__grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1rem;
+  gap: 0.85rem;
 }
 
 @media (min-width: 640px) {
   .apple-book-reviews__grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.25rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .apple-book-reviews__grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(280px, 360px));
+    gap: 1rem;
   }
 }
 
 .apple-book-reviews__card {
-  background-color: var(--bg-primary);
-  border: 1px solid var(--border-card);
-  border-radius: 1.15rem;
-  padding: 1.35rem;
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 1rem;
+  padding: 0.95rem 1.15rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03), 0 1px 3px rgba(0, 0, 0, 0.02);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-  min-height: 120px;
+  gap: 0.55rem;
+  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
   box-sizing: border-box;
-}
-
-@media (min-width: 640px) {
-  .apple-book-reviews__card {
-    border-radius: 1.25rem;
-    padding: 1.6rem;
-  }
+  width: 100%;
 }
 
 .apple-book-reviews__card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.07);
-  border-color: rgba(0, 0, 0, 0.18);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px -2px rgba(0, 0, 0, 0.07);
+  border-color: rgba(0, 0, 0, 0.14);
 }
 
 .apple-book-reviews__card-header {
@@ -250,25 +237,24 @@
 .apple-book-reviews__card-user {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
+  gap: 0.6rem;
   min-width: 0;
 }
 
 .apple-book-reviews__card-avatar {
-  width: 2.35rem;
-  height: 2.35rem;
-  min-width: 2.35rem;
+  width: 2.1rem;
+  height: 2.1rem;
+  min-width: 2.1rem;
   border-radius: 9999px;
-  background-color: var(--bg-secondary);
-  border: 1px solid var(--border-subtle);
-  color: var(--brand-black);
+  background-color: #18181b;
+  color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.875rem;
-  font-weight: 800;
+  font-size: 0.8125rem;
+  font-weight: 700;
   user-select: none;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
+  flex-shrink: 0;
 }
 
 .apple-book-reviews__card-info {
@@ -279,18 +265,20 @@
 }
 
 .apple-book-reviews__card-author {
-  font-size: 0.875rem;
-  font-weight: 800;
-  color: var(--brand-black);
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #0f172a;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 1.25;
 }
 
 .apple-book-reviews__card-date {
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: var(--text-subtle);
+  font-size: 0.7rem;
+  font-weight: 450;
+  color: #94a3b8;
+  line-height: 1;
 }
 
 .apple-book-reviews__card-stars {
@@ -301,7 +289,7 @@
 }
 
 .apple-book-reviews__star {
-  color: var(--border-card);
+  color: #e2e8f0;
 }
 
 .apple-book-reviews__star.is-filled {
@@ -310,16 +298,12 @@
 }
 
 .apple-book-reviews__card-text {
-  font-size: 0.875rem;
-  line-height: 1.65;
-  color: var(--brand-black);
+  font-size: 0.84375rem;
+  line-height: 1.5;
+  color: #334155;
   font-weight: 450;
-  letter-spacing: -0.005em;
   margin: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 4;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  word-break: break-word;
 }
 
 /* ─────────────────────────────────────────────────────────────

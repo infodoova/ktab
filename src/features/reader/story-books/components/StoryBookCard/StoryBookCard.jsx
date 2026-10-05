@@ -120,10 +120,6 @@ export const StoryBookCard = memo(function StoryBookCard({
               borderColor: statusConfig.border || statusConfig.color || "#0f172a",
             }}
           >
-            <span
-              className={`ktab-child-story-card__status-dot ${(["DRAFT", "ILLUSTRATING", "QA", "RENDERING"].includes(status) || isApprovedAndGeneratingChar) ? "ktab-child-story-card__status-dot--pulsing" : ""}`}
-              style={{ backgroundColor: statusConfig.color || "#0f172a" }}
-            />
             <span>{statusConfig.label}</span>
           </div>
         )}

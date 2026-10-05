@@ -225,29 +225,21 @@ export function useFlipboardReader(storyId, initialStory = null) {
     }
   }, []);
 
-  const maxPage = isDualPage
-    ? Math.floor(Math.max(0, totalPages - 1) / 2) * 2
-    : Math.max(0, totalPages - 1);
-
-  const isAtLastPage = isDualPage
-    ? currentPage >= maxPage
-    : currentPage >= totalPages - 1;
+  // 2 pages per screen on both desktop (dual spread) and mobile (stacked calendar)
+  const step = 2;
+  const maxPage = Math.floor(Math.max(0, totalPages - 1) / 2) * 2;
+  const isAtLastPage = currentPage >= maxPage;
 
   const canGoNext = !isBookClosed && totalPages > 0;
   const canGoPrev = currentPage > 0 || isBookClosed;
-  const step = isDualPage ? 2 : 1;
 
   const goToNextPage = useCallback(() => {
     if (isFlipping || isBookClosed) return;
 
     if (isAtLastPage) {
       playCloseSound();
-      setIsClosing(true);
-      if (flipTimerRef.current) clearTimeout(flipTimerRef.current);
-      flipTimerRef.current = setTimeout(() => {
-        setIsBookClosed(true);
-        setIsClosing(false);
-      }, 650);
+      setIsClosing(false);
+      setIsBookClosed(true);
       return;
     }
 
@@ -290,12 +282,8 @@ export function useFlipboardReader(storyId, initialStory = null) {
   const goToNextPageInstant = useCallback(() => {
     if (isAtLastPage) {
       playCloseSound();
-      setIsClosing(true);
-      if (flipTimerRef.current) clearTimeout(flipTimerRef.current);
-      flipTimerRef.current = setTimeout(() => {
-        setIsBookClosed(true);
-        setIsClosing(false);
-      }, 650);
+      setIsClosing(false);
+      setIsBookClosed(true);
       return;
     }
 
@@ -327,9 +315,7 @@ export function useFlipboardReader(storyId, initialStory = null) {
       if (isFlipping || targetIndex === currentPage) return;
       setIsBookClosed(false);
       setIsClosing(false);
-      const normalized = isDualPage
-        ? Math.floor(targetIndex / 2) * 2
-        : targetIndex;
+      const normalized = Math.floor(targetIndex / 2) * 2;
       const clamped = Math.max(0, Math.min(normalized, maxPage));
       playFlipSound();
       setIsFlipping(true);

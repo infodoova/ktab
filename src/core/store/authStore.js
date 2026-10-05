@@ -30,7 +30,13 @@ function saveUserToStorage(user) {
 function getUserFromStorage() {
   try {
     const raw = localStorage.getItem(USER_STORAGE_KEY);
-    return raw ? JSON.parse(raw) : null;
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed === "object") {
+      parsed.userId = parsed.userId ?? parsed.id;
+      parsed.id = parsed.id ?? parsed.userId;
+    }
+    return parsed;
   } catch {
     return null;
   }
@@ -96,11 +102,15 @@ export const useAuthStore = create((set, get) => ({
       if (dataObj && (dataObj.id !== undefined || dataObj.userId !== undefined || dataObj.email !== undefined || dataObj.role !== undefined)) {
         userObj = {
           ...dataObj,
+          userId: dataObj.userId ?? dataObj.id,
+          id: dataObj.id ?? dataObj.userId,
           role: normalizeRole(dataObj.role),
         };
       } else if (payload.user) {
         userObj = {
           ...payload.user,
+          userId: payload.user.userId ?? payload.user.id,
+          id: payload.user.id ?? payload.user.userId,
           role: normalizeRole(payload.user.role),
         };
       } else if (tokenStr) {
@@ -108,6 +118,8 @@ export const useAuthStore = create((set, get) => ({
         if (decoded) {
           userObj = {
             ...decoded,
+            userId: decoded.userId ?? decoded.id,
+            id: decoded.id ?? decoded.userId,
             role: normalizeRole(decoded.role),
           };
         }

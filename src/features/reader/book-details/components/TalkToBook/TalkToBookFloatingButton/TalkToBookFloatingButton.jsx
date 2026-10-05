@@ -21,7 +21,7 @@ export function TalkToBookFloatingButton({ isOpen, onClick }) {
       title="تحدث مع الكتاب"
     >
       <span className="talk-to-book-floating-btn__core">
-        <TalkToBookIcon size={26} className="talk-to-book-floating-btn__icon" />
+        <TalkToBookIcon size={22} className="talk-to-book-floating-btn__icon" />
       </span>
 
       {/* Hover Tooltip Label (Desktop) */}

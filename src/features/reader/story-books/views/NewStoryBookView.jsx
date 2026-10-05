@@ -35,7 +35,6 @@ import {
   LANGUAGE_VARIETIES,
   TASHKEEL_LEVELS,
 } from "../constants/storyBooksConstants";
-import brandIconImg from "@/assets/logo/BrandIcon.png";
 import "./NewStoryBookView.css";
 
 /**
@@ -670,20 +669,17 @@ export function NewStoryBookView({ pageName = "ابتكار قصة أطفال ج
             <div className="new-child-story-step">
 
               <div className="new-child-story-review-card">
-                <div className="new-child-story-review-cover-wrap">
-                  <div className="new-child-story-review-fallback">
-                    <img src={brandIconImg} alt="" className="new-child-story-review-logo" />
-                    <span className="new-child-story-review-logo-text">كتاب للأطفال</span>
-                  </div>
-                  <div className="new-child-story-review-badge">
-                    <span>{dynamicAgeBands.find((a) => a.value === selectedChild?.ageBand)?.label || "قصة أطفال"}</span>
-                  </div>
-                </div>
-
                 <div className="new-child-story-review-details">
-                  <span className="new-child-story-review-category">
-                    {dynamicVarieties.find((v) => v.value === storyData.variety)?.label} • {storyData.pageCount} صفحة
-                  </span>
+                  <div className="new-child-story-review-header">
+                    <span className="new-child-story-review-category">
+                      {dynamicVarieties.find((v) => v.value === storyData.variety)?.label} • {storyData.pageCount} صفحة
+                    </span>
+                    {selectedChild && (
+                      <div className="new-child-story-review-badge">
+                        <span>{dynamicAgeBands.find((a) => a.value === selectedChild?.ageBand)?.label || "قصة أطفال"}</span>
+                      </div>
+                    )}
+                  </div>
 
                   <h3 className="new-child-story-review-title">
                     {selectedBlueprint?.titleAr || "مغامرة البطل الصغير"}

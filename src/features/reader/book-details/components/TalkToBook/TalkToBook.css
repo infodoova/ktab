@@ -15,41 +15,41 @@
   bottom: 2.25rem;
   right: 2.25rem;
   z-index: 80;
-  width: 3.65rem;
-  height: 3.65rem;
+  width: 3.5rem;
+  height: 3.5rem;
   border-radius: 9999px;
-  background: var(--brand-black, #0a0a0a);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: var(--brand-white, #ffffff);
+  background: #000000;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #ffffff;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   outline: none;
   padding: 0;
-  box-shadow: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18), 0 1px 3px rgba(0, 0, 0, 0.08);
   transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
               background-color 0.2s ease,
+              box-shadow 0.2s ease,
               border-color 0.2s ease;
   -webkit-tap-highlight-color: transparent;
 }
 
 .talk-to-book-floating-btn:hover {
-  transform: translateY(-2px) scale(1.04);
-  background: var(--brand-black, #0a0a0a);
-  border-color: rgba(255, 255, 255, 0.12);
-  box-shadow: none;
+  transform: translateY(-2px) scale(1.05);
+  background: #000000;
+  border-color: rgba(255, 255, 255, 0.24);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.24);
 }
 
 .talk-to-book-floating-btn:active {
   transform: scale(0.94);
-  box-shadow: none;
 }
 
 .talk-to-book-floating-btn--active {
-  background: var(--brand-black, #0a0a0a);
-  border-color: var(--brand-teal, #5de3ba);
-  box-shadow: none;
+  background: #000000;
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.15);
 }
 
 .talk-to-book-floating-btn__core {
@@ -103,9 +103,11 @@
   position: fixed;
   inset: 0;
   z-index: 150;
-  background-color: rgba(15, 23, 42, 0.14);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  background-color: rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  overscroll-behavior: contain;
+  touch-action: none;
 }
 
 /* --------------------------------------------------------------------------
@@ -118,15 +120,16 @@
   display: flex;
   flex-direction: column;
   background-color: #ffffff;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  box-shadow: 0 20px 48px -12px rgba(15, 23, 42, 0.1),
-              0 3px 10px rgba(15, 23, 42, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 20px 48px -12px rgba(0, 0, 0, 0.16),
+              0 3px 10px rgba(0, 0, 0, 0.06);
   direction: rtl;
   font-family: var(--font-arabic);
   overflow: hidden;
   box-sizing: border-box;
   transform-origin: bottom right;
   will-change: transform, opacity;
+  overscroll-behavior: contain;
 }
 
 /* Desktop Presentation Mode */
@@ -236,16 +239,17 @@
 
 /* Header Emblem Control */
 .talk-to-book-dialog__header-icon-wrap {
-  width: 2.1rem;
-  height: 2.1rem;
+  width: 2rem;
+  height: 2rem;
   border-radius: 9999px;
-  background-color: var(--brand-white, #ffffff);
-  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
+  background-color: #000000;
+  color: #ffffff;
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
 }
 
 .talk-to-book-dialog__header-titles {
@@ -330,7 +334,7 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  background-color: #f8fafc;
+  background-color: #ffffff;
 }
 
 .talk-to-book-msg {
@@ -369,8 +373,8 @@
   width: 1.65rem;
   height: 1.65rem;
   border-radius: 9999px;
-  background-color: var(--brand-white, #ffffff);
-  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -481,28 +485,28 @@
 
 /* User Message Bubble: Crisp Solid Black with Balanced Padding */
 .talk-to-book-msg--user .talk-to-book-msg__bubble {
-  background-color: var(--brand-black, #0f172a);
+  background-color: #000000;
   color: #ffffff;
-  border: 1px solid var(--brand-black, #0f172a);
-  border-radius: 1.15rem 1.15rem 0.35rem 1.15rem;
+  border: 1px solid #000000;
+  border-radius: 1.25rem 1.25rem 0.35rem 1.25rem;
   padding: 0.75rem 1.15rem;
-  box-shadow: 0 2px 6px -1px rgba(15, 23, 42, 0.14);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Assistant Message Bubble: Crisp White with Defined Border */
+/* Assistant Message Bubble: Apple Crisp Soft Bubble */
 .talk-to-book-msg--assistant .talk-to-book-msg__bubble {
-  background-color: #ffffff;
-  color: #0f172a;
-  border: 1px solid rgba(15, 23, 42, 0.1);
-  border-radius: 1.15rem 1.15rem 1.15rem 0.35rem;
-  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
+  background-color: #f5f5f7;
+  color: #1d1d1f;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  border-radius: 1.25rem 1.25rem 1.25rem 0.35rem;
+  box-shadow: none;
 }
 
 /* Off-Topic Refusal Variant: Strictly Monochrome Black & White */
 .talk-to-book-msg--off-topic .talk-to-book-msg__bubble {
-  background-color: #ffffff;
-  border-color: rgba(15, 23, 42, 0.16);
-  color: #0f172a;
+  background-color: #f5f5f7;
+  border-color: rgba(0, 0, 0, 0.08);
+  color: #1d1d1f;
 }
 
 .talk-to-book-msg__text {
@@ -781,9 +785,9 @@
   font-weight: 700;
   font-style: normal !important;
   font-variant-numeric: tabular-nums;
-  color: var(--brand-black, #0f172a);
-  background-color: var(--brand-teal-soft, #e6faf4);
-  border: 1px solid rgba(93, 227, 186, 0.6);
+  color: #000000;
+  background-color: #f5f5f7;
+  border: 1px solid rgba(0, 0, 0, 0.12);
   border-radius: 6px;
   padding: 0.05rem 0.38rem;
   margin: 0 0.22rem;
@@ -796,9 +800,9 @@
 }
 
 .talk-to-book-inline-citation-badge:hover {
-  background-color: var(--brand-black, #0a0a0a);
-  color: var(--brand-white, #ffffff);
-  border-color: var(--brand-black, #0a0a0a);
+  background-color: #000000;
+  color: #ffffff;
+  border-color: #000000;
   transform: translateY(-1px);
   box-shadow: 0 3px 8px rgba(15, 23, 42, 0.12);
 }
@@ -808,7 +812,7 @@
 }
 
 .talk-to-book-inline-citation-badge:focus-visible {
-  outline: 2px solid var(--brand-teal, #5de3ba);
+  outline: 2px solid #000000;
   outline-offset: 1px;
 }
 
@@ -1107,9 +1111,9 @@
    9. Input Composer Form
    -------------------------------------------------------------------------- */
 .talk-to-book-dialog__composer {
-  padding: 0.85rem 1.35rem 0.95rem;
+  padding: 0.85rem 1.25rem 1rem;
   background-color: #ffffff;
-  border-top: 1px solid rgba(15, 23, 42, 0.06);
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
@@ -1119,17 +1123,18 @@
 .talk-to-book-dialog__input-container {
   display: flex;
   flex-direction: column;
-  background-color: #f8fafc;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  border-radius: 1.125rem;
-  padding: 0.65rem 0.85rem 0.45rem;
-  transition: border-color 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease;
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 1.25rem;
+  padding: 0.75rem 0.95rem 0.55rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
 }
 
 .talk-to-book-dialog__input-container:focus-within {
-  border-color: rgba(15, 23, 42, 0.25);
+  border-color: #000000;
   background-color: #ffffff;
-  box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
 }
 
 .talk-to-book-dialog__textarea {
@@ -1141,14 +1146,14 @@
   font-family: var(--font-arabic);
   font-size: 0.875rem;
   line-height: 1.55;
-  color: #0f172a;
+  color: #1d1d1f;
   box-sizing: border-box;
   min-height: 2.65rem;
 }
 
 .talk-to-book-dialog__textarea::placeholder {
-  color: #94a3b8;
-  opacity: 0.85;
+  color: #8e8e93;
+  opacity: 0.9;
   transition: opacity 0.2s ease;
 }
 
@@ -1158,7 +1163,7 @@
   justify-content: space-between;
   margin-top: 0.35rem;
   padding-top: 0.35rem;
-  border-top: 1px solid rgba(15, 23, 42, 0.05);
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
   line-height: 1;
 }
 
@@ -1177,12 +1182,12 @@
   width: 1.95rem;
   height: 1.95rem;
   flex-shrink: 0;
-  border-radius: 0.45rem;
-  background-color: rgba(15, 23, 42, 0.04);
-  border: 1px solid rgba(15, 23, 42, 0.09);
-  color: #475569;
+  border-radius: 9999px;
+  background-color: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: #1d1d1f;
   cursor: pointer;
-  transition: background-color 0.16s ease, color 0.16s ease, border-color 0.16s ease, transform 0.16s ease;
+  transition: background-color 0.16s ease, color 0.16s ease, transform 0.16s ease;
   outline: none;
   padding: 0;
   margin: 0;
@@ -1190,10 +1195,9 @@
 }
 
 .talk-to-book-dialog__prediction-icon-btn:hover:not(:disabled) {
-  background-color: rgba(15, 23, 42, 0.08);
-  color: #0f172a;
-  border-color: rgba(15, 23, 42, 0.2);
-  transform: scale(1.04);
+  background-color: rgba(0, 0, 0, 0.08);
+  color: #000000;
+  transform: scale(1.05);
 }
 
 .talk-to-book-dialog__prediction-icon-btn:active:not(:disabled) {
@@ -1212,7 +1216,7 @@
   height: 1.95rem;
   font-size: 0.75rem;
   font-weight: 500;
-  color: #64748b;
+  color: #8e8e93;
   line-height: 1;
   font-variant-numeric: tabular-nums;
   user-select: none;
@@ -1230,12 +1234,11 @@
   width: 1.95rem;
   height: 1.95rem;
   border-radius: 9999px;
-  background-color: rgba(15, 23, 42, 0.05);
-  border: 1px solid rgba(15, 23, 42, 0.1);
-  color: #64748b;
+  background-color: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: #8e8e93;
   cursor: not-allowed;
   transition: background-color 0.18s cubic-bezier(0.16, 1, 0.3, 1),
-              border-color 0.18s cubic-bezier(0.16, 1, 0.3, 1),
               color 0.18s cubic-bezier(0.16, 1, 0.3, 1),
               transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
   outline: none;
@@ -1243,18 +1246,17 @@
   line-height: 1;
 }
 
-/* Active State: Restrained Slate Navy */
+/* Active State: Restrained Apple Black */
 .talk-to-book-dialog__send-btn--active {
-  background-color: #0f172a;
-  border-color: #0f172a;
+  background-color: #000000;
+  border-color: #000000;
   color: #ffffff;
   cursor: pointer;
-  box-shadow: 0 2px 6px -1px rgba(15, 23, 42, 0.18);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
 }
 
 .talk-to-book-dialog__send-btn--active:hover {
-  background-color: #1e293b;
-  border-color: #1e293b;
+  opacity: 0.88;
   transform: scale(1.05);
 }
 

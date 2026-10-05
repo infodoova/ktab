@@ -122,6 +122,49 @@
   pointer-events: auto;
 }
 
+@media (max-width: 1023px) {
+  .flipboard-theme-anchor {
+    display: none !important;
+  }
+
+  .flipboard-floating-top-row {
+    top: max(0.6rem, env(safe-area-inset-top));
+    right: max(0.75rem, env(safe-area-inset-right));
+    left: auto;
+    width: auto;
+  }
+
+  .flipboard-floating-back-btn {
+    background: transparent !important;
+    background-color: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    padding: 0.4rem !important;
+    color: #0a0a0a !important;
+    filter: none !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .flipboard-floating-back-btn:hover {
+    background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    transform: none !important;
+  }
+
+  .flipboard-floating-back-btn:active {
+    transform: none !important;
+  }
+
+  .flipboard-floating-back-label {
+    display: none !important;
+  }
+}
+
 .flipboard-floating-theme-btn {
   display: inline-flex;
   align-items: center;
@@ -852,9 +895,9 @@
   transition: transform 0.3s ease;
 }
 
-/* 3D Book Closing Animation */
+/* 3D Book Closed Stage (Zero closing delay/animation) */
 .flipboard-closed-stage--closing .flipboard-closed-book-3d {
-  animation: flipboardBookCloseShut 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: none !important;
 }
 
 .flipboard-closed-stage--settled .flipboard-closed-book-3d {

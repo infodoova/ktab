@@ -27,6 +27,7 @@ export function BookReviewModal({
     handleReviewChange,
     handleDialogClick,
   } = useBookReviewModal({
+    isOpen,
     setUserRating,
     setUserReview,
     onClose,
@@ -35,17 +36,21 @@ export function BookReviewModal({
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="apple-review-backdrop" onClick={onClose}>
+        <motion.div
+          key="apple-review-backdrop"
+          className="apple-review-backdrop"
+          onClick={onClose}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2, ease: "easeOut" }}
+        >
           <motion.div
+            key="apple-review-dialog"
             variants={sheetVariants}
             initial="hidden"
             animate="visible"
             exit="exit"
-            transition={{
-              type: "spring",
-              damping: 26,
-              stiffness: 280,
-            }}
             className="apple-review-dialog"
             onClick={handleDialogClick}
             role="dialog"
@@ -117,7 +122,10 @@ export function BookReviewModal({
               {isReviewed && (
                 <button
                   type="button"
-                  onClick={onDeleteReview}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onDeleteReview?.(e);
+                  }}
                   className="apple-review-dialog__btn-delete"
                 >
                   <Trash2 size={15} strokeWidth={2} />
@@ -128,14 +136,20 @@ export function BookReviewModal({
               <div className="apple-review-dialog__actions">
                 <button
                   type="button"
-                  onClick={onClose}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onClose?.(e);
+                  }}
                   className="apple-review-dialog__btn-cancel"
                 >
                   إلغاء
                 </button>
                 <button
                   type="button"
-                  onClick={onSubmitReview}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onSubmitReview?.(e);
+                  }}
                   className="apple-review-dialog__btn-submit"
                 >
                   {isReviewed ? "تحديث التقييم" : "نشر التقييم"}
@@ -143,7 +157,7 @@ export function BookReviewModal({
               </div>
             </div>
           </motion.div>
-        </div>
+        </motion.div>
       )}
     </AnimatePresence>
   );

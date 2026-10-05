@@ -22,6 +22,9 @@ import { AlertToast } from "@/components/myui/AlertToast";
 export function useBookDetails(bookId) {
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const currentUserId = user?.userId ?? user?.id;
+  const isUserLoggedIn = Boolean(isAuthenticated || currentUserId);
   const [bookData, setBookData] = useState(null);
   const [loadingBook, setLoadingBook] = useState(true);
 
@@ -93,7 +96,7 @@ export function useBookDetails(bookId) {
     if (typeof window === "undefined" || !bookId) return;
 
     const origin = window.location.origin;
-    const shortUrl = `${origin}/share?b=${encodeURIComponent(bookId)}`;
+    const directUrl = `${origin}/reader/BookDetails/${encodeURIComponent(bookId)}`;
     const title = bookData?.title ? `كتاب: ${bookData.title}` : "تطبيق كِتَاب";
     const authorPart = bookData?.authorName ? ` للكاتب ${bookData.authorName}` : "";
     const text = `اقرأ ${title}${authorPart} على تطبيق كِتَاب:`;
@@ -103,21 +106,21 @@ export function useBookDetails(bookId) {
         await navigator.share({
           title,
           text,
-          url: shortUrl,
+          url: directUrl,
         });
       } catch (err) {
         if (err.name !== "AbortError") {
-          navigator.clipboard?.writeText(shortUrl);
+          navigator.clipboard?.writeText(directUrl);
         }
       }
     } else {
-      navigator.clipboard?.writeText(shortUrl);
+      navigator.clipboard?.writeText(directUrl);
     }
   }, [bookId, bookData?.title, bookData?.authorName]);
 
   // 2. Fetch Review State
   const fetchReviewState = useCallback(async () => {
-    if (!user?.userId || !bookId) return;
+    if (!currentUserId || !bookId) return;
 
     setIsReviewLoading(true);
     try {
@@ -145,11 +148,11 @@ export function useBookDetails(bookId) {
     } finally {
       setIsReviewLoading(false);
     }
-  }, [bookId, user?.userId]);
+  }, [bookId, currentUserId]);
 
   // 3. Fetch Library Assignment State
   const fetchAssignmentState = useCallback(async () => {
-    if (!user?.userId || !bookId) return;
+    if (!currentUserId || !bookId) return;
 
     try {
       const res = await checkBookAssigned(bookId);
@@ -164,7 +167,7 @@ export function useBookDetails(bookId) {
     } catch {
       // Ignored non-blocking
     }
-  }, [bookId, user?.userId]);
+  }, [bookId, currentUserId]);
 
   // 4. Fetch Reviews List
   const loadReviews = useCallback(async () => {
@@ -176,8 +179,8 @@ export function useBookDetails(bookId) {
       setReviews(list);
 
       // Fallback: Check if current user has an entry in this book's reviews to resolve reviewId
-      if (user?.userId) {
-        const myReview = list.find((r) => String(r.userId) === String(user.userId));
+      if (currentUserId) {
+        const myReview = list.find((r) => String(r.userId) === String(currentUserId));
         if (myReview && myReview.id) {
           setIsReviewed(true);
           setReviewId(myReview.id);
@@ -191,7 +194,7 @@ export function useBookDetails(bookId) {
     } finally {
       setLoadingReviews(false);
     }
-  }, [bookId, user?.userId]);
+  }, [bookId, currentUserId]);
 
   // 5. Fetch Similar Books
   const loadSimilarBooks = useCallback(async () => {
@@ -222,7 +225,13 @@ export function useBookDetails(bookId) {
   }, [bookId, fetchBookDetails, fetchReviewState, fetchAssignmentState, loadReviews, loadSimilarBooks]);
 
   // Handle Review Submit / Edit
-  const handleSubmitReview = async () => {
+  const handleSubmitReview = async (e) => {
+    e?.preventDefault?.();
+    if (!isUserLoggedIn) {
+      navigate(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
+      return;
+    }
+
     if (!userRating) {
       AlertToast("يرجى اختيار تقييم بالنجوم أولاً.", "WARNING");
       return;
@@ -263,7 +272,8 @@ export function useBookDetails(bookId) {
   };
 
   // Handle Review Deletion via DELETE /api/v1/reviews/books/{bookId}/reviews/{reviewId}
-  const handleDeleteReview = async () => {
+  const handleDeleteReview = async (e) => {
+    e?.preventDefault?.();
     if (!reviewId || !bookId) return;
 
     try {
@@ -287,8 +297,9 @@ export function useBookDetails(bookId) {
   };
 
   // Toggle Library Assignment via POST /api/v1/library/assignBook
-  const handleToggleAssign = async () => {
-    if (!user?.userId) {
+  const handleToggleAssign = async (e) => {
+    e?.preventDefault?.();
+    if (!isUserLoggedIn) {
       navigate(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
       return;
     }
@@ -323,13 +334,14 @@ export function useBookDetails(bookId) {
   };
 
   // Declarative UI Event Handlers (Zero JS in JSX)
-  const handleOpenReviewModal = useCallback(() => {
-    if (!user?.userId) {
+  const handleOpenReviewModal = useCallback((e) => {
+    e?.preventDefault?.();
+    if (!isUserLoggedIn) {
       navigate(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
       return;
     }
     setIsRatingModalOpen(true);
-  }, [user?.userId, navigate]);
+  }, [isUserLoggedIn, navigate]);
   const handleCloseReviewModal = useCallback(() => setIsRatingModalOpen(false), []);
   const handleOpenFullRatesModal = useCallback(() => setIsFullRatesOpen(true), []);
   const handleCloseFullRatesModal = useCallback(() => setIsFullRatesOpen(false), []);

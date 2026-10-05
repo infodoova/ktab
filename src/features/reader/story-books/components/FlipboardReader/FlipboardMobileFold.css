@@ -1,10 +1,9 @@
 /**
  * FlipboardMobileFold.css
- * Precision 3D Calendar Half-Fold System for Mobile & Vertical iPad
- * - Unified base layers for zero-flash page progression
- * - Strict two-phase 90° face rendering (zero z-fighting & zero inverted text)
- * - GPU-composited 3D transforms with hardware will-change acceleration
- * - Subpixel clipping with 200% inner content
+ * Precision 3D Calendar 2-Page Fold System for Mobile & Vertical iPad
+ * - 2 complete 1:1 pages visible simultaneously on mobile screen
+ * - Top 50% = Page N, Bottom 50% = Page N+1
+ * - Strict two-phase 90° face rendering during calendar flips
  * - Center tactile crease line
  */
 
@@ -34,7 +33,7 @@
 }
 
 /* -------------------------------------------------------------------------
-   1. Base Static Half Layers (Continuous visual baseline)
+   1. Base Static Layers (Upper 50% & Lower 50%)
    ------------------------------------------------------------------------- */
 .flipboard-fold-base {
   position: absolute;
@@ -56,33 +55,43 @@
 }
 
 /* -------------------------------------------------------------------------
-   2. Reusable 50% Half-Clipping Architecture
+   2. Mobile Page Slot Architecture (2 Pages Per Screen - Full Edge-to-Edge)
    ------------------------------------------------------------------------- */
-.flipboard-half-clip {
+.flipboard-mobile-slot {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  overflow: hidden;
-  pointer-events: auto;
-}
-
-.flipboard-half-inner {
-  position: absolute;
-  left: 0;
-  right: 0;
-  width: 100%;
-  height: 200%;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-sizing: border-box;
+  padding: 0;
 }
 
-.flipboard-half-inner--top {
-  top: 0;
+.flipboard-mobile-slot--top {
+  padding: 0;
 }
 
-.flipboard-half-inner--bottom {
-  top: -100%;
+.flipboard-mobile-slot--bottom {
+  padding: 0;
+}
+
+.flipboard-mobile-slot__inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0;
+  overflow: hidden;
+  box-shadow: none;
+  border: none;
+  background-color: transparent;
 }
 
 /* -------------------------------------------------------------------------

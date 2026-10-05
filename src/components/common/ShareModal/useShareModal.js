@@ -19,15 +19,15 @@ export function useShareModal({
 
   const origin = typeof window !== "undefined" ? window.location.origin : "";
 
-  // Generates concise short link matching /share?b={id} or uses provided url
+  // Generates canonical direct link /reader/BookDetails/{id} or reader display page, or uses provided url
   const shortUrl = useMemo(() => {
     if (url) return url;
     if (!bookId) {
       return typeof window !== "undefined" ? window.location.href : "";
     }
     return page
-      ? `${origin}/share?b=${encodeURIComponent(bookId)}&p=${encodeURIComponent(page)}`
-      : `${origin}/share?b=${encodeURIComponent(bookId)}`;
+      ? `${origin}/reader/display/${encodeURIComponent(bookId)}?page=${encodeURIComponent(page)}`
+      : `${origin}/reader/BookDetails/${encodeURIComponent(bookId)}`;
   }, [origin, url, bookId, page]);
 
   const shareText = useMemo(() => {
@@ -50,7 +50,7 @@ export function useShareModal({
         document.body.removeChild(textarea);
       }
       setCopied(true);
-      AlertToast("تم نسخ الرابط المختصر إلى الحافظة بنجاح", "SUCCESS");
+      AlertToast("تم نسخ رابط الكتاب إلى الحافظة بنجاح", "SUCCESS");
       setTimeout(() => setCopied(false), 2500);
     } catch {
       AlertToast("تعذر نسخ الرابط تلقائياً", "ERROR");

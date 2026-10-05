@@ -91,9 +91,8 @@ export function FullUserRatesModal({ isOpen, onClose, reviews = [], loading = fa
                         <Star
                           key={starIndex}
                           size={13}
-                          className={`apple-full-rates-card__star ${
-                            starIndex <= ratingVal ? "is-filled" : ""
-                          }`}
+                          className={`apple-full-rates-card__star ${starIndex <= ratingVal ? "is-filled" : ""
+                            }`}
                         />
                       ))}
                     </div>

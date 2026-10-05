@@ -150,96 +150,98 @@ export const FlipboardReader = memo(function FlipboardReader({
           aria-label="الرجوع للقصص"
           title="الرجوع للقصص"
         >
-          <ArrowRight size={18} strokeWidth={2.4} />
-          <span>الرجوع</span>
+          <ArrowRight size={22} strokeWidth={2.6} className="flipboard-floating-back-arrow" />
+          <span className="flipboard-floating-back-label">الرجوع</span>
         </button>
 
-        {/* Left Corner (RTL): Authentic Theme UI Anchor & Popover */}
-        <div className="flipboard-theme-anchor" dir="rtl">
-          <button
-            type="button"
-            className={`flipboard-floating-theme-btn ${
-              isGalleryOpen ? "flipboard-floating-theme-btn--active" : ""
-            }`}
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleGallery();
-            }}
-            aria-label="لون وخلفية الصفحات"
-            title="المظهر"
-          >
-            <Palette size={18} strokeWidth={2.2} />
-            <span className="flipboard-floating-theme-label">المظهر</span>
-          </button>
-
-          {isGalleryOpen && (
-            <div
-              className="ktab-glass-popover ktab-theme-popover"
-              onClick={(e) => e.stopPropagation()}
-              onTouchStart={(e) => e.stopPropagation()}
-              onTouchMove={(e) => e.stopPropagation()}
-              dir="rtl"
+        {/* Left Corner (RTL): Authentic Theme UI Anchor & Popover (Desktop Only) */}
+        {isDualPage && (
+          <div className="flipboard-theme-anchor" dir="rtl">
+            <button
+              type="button"
+              className={`flipboard-floating-theme-btn ${
+                isGalleryOpen ? "flipboard-floating-theme-btn--active" : ""
+              }`}
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleGallery();
+              }}
+              aria-label="لون وخلفية الصفحات"
+              title="المظهر"
             >
-              <div className="ktab-popover-header">
-                <div className="ktab-popover-header-row">
-                  <span className="ktab-popover-title">لون وخلفية الصفحات</span>
-                  <button
-                    type="button"
-                    className="ktab-popover-close-btn"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      closeGallery();
-                    }}
-                    aria-label="إغلاق"
-                  >
-                    <X size={15} />
-                  </button>
-                </div>
-                <span className="ktab-popover-subtitle">
-                  اختر عالم وخلفية الحكاية المفضلة لديك
-                </span>
-              </div>
+              <Palette size={18} strokeWidth={2.2} />
+              <span className="flipboard-floating-theme-label">المظهر</span>
+            </button>
 
-              <div className="ktab-theme-cards-grid">
-                {availableBackgrounds.map((bg) => {
-                  const isSelected = bg.id === selectedBgId;
-                  return (
+            {isGalleryOpen && (
+              <div
+                className="ktab-glass-popover ktab-theme-popover"
+                onClick={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
+                onTouchMove={(e) => e.stopPropagation()}
+                dir="rtl"
+              >
+                <div className="ktab-popover-header">
+                  <div className="ktab-popover-header-row">
+                    <span className="ktab-popover-title">لون وخلفية الصفحات</span>
                     <button
-                      key={bg.id}
                       type="button"
-                      className={`ktab-theme-card-option ${
-                        isSelected ? "ktab-theme-card-option--active" : ""
-                      }`}
+                      className="ktab-popover-close-btn"
                       onClick={(e) => {
                         e.stopPropagation();
-                        selectBackground(bg.id);
                         closeGallery();
                       }}
-                      title={bg.title}
+                      aria-label="إغلاق"
                     >
-                      <div
-                        className="ktab-theme-mini-page"
-                        style={{
-                          backgroundImage: `url("${bg.svg}")`,
-                          backgroundColor: bg.accent || "#0a1f1d",
-                          backgroundSize: "cover",
-                          backgroundPosition: "center",
-                          backgroundRepeat: "no-repeat",
-                        }}
-                      >
-                        {isSelected && (
-                          <div className="ktab-theme-check-badge">
-                            <Check size={12} strokeWidth={3.5} />
-                          </div>
-                        )}
-                      </div>
+                      <X size={15} />
                     </button>
-                  );
-                })}
+                  </div>
+                  <span className="ktab-popover-subtitle">
+                    اختر عالم وخلفية الحكاية المفضلة لديك
+                  </span>
+                </div>
+
+                <div className="ktab-theme-cards-grid">
+                  {availableBackgrounds.map((bg) => {
+                    const isSelected = bg.id === selectedBgId;
+                    return (
+                      <button
+                        key={bg.id}
+                        type="button"
+                        className={`ktab-theme-card-option ${
+                          isSelected ? "ktab-theme-card-option--active" : ""
+                        }`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          selectBackground(bg.id);
+                          closeGallery();
+                        }}
+                        title={bg.title}
+                      >
+                        <div
+                          className="ktab-theme-mini-page"
+                          style={{
+                            backgroundImage: bg.svg ? `url("${bg.svg}")` : undefined,
+                            backgroundColor: bg.accent || "#0a1f1d",
+                            backgroundSize: "cover",
+                            backgroundPosition: "center",
+                            backgroundRepeat: "no-repeat",
+                          }}
+                        >
+                          {isSelected && (
+                            <div className="ktab-theme-check-badge">
+                              <Check size={12} strokeWidth={3.5} />
+                            </div>
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* ------------------------------------------------------------------
@@ -446,6 +448,8 @@ export const FlipboardReader = memo(function FlipboardReader({
             goToPrevPage={goToPrevPageInstant}
             isAtLastPage={isAtLastPage}
             selectedBg={selectedBg}
+            bookCoverImg={bookCoverImg}
+            bookTitle={bookTitle}
           />
         </main>
       )}

@@ -27,7 +27,10 @@ export function BookReviews({
         <div className="apple-book-reviews__header-actions">
           <button
             type="button"
-            onClick={onOpenReviewModal}
+            onClick={(e) => {
+              e.preventDefault();
+              onOpenReviewModal?.(e);
+            }}
             className="apple-book-reviews__add-btn"
             id="btn-reviews-add-review"
           >
@@ -68,7 +71,10 @@ export function BookReviews({
           </div>
           <button
             type="button"
-            onClick={onOpenReviewModal}
+            onClick={(e) => {
+              e.preventDefault();
+              onOpenReviewModal?.(e);
+            }}
             className="apple-book-reviews__empty-cta"
             id="btn-reviews-empty-cta"
           >
@@ -97,7 +103,7 @@ export function BookReviews({
 
             return (
               <div key={review.id || i} className="apple-book-reviews__card">
-                {/* Top header: user avatar + name + stars */}
+                {/* Header row: user info + stars */}
                 <div className="apple-book-reviews__card-header">
                   <div className="apple-book-reviews__card-user">
                     <div className="apple-book-reviews__card-avatar" aria-hidden="true">
@@ -118,7 +124,7 @@ export function BookReviews({
                     {[1, 2, 3, 4, 5].map((starIndex) => (
                       <Star
                         key={starIndex}
-                        size={14}
+                        size={13}
                         className={`apple-book-reviews__star ${
                           starIndex <= ratingVal ? "is-filled" : ""
                         }`}
@@ -127,7 +133,7 @@ export function BookReviews({
                   </div>
                 </div>
 
-                {/* Review Body (No fake fallback text: renders only when authentic comment exists) */}
+                {/* Review Body */}
                 {review.comment && review.comment.trim() ? (
                   <p className="apple-book-reviews__card-text">
                     {review.comment.trim()}

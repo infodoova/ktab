@@ -6,6 +6,14 @@ import studioBackdrop from "@/assets/images/children-stories/backdrop-editorial-
 
 export const READER_BACKGROUNDS = [
   {
+    id: "white",
+    title: "أبيض ناصع",
+    subtitle: "خلفية بيضاء نقية بدون رسومات",
+    accent: "#ffffff",
+    previewGradient: "linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)",
+    svg: "",
+  },
+  {
     id: "nursery",
     title: "غرفة الحكايات",
     subtitle: "أضواء دافئة وهلال لطيف",

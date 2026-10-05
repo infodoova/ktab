@@ -18,13 +18,13 @@ export function useShareMenu({
 
   const origin = typeof window !== "undefined" ? window.location.origin : "";
 
-  // Generates short link /share?b={id} or uses direct url
+  // Generates canonical direct link /reader/BookDetails/{id} or reader display page, or uses provided url
   const resolvedUrl = url
     ? url
     : bookId
       ? page
-        ? `${origin}/share?b=${encodeURIComponent(bookId)}&p=${encodeURIComponent(page)}`
-        : `${origin}/share?b=${encodeURIComponent(bookId)}`
+        ? `${origin}/reader/display/${encodeURIComponent(bookId)}?page=${encodeURIComponent(page)}`
+        : `${origin}/reader/BookDetails/${encodeURIComponent(bookId)}`
       : typeof window !== "undefined"
         ? window.location.href
         : "";
@@ -86,7 +86,7 @@ export function useShareMenu({
           document.body.removeChild(textarea);
         }
         setCopied(true);
-        AlertToast(bookId ? "تم نسخ الرابط المختصر بنجاح" : "تم نسخ رابط الصورة بنجاح", "SUCCESS");
+        AlertToast(bookId ? "تم نسخ رابط الكتاب بنجاح" : "تم نسخ الرابط بنجاح", "SUCCESS");
         setTimeout(() => {
           setCopied(false);
         }, 1800);

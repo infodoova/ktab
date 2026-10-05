@@ -792,9 +792,7 @@
    Review Card (Step 4)
    -------------------------------------------------------------------------- */
 .new-child-story-review-card {
-  display: grid;
-  grid-template-columns: 180px 1fr;
-  gap: var(--space-6, 24px);
+  display: block;
   background-color: var(--bg-card, #ffffff);
   border: 1px solid var(--border-color, #e2e8f0);
   border-radius: var(--radius-2xl, 20px);
@@ -802,56 +800,23 @@
   box-shadow: 0 4px 20px -8px rgba(0, 0, 0, 0.05);
 }
 
-@media (max-width: 600px) {
-  .new-child-story-review-card {
-    grid-template-columns: 1fr;
-  }
-}
-
-.new-child-story-review-cover-wrap {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  border-radius: var(--radius-xl, 14px);
-  overflow: hidden;
-  background-color: var(--bg-primary, #f1f5f9);
-}
-
-.new-child-story-review-fallback {
-  width: 100%;
-  height: 100%;
+.new-child-story-review-header {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-}
-
-.new-child-story-review-logo {
-  width: 44px;
-  height: 44px;
-  object-fit: contain;
-  opacity: 0.55;
-}
-
-.new-child-story-review-logo-text {
-  font-size: 0.78rem;
-  font-weight: 750;
-  color: #64748b;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
 }
 
 .new-child-story-review-badge {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  background: rgba(10, 10, 10, 0.76);
-  backdrop-filter: blur(8px);
+  background: rgba(10, 10, 10, 0.85);
   color: #ffffff;
-  padding: 3px 10px;
+  padding: 4px 12px;
   border-radius: 9999px;
   font-size: 0.6875rem;
   font-weight: 750;
+  width: fit-content;
 }
 
 .new-child-story-review-details {

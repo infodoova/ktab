@@ -4,40 +4,35 @@ import { useFlipboardMobileFold } from "../../hooks/useFlipboardMobileFold";
 import "./FlipboardMobileFold.css";
 
 /**
- * Reusable half-page viewport slice:
- * - Clips exactly 50% of the screen height (top or bottom)
- * - Renders FlipboardPage at 200% height to preserve 1:1 image and text geometry
- * - Subpixel compensation (calc(50% + 0.5px)) prevents 1px line cracks on high-DPI screens
+ * MobilePageSlot:
+ * Displays one complete 1:1 page in either the top or bottom 50% half of the screen.
+ * - Top Half: Page N (e.g. Page 1)
+ * - Bottom Half: Page N+1 (e.g. Page 2)
+ * Both visible simultaneously on mobile (2 pages per screen).
  */
-const HalfPage = memo(function HalfPage({
+const MobilePageSlot = memo(function MobilePageSlot({
   page,
-  half,
   pageIndex,
   totalPages,
-  selectedBg,
+  position = "top",
 }) {
-  if (!page) return null;
+  if (!page) {
+    return (
+      <div className={`flipboard-mobile-slot flipboard-mobile-slot--${position}`} aria-hidden="true" />
+    );
+  }
 
   return (
     <div
-      className={`flipboard-half-clip flipboard-half-clip--${half}`}
+      className={`flipboard-mobile-slot flipboard-mobile-slot--${position}`}
       aria-hidden="true"
     >
-      <div
-        className={`flipboard-half-inner flipboard-half-inner--${half}`}
-        style={{
-          backgroundImage: selectedBg?.svg ? `url("${selectedBg.svg}")` : undefined,
-          backgroundColor: selectedBg?.accent || "#0a1f1d",
-          backgroundRepeat: "no-repeat",
-          backgroundSize: "cover",
-          backgroundPosition: "center bottom",
-        }}
-      >
+      <div className="flipboard-mobile-slot__inner">
         <FlipboardPage
           page={page}
           pageIndex={pageIndex}
           totalPages={totalPages}
-          isVerticalFullscreen={true}
+          isMobileSlot={true}
         />
       </div>
     </div>
@@ -47,8 +42,8 @@ const HalfPage = memo(function HalfPage({
 /**
  * FlipboardMobileFold:
  * Physics-based 3D calendar fold reader for mobile and vertical iPad:
- * - Unified base layers (zero remount flash on navigation completion)
- * - Strict two-phase 90° face switching (eliminates 100% of z-fighting & inverted text)
+ * - 2 pages per screen on mobile (Top Page & Bottom Page)
+ * - Strict two-phase 90° face switching during calendar fold
  * - Hardware-accelerated GPU 3D transforms with will-change
  * - Fluid touch scrolling and zero-latency tap navigation
  * - Subtle tactile center crease line
@@ -62,6 +57,8 @@ export const FlipboardMobileFold = memo(function FlipboardMobileFold({
   isAtLastPage,
   onCloseStory,
   selectedBg,
+  bookCoverImg = "",
+  bookTitle = "",
 }) {
   const containerRef = useRef(null);
 
@@ -91,10 +88,27 @@ export const FlipboardMobileFold = memo(function FlipboardMobileFold({
     onCloseStory,
   });
 
-  const currentPageData = pages[currentPage] || null;
-  const nextPageData =
-    currentPage < totalPages - 1 ? pages[currentPage + 1] : currentPageData;
-  const prevPageData = currentPage > 0 ? pages[currentPage - 1] : currentPageData;
+  // Resolve page or cover fallback
+  const getPage = (index) => {
+    if (index >= 0 && index < totalPages) return pages[index];
+    if (index === totalPages && totalPages % 2 !== 0) {
+      return {
+        type: "cover",
+        image: bookCoverImg || "",
+        title: bookTitle,
+      };
+    }
+    return null;
+  };
+
+  const currentTop = getPage(currentPage);
+  const currentBottom = getPage(currentPage + 1);
+
+  const nextTop = getPage(currentPage + 2);
+  const nextBottom = getPage(currentPage + 3);
+
+  const prevTop = getPage(currentPage - 2);
+  const prevBottom = getPage(currentPage - 1);
 
   const isFolding = foldDirection !== null;
   // Phase 1 (0° to 90°): Front face pointing at camera
@@ -118,6 +132,13 @@ export const FlipboardMobileFold = memo(function FlipboardMobileFold({
       className={`flipboard-fold-stage ${
         isDragging ? "flipboard-fold-stage--dragging" : ""
       }`}
+      style={{
+        backgroundImage: selectedBg?.svg ? `url("${selectedBg.svg}")` : undefined,
+        backgroundColor: selectedBg?.accent || "#0a1f1d",
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
@@ -130,17 +151,16 @@ export const FlipboardMobileFold = memo(function FlipboardMobileFold({
       onClick={handleClick}
     >
       {/* ------------------------------------------------------------------
-          1. Static Base Half Layers (Always present to ensure 0ms remount flash)
-          - Upper base: Shows current page top, or previous page top when folding down
-          - Lower base: Shows current page bottom, or next page bottom when folding up
+          1. Static Base Layers (Always present for 0ms flash)
+          - Upper Base: Current top page (or previous top page when folding down)
+          - Lower Base: Current bottom page (or next bottom page when folding up)
           ------------------------------------------------------------------ */}
       <div className="flipboard-fold-base flipboard-fold-base--top">
-        <HalfPage
-          page={foldDirection === "prev" ? prevPageData : currentPageData}
-          half="top"
-          pageIndex={foldDirection === "prev" ? currentPage - 1 : currentPage}
+        <MobilePageSlot
+          page={foldDirection === "prev" ? prevTop : currentTop}
+          pageIndex={foldDirection === "prev" ? currentPage - 2 : currentPage}
           totalPages={totalPages}
-          selectedBg={selectedBg}
+          position="top"
         />
         {/* Under-shadow cast by the moving flap */}
         {isFolding && (
@@ -161,12 +181,11 @@ export const FlipboardMobileFold = memo(function FlipboardMobileFold({
       </div>
 
       <div className="flipboard-fold-base flipboard-fold-base--bottom">
-        <HalfPage
-          page={foldDirection === "next" ? nextPageData : currentPageData}
-          half="bottom"
-          pageIndex={foldDirection === "next" ? currentPage + 1 : currentPage}
+        <MobilePageSlot
+          page={foldDirection === "next" ? nextBottom : currentBottom}
+          pageIndex={foldDirection === "next" ? currentPage + 3 : currentPage + 1}
           totalPages={totalPages}
-          selectedBg={selectedBg}
+          position="bottom"
         />
         {/* Under-shadow cast by the moving flap */}
         {isFolding && (
@@ -187,9 +206,9 @@ export const FlipboardMobileFold = memo(function FlipboardMobileFold({
       </div>
 
       {/* ------------------------------------------------------------------
-          2. Moving 3D Flap (Active only during user drag or page turn animation)
-          - Swipe UP ('next'): Bottom half folds up over top half (0° -> 180°)
-          - Swipe DOWN ('prev'): Top half folds down over bottom half (0° -> -180°)
+          2. Moving 3D Flap (Active only during user drag or fold animation)
+          - Swipe UP ('next'): Bottom flap folds up over top half (0° -> 180°)
+          - Swipe DOWN ('prev'): Top flap folds down over bottom half (0° -> -180°)
           ------------------------------------------------------------------ */}
       {isFolding && (
         <div className="flipboard-fold-3d-scene">
@@ -210,12 +229,11 @@ export const FlipboardMobileFold = memo(function FlipboardMobileFold({
                 pointerEvents: isPhase1 ? "auto" : "none",
               }}
             >
-              <HalfPage
-                page={currentPageData}
-                half={foldDirection === "next" ? "bottom" : "top"}
-                pageIndex={currentPage}
+              <MobilePageSlot
+                page={foldDirection === "next" ? currentBottom : currentTop}
+                pageIndex={foldDirection === "next" ? currentPage + 1 : currentPage}
                 totalPages={totalPages}
-                selectedBg={selectedBg}
+                position={foldDirection === "next" ? "bottom" : "top"}
               />
               <div
                 className="flipboard-flap-shade"
@@ -231,14 +249,11 @@ export const FlipboardMobileFold = memo(function FlipboardMobileFold({
                 pointerEvents: !isPhase1 ? "auto" : "none",
               }}
             >
-              <HalfPage
-                page={foldDirection === "next" ? nextPageData : prevPageData}
-                half={foldDirection === "next" ? "top" : "bottom"}
-                pageIndex={
-                  foldDirection === "next" ? currentPage + 1 : currentPage - 1
-                }
+              <MobilePageSlot
+                page={foldDirection === "next" ? nextTop : prevBottom}
+                pageIndex={foldDirection === "next" ? currentPage + 2 : currentPage - 1}
                 totalPages={totalPages}
-                selectedBg={selectedBg}
+                position={foldDirection === "next" ? "top" : "bottom"}
               />
               <div
                 className="flipboard-flap-shade"
@@ -250,7 +265,7 @@ export const FlipboardMobileFold = memo(function FlipboardMobileFold({
       )}
 
       {/* ------------------------------------------------------------------
-          3. Subtle Center Crease Line (Visual tactile spine at 50% height)
+          3. Center Crease Line (Visual tactile spine at 50% height)
           ------------------------------------------------------------------ */}
       <div className="flipboard-fold-crease" aria-hidden="true" />
     </div>
