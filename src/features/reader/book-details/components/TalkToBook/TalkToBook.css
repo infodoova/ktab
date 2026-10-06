@@ -130,6 +130,14 @@
   transform-origin: bottom right;
   will-change: transform, opacity;
   overscroll-behavior: contain;
+  position: fixed;
+  right: 2rem;
+  bottom: 2rem;
+  width: 32.5rem;
+  max-width: calc(100vw - 4rem);
+  height: min(35.5rem, calc(100vh - 4.5rem));
+  max-height: calc(100vh - 4.5rem);
+  border-radius: 1.625rem;
 }
 
 /* Desktop Presentation Mode */

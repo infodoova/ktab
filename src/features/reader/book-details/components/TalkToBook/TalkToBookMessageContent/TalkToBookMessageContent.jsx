@@ -56,6 +56,12 @@ function prepareMarkdownSource(rawText, citations = []) {
   // 6. Ensure lists have an empty line before them so Marked treats them as a <ul> / <ol>
   processed = processed.replace(/([^\n])\n([0-9]+\.|-|\*)\s+/g, "$1\n\n$2 ");
 
+  // Wrap quotations before adding citation HTML so tooltip attributes cannot be rewritten.
+  processed = processed.replace(
+    /«([^»]+)»/g,
+    '<span class="talk-to-book-inline-quote">«$1»</span>'
+  );
+
   // 7. Render inline book page citations [صفحة 15] or [ص 15] as clickable badges
   processed = processed.replace(
     /\[(?:صفحة|ص|ص\.)\s*:?\s*(\d+)\]/gi,
@@ -82,12 +88,6 @@ function prepareMarkdownSource(rawText, citations = []) {
 
     return `<button type="button" class="talk-to-book-inline-citation-badge" data-citation-id="${citationId}" title="${tooltip}"><span class="talk-to-book-inline-citation-badge__inner">[${citationId}]</span></button>`;
   });
-
-  // 9. Style book titles and direct quotations inside «...» with an editorial quote span
-  processed = processed.replace(
-    /«([^»]+)»/g,
-    '<span class="talk-to-book-inline-quote">«$1»</span>'
-  );
 
   return processed;
 }

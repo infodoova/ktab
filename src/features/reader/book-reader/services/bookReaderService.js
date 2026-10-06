@@ -36,6 +36,30 @@ export async function fetchReaderPage(bookId, { page = 1, wordsPerPage = 80 } = 
   });
 }
 
+/** Locate a citation using the reader's current server pagination. */
+export async function locateReaderSnippet(bookId, snippet, wordsPerPage = 80) {
+  const safeId = encodeURIComponent(sanitizeId(bookId));
+  const query = new URLSearchParams({
+    snippet,
+    wordsPerPage: String(Math.max(1, parseInt(wordsPerPage, 10) || 80)),
+  });
+  return getHelper({
+    url: `${API_BASE}/books/${safeId}/reader-locate?${query}`,
+  });
+}
+
+/** Map a legacy PDF page citation to the current reader page. */
+export async function locateReaderPdfPage(bookId, pdfPageNumber, wordsPerPage = 80) {
+  const safeId = encodeURIComponent(sanitizeId(bookId));
+  const query = new URLSearchParams({
+    pdfPageNumber: String(pdfPageNumber),
+    wordsPerPage: String(Math.max(1, parseInt(wordsPerPage, 10) || 80)),
+  });
+  return getHelper({
+    url: `${API_BASE}/books/${safeId}/reader-pdf-page?${query}`,
+  });
+}
+
 /**
  * Fetches the hierarchical navigation tree (chapters, parts) with direct reader page mapping,
  * plus separated appendixes and bibliographies.

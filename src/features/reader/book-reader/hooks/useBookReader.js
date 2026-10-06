@@ -33,6 +33,7 @@ export function useBookReader() {
     wordsPerPage,
     setWordsPerPage,
     currentPageData,
+    initialNavigation,
     loadPage,
     pagesCacheRef,
   } = useReaderContent(id);
@@ -81,6 +82,7 @@ export function useBookReader() {
   // 3. Navigation & citation deep links
   const {
     currentPage,
+    citationLoading,
     totalPages: navTotalPages,
     generatedPagesRef,
     currentPageText,
@@ -95,6 +97,8 @@ export function useBookReader() {
     bookText,
     loadingText,
     token,
+    wordsPerPage,
+    initialNavigation,
     onPageChangeNotification,
     loadPage,
   });
@@ -216,7 +220,7 @@ export function useBookReader() {
     bookTitle,
     bookAuthor,
     bookText,
-    loadingText,
+    loadingText: loadingText || citationLoading,
     wordsPerPage,
     setWordsPerPage,
     currentPageData,

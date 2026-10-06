@@ -151,77 +151,52 @@ export function useFlipBookImperativeApi({
      * @param {string} snippet
      * @returns {number|null} Target page number if resolved, null otherwise
      */
-    bookRef.current.findAndHighlightSnippet = (snippet) => {
+    bookRef.current.findAndHighlightSnippet = (
+      snippet, locatedPage = null, locatedWordIndex = null, locatedEndWordIndex = null
+    ) => {
       if (!snippet || typeof snippet !== "string") return null;
-
       const cleanSnippet = snippet.trim();
       if (!cleanSnippet) return null;
 
-      // Queue snippet if called before pagination finishes
-      if (!tokens?.length || !pages?.length) {
-        pendingSnippetRef.current = cleanSnippet;
-        return null;
-      }
-
-      const matchRange = findSnippetTokenRange(tokens, cleanSnippet);
-      if (!matchRange) return null;
-
-      const { startTokenIdx, endTokenIdx } = matchRange;
-
-      let targetPage = null;
-      for (let pIdx = 0; pIdx < pages.length; pIdx++) {
-        const p = pages[pIdx];
-        if (startTokenIdx >= p.startWord && startTokenIdx < p.endWord) {
-          targetPage = pIdx + 1;
-          break;
-        }
-      }
-
-      if (!targetPage) {
-        targetPage = Math.max(1, totalPages);
-      }
-
-      // Navigate to target dynamic page
-      goToPage(targetPage, true);
-
-      const matchedTokenIndices = [];
-      for (let idx = startTokenIdx; idx <= endTokenIdx; idx++) {
-        matchedTokenIndices.push(idx);
-      }
+      // Server location uses global reader word indices. Local tokens cover only the loaded page.
+      const matchRange = Number.isInteger(locatedWordIndex)
+        ? null : findSnippetTokenRange(tokens, cleanSnippet);
+      const pageNumber = locatedPage || currentPageIndex + 1;
+      const pageWordOffset = (pageNumber - 1) * wordsPerPage;
+      const startIndex = Number.isInteger(locatedWordIndex)
+        ? locatedWordIndex
+        : matchRange ? pageWordOffset + matchRange.startTokenIdx : null;
+      if (startIndex == null) return null;
+      const snippetWordCount = cleanSnippet.split(/\s+/).filter(Boolean).length;
+      const endIndex = Math.min(
+        pageWordOffset + wordsPerPage - 1,
+        Number.isInteger(locatedEndWordIndex)
+          ? locatedEndWordIndex
+          : matchRange && !Number.isInteger(locatedWordIndex)
+            ? pageWordOffset + matchRange.endTokenIdx
+            : startIndex + snippetWordCount - 1
+      );
 
       clearHighlightPollTimers();
       bookRef.current.clearSnippetHighlights?.();
 
       const applyHighlights = () => {
-        let anyHighlighted = false;
         let firstEl = null;
-
-        matchedTokenIndices.forEach((wIdx) => {
-          const el = document.querySelector(`[data-word-index="${wIdx}"]`);
-          if (el) {
+        for (let index = startIndex; index <= endIndex; index++) {
+          document.querySelectorAll(`[data-word-index="${index}"]`).forEach((el) => {
             el.classList.add("talk-to-book-citation-highlight");
-            if (!firstEl) firstEl = el;
-            anyHighlighted = true;
-          }
-        });
-
-        if (firstEl) {
-          firstEl.scrollIntoView({ behavior: "smooth", block: "center" });
+            if (!firstEl && el.getClientRects().length > 0) firstEl = el;
+          });
         }
-
-        return anyHighlighted;
+        if (firstEl) firstEl.scrollIntoView({ behavior: "smooth", block: "center" });
+        return Boolean(firstEl);
       };
 
-      const applied = applyHighlights();
-      const pollDelays = applied ? [200, 500] : [50, 150, 300, 550, 900, 1400];
-      pollDelays.forEach((delay) => {
-        const timerId = setTimeout(() => {
-          applyHighlights();
-        }, delay);
-        highlightPollTimersRef.current.push(timerId);
+      applyHighlights();
+      [100, 250, 500, 900, 1500].forEach((delay) => {
+        highlightPollTimersRef.current.push(setTimeout(applyHighlights, delay));
       });
-
-      return targetPage;
+      return pageNumber;
     };
 
     bookRef.current.clearSnippetHighlights = () => {

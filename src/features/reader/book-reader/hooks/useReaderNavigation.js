@@ -21,6 +21,8 @@ export function useReaderNavigation({
   bookText,
   loadingText,
   token,
+  wordsPerPage = 80,
+  initialNavigation,
   onPageChangeNotification,
   loadPage,
 }) {
@@ -31,46 +33,46 @@ export function useReaderNavigation({
   const [totalPages, setTotalPages] = useState(1);
   const generatedPagesRef = useRef([]);
   const pendingSnippetQueryRef = useRef(null);
+  const locatingRef = useRef(false);
+  const hasInitialTargetRef = useRef(Boolean(
+    new URLSearchParams(location.search).get("snippet") ||
+    new URLSearchParams(location.search).get("pdfPage") ||
+    new URLSearchParams(location.search).get("page") ||
+    location.state?.highlightSnippet || location.state?.pdfPageNumber ||
+    location.state?.targetPage || location.state?.initialPage
+  ));
+  const [citationLoading, setCitationLoading] = useState(hasInitialTargetRef.current);
 
-  /**
-   * Resolves queued citation snippets or fallback page targets once reader engine is mounted.
-   */
-  const resolveSnippetNavigation = useCallback(() => {
-    if (!pendingSnippetQueryRef.current) return false;
-    const { snippet, fallbackPage } = pendingSnippetQueryRef.current;
-
-    // 1. Prioritize verbatim snippet matching across reader tokens
-    if (snippet && bookRef.current?.findAndHighlightSnippet) {
-      const resolvedPage = bookRef.current.findAndHighlightSnippet(snippet);
-      if (resolvedPage) {
-        pendingSnippetQueryRef.current = null;
-        setCurrentPage(resolvedPage);
-        navigate(location.pathname, { replace: true, state: {} });
-        if (window.history?.replaceState) {
-          window.history.replaceState({}, document.title, location.pathname);
-        }
-        return true;
+  /** Move to the page already fetched during reader initialization. */
+  const resolveSnippetNavigation = useCallback(async () => {
+    if (!pendingSnippetQueryRef.current || locatingRef.current || !bookRef.current?.goToPage) return false;
+    const request = pendingSnippetQueryRef.current;
+    locatingRef.current = true;
+    try {
+      const targetPage = request.page;
+      const loadedPage = await loadPage?.(targetPage);
+      if (!loadedPage) throw new Error("Citation page could not be loaded");
+      bookRef.current.goToPage(targetPage, true);
+      setCurrentPage(targetPage);
+      if (request.snippet) {
+        bookRef.current.findAndHighlightSnippet?.(
+          request.snippet, targetPage, request.startWordIndex, request.endWordIndex
+        );
       }
-    }
-
-    // 2. Fallback to direct page target only if pagination completed and snippet did not resolve
-    if (
-      generatedPagesRef.current?.length > 0 &&
-      fallbackPage > 0 &&
-      bookRef.current?.goToPage
-    ) {
       pendingSnippetQueryRef.current = null;
-      bookRef.current.goToPage(fallbackPage, true);
-      setCurrentPage(fallbackPage);
       navigate(location.pathname, { replace: true, state: {} });
-      if (window.history?.replaceState) {
-        window.history.replaceState({}, document.title, location.pathname);
-      }
+      // Keep the overlay through the page transition, including curl mode.
+      setTimeout(() => setCitationLoading(false), 600);
       return true;
+    } catch (error) {
+      console.warn("Could not open reader citation:", error);
+      pendingSnippetQueryRef.current = null;
+      setCitationLoading(false);
+      return false;
+    } finally {
+      locatingRef.current = false;
     }
-
-    return false;
-  }, [bookRef, location.pathname, navigate]);
+  }, [bookRef, loadPage, location.pathname, navigate]);
 
   const onPagesGenerated = useCallback(
     (pageInfo) => {
@@ -142,41 +144,14 @@ export function useReaderNavigation({
     [bookId, token, onPageChangeNotification, loadPage]
   );
 
-  // Jump automatically to target cited page from query param (?page=X or ?snippet=Y)
+  // Initial citation lookup and page fetch happen in useReaderContent before this effect.
   useEffect(() => {
-    const searchParams = new URLSearchParams(location.search);
-    const pageParam = searchParams.get("page");
-    const snippetParam =
-      searchParams.get("snippet") ||
-      searchParams.get("highlight") ||
-      location?.state?.highlightSnippet ||
-      location?.state?.highlightText;
-
-    const targetPage = parseInt(
-      pageParam || location?.state?.targetPage || location?.state?.initialPage,
-      10
-    );
-
-    if (snippetParam) {
-      pendingSnippetQueryRef.current = {
-        snippet: snippetParam,
-        fallbackPage: targetPage > 0 ? targetPage : null,
-      };
-    } else if (targetPage > 0) {
-      pendingSnippetQueryRef.current = {
-        snippet: null,
-        fallbackPage: targetPage,
-      };
-    }
-
-    if (!loadingText) {
-      resolveSnippetNavigation();
-      const timer = setTimeout(() => {
-        resolveSnippetNavigation();
-      }, 350);
-      return () => clearTimeout(timer);
-    }
-  }, [location.search, location?.state, loadingText, resolveSnippetNavigation]);
+    if (!hasInitialTargetRef.current || loadingText || !initialNavigation) return;
+    pendingSnippetQueryRef.current = initialNavigation;
+    resolveSnippetNavigation();
+    const timer = setTimeout(resolveSnippetNavigation, 350);
+    return () => clearTimeout(timer);
+  }, [initialNavigation, loadingText, resolveSnippetNavigation]);
 
   // Clean snippet highlights on unmount
   useEffect(() => {
@@ -187,6 +162,7 @@ export function useReaderNavigation({
 
   return {
     currentPage,
+    citationLoading,
     setCurrentPage,
     totalPages,
     setTotalPages,

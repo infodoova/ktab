@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useLocation } from "react-router-dom";
-import { fetchReaderPage } from "../services/bookReaderService";
+import { fetchReaderPage, locateReaderPdfPage, locateReaderSnippet } from "../services/bookReaderService";
 import { fetchBookDetailsById } from "@/features/reader/book-details/services/bookDetailsService";
 import { AlertToast } from "@/components/myui/AlertToast";
 
@@ -14,6 +14,7 @@ import { AlertToast } from "@/components/myui/AlertToast";
  */
 export function useReaderContent(id) {
   const location = useLocation();
+  const initialLocationRef = useRef(location);
 
   const [bookTitle, setBookTitle] = useState(() => {
     return (
@@ -40,6 +41,7 @@ export function useReaderContent(id) {
   const [totalPages, setTotalPages] = useState(1);
   const [wordsPerPage, setWordsPerPage] = useState(80);
   const [currentPageData, setCurrentPageData] = useState(null);
+  const [initialNavigation, setInitialNavigation] = useState(null);
 
   // In-memory cache for loaded pages (pageNumber -> pageData)
   const pagesCacheRef = useRef({});
@@ -107,7 +109,31 @@ export function useReaderContent(id) {
       pagesCacheRef.current = {};
 
       try {
-        const res = await fetchReaderPage(id, { page: 1, wordsPerPage });
+        const entryLocation = initialLocationRef.current;
+        const params = new URLSearchParams(entryLocation.search);
+        const snippet = params.get("snippet") || params.get("highlight")
+          || entryLocation.state?.highlightSnippet || entryLocation.state?.highlightText;
+        const pdfPage = Number(params.get("pdfPage") || entryLocation.state?.pdfPageNumber);
+        const directPage = Number(params.get("page")
+          || entryLocation.state?.targetPage || entryLocation.state?.initialPage);
+        let targetPage = Number.isInteger(directPage) && directPage > 0 ? directPage : 1;
+        let wordRange = null;
+
+        if (snippet || pdfPage > 0) {
+          try {
+            const located = snippet
+              ? await locateReaderSnippet(id, snippet, wordsPerPage)
+              : await locateReaderPdfPage(id, pdfPage, wordsPerPage);
+            if (located?.data?.found) {
+              targetPage = located.data.page;
+              wordRange = located.data;
+            }
+          } catch (error) {
+            console.warn("Could not locate initial citation:", error);
+          }
+        }
+
+        const res = await fetchReaderPage(id, { page: targetPage, wordsPerPage });
 
         if (res?.messageStatus !== "SUCCESS" && !res?.data) {
           AlertToast(res?.message || "فشل تحميل صفحات الكتاب", "ERROR");
@@ -117,18 +143,25 @@ export function useReaderContent(id) {
 
         const data = res.data;
         if (active && data) {
-          pagesCacheRef.current[1] = data;
+          pagesCacheRef.current[data.page || targetPage] = data;
+          setInitialNavigation({
+            page: data.page || targetPage,
+            snippet: wordRange?.found ? snippet : null,
+            startWordIndex: wordRange?.startWordIndex ?? null,
+            endWordIndex: wordRange?.endWordIndex ?? null,
+          });
           setCurrentPageData(data);
           setBookText(data.content || "");
           const totalP = Math.max(1, data.totalPages || 1);
           setTotalPages(totalP);
 
-          // Pre-warm page 2 in background
-          if (totalP > 1) {
-            fetchReaderPage(id, { page: 2, wordsPerPage })
+          // Pre-warm the page after the initial destination.
+          const nextPage = (data.page || targetPage) + 1;
+          if (nextPage <= totalP) {
+            fetchReaderPage(id, { page: nextPage, wordsPerPage })
               .then((nextRes) => {
                 if (nextRes?.data && active) {
-                  pagesCacheRef.current[2] = nextRes.data;
+                  pagesCacheRef.current[nextPage] = nextRes.data;
                 }
               })
               .catch(() => {});
@@ -186,6 +219,7 @@ export function useReaderContent(id) {
     wordsPerPage,
     setWordsPerPage,
     currentPageData,
+    initialNavigation,
     loadPage,
     pagesCacheRef,
   };

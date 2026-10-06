@@ -536,14 +536,13 @@ export function useTalkToBook({
 
       const queryParams = new URLSearchParams();
       if (snippet) queryParams.set("snippet", snippet);
-      if (pageNumber) queryParams.set("page", pageNumber);
+      if (pageNumber && !snippet) queryParams.set("pdfPage", pageNumber);
 
       const queryString = queryParams.toString() ? `?${queryParams.toString()}` : "";
 
       navigate(`/reader/display/${bookId}${queryString}`, {
         state: {
-          targetPage: pageNumber,
-          initialPage: pageNumber,
+          pdfPageNumber: !snippet ? pageNumber : null,
           highlightSnippet: snippet,
         },
       });

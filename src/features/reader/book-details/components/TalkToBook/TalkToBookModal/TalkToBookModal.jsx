@@ -1,4 +1,5 @@
 import React from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
@@ -121,7 +122,7 @@ export function TalkToBookModal({
       (messages.length > 1 || messages.some((m) => m.role === "user"))) ||
     Boolean(question && question.trim().length > 0);
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <motion.div
@@ -426,7 +427,8 @@ export function TalkToBookModal({
           </motion.div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }
 
