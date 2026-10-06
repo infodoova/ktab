@@ -1,4 +1,4 @@
-import { BookOpen } from "lucide-react";
+import { ClipboardCheck } from "lucide-react";
 
 /**
  * Global Navigation Definitions for Publisher Role (40 / PUBLISHER)
@@ -8,7 +8,7 @@ export const PUBLISHER_NAV_ITEMS = [
   {
     name: "PublisherLibrary",
     label: "قائمة المراجعة والتحكيم",
-    icon: BookOpen,
+    icon: ClipboardCheck,
     path: "/publisher/library-management",
   },
 ];

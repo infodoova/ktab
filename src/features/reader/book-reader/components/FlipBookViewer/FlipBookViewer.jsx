@@ -5,7 +5,9 @@ import { KindleSlideTransition } from "../transitions/KindleSlideTransition";
 import { Flip3DTransition } from "../transitions/Flip3DTransition";
 import { PageCurlTransition } from "../transitions/PageCurlTransition";
 import { BookPageSkeleton } from "../BookPageSkeleton";
+import { PreservedGuillemets } from "../PreservedGuillemets";
 import { ALLOW_RIGHT_CLICK } from "../../constants/readerConstants";
+import { normalizeText, tokenize } from "../../utils/readerPaginationUtils";
 import "./FlipBookViewer.css";
 
 /* ==========================================================================
@@ -58,6 +60,10 @@ export function FlipBookViewer(props) {
     bookTitle,
     bookAuthor,
     onBack,
+    pagesCacheRef,
+    currentPageData,
+    text,
+    wordsPerPage,
   } = useFlipBookViewer(props);
 
   const currentPage = pages[currentPageIndex];
@@ -65,8 +71,9 @@ export function FlipBookViewer(props) {
   const prevPage = pages[currentPageIndex - 1];
 
   /**
-   * Pure declarative renderer for page word tokens and page number footer.
-   * Maintains exact word offset attributes (data-word-index) for TTS audio highlighting.
+   * Declarative renderer for page word tokens and page number footer.
+   * Renders cached or current page text on demand, maintaining word indices for TTS highlighting.
+   * Renders fluid in-page shimmer lines if page is in transit to prevent blank flashes.
    */
   const renderContent = useCallback(
     (page, pageNum) => {
@@ -92,23 +99,69 @@ export function FlipBookViewer(props) {
         );
       }
 
-      const wordSpans = [];
+      // 1. Retrieve page text from in-memory cache or current page state
+      const cached = pagesCacheRef?.current?.[pageNum];
+      const isMatchingCurrentPageData =
+        pageNum === currentPageIndex + 1 &&
+        (currentPageData?.page === pageNum || (!currentPageData?.page && pageNum === 1));
+      const pageText =
+        cached?.content ||
+        (isMatchingCurrentPageData ? (currentPageData?.content || text) : "") ||
+        "";
 
-      for (let w = page.startWord; w < page.endWord; w++) {
-        const t = tokens[w];
-        if (!t) continue;
-        if (w !== page.startWord) wordSpans.push(" ");
-        wordSpans.push(
-          <span
-            key={w}
-            data-word-index={w}
-            data-word-start={t.startChar}
-            data-word-end={t.endChar}
+      // 2. In-page smooth skeleton loader while fetching uncached page (eliminates previous page glitch)
+      if (!pageText) {
+        return (
+          <div
+            className="ktab-book-page__content-wrap"
+            onCopy={(e) => e.preventDefault()}
+            onCut={(e) => e.preventDefault()}
+            onContextMenu={(e) => {
+              if (!ALLOW_RIGHT_CLICK) e.preventDefault();
+            }}
           >
-            {t.value}
-          </span>
+            <div
+              className="ktab-page-skeleton__body"
+              style={{ width: "100%", gap: "16px", flex: 1, justifyContent: "center" }}
+            >
+              <div className="ktab-page-skeleton__paragraph" style={{ gap: "14px" }}>
+                <div className="ktab-page-skeleton__line" style={{ width: "98%" }} />
+                <div className="ktab-page-skeleton__line" style={{ width: "93%" }} />
+                <div className="ktab-page-skeleton__line" style={{ width: "97%" }} />
+                <div className="ktab-page-skeleton__line" style={{ width: "89%" }} />
+                <div className="ktab-page-skeleton__line" style={{ width: "95%" }} />
+                <div className="ktab-page-skeleton__line" style={{ width: "65%" }} />
+              </div>
+            </div>
+            <div className="ktab-book-page__footer">
+              <span className="ktab-book-page__number">{pageNum}</span>
+            </div>
+          </div>
         );
       }
+
+      // Keep the source gaps around each word so reader text matches the API spacing.
+      const cleanText = normalizeText(pageText);
+      const pageTokens = tokenize(cleanText);
+      const wordElements = [];
+      const baseWordOffset = (pageNum - 1) * (wordsPerPage || 80);
+      let previousEnd = 0;
+
+      pageTokens.forEach((token, index) => {
+        wordElements.push(cleanText.slice(previousEnd, token.startChar));
+        wordElements.push(
+          <span
+            key={index}
+            data-word-index={baseWordOffset + index}
+            data-word-start={token.startChar}
+            data-word-end={token.endChar}
+          >
+            <PreservedGuillemets text={token.value} />
+          </span>
+        );
+        previousEnd = token.endChar + 1;
+      });
+      wordElements.push(cleanText.slice(previousEnd));
 
       return (
         <div
@@ -126,7 +179,7 @@ export function FlipBookViewer(props) {
               fontSize: dynamicFontSize,
             }}
           >
-            {wordSpans}
+            <p className="ktab-book-page__paragraph">{wordElements}</p>
           </div>
 
           <div className="ktab-book-page__footer">
@@ -136,13 +189,14 @@ export function FlipBookViewer(props) {
       );
     },
     [
-      tokens,
-      dynamicFontSize,
-      dynamicLineHeight,
-      bookTitle,
       bookAuthor,
-      goToPage,
-      onBack,
+      pagesCacheRef,
+      currentPageIndex,
+      currentPageData,
+      text,
+      wordsPerPage,
+      dynamicLineHeight,
+      dynamicFontSize,
     ]
   );
 
@@ -165,7 +219,7 @@ export function FlipBookViewer(props) {
       }}
       dir="ltr"
     >
-      {(loading || pages.length === 0) && (
+      {(!ready || loading || !currentPage) && (
         <BookPageSkeleton
           theme={theme}
           pageWidth={pageWidth}

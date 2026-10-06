@@ -90,7 +90,7 @@
 
 /* Floating state: smoothly glides up inside the container */
 .myui-input-inset-label.is-floating {
-  top: 9px;
+  top: 7px;
   transform: translateY(0) scale(0.78);
   color: var(--text-muted, #64748b);
   font-weight: 700;
@@ -142,10 +142,10 @@
   outline: none;
 }
 
-/* When inset label is present, push input text down so it sits under the label */
+/* When inset label is present, push input text down so it sits under the label with clean gap */
 .myui-input.has-inset-label {
-  padding-top: 18px;
-  padding-bottom: 2px;
+  padding-top: 22px;
+  padding-bottom: 4px;
 }
 
 .myui-input::placeholder {

@@ -31,6 +31,10 @@ export function useBookReader() {
     loadingText,
     totalPages: contentEstimatedPages,
     wordsPerPage,
+    setWordsPerPage,
+    currentPageData,
+    loadPage,
+    pagesCacheRef,
   } = useReaderContent(id);
 
   // 2. Ambient background audio
@@ -54,10 +58,16 @@ export function useBookReader() {
           ttsActionsRef.current.togglePlay?.();
           return;
         }
+        const pageContent =
+          pagesCacheRef?.current?.[newPage]?.content ||
+          (currentPageData?.page === newPage ? currentPageData.content : "");
         ttsActionsRef.current.startPageStream?.(
           {
             bookId: id,
             voiceId: voice,
+            page: newPage,
+            text: pageContent,
+            wordsPerPage: wordsPerPage || 80,
             startWord: info.startWord,
             endWord: info.endWord,
             isLastPage: newPage === pages.length - 1,
@@ -66,7 +76,7 @@ export function useBookReader() {
         );
       }
     }
-  }, [id, voice]);
+  }, [id, voice, pagesCacheRef, currentPageData, wordsPerPage]);
 
   // 3. Navigation & citation deep links
   const {
@@ -86,9 +96,10 @@ export function useBookReader() {
     loadingText,
     token,
     onPageChangeNotification,
+    loadPage,
   });
 
-  const effectiveTotalPages = navTotalPages > 1 ? navTotalPages : contentEstimatedPages;
+  const effectiveTotalPages = contentEstimatedPages > 0 ? contentEstimatedPages : 1;
 
   // 4. UI controls, modals, popovers, lock & fullscreen
   const {
@@ -141,10 +152,14 @@ export function useBookReader() {
       if (nextPage <= pages.length) {
         const nextInfo = pages[nextPage - 1];
         if (nextInfo && !nextInfo.isEndPage) {
+          const nextContent = pagesCacheRef?.current?.[nextPage]?.content || "";
           startPageStream(
             {
               bookId: id,
               voiceId: voice,
+              page: nextPage,
+              text: nextContent,
+              wordsPerPage: wordsPerPage || 80,
               startWord: nextInfo.startWord,
               endWord: nextInfo.endWord,
               isLastPage: nextPage === pages.length - 1,
@@ -170,11 +185,15 @@ export function useBookReader() {
       const pages = generatedPagesRef.current;
       const info = pages[currentPage - 1];
       if (info && !info.isEndPage) {
+        const pageContent = pagesCacheRef?.current?.[currentPage]?.content || currentPageData?.content || bookText || "";
         await togglePlay();
         startPageStream(
           {
             bookId: id,
             voiceId: voice,
+            page: currentPage,
+            text: pageContent,
+            wordsPerPage: wordsPerPage || 80,
             startWord: info.startWord,
             endWord: info.endWord,
             isLastPage: currentPage === pages.length - 1,
@@ -186,7 +205,7 @@ export function useBookReader() {
       togglePlay();
       cancelStream();
     }
-  }, [isPlaying, currentPage, id, voice, togglePlay, startPageStream, cancelStream, generatedPagesRef]);
+  }, [isPlaying, currentPage, id, voice, togglePlay, startPageStream, cancelStream, generatedPagesRef, pagesCacheRef, currentPageData, bookText, wordsPerPage]);
 
   return {
     id,
@@ -199,6 +218,10 @@ export function useBookReader() {
     bookText,
     loadingText,
     wordsPerPage,
+    setWordsPerPage,
+    currentPageData,
+    loadPage,
+    pagesCacheRef,
     voice,
     setVoice,
     effect,

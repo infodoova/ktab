@@ -1,13 +1,15 @@
 import React from "react";
 import {
   ChevronLeft,
+  ChevronRight,
   Play,
   Pause,
+  Loader2,
   Headphones,
   Paintbrush,
   Type,
   Palette,
-  Compass,
+  BookMarked,
   Lock,
   Unlock,
   Check,
@@ -55,6 +57,7 @@ export function ReaderGlassHeader(props) {
     bookTitle = "",
     onBack,
     isPlaying = false,
+    isTTSLoading = false,
     onTogglePlay,
     voice,
     onSelectVoice,
@@ -70,12 +73,21 @@ export function ReaderGlassHeader(props) {
     onTogglePopover,
     onOpenFastTravel,
     onOpenImageGen,
+    onOpenNavigator,
     isLocked = false,
     onToggleLock,
     isFullscreen = false,
     onToggleFullscreen,
     isControlsVisible = true,
   } = props;
+
+  const [isLeftDrawerOpen, setIsLeftDrawerOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    if (isLocked || !isControlsVisible) {
+      setIsLeftDrawerOpen(false);
+    }
+  }, [isLocked, isControlsVisible]);
 
   const {
     isToolsOpen,
@@ -96,9 +108,15 @@ export function ReaderGlassHeader(props) {
     {
       id: "play",
       label: "قراءة صوتية",
-      sub: isPlaying ? "إيقاف مؤقت" : "بدء الاستماع",
-      icon: isPlaying ? Pause : Play,
+      sub: isTTSLoading
+        ? "جاري التحميل…"
+        : isPlaying
+        ? "إيقاف مؤقت"
+        : "بدء الاستماع",
+      icon: isTTSLoading ? Loader2 : isPlaying ? Pause : Play,
+      iconClass: isTTSLoading ? "ktab-spin-fast" : "",
       isActive: isPlaying,
+      isLoading: isTTSLoading,
       onClick: (e) => handleActionClick(e, onTogglePlay),
     },
     {
@@ -145,7 +163,7 @@ export function ReaderGlassHeader(props) {
       id: "fastTravel",
       label: "فهرس الصفحات",
       sub: "انتقال سريع",
-      icon: Compass,
+      icon: BookMarked,
       isActive: false,
       onClick: (e) => handleActionClick(e, onOpenFastTravel),
     },
@@ -642,11 +660,18 @@ export function ReaderGlassHeader(props) {
                 type="button"
                 className={`ktab-glass-circle-btn ${
                   isPlaying ? "ktab-glass-circle-btn--playing" : ""
-                }`}
+                } ${isTTSLoading ? "ktab-glass-circle-btn--loading" : ""}`}
                 onClick={(e) => handleActionClick(e, onTogglePlay)}
-                aria-label={isPlaying ? "إيقاف القراءة" : "بدء الاستماع"}
+                aria-label={isTTSLoading ? "جاري التحميل" : isPlaying ? "إيقاف القراءة" : "بدء الاستماع"}
+                title={isTTSLoading ? "جاري التحميل…" : isPlaying ? "إيقاف مؤقت" : "بدء الاستماع"}
               >
-                {isPlaying ? <Pause size={17} strokeWidth={2.4} /> : <Play size={17} strokeWidth={2.4} />}
+                {isTTSLoading ? (
+                  <Loader2 size={17} strokeWidth={2.4} className="ktab-spin-fast" />
+                ) : isPlaying ? (
+                  <Pause size={17} strokeWidth={2.4} />
+                ) : (
+                  <Play size={17} strokeWidth={2.4} />
+                )}
               </button>
             </div>
 
@@ -733,7 +758,7 @@ export function ReaderGlassHeader(props) {
                 onClick={(e) => handleActionClick(e, onOpenFastTravel)}
                 aria-label="فهرس الصفحات"
               >
-                <Compass size={17} strokeWidth={2.2} />
+                <BookMarked size={17} strokeWidth={2.2} />
               </button>
             </div>
 
@@ -785,12 +810,12 @@ export function ReaderGlassHeader(props) {
                   type="button"
                   className={`ktab-pc-tool-square ${
                     tool.isActive ? "ktab-pc-tool-square--active" : ""
-                  }`}
+                  } ${tool.isLoading ? "ktab-pc-tool-square--loading" : ""}`}
                   onClick={tool.onClick}
                   aria-label={tool.label}
                   title={`${tool.label} - ${tool.sub}`}
                 >
-                  <div className="ktab-pc-tool-square__icon">
+                  <div className={`ktab-pc-tool-square__icon ${tool.iconClass || ""}`}>
                     <IconComp size={22} strokeWidth={2.2} />
                   </div>
                   <div className="ktab-pc-tool-square__label">
@@ -802,6 +827,356 @@ export function ReaderGlassHeader(props) {
             })}
           </div>
         </aside>
+      )}
+
+      {/* 8. Mobile & Tablet Floating Action Stack (Bottom-Left) */}
+      <div
+        className={`ktab-mobile-dock-stack ktab-mobile-dock-stack--theme-${theme} ${
+          !isControlsVisible && !isLocked ? "ktab-mobile-dock-stack--hidden" : ""
+        } ${isLocked ? "ktab-mobile-dock-stack--locked" : ""}`}
+        dir="rtl"
+      >
+        {isLocked ? (
+          /* When locked: ONLY the Unlock button is visible. Appendix, TTS, and Tools are completely hidden. */
+          <button
+            type="button"
+            className="ktab-mobile-stack-btn ktab-mobile-stack-btn--unlock"
+            onClick={(e) => handleActionClick(e, onToggleLock)}
+            aria-label="إلغاء قفل الشاشة"
+            title="إلغاء قفل الشاشة"
+          >
+            <Unlock size={19} strokeWidth={2.4} />
+          </button>
+        ) : (
+          <>
+            {/* 1st (bottom) in visual column-reverse: Appendix button (fihris) */}
+            <button
+              type="button"
+              className="ktab-mobile-stack-btn ktab-mobile-stack-btn--appendix"
+              onClick={(e) => handleActionClick(e, onOpenNavigator)}
+              aria-label="فهرس الكتاب"
+              title="فهرس الكتاب"
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+              </svg>
+            </button>
+
+            {/* 2nd in visual column-reverse: Lock Screen button directly above appendix */}
+            <button
+              type="button"
+              className="ktab-mobile-stack-btn ktab-mobile-stack-btn--lock"
+              onClick={(e) => handleActionClick(e, onToggleLock)}
+              aria-label="قفل الشاشة"
+              title="قفل الشاشة"
+            >
+              <Lock size={18} strokeWidth={2.4} />
+            </button>
+
+            {/* 3rd (top) in visual column-reverse: TTS Pause / Start directly above lock */}
+            <button
+              type="button"
+              className={`ktab-mobile-stack-btn ktab-mobile-stack-btn--tts ${
+                isPlaying ? "ktab-mobile-stack-btn--playing" : ""
+              } ${isTTSLoading ? "ktab-mobile-stack-btn--loading" : ""}`}
+              onClick={(e) => handleActionClick(e, onTogglePlay)}
+              aria-label={isTTSLoading ? "جاري التحميل" : isPlaying ? "إيقاف مؤقت" : "بدء الاستماع"}
+              title={isTTSLoading ? "جاري التحميل…" : isPlaying ? "إيقاف مؤقت" : "بدء الاستماع"}
+            >
+              {isTTSLoading ? (
+                <Loader2 size={18} strokeWidth={2.4} className="ktab-spin-fast" />
+              ) : isPlaying ? (
+                <Pause size={18} strokeWidth={2.4} />
+              ) : (
+                <Play size={18} strokeWidth={2.4} />
+              )}
+            </button>
+          </>
+        )}
+      </div>
+
+      {/* 9. Mobile & Tablet Left Edge Slider Collapse (with authentic '}' handle tab) */}
+      {!isLocked && (
+        <>
+          {/* Backdrop overlay when slider is expanded */}
+          {isLeftDrawerOpen && (
+            <div
+              className="ktab-mobile-slider-backdrop"
+              onClick={() => setIsLeftDrawerOpen(false)}
+              aria-hidden="true"
+            />
+          )}
+
+          {/* Collapsible Drawer with '}' Handle */}
+          <aside
+            className={`ktab-mobile-slider-drawer ktab-mobile-slider-drawer--theme-${theme} ${
+              isLeftDrawerOpen ? "ktab-mobile-slider-drawer--open" : ""
+            } ${!isControlsVisible && !isLeftDrawerOpen ? "ktab-mobile-slider-drawer--hidden" : ""}`}
+            dir="rtl"
+            aria-label="شريط أدوات القارئ الجانبي"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Ultra-Clean Edge Slider Handle Tab */}
+            <button
+              type="button"
+              className={`ktab-mobile-slider-handle ${
+                isLeftDrawerOpen ? "ktab-mobile-slider-handle--open" : ""
+              }`}
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsLeftDrawerOpen((prev) => !prev);
+              }}
+              aria-label={isLeftDrawerOpen ? "طي شريط الأدوات" : "فتح شريط الأدوات"}
+              title={isLeftDrawerOpen ? "طي الأدوات" : "أدوات القارئ"}
+            >
+              <span className="ktab-mobile-slider-handle__chevron">
+                {isLeftDrawerOpen ? (
+                  <ChevronLeft size={14} strokeWidth={2.6} />
+                ) : (
+                  <ChevronRight size={14} strokeWidth={2.6} />
+                )}
+              </span>
+            </button>
+
+            {/* Header with Close Icon inside drawer */}
+            <div className="ktab-mobile-slider-drawer__header">
+              <button
+                type="button"
+                className="ktab-mobile-slider-drawer__close"
+                onClick={() => setIsLeftDrawerOpen(false)}
+                aria-label="إغلاق"
+              >
+                <X size={18} strokeWidth={2.4} />
+              </button>
+            </div>
+
+            {/* Scrollable vertical column - All reader icons inside, 1 icon per row */}
+            <div className="ktab-mobile-slider-drawer__scroll">
+              {/* 1. Play / Pause TTS */}
+              <button
+                type="button"
+                className={`ktab-left-drawer-icon-btn ${
+                  isPlaying ? "ktab-left-drawer-icon-btn--playing" : ""
+                } ${isTTSLoading ? "ktab-left-drawer-icon-btn--loading" : ""}`}
+                onClick={(e) => handleActionClick(e, onTogglePlay)}
+                aria-label={isTTSLoading ? "جاري التحميل" : isPlaying ? "إيقاف مؤقت" : "بدء الاستماع"}
+                title={isTTSLoading ? "جاري التحميل…" : isPlaying ? "إيقاف مؤقت" : "بدء الاستماع"}
+              >
+                {isTTSLoading ? (
+                  <Loader2 size={19} strokeWidth={2.4} className="ktab-spin-fast" />
+                ) : isPlaying ? (
+                  <Pause size={19} strokeWidth={2.4} />
+                ) : (
+                  <Play size={19} strokeWidth={2.4} />
+                )}
+              </button>
+
+              {/* 2. Reader Voice */}
+              <button
+                type="button"
+                className={`ktab-left-drawer-icon-btn ${
+                  activePopover === "voices" ? "ktab-left-drawer-icon-btn--active" : ""
+                }`}
+                onClick={(e) => {
+                  handleActionClick(e, () => {
+                    setIsLeftDrawerOpen(false);
+                    onTogglePopover?.("voices");
+                  });
+                }}
+                aria-label="صوت القارئ"
+                title="صوت القارئ"
+              >
+                <Headphones size={19} strokeWidth={2.2} />
+              </button>
+
+              {/* 3. Ambient Sounds */}
+              <button
+                type="button"
+                className={`ktab-left-drawer-icon-btn ${
+                  effect !== "none" || activePopover === "ambient"
+                    ? "ktab-left-drawer-icon-btn--active"
+                    : ""
+                }`}
+                onClick={(e) => {
+                  handleActionClick(e, () => {
+                    setIsLeftDrawerOpen(false);
+                    onTogglePopover?.("ambient");
+                  });
+                }}
+                aria-label="المؤثرات الصوتية"
+                title="المؤثرات الصوتية"
+              >
+                {effect === "none" ? (
+                  <Volume2 size={19} strokeWidth={2.2} />
+                ) : (
+                  React.createElement(AMBIENT_ICON_MAP[effect] || CloudRain, {
+                    size: 19,
+                    strokeWidth: 2.2,
+                  })
+                )}
+              </button>
+
+              {/* 4. Font Size */}
+              <button
+                type="button"
+                className={`ktab-left-drawer-icon-btn ${
+                  activePopover === "font" ? "ktab-left-drawer-icon-btn--active" : ""
+                }`}
+                onClick={(e) => {
+                  handleActionClick(e, () => {
+                    setIsLeftDrawerOpen(false);
+                    onTogglePopover?.("font");
+                  });
+                }}
+                aria-label="حجم الخط"
+                title="حجم الخط"
+              >
+                <Type size={19} strokeWidth={2.2} />
+              </button>
+
+              {/* 5. Theme */}
+              <button
+                type="button"
+                className={`ktab-left-drawer-icon-btn ${
+                  activePopover === "theme" ? "ktab-left-drawer-icon-btn--active" : ""
+                }`}
+                onClick={(e) => {
+                  handleActionClick(e, () => {
+                    setIsLeftDrawerOpen(false);
+                    onTogglePopover?.("theme");
+                  });
+                }}
+                aria-label="المظهر والألوان"
+                title="المظهر والألوان"
+              >
+                <Palette size={19} strokeWidth={2.2} />
+              </button>
+
+              {/* 6. Transition Mode */}
+              <button
+                type="button"
+                className={`ktab-left-drawer-icon-btn ${
+                  activePopover === "modes" ? "ktab-left-drawer-icon-btn--active" : ""
+                }`}
+                onClick={(e) => {
+                  handleActionClick(e, () => {
+                    setIsLeftDrawerOpen(false);
+                    onTogglePopover?.("modes");
+                  });
+                }}
+                aria-label="تقليب الصفحات"
+                title="تقليب الصفحات"
+              >
+                <BookOpen size={19} strokeWidth={2.2} />
+              </button>
+
+              {/* 7. AI Image Generation */}
+              <button
+                type="button"
+                className="ktab-left-drawer-icon-btn"
+                onClick={(e) => {
+                  handleActionClick(e, () => {
+                    setIsLeftDrawerOpen(false);
+                    onOpenImageGen?.();
+                  });
+                }}
+                aria-label="صورة الصفحة بالذكاء الاصطناعي"
+                title="صورة الصفحة"
+              >
+                <Paintbrush size={19} strokeWidth={2.2} />
+              </button>
+
+              {/* 8. Fast Travel */}
+              <button
+                type="button"
+                className="ktab-left-drawer-icon-btn"
+                onClick={(e) => {
+                  handleActionClick(e, () => {
+                    setIsLeftDrawerOpen(false);
+                    onOpenFastTravel?.();
+                  });
+                }}
+                aria-label="فهرس الصفحات السريع"
+                title="انتقال سريع"
+              >
+                <BookMarked size={19} strokeWidth={2.2} />
+              </button>
+
+              {/* 9. Appendix / Chapters */}
+              <button
+                type="button"
+                className="ktab-left-drawer-icon-btn"
+                onClick={(e) => {
+                  handleActionClick(e, () => {
+                    setIsLeftDrawerOpen(false);
+                    onOpenNavigator?.();
+                  });
+                }}
+                aria-label="فهرس ودليل الكتاب"
+                title="فهرس الكتاب"
+              >
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                </svg>
+              </button>
+
+              {/* 10. Lock Screen */}
+              <button
+                type="button"
+                className="ktab-left-drawer-icon-btn"
+                onClick={(e) => {
+                  handleActionClick(e, () => {
+                    setIsLeftDrawerOpen(false);
+                    onToggleLock?.();
+                  });
+                }}
+                aria-label="قفل الشاشة"
+                title="قفل الشاشة"
+              >
+                <Lock size={19} strokeWidth={2.4} />
+              </button>
+
+              {/* 11. Fullscreen */}
+              <button
+                type="button"
+                className={`ktab-left-drawer-icon-btn ${
+                  isFullscreen ? "ktab-left-drawer-icon-btn--active" : ""
+                }`}
+                onClick={(e) => {
+                  handleActionClick(e, onToggleFullscreen);
+                }}
+                aria-label="ملء الشاشة"
+                title={isFullscreen ? "إنهاء ملء الشاشة" : "ملء الشاشة"}
+              >
+                {isFullscreen ? (
+                  <Minimize size={19} strokeWidth={2.2} />
+                ) : (
+                  <Maximize size={19} strokeWidth={2.2} />
+                )}
+              </button>
+            </div>
+          </aside>
+        </>
       )}
     </>
   );

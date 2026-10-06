@@ -1,8 +1,10 @@
 import React from "react";
 import { FlipBookViewer } from "../components/FlipBookViewer";
 import { ReaderGlassHeader } from "../components/ReaderGlassHeader";
+import { BookNavigator } from "../components/BookNavigator";
 import { FastTravelModal } from "../components/FastTravelModal";
 import { PageImageGenModal } from "../components/PageImageGenModal";
+import { BookSectionModal } from "../components/BookSectionModal";
 import { useBookReader } from "../hooks/useBookReader";
 import { ALLOW_RIGHT_CLICK } from "../constants/readerConstants";
 import { ErrorBoundary } from "@/components/common";
@@ -25,6 +27,9 @@ export function BookDisplayView() {
     bookText,
     loadingText,
     wordsPerPage,
+    currentPageData,
+    loadPage,
+    pagesCacheRef,
     voice,
     setVoice,
     effect,
@@ -54,10 +59,20 @@ export function BookDisplayView() {
     bookId,
     handleGoToPage,
     handlePageChange,
+    isTTSLoading,
     handleTogglePlay,
     onPagesGenerated,
     handleCanvasClick,
   } = useBookReader();
+
+  const [selectedSection, setSelectedSection] = React.useState(null);
+  const [isNavigatorOpen, setIsNavigatorOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    if (isLocked) {
+      setIsNavigatorOpen(false);
+    }
+  }, [isLocked]);
 
   return (
     <div
@@ -84,6 +99,7 @@ export function BookDisplayView() {
           bookTitle={bookTitle}
           onBack={handleBack}
           isPlaying={isPlaying}
+          isTTSLoading={isTTSLoading}
           onTogglePlay={handleTogglePlay}
           voice={voice}
           onSelectVoice={setVoice}
@@ -99,10 +115,29 @@ export function BookDisplayView() {
           onTogglePopover={handleTogglePopover}
           onOpenFastTravel={handleOpenFastTravel}
           onOpenImageGen={handleOpenImageGen}
+          onOpenNavigator={() => setIsNavigatorOpen(true)}
           isLocked={isLocked}
           onToggleLock={handleToggleLock}
           isFullscreen={isFullscreen}
           onToggleFullscreen={handleToggleFullscreen}
+          isControlsVisible={isControlsVisible}
+        />
+      )}
+
+      {/* Editorial Liquid Glass Navigator & Appendix Viewer (Hidden when locked) */}
+      {!isImageGenActive && !isLocked && (
+        <BookNavigator
+          bookId={bookId}
+          bookTitle={bookTitle}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          wordsPerPage={wordsPerPage}
+          onGoToPage={handleGoToPage}
+          onSelectSection={setSelectedSection}
+          theme={theme}
+          isOpen={isNavigatorOpen}
+          onOpenChange={setIsNavigatorOpen}
+          isLocked={isLocked}
           isControlsVisible={isControlsVisible}
         />
       )}
@@ -141,6 +176,11 @@ export function BookDisplayView() {
               bookTitle={bookTitle}
               bookAuthor={bookAuthor}
               onBack={handleBack}
+              totalPages={totalPages}
+              currentPage={currentPage}
+              currentPageData={currentPageData}
+              pagesCacheRef={pagesCacheRef}
+              loadPage={loadPage}
             />
           </div>
 
@@ -195,6 +235,16 @@ export function BookDisplayView() {
         totalPages={totalPages}
         bookRef={bookRef}
         theme={theme}
+      />
+
+      {/* Appendix & Reference Section Content Viewer Modal */}
+      <BookSectionModal
+        isOpen={Boolean(selectedSection)}
+        onClose={() => setSelectedSection(null)}
+        section={selectedSection}
+        bookId={bookId}
+        theme={theme}
+        fontSize={fontSize}
       />
     </div>
   );

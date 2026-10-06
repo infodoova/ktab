@@ -95,8 +95,7 @@
   font-size: 14px;
   font-weight: 700;
   font-family: var(--font-arabic, "Tajawal", system-ui, sans-serif);
-  color: #0f172a;
-  opacity: 0.85;
+  color: var(--primary-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -115,8 +114,11 @@
 
 .ktab-reader-header--theme-charcoal-dark .ktab-reader-title-text,
 .dark .ktab-reader-title-text {
-  color: #f8fafc !important;
-  opacity: 0.85 !important;
+  color: var(--text-inverse) !important;
+}
+
+.ktab-reader-header--theme-pure-white .ktab-reader-title-text {
+  color: var(--brand-black) !important;
 }
 
 .ktab-reader-header--theme-warm-cream .ktab-reader-title-text {
@@ -1149,27 +1151,32 @@
     transition: all 0.32s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  /* Center Title on Mobile - Exactly aligned with back and launcher buttons */
+  /* Let the RTL title begin at the right edge while leaving room for the back button. */
   .ktab-reader-title-anchor {
     top: 12px !important;
     height: 42px !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    max-width: calc(100vw - 120px) !important;
+    left: 72px !important;
+    right: 16px !important;
+    transform: none !important;
+    max-width: none !important;
+    justify-content: flex-start !important;
+    direction: rtl;
     z-index: 125 !important;
   }
 
   .ktab-reader-title-anchor .ktab-reader-title-text {
+    display: block;
+    max-width: 100%;
     font-size: 13px !important;
     line-height: 42px !important;
-    text-align: center !important;
+    text-align: right !important;
   }
 
   /* When mobile dock is expanded, smoothly hide the title so they never collide */
   .ktab-reader-title-anchor--tools-open {
     opacity: 0 !important;
     pointer-events: none !important;
-    transform: translateX(-50%) translateY(-10px) !important;
+    transform: translateY(-10px) !important;
   }
 
   .ktab-reader-dock-anchor--expanded,
@@ -2000,5 +2007,375 @@
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55);
 }
 
+/* TTS Loading Indicator Styles */
+@keyframes ktab-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
 
+.ktab-spin-fast {
+  animation: ktab-spin 0.8s linear infinite !important;
+}
 
+.ktab-pc-tool-square--loading {
+  opacity: 0.9;
+  cursor: wait;
+}
+
+.ktab-glass-circle-btn--loading {
+  opacity: 0.9;
+  cursor: wait;
+}
+
+/* ==========================================================================
+   MOBILE & VERTICAL IPAD / TABLET (<= 1024px)
+   Bottom-Left Floating Action Stack & Left Details Modal
+   ========================================================================== */
+
+/* 1. On mobile and vertical tablets, hide top launcher dock and top unlock anchor */
+@media (max-width: 1024px) {
+  .ktab-reader-dock-anchor {
+    display: none !important;
+  }
+  .ktab-reader-dock {
+    display: none !important;
+  }
+  .ktab-reader-unlock-anchor {
+    display: none !important;
+  }
+}
+
+/* 2. On desktop (> 1024px), hide mobile stack, slider drawer, and backdrop */
+@media (min-width: 1025px) {
+  .ktab-mobile-dock-stack {
+    display: none !important;
+  }
+  .ktab-mobile-slider-drawer {
+    display: none !important;
+  }
+  .ktab-mobile-slider-backdrop {
+    display: none !important;
+  }
+}
+
+/* 3. Floating Bottom-Left Action Stack */
+.ktab-mobile-dock-stack {
+  position: fixed;
+  left: 16px;
+  bottom: 20px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  gap: 10px;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.ktab-mobile-dock-stack--hidden {
+  opacity: 0 !important;
+  transform: translateY(28px) scale(0.9) !important;
+  pointer-events: none !important;
+}
+
+.ktab-mobile-stack-btn {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  min-height: 42px;
+  padding: 0;
+  border-radius: 50%;
+  background: #000000 !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  box-shadow: none !important;
+  filter: none !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  outline: none;
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+              background 0.18s ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ktab-mobile-stack-btn:hover {
+  background: #18181b !important;
+  transform: scale(1.05);
+}
+
+.ktab-mobile-stack-btn:active {
+  transform: scale(0.94);
+}
+
+.ktab-mobile-stack-btn--playing {
+  background: #18181b !important;
+  border-color: rgba(255, 255, 255, 0.35) !important;
+}
+
+.ktab-mobile-stack-btn--unlock {
+  background: #18181b !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* 4. Left Edge Slider Collapse with '}' Handle */
+.ktab-mobile-slider-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.42);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 1240;
+  animation: ktabDrawerFadeIn 0.22s ease-out;
+}
+
+@keyframes ktabDrawerFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.ktab-mobile-slider-drawer {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 68px;
+  z-index: 1250;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 0 20px;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(36px) saturate(210%);
+  -webkit-backdrop-filter: blur(36px) saturate(210%);
+  border-right: none;
+  box-shadow: none;
+  transform: translateX(-100%);
+  transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+.ktab-mobile-slider-drawer--open {
+  transform: translateX(0) !important;
+}
+
+/* When controls hide during reading, retract drawer further so '}' handle also hides */
+.ktab-mobile-slider-drawer--hidden {
+  transform: translateX(calc(-100% - 32px)) !important;
+}
+
+/* Ultra-Clean Capsule Edge Slider Handle Tab */
+.ktab-mobile-slider-handle {
+  position: absolute;
+  top: 45%;
+  right: -20px;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 52px;
+  padding: 0;
+  border-radius: 0 16px 16px 0;
+  border: none;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(28px) saturate(200%);
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
+  box-shadow: 2px 4px 14px rgba(0, 0, 0, 0.08), 1px 0 2px rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  z-index: 1251;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ktab-mobile-slider-handle:hover {
+  transform: translateY(-50%) scale(1.05);
+  box-shadow: 3px 6px 18px rgba(0, 0, 0, 0.12);
+}
+
+.ktab-mobile-slider-handle:active {
+  transform: translateY(-50%) scale(0.96);
+}
+
+.ktab-mobile-slider-handle__chevron {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: inherit;
+  opacity: 1;
+  margin-right: -1px;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.ktab-mobile-slider-handle:hover .ktab-mobile-slider-handle__chevron {
+  opacity: 1;
+}
+
+/* Themes for Drawer & Handle Tab */
+.ktab-mobile-slider-drawer--theme-pure-white {
+  background: rgba(255, 255, 255, 0.95);
+  border-right: none;
+  color: var(--brand-black);
+}
+.ktab-mobile-slider-drawer--theme-pure-white .ktab-mobile-slider-handle {
+  background: rgba(255, 255, 255, 0.96);
+  border: none;
+  color: var(--brand-black);
+}
+
+.ktab-mobile-slider-drawer--theme-warm-cream {
+  background: rgba(246, 239, 224, 0.96);
+  border-right: none;
+  color: #2c251e;
+}
+.ktab-mobile-slider-drawer--theme-warm-cream .ktab-mobile-slider-handle {
+  background: rgba(246, 239, 224, 0.96);
+  border: none;
+  color: #2c251e;
+}
+
+.ktab-mobile-slider-drawer--theme-paper-sepia {
+  background: rgba(236, 226, 201, 0.96);
+  border-right: none;
+  color: #2b2118;
+}
+.ktab-mobile-slider-drawer--theme-paper-sepia .ktab-mobile-slider-handle {
+  background: rgba(236, 226, 201, 0.96);
+  border: none;
+  color: #2b2118;
+}
+
+.ktab-mobile-slider-drawer--theme-charcoal-dark {
+  background: rgba(15, 18, 25, 0.96);
+  border-right: none;
+  color: #f8fafc;
+  box-shadow: none;
+}
+.ktab-mobile-slider-drawer--theme-charcoal-dark .ktab-mobile-slider-handle {
+  background: rgba(22, 26, 36, 0.96);
+  border: none;
+  color: #f8fafc;
+  box-shadow: 2px 4px 14px rgba(0, 0, 0, 0.35);
+}
+
+.ktab-mobile-slider-drawer__header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  margin-bottom: 10px;
+}
+
+.ktab-mobile-slider-drawer--theme-charcoal-dark .ktab-mobile-slider-drawer__header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ktab-mobile-slider-drawer__close {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  color: inherit;
+  opacity: 0.7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.ktab-mobile-slider-drawer__close:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.ktab-mobile-slider-drawer--theme-charcoal-dark .ktab-mobile-slider-drawer__close:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.ktab-mobile-slider-drawer__scroll {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 4px 0 16px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.ktab-mobile-slider-drawer__scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* 1 icon per row button */
+.ktab-left-drawer-icon-btn {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  color: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  outline: none;
+  transition: transform 0.16s cubic-bezier(0.16, 1, 0.3, 1),
+              background 0.16s ease,
+              border-color 0.16s ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: none !important;
+}
+
+.ktab-left-drawer-icon-btn:hover {
+  background: rgba(0, 0, 0, 0.08);
+  transform: scale(1.06);
+}
+
+.ktab-left-drawer-icon-btn:active {
+  transform: scale(0.92);
+}
+
+.ktab-left-drawer-icon-btn--active,
+.ktab-left-drawer-icon-btn--playing {
+  background: #000000 !important;
+  color: #ffffff !important;
+  border-color: #000000 !important;
+}
+
+.ktab-mobile-slider-drawer--theme-charcoal-dark .ktab-left-drawer-icon-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ktab-mobile-slider-drawer--theme-charcoal-dark .ktab-left-drawer-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.ktab-mobile-slider-drawer--theme-charcoal-dark .ktab-left-drawer-icon-btn--active,
+.ktab-mobile-slider-drawer--theme-charcoal-dark .ktab-left-drawer-icon-btn--playing {
+  background: #3b82f6 !important;
+  border-color: #3b82f6 !important;
+  color: #ffffff !important;
+}

@@ -56,11 +56,13 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
   const rafRef = useRef(null);
   const allWordsRef = useRef([]);
   const wordCursorRef = useRef(0);
-  const lastHighlightedRef = useRef(null);
   const totalDurationRef = useRef(0);
   const charOffsetRef = useRef(0);
+  const startWordRef = useRef(0);
+  const prefetchStartWordRef = useRef(0);
 
   const isPrefetchingRef = useRef(false);
+  const lastHighlightedRef = useRef(null);
 
   const ensureCtx = useCallback(() => {
     if (!audioCtxRef.current) audioCtxRef.current = createAudioContextSafe();
@@ -75,25 +77,37 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
     lastHighlightedRef.current = null;
   }, []);
 
-  const highlightWord = useCallback((startChar, endChar) => {
-    const key = `${startChar}-${endChar}`;
+  const highlightWord = useCallback((startChar, endChar, wordIndex = null) => {
+    const key = wordIndex != null ? `idx-${wordIndex}` : `${startChar}-${endChar}`;
     if (lastHighlightedRef.current === key) return;
 
     document.querySelectorAll(".tts-active-word").forEach((el) => {
       el.classList.remove("tts-active-word");
     });
 
-    const selector = `[data-word-start="${startChar}"][data-word-end="${endChar}"]`;
-    let el = document.querySelector(selector);
+    let el = null;
 
-    if (!el) {
+    // 1. Primary: Match by exact word index (100% resilient across paragraph containers)
+    if (wordIndex != null) {
+      el = document.querySelector(`[data-word-index="${wordIndex}"]`);
+    }
+
+    // 2. Secondary: Match by exact character boundary
+    if (!el && startChar != null && endChar != null) {
+      el = document.querySelector(`[data-word-start="${startChar}"][data-word-end="${endChar}"]`);
+    }
+
+    // 3. Fallback: Fuzzy boundary match
+    if (!el && startChar != null && endChar != null) {
       const allWords = document.querySelectorAll("[data-word-start]");
       let bestMatch = null;
-      let minDiff = 10;
+      let minDiff = 12;
 
       for (const wordEl of allWords) {
-        const wordStart = parseInt(wordEl.getAttribute("data-word-start"));
-        const wordEnd = parseInt(wordEl.getAttribute("data-word-end"));
+        const wordStart = parseInt(wordEl.getAttribute("data-word-start"), 10);
+        const wordEnd = parseInt(wordEl.getAttribute("data-word-end"), 10);
+
+        if (isNaN(wordStart) || isNaN(wordEnd)) continue;
 
         if (wordStart <= startChar && wordEnd >= endChar) {
           el = wordEl;
@@ -115,7 +129,7 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
       lastHighlightedRef.current = key;
       el.scrollIntoView({
         behavior: "smooth",
-        block: "center",
+        block: "nearest",
         inline: "nearest",
       });
     }
@@ -151,7 +165,7 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
       }
 
       if (currentWord) {
-        highlightWord(currentWord.startChar, currentWord.endChar);
+        highlightWord(currentWord.startChar, currentWord.endChar, currentWord.wordIndex);
       } else if (
         lastHighlightedRef.current &&
         elapsed > totalDurationRef.current + 0.5
@@ -256,6 +270,8 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
 
       let cumulativeOffset = 0;
       const allWords = [];
+      let wordCounter = 0;
+      const baseWordIndex = startWordRef.current ?? 0;
 
       for (const alignment of allAlignmentsRef.current) {
         if (!alignment.words || alignment.words.length === 0) continue;
@@ -272,11 +288,13 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
 
           allWords.push({
             word: w.word,
+            wordIndex: baseWordIndex + wordCounter,
             startSec: baseTime + (w.startSec - timeOffset),
             endSec: baseTime + (w.endSec - timeOffset),
             startChar: finalStartChar,
             endChar: finalEndChar,
           });
+          wordCounter++;
         }
 
         if (timeOffset > 0) {
@@ -344,6 +362,8 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
     totalDurationRef.current = 0;
     expectedDurationRef.current = 0;
     charOffsetRef.current = 0;
+    startWordRef.current = 0;
+    prefetchStartWordRef.current = 0;
 
     gotCompleteRef.current = false;
     pageEndedFiredRef.current = false;
@@ -399,6 +419,8 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
 
       let cumulativeOffset = 0;
       const allWords = [];
+      let prefetchWordCounter = 0;
+      const basePrefetchWordIndex = prefetchStartWordRef.current ?? 0;
 
       for (const alignment of prefetchAlignmentsRef.current) {
         if (!alignment.words || alignment.words.length === 0) continue;
@@ -415,11 +437,13 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
 
           allWords.push({
             word: w.word,
+            wordIndex: basePrefetchWordIndex + prefetchWordCounter,
             startSec: baseTime + (w.startSec - timeOffset),
             endSec: baseTime + (w.endSec - timeOffset),
             startChar: finalStartChar,
             endChar: finalEndChar,
           });
+          prefetchWordCounter++;
         }
 
         if (timeOffset > 0) {
@@ -574,11 +598,13 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
 
     if (!isPlaying) {
       setIsPlaying(true);
+      setIsLoading(true);
       startLoop();
       try {
         await connect();
       } catch (err) {
         console.error("Toggle play connection failed:", err);
+        setIsLoading(false);
       }
     } else {
       if (!isIOSDevice()) {
@@ -590,6 +616,7 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
       }
       stopLoop();
       setIsPlaying(false);
+      setIsLoading(false);
     }
   }, [connect, ensureCtx, isPlaying, startLoop, stopLoop]);
 
@@ -618,6 +645,7 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
     allWordsRef.current = prefetchWordsRef.current;
     totalDurationRef.current = prefetchDurationRef.current;
     charOffsetRef.current = prefetchCharOffsetRef.current;
+    startWordRef.current = prefetchStartWordRef.current;
     isLastPageRef.current = prefetchIsLastPageRef.current;
 
     prefetchPayloadRef.current = null;
@@ -673,6 +701,7 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
         prefetchAudioChunksRef.current = [];
         prefetchAlignmentsRef.current = [];
         prefetchCharOffsetRef.current = charOffset;
+        prefetchStartWordRef.current = typeof payload.startWord === "number" ? payload.startWord : 0;
         prefetchGotCompleteRef.current = false;
         prefetchDecodedBufferRef.current = null;
         prefetchWordsRef.current = [];
@@ -737,6 +766,7 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
         totalDurationRef.current = 0;
         expectedDurationRef.current = 0;
         charOffsetRef.current = charOffset;
+        startWordRef.current = typeof payload.startWord === "number" ? payload.startWord : 0;
 
         gotCompleteRef.current = false;
         pageEndedFiredRef.current = false;

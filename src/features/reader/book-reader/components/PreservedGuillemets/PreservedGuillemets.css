@@ -1,0 +1,5 @@
+.ktab-preserved-guillemet {
+  display: inline-block;
+  direction: ltr;
+  unicode-bidi: isolate;
+}

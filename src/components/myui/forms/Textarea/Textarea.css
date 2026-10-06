@@ -26,9 +26,11 @@
               border-color 0.22s cubic-bezier(0.16, 1, 0.3, 1),
               box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   box-sizing: border-box;
-  min-height: 100px;
+  min-height: 110px;
   cursor: text;
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 14px 10px 14px;
 }
 
 .myui-textarea-field-wrap:hover:not(.is-disabled) {
@@ -61,46 +63,35 @@
   cursor: not-allowed;
 }
 
-/* ── Apple Inset Floating Label for Textarea ── */
-.myui-textarea-inset-label {
-  position: absolute;
-  right: 16px;
-  top: 14px;
-  transform: translateY(0);
+/* ── Inset Header with Clear Gap Between Label and Text ── */
+.myui-textarea-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+  user-select: none;
+  width: 100%;
+}
+
+.myui-textarea-header-label {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  font-size: 14.5px;
-  font-weight: 500;
-  color: var(--text-subtle, #94a3b8);
-  pointer-events: none;
-  transform-origin: right top;
-  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
-              top 0.22s cubic-bezier(0.16, 1, 0.3, 1),
-              font-size 0.22s cubic-bezier(0.16, 1, 0.3, 1),
-              color 0.2s ease,
-              font-weight 0.2s ease;
-  user-select: none;
-  z-index: 2;
-  line-height: 1;
-  background: transparent;
-}
-
-/* Floating state: smoothly glides up inside the container */
-.myui-textarea-inset-label.is-floating {
-  top: 9px;
-  transform: translateY(0) scale(0.78);
-  color: var(--text-muted, #64748b);
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 11.5px;
   font-weight: 700;
+  color: var(--text-muted, #64748b);
+  line-height: 1.4;
+  cursor: text;
+  transition: color 0.2s ease;
 }
 
-/* Focused + floating: label turns crisp black */
-.myui-textarea-inset-label.is-floating.is-focused {
+.myui-textarea-wrap.is-focused .myui-textarea-header-label {
   color: var(--brand-black, #0a0a0a);
 }
 
-/* Error + floating: label turns red */
-.myui-textarea-wrap.has-error .myui-textarea-inset-label.is-floating {
+.myui-textarea-wrap.has-error .myui-textarea-header-label {
   color: var(--color-danger, #ef4444);
 }
 
@@ -123,14 +114,17 @@
 .myui-textarea-extra {
   display: inline-flex;
   align-items: center;
+  flex-shrink: 0;
 }
 
 /* ── The actual <textarea> ── */
 .myui-textarea {
   width: 100%;
+  flex: 1;
   background-color: transparent;
   border: none;
-  padding: 14px 16px;
+  padding: 0;
+  margin: 0;
   font-family: var(--font-arabic, sans-serif);
   font-size: 14.5px;
   font-weight: 500;
@@ -138,14 +132,8 @@
   box-sizing: border-box;
   outline: none;
   resize: vertical;
-  min-height: 96px;
+  min-height: 72px;
   line-height: 1.6;
-}
-
-/* When inset label is present, push text down */
-.myui-textarea.has-inset-label {
-  padding-top: 26px;
-  padding-bottom: 8px;
 }
 
 .myui-textarea::placeholder {
@@ -193,7 +181,7 @@
   font-weight: 600;
   color: var(--text-subtle, #94a3b8);
   font-variant-numeric: tabular-nums;
-  direction: ltr;
+  direction: rtl;
   white-space: nowrap;
   letter-spacing: 0.02em;
 }

@@ -106,6 +106,12 @@ export function Select({
 
           <div className="myui-select-value-wrap">
             {icon && <span className="myui-select-icon-slot">{icon}</span>}
+            {selectedOption?.color && (
+              <span
+                className="myui-select-color-circle"
+                style={{ backgroundColor: selectedOption.color }}
+              />
+            )}
             <span
               className={
                 selectedOption
@@ -153,7 +159,15 @@ export function Select({
                       isSelected ? "is-selected" : ""
                     }`}
                   >
-                    <span>{opt.label}</span>
+                    <div className="myui-select-option-content">
+                      {opt.color && (
+                        <span
+                          className="myui-select-color-circle"
+                          style={{ backgroundColor: opt.color }}
+                        />
+                      )}
+                      <span>{opt.label}</span>
+                    </div>
                     {isSelected && (
                       <Check
                         size={15}

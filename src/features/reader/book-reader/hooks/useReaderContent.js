@@ -1,12 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useLocation } from "react-router-dom";
-import { fetchBookContent } from "../services/bookReaderService";
+import { fetchReaderPage } from "../services/bookReaderService";
 import { fetchBookDetailsById } from "@/features/reader/book-details/services/bookDetailsService";
 import { AlertToast } from "@/components/myui/AlertToast";
 
 /**
- * Loads authentic book text content and author/title metadata.
- * Parses backend responses across strings, page arrays, or chapter structures.
+ * Loads authentic book pages strictly paginated on-demand.
+ * Starts strictly from pure body pages (excluding introductions, front matter, appendixes, bibliographies).
+ * Prevents full-text dumping in network payloads for maximum performance and anti-scraping protection.
  *
  * @param {string|number} id - Book ID
  * @returns {Object} Content state, metadata, and loading indicators
@@ -37,62 +38,104 @@ export function useReaderContent(id) {
   const [bookText, setBookText] = useState("");
   const [loadingText, setLoadingText] = useState(true);
   const [totalPages, setTotalPages] = useState(1);
-  const [wordsPerPage] = useState(80);
+  const [wordsPerPage, setWordsPerPage] = useState(80);
+  const [currentPageData, setCurrentPageData] = useState(null);
+
+  // In-memory cache for loaded pages (pageNumber -> pageData)
+  const pagesCacheRef = useRef({});
+
+  const loadPage = useCallback(
+    async (pageNum) => {
+      if (!id || pageNum < 1) return null;
+
+      // 1. Check in-memory cache first
+      if (pagesCacheRef.current[pageNum]) {
+        const cached = pagesCacheRef.current[pageNum];
+        setCurrentPageData(cached);
+        setBookText(cached.content || "");
+        if (cached.totalPages) {
+          setTotalPages(cached.totalPages);
+        }
+        return cached;
+      }
+
+      // 2. Fetch requested page from backend strictly on-demand
+      try {
+        const res = await fetchReaderPage(id, { page: pageNum, wordsPerPage });
+        if (res?.data) {
+          const data = res.data;
+          pagesCacheRef.current[pageNum] = data;
+          setCurrentPageData(data);
+          setBookText(data.content || "");
+          if (data.totalPages) {
+            setTotalPages(data.totalPages);
+          }
+          if (data.bookTitle && !bookTitle) {
+            setBookTitle(data.bookTitle);
+          }
+
+          // Pre-warm the next page asynchronously in background so subsequent forward turn is instant
+          const maxP = data.totalPages || totalPages;
+          if (pageNum < maxP) {
+            const nextPageNum = pageNum + 1;
+            if (!pagesCacheRef.current[nextPageNum]) {
+              fetchReaderPage(id, { page: nextPageNum, wordsPerPage })
+                .then((nextRes) => {
+                  if (nextRes?.data) {
+                    pagesCacheRef.current[nextPageNum] = nextRes.data;
+                  }
+                })
+                .catch(() => {});
+            }
+          }
+
+          return data;
+        }
+      } catch (err) {
+        console.warn("Failed to fetch reader page:", pageNum, err);
+      }
+      return null;
+    },
+    [id, wordsPerPage, bookTitle, totalPages]
+  );
 
   useEffect(() => {
     let active = true;
 
-    async function loadBookData() {
+    async function loadInitialPage() {
       setLoadingText(true);
-      try {
-        const res = await fetchBookContent(id);
+      pagesCacheRef.current = {};
 
-        if (res?.messageStatus !== "SUCCESS") {
-          AlertToast(res?.message || "فشل تحميل الكتاب", res?.messageStatus || "ERROR");
-          setLoadingText(false);
+      try {
+        const res = await fetchReaderPage(id, { page: 1, wordsPerPage });
+
+        if (res?.messageStatus !== "SUCCESS" && !res?.data) {
+          AlertToast(res?.message || "فشل تحميل صفحات الكتاب", "ERROR");
+          if (active) setLoadingText(false);
           return;
         }
 
         const data = res.data;
-        let rawContent = "";
-        if (typeof data === "string") {
-          rawContent = data;
-        } else if (Array.isArray(data)) {
-          rawContent = data
-            .map((item) => (typeof item === "string" ? item : item?.text || item?.content || ""))
-            .filter(Boolean)
-            .join("\n\n");
-        } else if (data && typeof data === "object") {
-          if (Array.isArray(data.pages)) {
-            rawContent = data.pages
-              .map((p) => (typeof p === "string" ? p : p?.text || p?.content || ""))
-              .filter(Boolean)
-              .join("\n\n");
-          } else if (Array.isArray(data.chapters)) {
-            rawContent = data.chapters
-              .map((c) => (typeof c === "string" ? c : c?.text || c?.content || ""))
-              .filter(Boolean)
-              .join("\n\n");
-          } else {
-            rawContent = data.text || data.content || data.bookText || "";
-          }
-        }
+        if (active && data) {
+          pagesCacheRef.current[1] = data;
+          setCurrentPageData(data);
+          setBookText(data.content || "");
+          const totalP = Math.max(1, data.totalPages || 1);
+          setTotalPages(totalP);
 
-        // Clean out literal stringified null/undefined artifacts
-        const cleaned = String(rawContent || "")
-          .replace(/\b(null|undefined)\b/gi, "")
-          .trim();
-
-        if (active) {
-          if (data?.title || data?.bookTitle || data?.name) {
-            setBookTitle(data.title || data.bookTitle || data.name);
+          // Pre-warm page 2 in background
+          if (totalP > 1) {
+            fetchReaderPage(id, { page: 2, wordsPerPage })
+              .then((nextRes) => {
+                if (nextRes?.data && active) {
+                  pagesCacheRef.current[2] = nextRes.data;
+                }
+              })
+              .catch(() => {});
           }
-          if (data?.author || data?.authorName || data?.authors) {
-            const rawAuth = data?.author || data?.authorName || data?.authors;
-            const authStr = Array.isArray(rawAuth)
-              ? rawAuth.map((a) => (typeof a === "string" ? a : a?.name || a?.authorName)).filter(Boolean).join("، ")
-              : (typeof rawAuth === "string" ? rawAuth : "");
-            if (authStr) setBookAuthor(authStr);
+
+          if (data.bookTitle) {
+            setBookTitle(data.bookTitle);
           }
 
           if (!bookTitle || !bookAuthor) {
@@ -113,25 +156,23 @@ export function useReaderContent(id) {
               .catch(() => {});
           }
 
-          setBookText(cleaned);
-          const wordEstimate = cleaned.trim().split(/\s+/).filter(Boolean).length;
-          const pageEstimate = Math.max(1, Math.ceil(wordEstimate / 110));
-          setTotalPages(pageEstimate);
           setLoadingText(false);
         }
       } catch (err) {
-        console.error("Book text load error:", err);
-        AlertToast("فشل الاتصال بالخادم لتحميل نص الكتاب", "ERROR");
+        console.error("Initial page load error:", err);
+        AlertToast("فشل الاتصال بالخادم لتحميل صفحة الكتاب", "ERROR");
         if (active) setLoadingText(false);
       }
     }
 
-    if (id) loadBookData();
+    if (id) {
+      loadInitialPage();
+    }
 
     return () => {
       active = false;
     };
-  }, [id]);
+  }, [id, wordsPerPage]);
 
   return {
     bookTitle,
@@ -143,6 +184,10 @@ export function useReaderContent(id) {
     totalPages,
     setTotalPages,
     wordsPerPage,
+    setWordsPerPage,
+    currentPageData,
+    loadPage,
+    pagesCacheRef,
   };
 }
 

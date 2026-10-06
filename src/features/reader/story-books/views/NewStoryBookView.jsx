@@ -1,19 +1,21 @@
-import React from "react";
+import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/myui/layout";
 import {
   ArrowRight,
   ArrowLeft,
   User,
-  Plus,
   BookOpen,
-  MapPin,
   Clock,
   Layers,
-  Check,
-  CheckCircle2,
   Loader2,
-  Info,
+  Upload,
+  Trash2,
+  AlertCircle,
+  Palette,
+  Eye,
+  Scissors,
+  Glasses,
 } from "lucide-react";
 import { InputComponent as Input } from "@/components/myui/forms/Input/Input";
 import { Select } from "@/components/myui/forms/Select/Select";
@@ -22,13 +24,11 @@ import { StoryBookStepper } from "../components/StoryBookStepper/StoryBookSteppe
 import { useNewStoryBook } from "../hooks/useNewStoryBook";
 import {
   AGE_BANDS,
-  AGE_BAND_LABELS,
   CHILD_GENDERS,
   SKIN_TONES,
   HAIR_COLORS,
   HAIR_STYLES,
   EYE_COLORS,
-  INTERESTS,
   STORY_SETTINGS,
   STORY_TIMES,
   PAGE_COUNTS,
@@ -38,8 +38,12 @@ import {
 import "./NewStoryBookView.css";
 
 /**
- * Editorial Studio View for Creating Personalized Children's Story Books.
- * 100% connected to backend Storybook & ChildProfile APIs.
+ * Editorial Studio View for Creating Children's Story Books.
+ * Streamlined 4-step wizard:
+ * 1. Child Data with all appearance selectors (Select inputs instead of radio/circles) + Secured Optional Image
+ * 2. Story Idea (Text Input) + Interests (Text Input) + Setting & Time (Selects)
+ * 3. Book Specs (Selects for pages, variety, tashkeel) + Dedication
+ * 4. Review & Launch
  */
 export function NewStoryBookView({ pageName = "ابتكار قصة أطفال جديدة" }) {
   const location = useLocation();
@@ -53,51 +57,127 @@ export function NewStoryBookView({ pageName = "ابتكار قصة أطفال ج
     handleStepClick,
     handleSaveAndPublish,
 
-    // Children
-    children,
-    loadingChildren,
-    selectedChildId,
-    setSelectedChildId,
-    selectedChild,
-    showNewChildForm,
-    setShowNewChildForm,
-    isSavingChild,
+    // Hero / Child Data
     newChildData,
     handleNewChildChange,
     handleAppearanceChange,
-    handleSaveChild,
 
-    // Blueprints & Story Data
-    blueprints,
-    loadingBlueprints,
+    // Story Data
     storyData,
     handleStoryChange,
-    handleInterestToggle,
 
     // Backend Dynamic Filters
     filters,
   } = useNewStoryBook();
 
-  // Dynamic filter options derived directly from backend API /api/v1/storybook/filters
+  // Local state for secured optional hero image
+  const [heroImagePreview, setHeroImagePreview] = useState(
+    newChildData?.image?.previewUrl || null
+  );
+  const [heroImageName, setHeroImageName] = useState(
+    newChildData?.image?.name || ""
+  );
+  const [heroImageSize, setHeroImageSize] = useState(
+    newChildData?.image?.size || ""
+  );
+  const [imageError, setImageError] = useState("");
+
+  // Handle secured image upload
+  const handleImageUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setImageError("");
+
+    // Strict formats: jpg, jpeg, png, webp
+    const allowedMimeTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+    const allowedExtensions = [".jpg", ".jpeg", ".png", ".webp"];
+    const fileNameLower = file.name.toLowerCase();
+    const hasValidExt = allowedExtensions.some((ext) => fileNameLower.endsWith(ext));
+
+    if (!allowedMimeTypes.includes(file.type.toLowerCase()) && !hasValidExt) {
+      setImageError("الصيغ المقبولة: JPG, JPEG, PNG فقط.");
+      return;
+    }
+
+    // Max 5MB
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      setImageError("الحد الأقصى لحجم الملف هو 5 ميجابايت.");
+      return;
+    }
+
+    // 4. File name sanitization
+    const cleanName = file.name.replace(/[^a-zA-Z0-9._\-]/g, "_");
+
+    const formattedSize =
+      file.size > 1024 * 1024
+        ? `${(file.size / (1024 * 1024)).toFixed(1)} ميجابايت`
+        : `${Math.round(file.size / 1024)} كيلوبايت`;
+
+    const previewUrl = URL.createObjectURL(file);
+    setHeroImagePreview(previewUrl);
+    setHeroImageName(cleanName);
+    setHeroImageSize(formattedSize);
+    handleNewChildChange("image", {
+      file,
+      previewUrl,
+      name: cleanName,
+      size: formattedSize,
+    });
+  };
+
+  const handleRemoveImage = () => {
+    if (heroImagePreview && heroImagePreview.startsWith("blob:")) {
+      URL.revokeObjectURL(heroImagePreview);
+    }
+    setHeroImagePreview(null);
+    setHeroImageName("");
+    setHeroImageSize("");
+    setImageError("");
+    handleNewChildChange("image", null);
+  };
+
+  // Dynamic filter options derived from backend API or constants
+  const dynamicGenders = filters?.genders?.map((g) => ({ value: g.value, label: g.labelAr })) || CHILD_GENDERS;
+  const dynamicAgeBands = filters?.ageBands?.map((a) => ({ value: a.value, label: a.labelAr })) || AGE_BANDS;
   const dynamicSkinTones = filters?.skinTones?.map((s) => ({ value: s.value, label: s.labelAr, color: s.color })) || SKIN_TONES;
   const dynamicEyeColors = filters?.eyeColors?.map((e) => ({ value: e.value, label: e.labelAr, color: e.color })) || EYE_COLORS;
   const dynamicHairColors = filters?.hairColors?.map((h) => ({ value: h.value, label: h.labelAr, color: h.color })) || HAIR_COLORS;
   const dynamicHairStyles = filters?.hairStyles?.map((s) => ({ value: s.value, label: s.labelAr })) || HAIR_STYLES;
-  const dynamicGenders = filters?.genders?.map((g) => ({ value: g.value, label: g.labelAr })) || CHILD_GENDERS;
-  const dynamicAgeBands = filters?.ageBands?.map((a) => ({ value: a.value, label: a.labelAr })) || AGE_BANDS;
-  const dynamicInterests = filters?.interests?.map((i) => ({ value: i.value, label: i.labelAr })) || INTERESTS;
-  const dynamicSettings = filters?.settings?.map((s) => ({ value: s.value, label: s.labelAr, description: s.description })) || STORY_SETTINGS;
-  const dynamicTimesOfDay = filters?.timesOfDay?.map((t) => ({ value: t.value, label: t.labelAr, description: t.description })) || STORY_TIMES;
+  const dynamicSettings = filters?.settings?.map((s) => ({ value: s.value, label: s.labelAr })) || STORY_SETTINGS;
+  const dynamicTimesOfDay = filters?.timesOfDay?.map((t) => ({ value: t.value, label: t.labelAr })) || STORY_TIMES;
   const dynamicPageCounts = filters?.pageCounts || PAGE_COUNTS;
   const dynamicVarieties = filters?.languageVarieties?.map((v) => ({ value: v.value, label: v.labelAr })) || LANGUAGE_VARIETIES;
   const dynamicTashkeel = filters?.tashkeelLevels?.map((t) => ({ value: t.value, label: t.labelAr })) || TASHKEEL_LEVELS;
+
+  // Options mapped for Select dropdowns with color swatches
+  const genderOptions = dynamicGenders.map((g) => ({ value: g.value, label: g.label }));
+  const ageBandOptions = dynamicAgeBands.map((a) => ({ value: a.value, label: a.label }));
+  const skinToneOptions = dynamicSkinTones.map((s) => ({ value: s.value, label: s.label, color: s.color }));
+  const eyeColorOptions = dynamicEyeColors.map((e) => ({ value: e.value, label: e.label, color: e.color }));
+  const hairColorOptions = dynamicHairColors.map((h) => ({ value: h.value, label: h.label, color: h.color }));
+  const hairStyleOptions = dynamicHairStyles.map((s) => ({ value: s.value, label: s.label }));
+  const pageCountOptions = dynamicPageCounts.map((cnt) => ({ value: cnt, label: `${cnt} صفحة` }));
+
+  const hijabOptions = [
+    { value: false, label: "بدون حجاب" },
+    { value: true, label: "ترتدي الحجاب" },
+  ];
+
+  const glassesOptions = [
+    { value: false, label: "بدون نظارات" },
+    { value: true, label: "يرتدي نظارات طبية" },
+  ];
 
   const breadcrumb = location.state?.from || {
     parentLabel: "قصص الأطفال",
     parentPath: "/reader/story-books",
   };
 
-  const selectedBlueprint = blueprints.find((b) => b.key === storyData.blueprintKey);
+  const selectedGenderLabel = genderOptions.find((g) => g.value === newChildData.gender)?.label || "ولد";
+  const selectedAgeBandLabel = ageBandOptions.find((a) => a.value === newChildData.ageBand)?.label || "٣ - ٥ سنوات";
+  const selectedSkinToneLabel = skinToneOptions.find((s) => s.value === newChildData.appearance.skinTone)?.label || "فاتحة";
 
   return (
     <AppLayout pageName={pageName} breadcrumb={breadcrumb} showSearch={false}>
@@ -115,471 +195,223 @@ export function NewStoryBookView({ pageName = "ابتكار قصة أطفال ج
         {/* Step Content Container */}
         <div className="new-child-story-container">
           {/* ================================================================
-              STEP 1: Hero Character Profile (Child Selection & Inline Creation)
+              STEP 1: Child Data (Clean Form, Select inputs, Optional Image)
               ================================================================ */}
           {currentStep === 1 && (
             <div className="new-child-story-step">
-
-              {/* Existing Child Profiles */}
-              {!showNewChildForm && (
-                <div className="new-child-story-card">
-                  <div className="new-child-story-section-header-row">
-                    <span className="new-child-story-section-label">الأبطال المسجلون:</span>
-                    <button
-                      type="button"
-                      className="new-child-story-btn-text"
-                      onClick={() => setShowNewChildForm(true)}
-                    >
-                      <Plus size={14} />
-                      <span>إضافة بطل جديد</span>
-                    </button>
-                  </div>
-
-                  {loadingChildren ? (
-                    <div className="new-child-story-loader">
-                      <Loader2 size={20} className="new-child-story-spinner" />
-                      <span>جاري جلب ملفات الأطفال...</span>
-                    </div>
-                  ) : children.length === 0 ? (
-                    <div className="new-child-story-empty-hint">
-                      <User size={32} className="new-child-story-empty-icon" />
-                      <p>لم يتم تسجيل أي بطل بعد. ابدأ بإنشاء أول ملف تعريفي لطفلك أدناه.</p>
-                      <button
-                        type="button"
-                        className="new-child-story-btn-primary-inline"
-                        onClick={() => setShowNewChildForm(true)}
-                      >
-                        <Plus size={15} />
-                        <span>إضافة ملف طفل</span>
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="new-child-profiles-grid">
-                      {children.map((child) => {
-                        const isSelected = child.id === selectedChildId;
-                        const ageLabel = AGE_BAND_LABELS[child.ageBand] || child.ageBand;
-                        const genderLabel = child.gender === "BOY" ? "ولد" : "بنت";
-
-                        return (
-                          <div
-                            key={child.id}
-                            className={`new-child-profile-card ${
-                              isSelected ? "new-child-profile-card--selected" : ""
-                            }`}
-                            onClick={() => setSelectedChildId(child.id)}
-                            role="button"
-                            tabIndex={0}
-                          >
-                            <div className="new-child-profile-card__avatar">
-                              <User size={22} />
-                            </div>
-                            <div className="new-child-profile-card__info">
-                              <h4 className="new-child-profile-card__name">{child.nameAr}</h4>
-                              <span className="new-child-profile-card__meta">
-                                {genderLabel} • {ageLabel}
-                              </span>
-                            </div>
-                            {isSelected && (
-                              <div className="new-child-profile-card__check">
-                                <Check size={14} strokeWidth={3} />
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
+              <div className="new-child-story-card">
+                <div className="new-child-story-section-header-row">
+                  <span className="new-child-story-section-label">بيانات ومواصفات بطل القصة:</span>
                 </div>
-              )}
 
-              {/* Inline New Child Profile Creation Form */}
-              {showNewChildForm && (
-                <div className="new-child-story-card">
-                  <div className="new-child-story-section-header-row">
-                    <span className="new-child-story-section-label">إضافة ملف بطل جديد:</span>
-                    {children.length > 0 && (
-                      <button
-                        type="button"
-                        className="new-child-story-btn-text"
-                        onClick={() => setShowNewChildForm(false)}
-                      >
-                        <span>العودة لاختيار بطل سابق</span>
-                      </button>
-                    )}
+                <div className="new-child-story-form-grid">
+                  {/* Hero Name (Text Input) */}
+                  <div className="new-child-story-col--full">
+                    <Input
+                      label="اسم الطفل باللغة العربية"
+                      placeholder="مثال: كريم، سارة، يوسف، ليلى..."
+                      value={newChildData.nameAr}
+                      onChange={(e) => handleNewChildChange("nameAr", e.target.value)}
+                      icon={<User size={16} />}
+                      required
+                    />
                   </div>
 
-                  {/* Live Avatar Preview Card */}
-                  <div className="new-child-avatar-preview-banner">
-                    <div
-                      className="new-child-avatar-preview-circle"
-                      style={{
-                        backgroundColor: dynamicSkinTones.find(
-                          (t) => t.value === newChildData.appearance.skinTone
-                        )?.color || "#f6dec8",
-                      }}
-                    >
-                      <User size={28} className="new-child-avatar-preview-icon" />
-                      {newChildData.appearance.glasses && (
-                        <span className="new-child-avatar-preview-glasses-badge" title="نظارات طبية">
-                          👓
-                        </span>
-                      )}
-                    </div>
-                    <div className="new-child-avatar-preview-info">
-                      <h4 className="new-child-avatar-preview-name">
-                        {newChildData.nameAr.trim() || "اسم البطل الجديد"}
-                      </h4>
-                      <p className="new-child-avatar-preview-meta">
-                        {newChildData.gender === "BOY" ? "ولد" : "بنت"} •{" "}
-                        {dynamicAgeBands.find((a) => a.value === newChildData.ageBand)?.label.split("(")[0].trim()} •{" "}
-                        {dynamicSkinTones.find((t) => t.value === newChildData.appearance.skinTone)?.label}
-                        {newChildData.appearance.hijab ? " • بالحجاب" : ""}
-                        {newChildData.appearance.glasses ? " • نظارات" : ""}
-                      </p>
-                    </div>
+                  {/* Gender (Select Dropdown) */}
+                  <div className="new-child-story-col--half">
+                    <Select
+                      label="الجنس"
+                      options={genderOptions}
+                      value={newChildData.gender}
+                      onChange={(val) => handleNewChildChange("gender", val)}
+                    />
                   </div>
 
-                  <div className="new-child-story-form-grid">
-                    <div className="new-child-story-col--full">
-                      <Input
-                        label="اسم الطفل باللغة العربية"
-                        placeholder="مثال: كريم، سارة، يوسف، ليلى..."
-                        value={newChildData.nameAr}
-                        onChange={(e) => handleNewChildChange("nameAr", e.target.value)}
-                        icon={<User size={16} />}
-                        required
+                  {/* Age Band (Select Dropdown) */}
+                  <div className="new-child-story-col--half">
+                    <Select
+                      label="المرحلة العمرية"
+                      options={ageBandOptions}
+                      value={newChildData.ageBand}
+                      onChange={(val) => handleNewChildChange("ageBand", val)}
+                    />
+                  </div>
+
+                  {/* Skin Tone (Select Dropdown) */}
+                  <div className="new-child-story-col--half">
+                    <Select
+                      label="درجة لون البشرة"
+                      options={skinToneOptions}
+                      value={newChildData.appearance.skinTone}
+                      onChange={(val) => handleAppearanceChange("skinTone", val)}
+                      icon={<Palette size={16} />}
+                    />
+                  </div>
+
+                  {/* Eye Color (Select Dropdown) */}
+                  <div className="new-child-story-col--half">
+                    <Select
+                      label="لون العينين"
+                      options={eyeColorOptions}
+                      value={newChildData.appearance.eyeColor}
+                      onChange={(val) => handleAppearanceChange("eyeColor", val)}
+                      icon={<Eye size={16} />}
+                    />
+                  </div>
+
+                  {/* Hijab (if Girl) */}
+                  {newChildData.gender === "GIRL" && (
+                    <div className="new-child-story-col--half">
+                      <Select
+                        label="ارتداء الحجاب"
+                        options={hijabOptions}
+                        value={Boolean(newChildData.appearance.hijab)}
+                        onChange={(val) => handleAppearanceChange("hijab", Boolean(val))}
                       />
                     </div>
+                  )}
 
-                    {/* Gender Segmented Control */}
-                    <div className="new-child-story-col--half">
-                      <label className="new-child-story-sublabel">الجنس:</label>
-                      <div className="new-child-segmented-group">
-                        {dynamicGenders.map((g) => {
-                          const isSelected = newChildData.gender === g.value;
-                          return (
-                            <button
-                              key={g.value}
-                              type="button"
-                              className={`new-child-segmented-btn ${
-                                isSelected ? "new-child-segmented-btn--active" : ""
-                              }`}
-                              onClick={() => handleNewChildChange("gender", g.value)}
-                            >
-                              <span>{g.label}</span>
-                            </button>
-                          );
-                        })}
+                  {/* Hair Color & Style (only if not Hijab) */}
+                  {!newChildData.appearance.hijab && (
+                    <>
+                      <div className="new-child-story-col--half">
+                        <Select
+                          label="لون الشعر"
+                          options={hairColorOptions}
+                          value={newChildData.appearance.hairColor}
+                          onChange={(val) => handleAppearanceChange("hairColor", val)}
+                        />
                       </div>
-                    </div>
 
-                    {/* Age Band Segmented Control */}
-                    <div className="new-child-story-col--half">
-                      <label className="new-child-story-sublabel">المرحلة العمرية:</label>
-                      <div className="new-child-segmented-group">
-                        {dynamicAgeBands.map((a) => {
-                          const isSelected = newChildData.ageBand === a.value;
-                          const shortLabel = a.label.split("(")[0].trim();
-                          return (
-                            <button
-                              key={a.value}
-                              type="button"
-                              className={`new-child-segmented-btn ${
-                                isSelected ? "new-child-segmented-btn--active" : ""
-                              }`}
-                              onClick={() => handleNewChildChange("ageBand", a.value)}
-                            >
-                              <span>{shortLabel}</span>
-                            </button>
-                          );
-                        })}
+                      <div className="new-child-story-col--half">
+                        <Select
+                          label="تسريحة الشعر"
+                          options={hairStyleOptions}
+                          value={newChildData.appearance.hairStyle}
+                          onChange={(val) => handleAppearanceChange("hairStyle", val)}
+                          icon={<Scissors size={16} />}
+                        />
                       </div>
-                    </div>
+                    </>
+                  )}
 
-                    {/* Skin Tone Palette */}
-                    <div className="new-child-story-col--full">
-                      <div className="new-child-swatch-header">
-                        <label className="new-child-story-sublabel" style={{ marginBottom: 0 }}>
-                          درجة لون البشرة:
-                        </label>
-                        <span className="new-child-swatch-selected-name">
-                          {dynamicSkinTones.find((t) => t.value === newChildData.appearance.skinTone)?.label}
-                        </span>
-                      </div>
-                      <div className="new-child-swatches-row">
-                        {dynamicSkinTones.map((tone) => {
-                          const isSelected = newChildData.appearance.skinTone === tone.value;
-                          return (
-                            <button
-                              key={tone.value}
-                              type="button"
-                              title={tone.label}
-                              className={`new-child-swatch-circle ${
-                                isSelected ? "new-child-swatch-circle--active" : ""
-                              }`}
-                              style={{ backgroundColor: tone.color }}
-                              onClick={() => handleAppearanceChange("skinTone", tone.value)}
-                            >
-                              {isSelected && <Check size={14} className="new-child-swatch-check" />}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
+                  {/* Glasses (Select Dropdown) */}
+                  <div className="new-child-story-col--half">
+                    <Select
+                      label="نظارات طبية"
+                      options={glassesOptions}
+                      value={Boolean(newChildData.appearance.glasses)}
+                      onChange={(val) => handleAppearanceChange("glasses", Boolean(val))}
+                      icon={<Glasses size={16} />}
+                    />
+                  </div>
 
-                    {/* Eye Color Palette */}
-                    <div className="new-child-story-col--full">
-                      <div className="new-child-swatch-header">
-                        <label className="new-child-story-sublabel" style={{ marginBottom: 0 }}>
-                          لون العينين:
-                        </label>
-                        <span className="new-child-swatch-selected-name">
-                          {dynamicEyeColors.find((e) => e.value === newChildData.appearance.eyeColor)?.label}
-                        </span>
-                      </div>
-                      <div className="new-child-swatches-row">
-                        {dynamicEyeColors.map((eye) => {
-                          const isSelected = newChildData.appearance.eyeColor === eye.value;
-                          return (
-                            <button
-                              key={eye.value}
-                              type="button"
-                              title={eye.label}
-                              className={`new-child-swatch-circle ${
-                                isSelected ? "new-child-swatch-circle--active" : ""
-                              }`}
-                              style={{ backgroundColor: eye.color }}
-                              onClick={() => handleAppearanceChange("eyeColor", eye.value)}
-                            >
-                              {isSelected && <Check size={14} className="new-child-swatch-check" />}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
+                  {/* Optional Secured Image Input */}
+                  <div className="new-child-story-col--full">
+                    <label className="new-child-story-sublabel">
+                      صورة البطل (اختياري):
+                    </label>
 
-                    {/* Hair Color & Style (only if not hijab) */}
-                    {!newChildData.appearance.hijab && (
-                      <>
-                        <div className="new-child-story-col--full">
-                          <div className="new-child-swatch-header">
-                            <label className="new-child-story-sublabel" style={{ marginBottom: 0 }}>
-                              لون الشعر:
-                            </label>
-                            <span className="new-child-swatch-selected-name">
-                              {dynamicHairColors.find((h) => h.value === newChildData.appearance.hairColor)?.label}
+                    <div className="new-child-image-uploader">
+                      {!heroImagePreview ? (
+                        <label className="new-child-image-dropzone">
+                          <input
+                            type="file"
+                            accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                            className="new-child-image-input-hidden"
+                            onChange={handleImageUpload}
+                          />
+                          <div className="new-child-image-dropzone-content">
+                            <div className="new-child-image-dropzone-icon">
+                              <Upload size={18} />
+                            </div>
+                            <span className="new-child-image-dropzone-hint">
+                              JPG, PNG, JPEG (حد أقصى 5MB)
                             </span>
                           </div>
-                          <div className="new-child-swatches-row">
-                            {dynamicHairColors.map((hair) => {
-                              const isSelected = newChildData.appearance.hairColor === hair.value;
-                              return (
-                                <button
-                                  key={hair.value}
-                                  type="button"
-                                  title={hair.label}
-                                  className={`new-child-swatch-circle ${
-                                    isSelected ? "new-child-swatch-circle--active" : ""
-                                  }`}
-                                  style={{ backgroundColor: hair.color }}
-                                  onClick={() => handleAppearanceChange("hairColor", hair.value)}
-                                >
-                                  {isSelected && <Check size={14} className="new-child-swatch-check" />}
-                                </button>
-                              );
-                            })}
+                        </label>
+                      ) : (
+                        <div className="new-child-image-preview-card">
+                          <div className="new-child-image-preview-thumb">
+                            <img src={heroImagePreview} alt="صورة البطل" />
                           </div>
-                        </div>
-
-                        <div className="new-child-story-col--full">
-                          <label className="new-child-story-sublabel">تسريحة الشعر:</label>
-                          <div className="new-child-styles-grid">
-                            {dynamicHairStyles.map((style) => {
-                              const isSelected = newChildData.appearance.hairStyle === style.value;
-                              return (
-                                <button
-                                  key={style.value}
-                                  type="button"
-                                  className={`new-child-style-chip ${
-                                    isSelected ? "new-child-style-chip--active" : ""
-                                  }`}
-                                  onClick={() => handleAppearanceChange("hairStyle", style.value)}
-                                >
-                                  <span>{style.label}</span>
-                                </button>
-                              );
-                            })}
+                          <div className="new-child-image-preview-info">
+                            <span className="new-child-image-preview-name">
+                              {heroImageName || "صورة البطل"}
+                            </span>
+                            <span className="new-child-image-preview-size">
+                              {heroImageSize}
+                            </span>
                           </div>
-                        </div>
-                      </>
-                    )}
-
-                    {/* Accessories & Features */}
-                    <div className="new-child-story-col--full">
-                      <label className="new-child-story-sublabel">ملحقات وميزات إضافية:</label>
-                      <div className="new-child-accessories-row">
-                        {newChildData.gender === "GIRL" && (
                           <button
                             type="button"
-                            className={`new-child-accessory-toggle ${
-                              newChildData.appearance.hijab ? "new-child-accessory-toggle--active" : ""
-                            }`}
-                            onClick={() => handleAppearanceChange("hijab", !newChildData.appearance.hijab)}
+                            className="new-child-image-remove-btn"
+                            onClick={handleRemoveImage}
+                            title="إزالة الصورة"
                           >
-                            <span className="new-child-toggle-indicator" />
-                            <span>ترتدي الحجاب</span>
+                            <Trash2 size={15} />
+                            <span>إزالة</span>
                           </button>
-                        )}
+                        </div>
+                      )}
 
-                        <button
-                          type="button"
-                          className={`new-child-accessory-toggle ${
-                            newChildData.appearance.glasses ? "new-child-accessory-toggle--active" : ""
-                          }`}
-                          onClick={() => handleAppearanceChange("glasses", !newChildData.appearance.glasses)}
-                        >
-                          <span className="new-child-toggle-indicator" />
-                          <span>يرتدي نظارات طبية</span>
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Save Child Button */}
-                    <div className="new-child-story-col--full" style={{ marginTop: "8px" }}>
-                      <button
-                        type="button"
-                        className="new-child-story-btn-primary-inline"
-                        onClick={handleSaveChild}
-                        disabled={isSavingChild}
-                      >
-                        {isSavingChild ? (
-                          <>
-                            <Loader2 size={16} className="new-child-story-spinner" />
-                            <span>جاري حفظ ملف الطفل...</span>
-                          </>
-                        ) : (
-                          <>
-                            <CheckCircle2 size={16} />
-                            <span>حفظ ملف الطفل والمتابعة</span>
-                          </>
-                        )}
-                      </button>
+                      {imageError && (
+                        <div className="new-child-image-error">
+                          <AlertCircle size={14} />
+                          <span>{imageError}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
-              )}
+              </div>
             </div>
           )}
 
           {/* ================================================================
-              STEP 2: Blueprint, Interests & Setting
+              STEP 2: Story Idea, Interests & Setting
               ================================================================ */}
           {currentStep === 2 && (
             <div className="new-child-story-step">
-
-              {/* Blueprints Selection */}
               <div className="new-child-story-card">
-                <label className="new-child-story-section-label">
-                  اختر فكرة ومخطط الحكاية:
-                </label>
-
-                {loadingBlueprints ? (
-                  <div className="new-child-story-loader">
-                    <Loader2 size={20} className="new-child-story-spinner" />
-                    <span>جاري جلب مخططات القصص المعتمدة...</span>
-                  </div>
-                ) : (
-                  <div className="new-child-blueprints-grid">
-                    {blueprints.map((bp) => {
-                      const isSelected = storyData.blueprintKey === bp.key;
-                      return (
-                        <div
-                          key={bp.key}
-                          className={`new-child-blueprint-card ${
-                            isSelected ? "new-child-blueprint-card--selected" : ""
-                          }`}
-                          onClick={() => {
-                            handleStoryChange("blueprintKey", bp.key);
-                            if (bp.allowedSettings && bp.allowedSettings.length > 0) {
-                              handleStoryChange("setting", bp.allowedSettings[0]);
-                            }
-                          }}
-                          role="button"
-                          tabIndex={0}
-                        >
-                          <div className="new-child-blueprint-card__header">
-                            <BookOpen size={16} className="new-child-blueprint-icon" />
-                            <h4 className="new-child-blueprint-card__title">{bp.titleAr}</h4>
-                            {bp.religious && (
-                              <span className="new-child-badge-religious">قيم تربوية</span>
-                            )}
-                          </div>
-                          {bp.theme && (
-                            <p className="new-child-blueprint-card__theme">{bp.theme}</p>
-                          )}
-                          {isSelected && (
-                            <div className="new-child-blueprint-card__check">
-                              <Check size={14} strokeWidth={3} />
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-
-              {/* Interests & Settings Card */}
-              <div className="new-child-story-card">
-                {/* Interests Selection (up to 3) */}
-                <div style={{ marginBottom: "20px" }}>
-                  <div className="new-child-story-section-header-row">
-                    <label className="new-child-story-section-label">
-                      اهتمامات الطفل (اختر حتى ٣ اهتمامات):
-                    </label>
-                    <span className="new-child-story-counter">
-                      {storyData.interests.length} / 3
-                    </span>
-                  </div>
-
-                  <div className="new-child-interests-grid">
-                    {dynamicInterests.map((item) => {
-                      const isSelected = storyData.interests.includes(item.value);
-                      return (
-                        <button
-                          key={item.value}
-                          type="button"
-                          className={`new-child-interest-chip ${
-                            isSelected ? "new-child-interest-chip--selected" : ""
-                          }`}
-                          onClick={() => handleInterestToggle(item.value)}
-                        >
-                          {isSelected && <Check size={12} strokeWidth={2.5} />}
-                          <span>{item.label}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
+                <div className="new-child-story-section-header-row">
+                  <span className="new-child-story-section-label">فكرة ومخطط الحكاية:</span>
                 </div>
 
                 <div className="new-child-story-form-grid">
-                  {/* Setting */}
-                  <div className="new-child-story-col--half">
-                    <Select
-                      label="بيئة ومكان المغامرة"
-                      options={dynamicSettings.filter((s) => {
-                        if (!selectedBlueprint?.allowedSettings || selectedBlueprint.allowedSettings.length === 0) {
-                          return true;
-                        }
-                        return selectedBlueprint.allowedSettings.includes(s.value);
-                      })}
-                      value={storyData.setting}
-                      onChange={(val) => handleStoryChange("setting", val)}
-                      icon={<MapPin size={16} />}
+                  {/* Story Idea (Text Input instead of Selection Cards) */}
+                  <div className="new-child-story-col--full">
+                    <Input
+                      label="فكرة وموضوع الحكاية"
+                      placeholder="مثال: يومي الأول في المدرسة، مغامرة في الفضاء، القطة الصغيرة التائهة..."
+                      value={storyData.storyIdea}
+                      onChange={(e) => handleStoryChange("storyIdea", e.target.value)}
+                      icon={<BookOpen size={16} />}
+                      required
                     />
                   </div>
 
-                  {/* Time of Day */}
+                  {/* Child Interests (Text Input without misleading icon) */}
+                  <div className="new-child-story-col--full">
+                    <Input
+                      label="اهتمامات وهوايات الطفل"
+                      placeholder="مثال: كرة القدم، الرسم والتلوين، الفضاء والكواكب، استكشاف الحيوانات..."
+                      value={storyData.interestsText}
+                      onChange={(e) => handleStoryChange("interestsText", e.target.value)}
+                    />
+                  </div>
+
+                  {/* Setting (Text Input instead of Selection dropdown) */}
+                  <div className="new-child-story-col--half">
+                    <Input
+                      label="بيئة ومكان المغامرة"
+                      placeholder="مثال: بيروت (كورنيش البحر)، غابة سحرية، شاطئ البحر، الفضاء..."
+                      value={storyData.setting}
+                      onChange={(e) => handleStoryChange("setting", e.target.value)}
+                    />
+                  </div>
+
+                  {/* Time of Day (Select Dropdown) */}
                   <div className="new-child-story-col--half">
                     <Select
                       label="وقت المشهد والقصة"
@@ -599,32 +431,24 @@ export function NewStoryBookView({ pageName = "ابتكار قصة أطفال ج
               ================================================================ */}
           {currentStep === 3 && (
             <div className="new-child-story-step">
-
               <div className="new-child-story-card">
+                <div className="new-child-story-section-header-row">
+                  <span className="new-child-story-section-label">مواصفات الكتاب ولغة القصة:</span>
+                </div>
+
                 <div className="new-child-story-form-grid">
-                  {/* Page Count */}
+                  {/* Page Count (Select Dropdown instead of button pills) */}
                   <div className="new-child-story-col--full">
-                    <label className="new-child-story-section-label">عدد صفحات الكتاب المصور:</label>
-                    <div className="new-child-page-counts-row">
-                      {dynamicPageCounts.map((cnt) => (
-                        <button
-                          key={cnt}
-                          type="button"
-                          className={`new-child-page-count-btn ${
-                            Number(storyData.pageCount) === cnt
-                              ? "new-child-page-count-btn--active"
-                              : ""
-                          }`}
-                          onClick={() => handleStoryChange("pageCount", cnt)}
-                        >
-                          <span className="new-child-page-count-num">{cnt}</span>
-                          <span className="new-child-page-count-unit">صفحة</span>
-                        </button>
-                      ))}
-                    </div>
+                    <Select
+                      label="عدد صفحات الكتاب المصور"
+                      options={pageCountOptions}
+                      value={storyData.pageCount}
+                      onChange={(val) => handleStoryChange("pageCount", Number(val))}
+                      icon={<Layers size={16} />}
+                    />
                   </div>
 
-                  {/* Language Variety */}
+                  {/* Language Variety (Select Dropdown) */}
                   <div className="new-child-story-col--half">
                     <Select
                       label="اللغة واللهجة"
@@ -634,7 +458,7 @@ export function NewStoryBookView({ pageName = "ابتكار قصة أطفال ج
                     />
                   </div>
 
-                  {/* Tashkeel Level */}
+                  {/* Tashkeel Level (Select Dropdown) */}
                   <div className="new-child-story-col--half">
                     <Select
                       label="مستوى التشكيل"
@@ -644,7 +468,7 @@ export function NewStoryBookView({ pageName = "ابتكار قصة أطفال ج
                     />
                   </div>
 
-                  {/* Dedication */}
+                  {/* Dedication (Textarea) */}
                   <div className="new-child-story-col--full">
                     <Textarea
                       label="إهداء القصة للطفل (اختياري - بحد أقصى ٣٠٠ حرف)"
@@ -652,10 +476,8 @@ export function NewStoryBookView({ pageName = "ابتكار قصة أطفال ج
                       value={storyData.dedication}
                       onChange={(e) => handleStoryChange("dedication", e.target.value.slice(0, 300))}
                       rows={3}
+                      maxLength={300}
                     />
-                    <div className="new-child-story-textarea-counter">
-                      <span>{(storyData.dedication || "").length} / 300 حرف</span>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -667,53 +489,50 @@ export function NewStoryBookView({ pageName = "ابتكار قصة أطفال ج
               ================================================================ */}
           {currentStep === 4 && (
             <div className="new-child-story-step">
-
-              <div className="new-child-story-review-card">
+              <div className="new-child-story-review-card" dir="rtl">
                 <div className="new-child-story-review-details">
-                  <div className="new-child-story-review-header">
-                    <span className="new-child-story-review-category">
-                      {dynamicVarieties.find((v) => v.value === storyData.variety)?.label} • {storyData.pageCount} صفحة
-                    </span>
-                    {selectedChild && (
-                      <div className="new-child-story-review-badge">
-                        <span>{dynamicAgeBands.find((a) => a.value === selectedChild?.ageBand)?.label || "قصة أطفال"}</span>
-                      </div>
-                    )}
+                  <div className="new-child-story-review-meta">
+                    <span>{dynamicVarieties.find((v) => v.value === storyData.variety)?.label || "العربية الفصحى"}</span>
+                    <span className="new-child-story-review-sep">•</span>
+                    <span>{storyData.pageCount} صفحة</span>
+                    <span className="new-child-story-review-sep">•</span>
+                    <span>{selectedAgeBandLabel}</span>
                   </div>
 
                   <h3 className="new-child-story-review-title">
-                    {selectedBlueprint?.titleAr || "مغامرة البطل الصغير"}
+                    {storyData.storyIdea?.trim() || "مغامرة البطل الصغير"}
                   </h3>
 
-                  {selectedChild && (
+                  <div className="new-child-story-review-hero-row">
+                    {heroImagePreview && (
+                      <div className="new-child-story-review-avatar">
+                        <img src={heroImagePreview} alt={newChildData.nameAr} />
+                      </div>
+                    )}
                     <p className="new-child-story-review-hero">
-                      بطل الحكاية: <strong>{selectedChild.nameAr}</strong> ({selectedChild.gender === "BOY" ? "ولد" : "بنت"})
+                      بطل الحكاية: <strong>{newChildData.nameAr || "البطل الصغير"}</strong> ({selectedGenderLabel} • {selectedSkinToneLabel})
                     </p>
-                  )}
+                  </div>
 
                   <div className="new-child-story-review-summary-box">
                     <div className="new-child-story-review-row">
-                      <span className="new-child-story-review-label">البيئة والوقت:</span>
+                      <span className="new-child-story-review-label">البيئة والوقت</span>
                       <span className="new-child-story-review-val">
-                        {dynamicSettings.find((s) => s.value === storyData.setting)?.label?.split(" ")[0]} • {dynamicTimesOfDay.find((t) => t.value === storyData.timeOfDay)?.label}
+                        {dynamicSettings.find((s) => s.value === storyData.setting)?.label} • {dynamicTimesOfDay.find((t) => t.value === storyData.timeOfDay)?.label}
                       </span>
                     </div>
 
-                    {storyData.interests.length > 0 && (
+                    {storyData.interestsText?.trim() && (
                       <div className="new-child-story-review-row">
-                        <span className="new-child-story-review-label">الاهتمامات:</span>
-                        <div className="new-child-story-review-tags">
-                          {storyData.interests.map((i) => (
-                            <span key={i} className="new-child-story-review-tag">
-                              {dynamicInterests.find((item) => item.value === i)?.label || i}
-                            </span>
-                          ))}
-                        </div>
+                        <span className="new-child-story-review-label">الاهتمامات</span>
+                        <span className="new-child-story-review-val">
+                          {storyData.interestsText}
+                        </span>
                       </div>
                     )}
 
                     <div className="new-child-story-review-row">
-                      <span className="new-child-story-review-label">التشكيل:</span>
+                      <span className="new-child-story-review-label">التشكيل</span>
                       <span className="new-child-story-review-val">
                         {dynamicTashkeel.find((t) => t.value === storyData.tashkeelLevel)?.label}
                       </span>
@@ -721,7 +540,7 @@ export function NewStoryBookView({ pageName = "ابتكار قصة أطفال ج
 
                     {storyData.dedication && (
                       <div className="new-child-story-review-row">
-                        <span className="new-child-story-review-label">الإهداء:</span>
+                        <span className="new-child-story-review-label">الإهداء</span>
                         <span className="new-child-story-review-val" style={{ fontStyle: "italic" }}>
                           «{storyData.dedication}»
                         </span>

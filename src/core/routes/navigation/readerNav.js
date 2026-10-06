@@ -1,7 +1,7 @@
 import {
-  SquareLibrary,
+  Home,
   BookOpen,
-  FolderOpen,
+  ScrollText,
   BookMarked,
   ArchiveIcon,
   Settings,
@@ -14,7 +14,7 @@ export const READER_NAV_ITEMS = [
   {
     name: "ReaderHome",
     label: "الصفحة الرئيسية",
-    icon: SquareLibrary,
+    icon: Home,
     path: "/reader/home",
   },
   {
@@ -38,7 +38,7 @@ export const READER_NAV_ITEMS = [
   {
     name: "ReaderInteractiveStories",
     label: "القصص التفاعلية",
-    icon: FolderOpen,
+    icon: ScrollText,
     path: "/reader/interactive-stories",
   },
   {

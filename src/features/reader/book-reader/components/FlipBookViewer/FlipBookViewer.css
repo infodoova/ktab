@@ -298,20 +298,31 @@
   max-height: calc(100% - 48px);
   margin: auto 0;
   overflow: hidden;
-  text-align: justify;
-  text-align-last: start;
-  font-family: var(--font-arabic, "Tajawal", system-ui, sans-serif);
+  font-family: var(--font-arabic), "Tajawal", system-ui, sans-serif;
   user-select: none !important;
   -webkit-user-select: none !important;
   -moz-user-select: none !important;
   -ms-user-select: none !important;
   -webkit-text-size-adjust: 100% !important;
   text-size-adjust: 100% !important;
-  word-spacing: 0.02em;
   direction: rtl;
   outline: none;
   word-break: break-word;
   overflow-wrap: break-word;
+}
+
+.ktab-book-page__paragraph {
+  margin: 0 0 0.85em 0;
+  white-space: pre-wrap;
+  text-align: justify;
+  text-align-last: start;
+  line-height: inherit;
+  word-spacing: normal;
+  letter-spacing: normal;
+}
+
+.ktab-book-page__paragraph:last-child {
+  margin-bottom: 0;
 }
 
 /* Page Number Footer */
@@ -715,10 +726,7 @@
     max-height: calc(100% - 36px) !important;
     margin: auto 0 !important;
     align-self: center !important;
-    text-align: justify !important;
-    text-align-last: start !important;
     user-select: none !important;
     -webkit-user-select: none !important;
-    letter-spacing: -0.01em;
   }
 }

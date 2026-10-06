@@ -22,6 +22,7 @@ export function useReaderNavigation({
   loadingText,
   token,
   onPageChangeNotification,
+  loadPage,
 }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -74,9 +75,6 @@ export function useReaderNavigation({
   const onPagesGenerated = useCallback(
     (pageInfo) => {
       generatedPagesRef.current = pageInfo;
-      if (pageInfo?.length) {
-        setTotalPages(pageInfo.length);
-      }
       resolveSnippetNavigation();
     },
     [resolveSnippetNavigation]
@@ -132,13 +130,16 @@ export function useReaderNavigation({
   const handlePageChange = useCallback(
     (newPage) => {
       setCurrentPage(newPage);
+      if (loadPage && newPage) {
+        loadPage(newPage);
+      }
       if (token && bookId && newPage) {
         const total = generatedPagesRef.current.length || 1;
         saveReadingProgress(bookId, { page: newPage, totalPages: total }).catch(() => {});
       }
       onPageChangeNotification?.(newPage, generatedPagesRef.current);
     },
-    [bookId, token, onPageChangeNotification]
+    [bookId, token, onPageChangeNotification, loadPage]
   );
 
   // Jump automatically to target cited page from query param (?page=X or ?snippet=Y)

@@ -1,5 +1,5 @@
 import React from "react";
-import { Compass, User, Globe, FileText, Calendar, Building, Sparkles } from "lucide-react";
+import { Tag, User, Globe, FileText, Calendar, Building, Sparkles } from "lucide-react";
 import "./BookMetadataStrip.css";
 
 /**
@@ -60,7 +60,7 @@ export function BookMetadataStrip({ book }) {
     {
       id: "genre",
       label: "التصنيف",
-      icon: <Compass size={18} strokeWidth={2} />,
+      icon: <Tag size={18} strokeWidth={2} />,
       primaryText: mainGenreName || "عام",
       secondaryText: subGenreName || "",
     },

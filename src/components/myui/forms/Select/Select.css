@@ -65,7 +65,7 @@
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
-  gap: 2px;
+  gap: 5px;
   flex: 1;
   min-width: 0;
   text-align: right;
@@ -209,6 +209,22 @@
   color: var(--brand-black, #0a0a0a);
   flex-shrink: 0;
   margin-left: 4px;
+}
+
+.myui-select-option-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.myui-select-color-circle {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(0, 0, 0, 0.15);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  flex-shrink: 0;
+  display: inline-block;
 }
 
 /* Error and Helper Text */

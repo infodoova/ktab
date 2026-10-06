@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Compass } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import { AppLayout } from "@/components/myui/layout";
 import {
   ReaderAnalytics,
@@ -34,8 +34,9 @@ export function ReaderDashboardView({ pageName = "الصفحة الرئيسية"
       onClick={() => navigate("/reader/library")}
       className="ktab-topbar__btn-action"
       title="تصفح المكتبة"
+      aria-label="تصفح المكتبة"
     >
-      <Compass size={15} strokeWidth={2.4} />
+      <BookOpen size={15} strokeWidth={2.4} />
       <span className="ktab-topbar__btn-text">تصفح المكتبة</span>
     </button>
   );

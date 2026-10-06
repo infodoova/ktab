@@ -7,7 +7,6 @@ import {
   BookMarked,
   Trash2,
   Eye,
-  Compass,
   Headphones,
   Star,
 } from "lucide-react";
@@ -248,7 +247,7 @@ export function AssignedBooks({
             onClick={handleBrowseLibrary}
             className="ktab-assigned-empty__btn"
           >
-            <Compass size={15} strokeWidth={2.2} />
+            <BookOpen size={15} strokeWidth={2.2} />
             <span>تصفح المكتبة واكتشف الكتب</span>
           </button>
         </div>

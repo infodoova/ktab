@@ -10,10 +10,9 @@
  */
 export function normalizeText(raw = "") {
   if (!raw) return "";
-  const cleaned = String(raw).replace(/\b(null|undefined)\b/gi, "").trim();
+  const cleaned = String(raw).replace(/\b(null|undefined)\b/gi, "");
   return cleaned
     .normalize("NFC")
-    .replace(/\u00A0/g, " ")
     .replace(/\r\n|\r/g, "\n");
 }
 

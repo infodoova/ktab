@@ -73,26 +73,21 @@ export function TextareaComponent(
       dir="rtl"
     >
       <div
-        className={`myui-textarea-field-wrap ${isFloating ? "is-floating" : ""} ${
-          disabled ? "is-disabled" : ""
-        }`}
+        className={`myui-textarea-field-wrap ${disabled ? "is-disabled" : ""}`}
         onClick={() => localTextareaRef.current?.focus()}
       >
         {label && (
-          <label
-            htmlFor={inputId}
-            className={`myui-textarea-inset-label ${
-              isFloating ? "is-floating" : ""
-            } ${isFocused ? "is-focused" : ""}`}
-          >
-            <span>{label}</span>
-            {required ? (
-              <span className="myui-textarea-required">*</span>
-            ) : (
-              <span className="myui-textarea-optional">(اختياري)</span>
-            )}
+          <div className="myui-textarea-header">
+            <label htmlFor={inputId} className="myui-textarea-header-label">
+              <span className="myui-textarea-label-text">{label}</span>
+              {required ? (
+                <span className="myui-textarea-required">*</span>
+              ) : (
+                <span className="myui-textarea-optional">(اختياري)</span>
+              )}
+            </label>
             {labelExtra && <span className="myui-textarea-extra">{labelExtra}</span>}
-          </label>
+          </div>
         )}
 
         <textarea
@@ -107,10 +102,8 @@ export function TextareaComponent(
           onFocus={handleFocus}
           onBlur={handleBlur}
           maxLength={maxLength}
-          placeholder={label ? (isFocused ? placeholder : "") : placeholder}
-          className={`myui-textarea ${label ? "has-inset-label" : ""} ${
-            error ? "has-error" : ""
-          } ${textareaClassName}`}
+          placeholder={placeholder}
+          className={`myui-textarea ${error ? "has-error" : ""} ${textareaClassName}`}
           {...props}
         />
       </div>
@@ -130,7 +123,7 @@ export function TextareaComponent(
               isLimitReached ? "is-limit-reached" : ""
             }`}
           >
-            {currentLength} / {maxLength}
+            {currentLength} / {maxLength} حرف
           </span>
         )}
       </div>

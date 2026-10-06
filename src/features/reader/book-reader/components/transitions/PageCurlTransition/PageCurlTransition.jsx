@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useCallback, useImperativeHandle } from "react";
+import React, { useRef, useEffect, useCallback, useImperativeHandle, useMemo } from "react";
 import HTMLFlipBook from "react-pageflip";
 import { PageFlip } from "page-flip";
 import brandIconImg from "@/assets/logo/BrandIcon.png";
@@ -160,8 +160,18 @@ if (!PageFlip._ktabSinglePagePatched) {
  * Renders authentic reading text on the front face, and the solid
  * themed cover with the monochrome Ktab BrandIcon on the turning reverse sheet.
  */
+const LeafContext = React.createContext({
+  renderContent: () => null,
+  currentPageIndex: 0,
+});
+
+/** Pages farther than this from the current one render empty (cheap) leaves. */
+const RENDER_WINDOW = 4;
+
 const PageLeaf = React.memo(
-  React.forwardRef(({ page, pageNum, theme, renderContent }, ref) => {
+  React.forwardRef(({ page, pageNum, theme }, ref) => {
+    const { renderContent, currentPageIndex } = React.useContext(LeafContext);
+    const inWindow = Math.abs(pageNum - 1 - currentPageIndex) <= RENDER_WINDOW;
     return (
       <div
         ref={ref}
@@ -170,7 +180,7 @@ const PageLeaf = React.memo(
       >
         {/* Front Face: Book Text Content */}
         <div className="ktab-page-curl-content">
-          {renderContent(page, pageNum)}
+          {inWindow ? renderContent(page, pageNum) : null}
         </div>
 
         {/* Back Face: Solid Background with Monochrome Brand Emblem */}
@@ -211,6 +221,8 @@ export const PageCurlTransition = React.forwardRef(function PageCurlTransition(
 ) {
   const flipBookRef = useRef(null);
   const containerRef = useRef(null);
+  const currentIndexRef = useRef(currentPageIndex);
+  currentIndexRef.current = currentPageIndex;
 
   /**
    * Calibrates StPageFlip internal engine on runtime mounts:
@@ -261,7 +273,6 @@ export const PageCurlTransition = React.forwardRef(function PageCurlTransition(
           }
         };
         pageCollection.createSpread();
-        pageCollection.show(currentPageIndex);
       }
 
       const fc = pf.getFlipController();
@@ -314,17 +325,11 @@ export const PageCurlTransition = React.forwardRef(function PageCurlTransition(
     } catch (err) {
       console.warn("Could not patch StPageFlip newTemporaryCopy:", err);
     }
-  }, [currentPageIndex]);
+  }, []);
 
   useEffect(() => {
     attachEngineHooks();
-    const frameId = requestAnimationFrame(attachEngineHooks);
-    const timerId = setTimeout(attachEngineHooks, 100);
-    return () => {
-      cancelAnimationFrame(frameId);
-      clearTimeout(timerId);
-    };
-  }, [attachEngineHooks, pageWidth, pageHeight, theme, pages.length]);
+  }, [attachEngineHooks, pageWidth, pageHeight, theme]);
 
   useImperativeHandle(ref, () => ({
     triggerCurlNext: () => {
@@ -373,14 +378,14 @@ export const PageCurlTransition = React.forwardRef(function PageCurlTransition(
         const currentSpread = pf.getPageCollection()?.getCurrentSpreadIndex();
         if (targetSpread === currentSpread) return;
 
-        // Use native StPageFlip direct page transition API
-        if (typeof pf.turnToPage === "function") {
-          pf.turnToPage(targetSpread);
+        // Trigger realistic page curl flip animation
+        if (typeof pf.flip === "function") {
+          pf.flip(targetSpread);
           return;
         }
 
-        if (typeof pf.flip === "function") {
-          pf.flip(targetSpread);
+        if (typeof pf.turnToPage === "function") {
+          pf.turnToPage(targetSpread);
           return;
         }
 
@@ -417,6 +422,19 @@ export const PageCurlTransition = React.forwardRef(function PageCurlTransition(
     pageFlip: () => flipBookRef.current?.pageFlip(),
   }));
 
+  const flipChildren = useMemo(
+    () =>
+      (pages || []).map((p, idx) => (
+        <PageLeaf key={idx} page={p} pageNum={idx + 1} theme={theme} />
+      )),
+    [pages, theme]
+  );
+
+  const leafContextValue = useMemo(
+    () => ({ renderContent, currentPageIndex }),
+    [renderContent, currentPageIndex]
+  );
+
   if (!pages || pages.length === 0) return null;
 
   return (
@@ -430,7 +448,9 @@ export const PageCurlTransition = React.forwardRef(function PageCurlTransition(
       }}
       dir="ltr"
     >
+    <LeafContext.Provider value={leafContextValue}>
       <HTMLFlipBook
+        renderOnlyPageLengthChange={true}
         ref={flipBookRef}
         key={`${pageWidth}-${pageHeight}-${theme}`}
         width={pageWidth}
@@ -459,21 +479,17 @@ export const PageCurlTransition = React.forwardRef(function PageCurlTransition(
           height: `${pageHeight}px`,
         }}
         onInit={attachEngineHooks}
-        onUpdate={attachEngineHooks}
         onFlip={(e) => {
-          onPageChange?.(e.data + 1);
+          const newPage = e.data + 1;
+          if (newPage !== currentIndexRef.current + 1) {
+            currentIndexRef.current = newPage - 1;
+            onPageChange?.(newPage);
+          }
         }}
       >
-        {pages.map((p, idx) => (
-          <PageLeaf
-            key={idx}
-            page={p}
-            pageNum={idx + 1}
-            theme={theme}
-            renderContent={renderContent}
-          />
-        ))}
+        {flipChildren}
       </HTMLFlipBook>
+    </LeafContext.Provider>
     </div>
   );
 });

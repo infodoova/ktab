@@ -1,4 +1,4 @@
-import { LayoutDashboard, BookOpen, Users } from "lucide-react";
+import { LayoutDashboard, Building2, Users } from "lucide-react";
 
 /**
  * Global Navigation Definitions for Admin Role (00 / ADMIN)
@@ -16,7 +16,7 @@ export const ADMIN_NAV_ITEMS = [
   {
     name: "AdminLibrary",
     label: "إدارة المكتبات",
-    icon: BookOpen,
+    icon: Building2,
     path: "/admin/library",
   },
   {

@@ -1,9 +1,8 @@
 import {
   LayoutDashboard,
-  FolderOpen,
+  ScrollText,
   Library as LibraryIcon,
   Star,
-  Sparkles,
   Settings,
 } from "lucide-react";
 
@@ -27,7 +26,7 @@ export const AUTHOR_NAV_ITEMS = [
     {
     name: "AuthorMyStories",
     label: "قصصي التفاعلية",
-    icon: FolderOpen,
+    icon: ScrollText,
     path: "/author/my-stories",
   },
   {

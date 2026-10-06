@@ -1,0 +1,390 @@
+/* ==========================================================================
+   BookNavigator Stylesheet
+   Powered by DetailsDrawer (Desktop Left Drawer & Mobile Bottom Sheet)
+   - Zero shadow on floating trigger button
+   - Responsive: small icon on mobile and iPads (<= 1024px)
+   - 4 Synchronized themes: pure-white, warm-cream, paper-sepia, charcoal-dark
+   ========================================================================== */
+
+/* --- Floating Trigger Button (Always solid black, NO SHADOW) --- */
+.ktab-nav-trigger {
+  position: fixed;
+  left: 20px;
+  bottom: 24px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #000000 !important;
+  color: #ffffff !important;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: none !important;
+  filter: none !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+
+.ktab-nav-trigger:hover {
+  transform: translateY(-2px) scale(1.02);
+  background: #18181b !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+.ktab-nav-trigger:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+.ktab-nav-trigger__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ktab-nav-trigger__text {
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+}
+
+.ktab-nav-trigger--hidden {
+  opacity: 0 !important;
+  transform: translateY(20px) !important;
+  pointer-events: none !important;
+}
+
+/* Standalone trigger is hidden on mobile & tablets (<= 1024px), replaced by unified mobile action stack */
+@media (max-width: 1024px) {
+  .ktab-nav-trigger {
+    display: none !important;
+  }
+}
+
+/* ==========================================================================
+   DetailsDrawer Integration for Navigator
+   ========================================================================== */
+.ktab-navigator-drawer .ktab-details-drawer-panel {
+  box-shadow: none !important;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.ktab-navigator-drawer .ktab-details-drawer-body {
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ktab-nav-drawer-body {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  gap: 12px;
+}
+
+/* 1. Pure White Theme */
+.ktab-navigator-drawer--pure-white .ktab-details-drawer-panel,
+.ktab-navigator-drawer--light .ktab-details-drawer-panel {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #e2e8f0 !important;
+}
+.ktab-navigator-drawer--pure-white .ktab-details-drawer-header,
+.ktab-navigator-drawer--light .ktab-details-drawer-header {
+  background: #ffffff !important;
+  border-bottom-color: #f1f5f9 !important;
+}
+
+/* 2. Warm Cream Theme */
+.ktab-navigator-drawer--warm-cream .ktab-details-drawer-panel {
+  background: #fbf7ee !important;
+  color: #2c2824 !important;
+  border-color: #e5dec9 !important;
+}
+.ktab-navigator-drawer--warm-cream .ktab-details-drawer-header {
+  background: #fbf7ee !important;
+  border-bottom-color: #ebd7c2 !important;
+}
+.ktab-navigator-drawer--warm-cream .ktab-details-drawer-title {
+  color: #2c2824 !important;
+}
+.ktab-navigator-drawer--warm-cream .ktab-details-drawer-close-btn {
+  background: #f2ebd9 !important;
+  color: #2c2824 !important;
+}
+
+/* 3. Paper Sepia Theme */
+.ktab-navigator-drawer--paper-sepia .ktab-details-drawer-panel {
+  background: #f4ecd8 !important;
+  color: #3d3224 !important;
+  border-color: #ded1b2 !important;
+}
+.ktab-navigator-drawer--paper-sepia .ktab-details-drawer-header {
+  background: #f4ecd8 !important;
+  border-bottom-color: #e0d0af !important;
+}
+.ktab-navigator-drawer--paper-sepia .ktab-details-drawer-title {
+  color: #3d3224 !important;
+}
+.ktab-navigator-drawer--paper-sepia .ktab-details-drawer-close-btn {
+  background: #ebe1c5 !important;
+  color: #3d3224 !important;
+}
+
+/* 4. Charcoal Dark Theme */
+.ktab-navigator-drawer--charcoal-dark .ktab-details-drawer-panel,
+.ktab-navigator-drawer--dark .ktab-details-drawer-panel {
+  background: #12151c !important;
+  color: #f1f5f9 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+.ktab-navigator-drawer--charcoal-dark .ktab-details-drawer-header,
+.ktab-navigator-drawer--dark .ktab-details-drawer-header {
+  background: #12151c !important;
+  border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+.ktab-navigator-drawer--charcoal-dark .ktab-details-drawer-title,
+.ktab-navigator-drawer--dark .ktab-details-drawer-title {
+  color: #f8fafc !important;
+}
+.ktab-navigator-drawer--charcoal-dark .ktab-details-drawer-close-btn,
+.ktab-navigator-drawer--dark .ktab-details-drawer-close-btn {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  color: #cbd5e1 !important;
+}
+
+/* Section Title Pill Bar */
+.ktab-nav-section-bar {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.ktab-nav-section-bar__pill {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  background: #000000;
+  color: #ffffff;
+  letter-spacing: -0.2px;
+}
+
+.ktab-navigator-drawer--charcoal-dark .ktab-nav-section-bar__pill {
+  background: #ffffff;
+  color: #000000;
+}
+
+/* Search Bar */
+.ktab-nav-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.ktab-nav-search-icon {
+  position: absolute;
+  right: 12px;
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.ktab-nav-search-input {
+  width: 100%;
+  padding: 9px 34px 9px 28px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+
+.ktab-nav-search-clear {
+  position: absolute;
+  left: 10px;
+  background: none;
+  border: none;
+  color: inherit;
+  opacity: 0.6;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.ktab-navigator-drawer--pure-white .ktab-nav-search-input,
+.ktab-navigator-drawer--light .ktab-nav-search-input {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #0f172a;
+}
+
+.ktab-navigator-drawer--warm-cream .ktab-nav-search-input {
+  background: #fdfbf7;
+  border: 1px solid #e5dec9;
+  color: #2c2824;
+}
+
+.ktab-navigator-drawer--paper-sepia .ktab-nav-search-input {
+  background: #f7f1e1;
+  border: 1px solid #ded1b2;
+  color: #3d3224;
+}
+
+.ktab-navigator-drawer--charcoal-dark .ktab-nav-search-input,
+.ktab-navigator-drawer--dark .ktab-nav-search-input {
+  background: #1c212c;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f1f5f9;
+}
+
+/* Content List & Items */
+.ktab-nav-content-scroll {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: calc(100vh - 230px);
+}
+
+@media (max-width: 767px) {
+  .ktab-nav-content-scroll {
+    max-height: 60vh;
+  }
+}
+
+.ktab-nav-item-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.ktab-nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: inherit;
+  text-align: right;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 500;
+  transition: background 0.18s ease, color 0.18s ease;
+  gap: 12px;
+}
+
+.ktab-nav-item__title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.ktab-nav-item__page-number {
+  font-size: 12px;
+  font-weight: 500;
+  opacity: 0.6;
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.ktab-nav-item__children {
+  padding-right: 14px;
+  border-right: 1px dashed rgba(0, 0, 0, 0.12);
+  margin-right: 6px;
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+
+.ktab-navigator-drawer--charcoal-dark .ktab-nav-item__children {
+  border-right-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Hover and Active states */
+.ktab-navigator-drawer--pure-white .ktab-nav-item:hover,
+.ktab-navigator-drawer--light .ktab-nav-item:hover {
+  background: #f1f5f9;
+}
+.ktab-navigator-drawer--pure-white .ktab-nav-item--active,
+.ktab-navigator-drawer--light .ktab-nav-item--active {
+  background: #e2e8f0 !important;
+  color: #0f172a !important;
+  font-weight: 700;
+}
+
+.ktab-navigator-drawer--warm-cream .ktab-nav-item:hover {
+  background: #f5eedc;
+}
+.ktab-navigator-drawer--warm-cream .ktab-nav-item--active {
+  background: #eedfbe !important;
+  color: #2c2824 !important;
+  font-weight: 700;
+}
+
+.ktab-navigator-drawer--paper-sepia .ktab-nav-item:hover {
+  background: #ebe1c5;
+}
+.ktab-navigator-drawer--paper-sepia .ktab-nav-item--active {
+  background: #e0d0af !important;
+  color: #3d3224 !important;
+  font-weight: 700;
+}
+
+.ktab-navigator-drawer--charcoal-dark .ktab-nav-item:hover,
+.ktab-navigator-drawer--dark .ktab-nav-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+.ktab-navigator-drawer--charcoal-dark .ktab-nav-item--active,
+.ktab-navigator-drawer--dark .ktab-nav-item--active {
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #ffffff !important;
+  font-weight: 700;
+}
+
+/* Loading & Empty States */
+.ktab-nav-empty {
+  padding: 32px 16px;
+  text-align: center;
+  font-size: 13px;
+  opacity: 0.55;
+}
+
+.ktab-nav-loading {
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ktab-nav-loading-bar {
+  height: 14px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.06);
+  animation: ktabNavPulse 1.2s ease-in-out infinite alternate;
+}
+
+.ktab-navigator-drawer--charcoal-dark .ktab-nav-loading-bar {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+@keyframes ktabNavPulse {
+  0% { opacity: 0.4; }
+  100% { opacity: 0.9; }
+}
