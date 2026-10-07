@@ -18,7 +18,6 @@ export function BookHero({
   onToggleAssign,
   onOpenReviewModal,
   onStartReading,
-  onShare,
 }) {
   if (!book) return null;
 
@@ -62,15 +61,6 @@ export function BookHero({
         {/* 2. Metadata, Details & Action Buttons Column */}
         <div className="apple-book-hero__content">
           <div className="apple-book-hero__text-meta">
-            {/* Genre Breadcrumb */}
-            {(mainGenreName || subGenreName) && (
-              <div className="apple-book-hero__genre-tag">
-                <span>{mainGenreName}</span>
-                {subGenreName && <span className="apple-book-hero__genre-sep">•</span>}
-                {subGenreName && <span>{subGenreName}</span>}
-              </div>
-            )}
-
             {/* Book Title */}
             <h1 className="apple-book-hero__title">{title}</h1>
 
@@ -86,7 +76,7 @@ export function BookHero({
                 {[1, 2, 3, 4, 5].map((starIndex) => (
                   <Star
                     key={starIndex}
-                    size={15}
+                    size={14}
                     className={`apple-book-hero__star ${
                       starIndex <= Math.round(numericRating) ? "is-filled" : ""
                     }`}
@@ -96,9 +86,8 @@ export function BookHero({
               <span className="apple-book-hero__rating-score">
                 {numericRating > 0 ? numericRating.toFixed(1) : "جديد"}
               </span>
-              <span className="apple-book-hero__rating-dot">•</span>
               <span className="apple-book-hero__rating-count">
-                {reviewsCount > 0 ? `${reviewsCount} تقييم` : "بدون تقييمات"}
+                ({reviewsCount})
               </span>
             </div>
           </div>

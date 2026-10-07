@@ -100,8 +100,8 @@ export function BookDetailsView() {
             className="apple-book-details-back-btn"
             aria-label="الرجوع إلى الصفحة السابقة"
           >
-            <span>المكتبة</span>
-            <ArrowLeft size={16} />
+            <span className="apple-book-details-back-btn-text">المكتبة</span>
+            <ArrowLeft size={18} className="apple-book-details-back-btn-icon" />
           </button>
         </div>
       </header>

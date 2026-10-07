@@ -13,18 +13,18 @@ export default function TrailerStudioView() {
   return (
     <AppLayout pageName="إعلانات الكتب" showSearch searchQuery={studio.searchQuery} onSearchChange={studio.setSearchQuery} onFilterClick={studio.handleOpenFilters} searchPlaceholder="ابحث في كتب هذه الصفحة..." activeFiltersCount={studio.activeFiltersCount} headerActions={<button type="button" className="trailer-header-filter" onClick={studio.handleOpenFilters} aria-label="تصفية الإعلانات"><SlidersHorizontal size={18} /><span>تصفية</span></button>} className="trailer-workspace">
       <div className="trailer-studio" dir="rtl">
-        {!studio.loading && studio.books.map((book) => <TrailerBookController key={book.id} bookId={book.id} isAdmin={studio.isAdmin} onChange={studio.handleTrailersChange} />)}
+        {!studio.loading && studio.books.map((book) => <TrailerBookController key={book.id} bookId={book.id} isAdmin={studio.isAdmin} role={studio.role} onChange={studio.handleTrailersChange} />)}
         {studio.error && <div className="trailer-studio__error" role="alert"><p>{studio.error}</p></div>}
 
         {studio.viewFilter !== "active" && <section className="trailer-studio__section" aria-labelledby="trailer-finished-heading">
-          <div className="trailer-studio__section-heading"><div><h2 id="trailer-finished-heading">جاهزة للمشاهدة <span>{studio.finished.length}</span></h2><p>إعلانات الكتب المعروضة، الأحدث أولاً.</p></div>{!studio.loading && studio.galleryLoading && studio.finished.length > 0 && <Loader2 size={17} className="trailer-spinner" aria-label="جاري تحميل بقية الإعلانات" />}</div>
+          <div className="trailer-studio__section-heading"><div><h2 id="trailer-finished-heading">جاهزة للمشاهدة <span>{studio.finished.length}</span></h2><p>إعلانات الكتب المكتملة الجاهزة للمشاهدة والتحميل.</p></div>{!studio.loading && studio.galleryLoading && studio.finished.length > 0 && <Loader2 size={17} className="trailer-spinner" aria-label="جاري تحميل بقية الإعلانات" />}</div>
           {(studio.loading || studio.galleryLoading) && studio.finished.length === 0 ? <div className="trailer-studio__video-grid" role="status" aria-label="جاري تحميل الإعلانات"><span className="trailer-studio__sr">جاري تحميل الإعلانات...</span>{[0,1].map((id) => <div key={id} className="trailer-studio__video-skeleton" aria-hidden="true"><div /><span /></div>)}</div>
             : studio.finished.length > 0 ? <div className="trailer-studio__video-grid">{studio.finished.map(({ book, trailer }) => <TrailerVideoCard key={`${book.id}-${trailer.id}`} book={book} trailer={trailer} />)}</div>
             : <div className="trailer-studio__gallery-empty"><Film size={22} strokeWidth={1.5} /><div><h3>{studio.galleryHasErrors ? "تعذر تحميل بعض الإعلانات" : "لا توجد إعلانات جاهزة للمشاهدة"}</h3><p>ستظهر الفيديوهات هنا عند اكتمال الإنتاج.</p></div></div>}
         </section>}
 
         {studio.viewFilter !== "ready" && (studio.activeBooks.length > 0 || studio.viewFilter === "active") && <section className="trailer-studio__section trailer-studio__queue" aria-labelledby="trailer-queue-heading">
-          <div className="trailer-studio__section-heading"><div><h2 id="trailer-queue-heading" tabIndex={-1}>قائمة الانتظار والإنتاج <span>{studio.activeBooks.length}</span></h2><p>تابع إعلاناتك هنا حتى تصبح جاهزة للمشاهدة.</p></div></div>
+          <div className="trailer-studio__section-heading"><div><h2 id="trailer-queue-heading" tabIndex={-1}>قائمة الانتظار والإنتاج <span>{studio.activeBooks.length}</span></h2><p>تابع حالة الإعلانات قيد الإنتاج، أو أعد محاولة إنتاج الإعلانات التي تعذر إكمالها.</p></div></div>
           <div className="trailer-studio__book-grid">{studio.activeBooks.map((book) => <TrailerBookCard key={book.id} book={book} isAdmin={studio.isAdmin} collection={studio.trailersByBook[book.id]} mode="queue" />)}</div>
           {!studio.loading && !studio.galleryLoading && studio.activeBooks.length === 0 && <div className="trailer-studio__empty"><Film size={28} strokeWidth={1.2} /><h3>لا توجد إعلانات في قائمة الانتظار</h3><p>ستظهر طلباتك هنا بعد تأكيد إنشاء الإعلان.</p></div>}
           {(studio.loading || studio.galleryLoading) && studio.activeBooks.length === 0 && <div className="trailer-book-card__list-loading" role="status"><Loader2 className="trailer-spinner" size={20} /> جاري تحميل طلباتك...</div>}

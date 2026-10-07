@@ -13,7 +13,6 @@ export function useBookReviewModal({
   isOpen = false,
   setUserRating,
   setUserReview,
-  onClose,
 }) {
   const [isMobile, setIsMobile] = useState(() => {
     if (typeof window === "undefined") return false;

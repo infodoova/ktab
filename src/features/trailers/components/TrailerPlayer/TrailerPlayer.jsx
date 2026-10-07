@@ -10,7 +10,7 @@ export function TrailerPlayer({ trailerId, directUrl, readerBookId, poster, titl
         <button type="button" className="trailer-player__open" onClick={player.handleOpen} aria-label={`مشاهدة إعلان ${title}`}>
           {poster && <img src={poster} alt="" className="trailer-player__poster" loading="lazy" />}
           <span className="trailer-player__play"><Play size={24} fill="currentColor" /></span>
-          <span className="trailer-player__open-label">مشاهدة الإعلان</span>
+            <span className="trailer-player__open-label">مشاهدة الإعلان</span>
         </button>
       ) : player.loading ? (
         <div className="trailer-player__loading" role="status">

@@ -1,4 +1,49 @@
-.book-trailer-section { width: 100%; min-width: 0; margin: 0; padding: 16px 0; border-top: 1px solid var(--border-subtle); color: var(--primary-text); }
-.book-trailer-section > h2 { display: flex; align-items: center; gap: 10px; margin: 0 0 12px; font-size: clamp(18px, 2.4vw, 20px); font-weight: 700; }
-.book-trailer-section .trailer-player { width: 100%; max-width: none; margin-inline: auto; }
-@media (max-width: 600px) { .book-trailer-section { padding: 12px 0; } }
+.book-trailer-section {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 16px 0;
+  border-top: 1px solid var(--border-subtle);
+  color: var(--primary-text);
+}
+
+.book-trailer-section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.book-trailer-section__header > h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: clamp(17px, 2.2vw, 19px);
+  font-weight: 700;
+}
+
+.book-trailer-section__controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.book-trailer-section .trailer-player {
+  width: 100%;
+  max-width: none;
+  margin-inline: auto;
+}
+
+@media (max-width: 600px) {
+  .book-trailer-section {
+    padding: 12px 0;
+  }
+  .book-trailer-section__header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

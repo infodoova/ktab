@@ -10,8 +10,37 @@
 .trailer-create-dialog__cover { display: grid; flex: 0 0 44px; place-items: center; width: 44px; height: 64px; overflow: hidden; border-radius: 5px; color: var(--text-muted); }
 .trailer-create-dialog__cover img { width: 100%; height: 100%; object-fit: cover; }
 .trailer-create-dialog__actions { display: grid; grid-template-columns: 1fr 100px; gap: 10px; }
-.trailer-create-dialog__actions button { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--bg-primary); color: var(--primary-text); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
-.trailer-create-dialog__actions .trailer-create-dialog__confirm { border-color: var(--brand-black); background: var(--brand-black); color: var(--brand-white); }
-.trailer-create-dialog__actions button:disabled { opacity: .45; cursor: default; }
+.trailer-create-dialog__actions button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 9999px;
+  background: var(--bg-primary);
+  color: var(--primary-text);
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.trailer-create-dialog__actions button:hover:not(:disabled) {
+  background: var(--bg-secondary);
+  transform: translateY(-1px);
+}
+.trailer-create-dialog__actions .trailer-create-dialog__confirm {
+  border-color: var(--brand-black);
+  background: var(--brand-black);
+  color: var(--brand-white);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+.trailer-create-dialog__actions .trailer-create-dialog__confirm:hover:not(:disabled) {
+  background: #27272a;
+  border-color: #27272a;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
+}
+.trailer-create-dialog__actions button:disabled { opacity: .45; cursor: default; transform: none; box-shadow: none; }
 .trailer-create-dialog .trailer-create-dialog__error { margin: 0 0 18px; color: var(--color-danger); font-size: 14px; }
 @media (max-width: 480px) { .trailer-create-dialog__actions { grid-template-columns: 1fr; } }

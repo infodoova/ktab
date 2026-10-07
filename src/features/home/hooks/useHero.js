@@ -1,15 +1,21 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { FAKE_HERO_BOOKS as HERO_BOOKS } from "@/fakedataorassets/testData";
-import { useVoiceSampleStore } from "./useVoiceSampleStore";
+import { usePublicCoverImages } from "./usePublicCoverImages";
 
 /**
- * Custom hook containing all state, audio playback, and 3D positioning metrics for the Hero section.
- * Powers the 3D book carousel, first-page flip, and the animated Voice Sample Player Modal.
+ * Fetches public covers and manages carousel gestures and 3D positioning.
  */
 export function useHero() {
   const navigate = useNavigate();
-  const books = HERO_BOOKS;
+  const { books: fetchedBooks, isLoading, error, retry, refreshAfterImageError } = usePublicCoverImages("top-reviewed", 10, 5, 5);
+  const books = useMemo(() => {
+    if (!fetchedBooks.length || fetchedBooks.length >= 5) return fetchedBooks;
+    // The carousel needs five cards for its center and two cards on each side.
+    return Array.from({ length: 5 }, (_, index) => ({
+      ...fetchedBooks[index % fetchedBooks.length],
+      id: `hero-cover-${index}`,
+    }));
+  }, [fetchedBooks]);
 
   // Carousel & 3D Flip State
   const [activeIndex, setActiveIndex] = useState(0);
@@ -35,11 +41,13 @@ export function useHero() {
 
   // Carousel navigation handlers with flip reset
   const nextBook = useCallback(() => {
+    if (books.length < 2) return;
     setIsFlipped(false);
     setActiveIndex((prev) => (prev + 1) % books.length);
   }, [books.length]);
 
   const prevBook = useCallback(() => {
+    if (books.length < 2) return;
     setIsFlipped(false);
     setActiveIndex((prev) => (prev - 1 + books.length) % books.length);
   }, [books.length]);
@@ -48,6 +56,10 @@ export function useHero() {
     setIsFlipped(false);
     setActiveIndex(index);
   }, []);
+
+  const handleSelectBook = useCallback((event) => {
+    selectBook(Number(event.currentTarget.dataset.index));
+  }, [selectBook]);
 
   const toggleFlip = useCallback(() => {
     setIsFlipped((prev) => !prev);
@@ -67,15 +79,8 @@ export function useHero() {
     [nextBook, prevBook]
   );
 
-  // Voice Sample Modal controls (Delegated to centralized singleton store)
-  const openVoiceModal = useCallback((book) => {
-    const targetBook = book || currentBook;
-    useVoiceSampleStore.getState().openSample(targetBook);
-  }, [currentBook]);
-
-  const closeVoiceModal = useCallback(() => {
-    useVoiceSampleStore.getState().closeSample();
-  }, []);
+  // Audio preview is paused while the API supplies only cover URLs:
+  // useVoiceSampleStore.getState().openSample(book);
 
   // Fluid 3D Apple-style Curved Arc Animation Calculations
   const animatedBooks = useMemo(() => {
@@ -177,7 +182,7 @@ export function useHero() {
         },
       };
     });
-  }, [books, activeIndex, isFlipped, isMobile, windowWidth]);
+  }, [books, activeIndex, isMobile, windowWidth]);
 
   // Navigation handlers
   const handleStartNow = useCallback(() => {
@@ -186,6 +191,10 @@ export function useHero() {
 
   return {
     books,
+    isLoading,
+    error,
+    retry,
+    refreshAfterImageError,
     animatedBooks,
     activeIndex,
     currentBook,
@@ -193,11 +202,9 @@ export function useHero() {
     nextBook,
     prevBook,
     selectBook,
+    handleSelectBook,
     toggleFlip,
     handleDragEnd,
-    // Voice Sample Modal Controls
-    openVoiceModal,
-    closeVoiceModal,
     handleStartNow,
   };
 }

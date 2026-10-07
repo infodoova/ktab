@@ -22,24 +22,28 @@ export function BookDescription({
 
   // Split description by double newlines into distinct paragraphs if present
   const paragraphs = description.split(/\n\s*\n/).filter(Boolean);
+  const canExpand = description.length > 320 || paragraphs.length > 2;
+  const isClamped = canExpand && !isExpanded;
 
   return (
     <section className="apple-book-desc" dir="rtl" aria-label="نبذة عن الكتاب">
       <h2 className="apple-book-desc__heading">نبذة عن الكتاب</h2>
 
-      <div
-        className={`apple-book-desc__content ${
-          !isExpanded ? "apple-book-desc__content--clamped" : ""
-        }`}
-      >
-        {paragraphs.map((para, index) => (
-          <p key={index} className="apple-book-desc__paragraph">
-            {para}
+      <div className="apple-book-desc__content">
+        {isClamped ? (
+          <p className="apple-book-desc__paragraph apple-book-desc__paragraph--clamped">
+            {paragraphs.join(" ")}
           </p>
-        ))}
+        ) : (
+          paragraphs.map((para, index) => (
+            <p key={index} className="apple-book-desc__paragraph">
+              {para}
+            </p>
+          ))
+        )}
       </div>
 
-      {description.length > 220 && (
+      {canExpand && (
         <button
           type="button"
           onClick={onToggleExpand}

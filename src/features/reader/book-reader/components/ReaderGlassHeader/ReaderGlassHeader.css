@@ -2144,49 +2144,53 @@
 
 .ktab-mobile-slider-drawer {
   position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: 68px;
+  top: 50%;
+  left: max(12px, env(safe-area-inset-left, 12px));
+  bottom: auto;
+  width: 66px;
+  max-height: min(580px, calc(86dvh - 24px));
+  height: fit-content;
   z-index: 1250;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 16px 0 20px;
-  background: rgba(255, 255, 255, 0.94);
-  backdrop-filter: blur(36px) saturate(210%);
-  -webkit-backdrop-filter: blur(36px) saturate(210%);
-  border-right: none;
-  box-shadow: none;
-  transform: translateX(-100%);
-  transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 12px 0 14px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.76);
+  backdrop-filter: blur(32px) saturate(210%);
+  -webkit-backdrop-filter: blur(32px) saturate(210%);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 18px 42px -8px rgba(0, 0, 0, 0.16), 0 4px 14px -2px rgba(0, 0, 0, 0.08), inset 0 1px 1.5px rgba(255, 255, 255, 0.95);
+  transform: translateY(-50%) translateX(calc(-100% - 18px));
+  transition: transform 0.34s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
   box-sizing: border-box;
 }
 
 .ktab-mobile-slider-drawer--open {
-  transform: translateX(0) !important;
+  transform: translateY(-50%) translateX(0) !important;
 }
 
-/* When controls hide during reading, retract drawer further so '}' handle also hides */
+/* When controls hide during reading, retract drawer further so handle also hides */
 .ktab-mobile-slider-drawer--hidden {
-  transform: translateX(calc(-100% - 32px)) !important;
+  transform: translateY(-50%) translateX(calc(-100% - 48px)) !important;
 }
 
 /* Ultra-Clean Capsule Edge Slider Handle Tab */
 .ktab-mobile-slider-handle {
   position: absolute;
-  top: 45%;
-  right: -20px;
+  top: 50%;
+  right: -22px;
   transform: translateY(-50%);
-  width: 20px;
+  width: 22px;
   height: 52px;
   padding: 0;
   border-radius: 0 16px 16px 0;
-  border: none;
-  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-left: none;
+  background: rgba(255, 255, 255, 0.78);
   backdrop-filter: blur(28px) saturate(200%);
   -webkit-backdrop-filter: blur(28px) saturate(200%);
-  box-shadow: 2px 4px 14px rgba(0, 0, 0, 0.08), 1px 0 2px rgba(0, 0, 0, 0.04);
+  box-shadow: 4px 6px 18px rgba(0, 0, 0, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.9);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -2199,12 +2203,12 @@
 }
 
 .ktab-mobile-slider-handle:hover {
-  transform: translateY(-50%) scale(1.05);
-  box-shadow: 3px 6px 18px rgba(0, 0, 0, 0.12);
+  transform: translateY(-50%) scale(1.06);
+  box-shadow: 5px 8px 22px rgba(0, 0, 0, 0.16);
 }
 
 .ktab-mobile-slider-handle:active {
-  transform: translateY(-50%) scale(0.96);
+  transform: translateY(-50%) scale(0.95);
 }
 
 .ktab-mobile-slider-handle__chevron {
@@ -2223,49 +2227,52 @@
 
 /* Themes for Drawer & Handle Tab */
 .ktab-mobile-slider-drawer--theme-pure-white {
-  background: rgba(255, 255, 255, 0.95);
-  border-right: none;
+  background: rgba(255, 255, 255, 0.76);
+  border: 1px solid rgba(255, 255, 255, 0.88);
   color: var(--brand-black);
+  box-shadow: 0 18px 42px -8px rgba(0, 0, 0, 0.14), 0 4px 14px -2px rgba(0, 0, 0, 0.06), inset 0 1px 1.5px rgba(255, 255, 255, 0.95);
 }
 .ktab-mobile-slider-drawer--theme-pure-white .ktab-mobile-slider-handle {
-  background: rgba(255, 255, 255, 0.96);
-  border: none;
+  background: rgba(255, 255, 255, 0.82);
+  border-color: rgba(255, 255, 255, 0.88);
   color: var(--brand-black);
 }
 
 .ktab-mobile-slider-drawer--theme-warm-cream {
-  background: rgba(246, 239, 224, 0.96);
-  border-right: none;
+  background: rgba(246, 239, 224, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.7);
   color: #2c251e;
+  box-shadow: 0 18px 42px -8px rgba(60, 45, 30, 0.16), 0 4px 14px -2px rgba(60, 45, 30, 0.08), inset 0 1px 1.5px rgba(255, 255, 255, 0.8);
 }
 .ktab-mobile-slider-drawer--theme-warm-cream .ktab-mobile-slider-handle {
-  background: rgba(246, 239, 224, 0.96);
-  border: none;
+  background: rgba(246, 239, 224, 0.85);
+  border-color: rgba(255, 255, 255, 0.7);
   color: #2c251e;
 }
 
 .ktab-mobile-slider-drawer--theme-paper-sepia {
-  background: rgba(236, 226, 201, 0.96);
-  border-right: none;
+  background: rgba(236, 226, 201, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   color: #2b2118;
+  box-shadow: 0 18px 42px -8px rgba(50, 35, 20, 0.18), 0 4px 14px -2px rgba(50, 35, 20, 0.08), inset 0 1px 1.5px rgba(255, 255, 255, 0.75);
 }
 .ktab-mobile-slider-drawer--theme-paper-sepia .ktab-mobile-slider-handle {
-  background: rgba(236, 226, 201, 0.96);
-  border: none;
+  background: rgba(236, 226, 201, 0.85);
+  border-color: rgba(255, 255, 255, 0.6);
   color: #2b2118;
 }
 
 .ktab-mobile-slider-drawer--theme-charcoal-dark {
-  background: rgba(15, 18, 25, 0.96);
-  border-right: none;
+  background: rgba(18, 22, 32, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   color: #f8fafc;
-  box-shadow: none;
+  box-shadow: 0 20px 48px -8px rgba(0, 0, 0, 0.6), 0 6px 18px -4px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.18);
 }
 .ktab-mobile-slider-drawer--theme-charcoal-dark .ktab-mobile-slider-handle {
-  background: rgba(22, 26, 36, 0.96);
-  border: none;
+  background: rgba(24, 28, 40, 0.84);
+  border-color: rgba(255, 255, 255, 0.15);
   color: #f8fafc;
-  box-shadow: 2px 4px 14px rgba(0, 0, 0, 0.35);
+  box-shadow: 4px 6px 20px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.18);
 }
 
 .ktab-mobile-slider-drawer__header {
@@ -2273,9 +2280,9 @@
   align-items: center;
   justify-content: center;
   width: 100%;
-  padding-bottom: 12px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  margin-bottom: 6px;
 }
 
 .ktab-mobile-slider-drawer--theme-charcoal-dark .ktab-mobile-slider-drawer__header {
@@ -2283,27 +2290,33 @@
 }
 
 .ktab-mobile-slider-drawer__close {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  background: transparent;
-  border: none;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.05);
   color: inherit;
-  opacity: 0.7;
+  opacity: 0.75;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.16s ease;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .ktab-mobile-slider-drawer__close:hover {
   opacity: 1;
-  background: rgba(0, 0, 0, 0.06);
+  background: rgba(0, 0, 0, 0.08);
+  transform: scale(1.08);
+}
+
+.ktab-mobile-slider-drawer--theme-charcoal-dark .ktab-mobile-slider-drawer__close {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .ktab-mobile-slider-drawer--theme-charcoal-dark .ktab-mobile-slider-drawer__close:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .ktab-mobile-slider-drawer__scroll {
@@ -2312,10 +2325,10 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 4px 0 16px;
+  padding: 4px 0 8px;
   scrollbar-width: none;
   -ms-overflow-style: none;
   -webkit-overflow-scrolling: touch;
@@ -2327,22 +2340,23 @@
 
 /* 1 icon per row button */
 .ktab-left-drawer-icon-btn {
-  width: 44px;
-  height: 44px;
-  min-width: 44px;
-  min-height: 44px;
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  min-height: 42px;
   border-radius: 50%;
   background: rgba(0, 0, 0, 0.04);
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.05);
   color: inherit;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   outline: none;
-  transition: transform 0.16s cubic-bezier(0.16, 1, 0.3, 1),
-              background 0.16s ease,
-              border-color 0.16s ease;
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+              background 0.18s ease,
+              border-color 0.18s ease,
+              box-shadow 0.18s ease;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
   box-shadow: none !important;

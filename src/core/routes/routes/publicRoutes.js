@@ -1,7 +1,9 @@
 import { lazy } from "react";
 
-// Feature: Home
+// Feature: Home & Marketing
 const HomeView = lazy(() => import("../../../features/home/views/HomeView"));
+const EarlyAccessView = lazy(() => import("../../../features/early-access/views/EarlyAccessView/EarlyAccessView"));
+const FreeVoucherView = lazy(() => import("../../../features/free-voucher/views/FreeVoucherView/FreeVoucherView"));
 
 // Feature: Common & Errors
 const RoleErrorView = lazy(() => import("../../../features/common/views/RoleErrorView"));
@@ -22,6 +24,46 @@ export const publicRoutes = [
     name: "Home",
     path: "/",
     component: HomeView,
+  },
+  {
+    name: "EarlyAccess",
+    path: "/early-access",
+    component: EarlyAccessView,
+  },
+  {
+    name: "EarlyAccessAdminLibrarian",
+    path: "/early-access/admin-librarian",
+    component: EarlyAccessView,
+  },
+  {
+    name: "EarlyAccessReaderRedirect",
+    path: "/early-access/reader",
+    redirect: "/free-voucher?role=reader",
+  },
+  {
+    name: "EarlyAccessAuthorRedirect",
+    path: "/early-access/author",
+    redirect: "/free-voucher?role=author",
+  },
+  {
+    name: "FreeVoucher",
+    path: "/free-voucher",
+    component: FreeVoucherView,
+  },
+  {
+    name: "FreeVoucherRole",
+    path: "/free-voucher/:role",
+    component: FreeVoucherView,
+  },
+  {
+    name: "Voucher",
+    path: "/voucher",
+    component: FreeVoucherView,
+  },
+  {
+    name: "VoucherRole",
+    path: "/voucher/:role",
+    component: FreeVoucherView,
   },
   {
     name: "RoleError",

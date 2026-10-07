@@ -1,0 +1,51 @@
+.free-voucher-field {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.free-voucher-field-wide {
+  grid-column: 1 / -1;
+}
+
+.free-voucher-field .myui-input,
+.free-voucher-field .myui-textarea,
+.free-voucher-field .myui-select-selected-text {
+  font-family: inherit;
+}
+
+.free-voucher-field .myui-input-field-wrap,
+.free-voucher-field .myui-select-trigger {
+  min-height: 48px;
+}
+
+.free-voucher-field .myui-select-wrap,
+.free-voucher-field .myui-select-trigger {
+  width: 100%;
+}
+
+.free-voucher-field .myui-select-menu {
+  max-height: 240px;
+  background: var(--bg-primary, #ffffff);
+  border: 1px solid var(--border-card, #e2e8f0);
+}
+
+.free-voucher-field .myui-select-option {
+  justify-content: flex-start;
+  text-align: right;
+  font-family: inherit;
+}
+
+.free-voucher-field .myui-input-error,
+.free-voucher-field .myui-textarea-error,
+.free-voucher-field .myui-select-error {
+  border-color: #ef4444;
+}
+
+.free-voucher-accessible-error {
+  margin-top: 6px;
+  color: #dc2626;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+}

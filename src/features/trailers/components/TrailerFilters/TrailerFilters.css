@@ -2,6 +2,24 @@
 .trailer-filter-dialog fieldset { padding: 0; margin: 0 0 22px; border: 0; }
 .trailer-filter-dialog legend { margin-bottom: 12px; font-size: 14px; font-weight: 700; }
 .trailer-filter-dialog__admin { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
-.trailer-filter-dialog__done { width: 100%; min-height: 46px; border: 0; border-radius: 12px; color: var(--brand-white); background: var(--brand-black); font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
+.trailer-filter-dialog__done {
+  width: 100%;
+  min-height: 44px;
+  border: 0;
+  border-radius: 9999px;
+  color: var(--brand-white);
+  background: var(--brand-black);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.trailer-filter-dialog__done:hover {
+  background: #27272a;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
+}
 .trailer-filter-dialog .trailer-studio__segments { width: 100%; }
 .trailer-filter-dialog .trailer-studio__segments button { min-height: 40px; padding-inline: 10px; }

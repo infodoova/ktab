@@ -1,30 +1,26 @@
-import React, { useState } from "react";
+import React from "react";
 import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, Play } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useHero } from "../../hooks/useHero";
+import HomeCoverImage from "../HomeCoverImage/HomeCoverImage";
 import "./Hero.css";
 
 /**
- * Pure presentational Hero component styled after Eleven Reader & Apple.
- * Features fluid 3D physical book carousel animation, 3D first-page flip card,
- * and the animated Voice Sample Player Modal.
- * Zero business logic inside JSX; state and 3D positioning metrics are in useHero.
+ * Displays top-reviewed public covers in the reader's 3D carousel.
+ * Data fetching, gestures and positioning are managed by useHero.
  */
 export default function Hero() {
-  const [revealedCardId, setRevealedCardId] = useState(null);
-
   const {
     books,
     animatedBooks,
-    activeIndex,
-    currentBook,
-    isFlipped,
+    isLoading,
+    error,
+    retry,
+    refreshAfterImageError,
     nextBook,
     prevBook,
-    selectBook,
-    toggleFlip,
+    handleSelectBook,
     handleDragEnd,
-    openVoiceModal,
     handleStartNow,
   } = useHero();
 
@@ -32,13 +28,14 @@ export default function Hero() {
     <section id="hero" className="er-hero-section" dir="rtl">
       <div className="er-hero-container">
         {/* ═══════════ FLUID 3D BOOK SHOWCASE CAROUSEL ═══════════ */}
-        <div className="er-carousel-stage">
+        {books.length > 0 && <div className="er-carousel-stage" aria-busy={isLoading}>
           {/* Circular Navigation Arrows with Stable Anchor Wrapper */}
           <div className="er-arrow-anchor prev">
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.92 }}
               onClick={prevBook}
+              disabled={isLoading || books.length < 2}
               className="er-carousel-arrow"
               type="button"
               aria-label="الكتاب السابق"
@@ -52,6 +49,7 @@ export default function Hero() {
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.92 }}
               onClick={nextBook}
+              disabled={isLoading || books.length < 2}
               className="er-carousel-arrow"
               type="button"
               aria-label="الكتاب التالي"
@@ -71,9 +69,7 @@ export default function Hero() {
             {animatedBooks.map((book) => (
               <motion.div
                 key={book.id}
-                className={`er-book-card-item ${book.isCenter ? "er-center-card" : ""} ${
-                  revealedCardId === book.id ? "revealed" : ""
-                }`}
+                className={`er-book-card-item ${book.isCenter ? "er-center-card" : ""} ${book.isVisible ? "" : "er-card-hidden"}`}
                 initial={false}
                 animate={book.motionConfig}
                 whileTap={{ scale: 0.97 }}
@@ -83,59 +79,23 @@ export default function Hero() {
                   damping: 24,
                   mass: 0.8,
                 }}
-                onMouseEnter={() => {
-                  if (book.isCenter) setRevealedCardId(book.id);
-                }}
-                onMouseLeave={() => {
-                  setRevealedCardId(null);
-                }}
-                onClick={() => {
-                  if (!book.isCenter) {
-                    setRevealedCardId(null);
-                    selectBook(book.index);
-                  }
-                }}
-                style={{
-                  pointerEvents: book.isVisible ? "auto" : "none",
-                }}
+                data-index={book.index}
+                onClick={handleSelectBook}
               >
                 <div className="er-modern-card-container">
                   {/* Visual Hero Artwork with Natural Gradient Dissolve */}
                   <div className="er-modern-card-art-wrapper">
-                    <img
-                      src={book.cover}
-                      alt={book.title}
-                      className="er-modern-card-art-img"
-                    />
+                    <HomeCoverImage src={book.cover} loading="eager" onImageError={refreshAfterImageError} />
                     <div className="er-book-spine-highlight" />
                   </div>
 
-                  {/* Seamless Elegant Glassmorphism Lower Surface */}
-                  <div className="er-modern-card-glass-dock">
-                    <div className="er-modern-card-meta">
-                      <h3 className="er-modern-card-title">{book.title}</h3>
-                      <p className="er-modern-card-author">{book.author}</p>
-                    </div>
-
-                    <button
-                      type="button"
-                      className="er-modern-card-play-btn"
-                      dir="rtl"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openVoiceModal(book);
-                      }}
-                      aria-label={`تشغيل عينة ${book.title}`}
-                    >
-                      <Play className="er-modern-card-play-icon" size={11} fill="currentColor" />
-                      <span className="er-modern-card-play-text">تشغيل العينة</span>
-                    </button>
-                  </div>
+                  {/* Audio preview temporarily disabled: onClick={() => openVoiceModal(book)} */}
                 </div>
               </motion.div>
             ))}
           </motion.div>
-        </div>
+        </div>}
+        {error && <div className="home-covers-error" role="status">{error}<button className="home-covers-retry" type="button" onClick={retry}>إعادة المحاولة</button></div>}
 
         {/* ═══════════ EDITORIAL HEADLINE & SUBTITLE ═══════════ */}
         <h1 className="er-hero-title">

@@ -1,9 +1,40 @@
 .trailer-workspace { background: var(--brand-white); }
 .trailer-studio { max-width: 1440px; width: 100%; margin: 0 auto; padding: 40px 40px 48px; box-sizing: border-box; color: var(--brand-black); --text-subtle: var(--trailer-muted); --text-muted: var(--trailer-muted); --bg-secondary: var(--trailer-surface); }
 .trailer-studio *, .trailer-studio *::before, .trailer-studio *::after { box-sizing: border-box; }
-.trailer-studio__button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 42px; padding: 9px 15px; border: 1px solid var(--trailer-line); border-radius: 11px; color: var(--brand-black); background: var(--brand-white); font: inherit; font-size: 13px; font-weight: 600; text-decoration: none; cursor: pointer; transition: background .2s ease; }
-.trailer-studio__button:hover:not(:disabled) { background: var(--trailer-surface); }
-.trailer-studio__button:disabled { opacity: .4; cursor: default; }
+.trailer-studio__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 8px 18px;
+  border: 1px solid var(--trailer-line);
+  border-radius: 9999px;
+  color: var(--brand-black);
+  background: var(--brand-white);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.trailer-studio__button:hover:not(:disabled) {
+  background: var(--trailer-surface);
+  border-color: rgba(0, 0, 0, 0.16);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+}
+.trailer-studio__button:active:not(:disabled) {
+  transform: scale(0.97);
+}
+.trailer-studio__button:disabled {
+  opacity: .4;
+  cursor: default;
+  transform: none;
+  box-shadow: none;
+}
 .trailer-studio__segments { display: flex; gap: 4px; padding: 4px; border-radius: 12px; background: var(--trailer-surface); flex-shrink: 0; }
 .trailer-studio__segments button { flex: 1; min-height: 36px; padding: 7px 18px; border: none; border-radius: 9px; font: inherit; font-size: 13px; font-weight: 600; white-space: nowrap; color: var(--trailer-muted); background: transparent; cursor: pointer; transition: background .2s ease, color .2s ease; }
 .trailer-studio__segments button[aria-pressed="true"] { background: var(--brand-black); color: var(--brand-white); }
@@ -41,7 +72,31 @@
 .trailer-studio__sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 .trailer-studio button:focus-visible, .trailer-studio a:focus-visible, .trailer-studio select:focus-visible { outline: 2px solid var(--brand-black); outline-offset: 3px; }
 @keyframes trailer-skeleton { to { background-position: -170% 0; } }
-.trailer-header-filter { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: 40px; min-height: 40px; padding: 8px 12px; border: 1px solid var(--trailer-line); border-radius: 10px; color: var(--brand-black); background: var(--brand-white); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+.trailer-header-filter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 40px;
+  min-height: 40px;
+  padding: 8px 16px;
+  border: 1px solid var(--trailer-line);
+  border-radius: 9999px;
+  color: var(--brand-black);
+  background: var(--brand-white);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.trailer-header-filter:hover {
+  background: var(--trailer-surface);
+  border-color: rgba(0, 0, 0, 0.16);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+}
 @media (max-width: 1200px) { .trailer-studio { padding-inline: 28px; } .trailer-studio__book-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 960px) { .trailer-studio__video-grid { grid-template-columns: 1fr; } }
 @media (max-width: 767px) { .trailer-header-filter > span { display: none; } .trailer-header-filter { width: 40px; padding: 0; } }

@@ -111,7 +111,7 @@ export function BookMetadataStrip({ book }) {
   return (
     <section className="apple-meta-strip" dir="rtl" aria-label="مواصفات وتفاصيل العمل">
       <div className="apple-meta-strip__container">
-        {metrics.map((m, index) => (
+        {metrics.map((m) => (
           <div key={m.id} className="apple-meta-strip__item">
             <span className="apple-meta-strip__label">{m.label}</span>
             <div className="apple-meta-strip__mid">

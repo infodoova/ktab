@@ -18,8 +18,15 @@ export function useTrailerBookCard(book, isAdmin, snapshot, onRequestCreate, mod
     const trailer = items.find((item) => String(item.id) === id);
     if (trailer) runAction(action, trailer);
   }, [items, runAction]);
-  const pendingItems = items.filter((item) => item.status !== "CANCELLED" && (mode === "queue" ? item.active : item.status !== "READY"));
-  const ordered = [...pendingItems.filter((item) => item.active), ...pendingItems.filter((item) => !item.active)];
+  const isQueueItem = (item) => item.active || item.status === "FAILED" || item.status === "NEEDS_REVIEW";
+  const pendingItems = mode === "queue"
+    ? items.filter((item) => item.status !== "CANCELLED" && isQueueItem(item))
+    : [];
+  const ordered = [
+    ...pendingItems.filter((item) => item.active),
+    ...pendingItems.filter((item) => item.status === "FAILED"),
+    ...pendingItems.filter((item) => !item.active && item.status !== "FAILED"),
+  ];
   const historyCount = pendingItems.length;
   const completedCount = items.filter((item) => item.status === "READY").length;
   const visibleItems = showHistory ? ordered : ordered.slice(0, 2);

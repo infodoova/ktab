@@ -26,17 +26,21 @@ export function getTrailerQuota(trailers, now = Date.now()) {
   return { used, remaining: Math.max(0, 3 - used), isExact };
 }
 
-export function presentTrailer(trailer, isAdmin) {
+export function presentTrailer(trailer, options = false) {
+  const isAdmin = typeof options === "boolean" ? options : Boolean(options?.isAdmin);
+  const role = typeof options === "object" ? options?.role : null;
+  const isReviewer = isAdmin || ["AUTHOR", "LIBRARY_ADMIN", "ADMIN_LIBRARIAN"].includes(role);
+
   return {
     ...trailer,
     label: TRAILER_LABELS[trailer.status] || "حالة غير معروفة",
     active: isTrailerActive(trailer.status),
-    canCancel: isTrailerQueued(trailer.status),
-    canPlay: trailer.status === "READY" || (isAdmin && trailer.status === "NEEDS_REVIEW"),
-    canReview: isAdmin && trailer.status === "NEEDS_REVIEW",
-    canRetry: isAdmin && ["FAILED", "NEEDS_REVIEW"].includes(trailer.status),
+    canCancel: isTrailerQueued(trailer.status) || (isAdmin && isTrailerActive(trailer.status)),
+    canPlay: trailer.status === "READY" || (isReviewer && trailer.status === "NEEDS_REVIEW"),
+    canReview: isReviewer && trailer.status === "NEEDS_REVIEW",
+    canRetry: ["FAILED", "NEEDS_REVIEW"].includes(trailer.status),
     failureMessage: trailer.status === "FAILED"
-      ? (isAdmin && trailer.error ? trailer.error : "تعذر إنتاج الإعلان. يمكنك إنشاء إعلان جديد والمحاولة مجددًا.")
+      ? (isAdmin && trailer.error ? trailer.error : "تعذر إنتاج الإعلان. يمكنك إنشاء إعلان جديد عند توفر الحصة.")
       : null,
     dateLabel: trailer.startedAt
       ? new Date(trailer.startedAt).toLocaleDateString("ar", { day: "numeric", month: "long", year: "numeric" })
@@ -60,17 +64,40 @@ export function getEmbeddedTrailerVideo(book) {
   return safeMediaUrl(book?.trailer?.video || book?.trailerVideoUrl);
 }
 
-export function getTrailerStudioSummary(books, snapshots) {
+export function getTrailerStudioSummary(books, snapshots, isAdmin = false) {
   const finished = books.flatMap((book) => (snapshots[book.id]?.items || [])
     .filter((trailer) => trailer.status === "READY")
     .map((trailer) => ({ book, trailer })));
   finished.sort((a, b) => (Date.parse(b.trailer.finishedAt || b.trailer.startedAt) || 0)
     - (Date.parse(a.trailer.finishedAt || a.trailer.startedAt) || 0) || Number(b.trailer.id) - Number(a.trailer.id));
+
+  const isAttentionStatus = (status) => isTrailerActive(status) || status === "FAILED" || status === "NEEDS_REVIEW";
+
+  const activeBooks = books.filter((book) =>
+    snapshots[book.id]?.items.some((trailer) => isAttentionStatus(trailer.status))
+  );
+
+  const activeBookIds = new Set(activeBooks.map((b) => b.id));
+
+  const availableBooks = books.filter((book) => {
+    // 1. If it's already in the queue / attention section, do not show it in "إنشاء إعلان جديد"
+    if (activeBookIds.has(book.id)) return false;
+
+    const snap = snapshots[book.id];
+    if (!snap) return true;
+
+    // 2. If the user cannot create an ad for it (e.g. quota exhausted or currently active), don't show it
+    if (!isAdmin && snap.quota?.isExact && snap.quota?.remaining === 0) return false;
+    if (snap.items?.some((t) => isTrailerActive(t.status))) return false;
+
+    return true;
+  });
+
   return {
     finished,
-    activeBooks: books.filter((book) => snapshots[book.id]?.items.some((trailer) => isTrailerActive(trailer.status))),
-    availableBooks: books.filter((book) => !snapshots[book.id]?.items.some((trailer) => isTrailerActive(trailer.status))),
-    activeBookCount: books.filter((book) => snapshots[book.id]?.items.some((trailer) => isTrailerActive(trailer.status))).length,
+    activeBooks,
+    availableBooks,
+    activeBookCount: activeBooks.length,
     galleryLoading: books.some((book) => !snapshots[book.id] || snapshots[book.id].loading),
     galleryHasErrors: books.some((book) => snapshots[book.id]?.error),
   };

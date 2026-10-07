@@ -92,7 +92,7 @@ export function useTrailerStudio() {
     `${book.title} ${book.authorName || ""}`.toLowerCase().includes(searchQuery.trim().toLowerCase())
   ), [books, searchQuery]);
 
-  const summary = useMemo(() => getTrailerStudioSummary(displayedBooks, trailersByBook), [displayedBooks, trailersByBook]);
+  const summary = useMemo(() => getTrailerStudioSummary(displayedBooks, trailersByBook, isAdmin), [displayedBooks, trailersByBook, isAdmin]);
   return {
     ...summary, viewFilter, handleViewFilter, handleTrailersChange, trailersByBook,
     filtersOpen, handleOpenFilters, handleCloseFilters, bookToCreate, creationBusy,
@@ -101,7 +101,7 @@ export function useTrailerStudio() {
     activeFiltersCount: viewFilter !== "all" ? 1 : 0,
     showPagination: !loading && viewFilter === "all" && !searchQuery.trim() && totalPages > 1 && summary.availableBooks.length > 0,
     books, displayedBooks, loading, error, page, totalPages, searchQuery,
-    setSearchQuery, isAdmin, connecting, connectUrl, handleConnect, loadBooks,
+    setSearchQuery, isAdmin, role, connecting, connectUrl, handleConnect, loadBooks,
     handlePreviousPage, handleNextPage,
   };
 }

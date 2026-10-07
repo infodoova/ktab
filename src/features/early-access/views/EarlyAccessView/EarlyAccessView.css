@@ -1,0 +1,295 @@
+.early-access-page {
+  width: 100%;
+  min-width: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  box-sizing: border-box;
+  padding: clamp(24px, 4vw, 48px) clamp(16px, 3vw, 40px) calc(clamp(32px, 6vw, 72px) + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(180deg, var(--brand-teal-soft), var(--bg-primary) 280px);
+  color: var(--primary-text);
+  font-family: var(--font-arabic);
+}
+
+.early-access-brand {
+  max-width: 760px;
+  margin: 0 auto clamp(16px, 3vw, 30px);
+  text-align: center;
+}
+
+.early-access-brand img {
+  height: 60px;
+  width: auto;
+  object-fit: contain;
+}
+
+.early-access-card {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: clamp(24px, 4vw, 48px);
+  border: 1px solid var(--border-card);
+  border-radius: 24px;
+  background: var(--bg-primary);
+  box-shadow: var(--shadow-card);
+}
+
+.early-access-heading {
+  margin-bottom: clamp(24px, 4vw, 32px);
+}
+
+.early-access-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--brand-teal-soft);
+  color: var(--brand-teal-deep);
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.early-access-intro {
+  color: var(--brand-teal-deep);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.early-access-card h1 {
+  margin: 12px 0;
+  font-size: clamp(24px, 4.5vw, 36px);
+  font-weight: 800;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.early-access-heading > p:last-child,
+.early-access-confirmation > p {
+  color: var(--text-muted);
+  line-height: 1.9;
+}
+
+.early-access-form {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(20px, 3vw, 28px);
+  min-width: 0;
+}
+
+.early-access-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 20px;
+  align-items: start;
+}
+
+.early-access-roles {
+  margin: 0;
+  padding: 0;
+  border: none;
+  min-width: 0;
+}
+
+.early-access-roles legend {
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.early-access-role-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(8px, 2vw, 12px);
+}
+
+.early-access-role-option {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 56px;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 12px 8px;
+  border: 1px solid var(--border-card);
+  border-radius: 12px;
+  background: var(--bg-primary);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.early-access-role-option.is-selected {
+  border-color: var(--brand-teal-deep);
+  background: var(--brand-teal-soft);
+}
+
+.early-access-role-option input {
+  accent-color: var(--brand-teal-deep);
+  margin: 0;
+}
+
+.early-access-role-option .myui-radio-text {
+  min-width: 0;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.early-access-roles:disabled .early-access-role-option {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.early-access-role-option:focus-within {
+  outline: 2px solid var(--brand-teal-deep);
+  outline-offset: 2px;
+}
+
+.early-access-section-group {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.early-access-section-legend {
+  padding: 0 0 12px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--primary-text);
+}
+
+.early-access-organization {
+  min-width: 0;
+  margin: 8px 0 0;
+  padding: 24px 0 0;
+  border: none;
+  border-top: 1px solid var(--border-card);
+}
+
+.early-access-organization legend {
+  padding: 0 0 12px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.early-access-submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 54px;
+  padding: 14px 22px;
+  border: none;
+  border-radius: 14px;
+  background: var(--brand-black);
+  color: var(--brand-white);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+  width: 100%;
+  white-space: normal;
+  line-height: 1.7;
+}
+
+.early-access-submit:hover:not(:disabled) {
+  background: var(--brand-black-hover);
+  transform: translateY(-1px);
+}
+
+.early-access-submit:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.early-access-submit:focus-visible,
+.early-access-home-link:focus-visible,
+.early-access-brand a:focus-visible {
+  outline: 2px solid var(--brand-teal-deep);
+  outline-offset: 4px;
+}
+
+.early-access-note {
+  margin: 0;
+  color: var(--text-subtle);
+  font-size: 13px;
+  line-height: 1.8;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.early-access-form-error {
+  border-inline-start: 3px solid var(--color-danger);
+  padding-inline-start: 14px;
+  color: var(--color-danger);
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.early-access-form-error p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.early-access-confirmation {
+  padding: 24px 0;
+  text-align: center;
+}
+
+.early-access-check {
+  display: grid;
+  place-items: center;
+  width: 70px;
+  height: 70px;
+  margin: 0 auto 24px;
+  border-radius: 50%;
+  background: var(--brand-teal-soft);
+  color: var(--brand-teal-deep);
+}
+
+.early-access-home-link {
+  display: inline-block;
+  margin-top: 24px;
+  color: var(--primary-text);
+  text-underline-offset: 5px;
+}
+
+@media (max-width: 768px) {
+  .early-access-page {
+    padding: 0;
+    background: var(--bg-primary);
+  }
+  .early-access-brand {
+    padding: calc(20px + env(safe-area-inset-top, 0px)) 20px 0;
+    margin-bottom: 8px;
+  }
+  .early-access-card {
+    max-width: none;
+    padding: 20px max(20px, env(safe-area-inset-right, 0px)) calc(32px + env(safe-area-inset-bottom, 0px)) max(20px, env(safe-area-inset-left, 0px));
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .early-access-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 359px) {
+  .early-access-card { padding-inline: 16px; }
+  .early-access-role-options { grid-template-columns: 1fr; }
+  .early-access-role-option { justify-content: flex-start; padding-inline: 16px; min-height: 48px; }
+}
+
+@media (max-height: 500px) and (min-width: 641px) {
+  .early-access-page { padding-top: 16px; }
+  .early-access-brand { margin-bottom: 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .early-access-submit { transition: none; }
+  .early-access-submit:hover:not(:disabled) { transform: none; }
+  .early-access-submit .myui-btn-spinner { animation: none; }
+}

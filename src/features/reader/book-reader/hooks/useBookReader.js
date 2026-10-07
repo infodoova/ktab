@@ -19,6 +19,7 @@ export function useBookReader() {
   const { id } = useParams();
   const navigate = useNavigate();
   const token = useAuthStore((state) => state.token);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   const { voice, setVoice, voiceOptions } = useReaderVoices();
 
@@ -148,8 +149,10 @@ export function useBookReader() {
     togglePlay,
     startPageStream,
     cancelStream,
+    stopReader,
   } = useReaderTTS({
-    enabled: Boolean(token),
+    // Cookie sessions authenticate without exposing an access token to JS.
+    enabled: isAuthenticated,
     onPageEnded: handleNextPage,
     onPrefetchNextPage: () => {
       const nextPage = currentPage + 1;
@@ -176,6 +179,11 @@ export function useBookReader() {
       }
     },
   });
+
+  const handleReaderBack = useCallback(() => {
+    stopReader();
+    handleBack();
+  }, [stopReader, handleBack]);
 
   // Keep actions ref updated for navigation callback
   ttsActionsRef.current = {
@@ -215,7 +223,7 @@ export function useBookReader() {
   return {
     id,
     navigate,
-    handleBack,
+    handleBack: handleReaderBack,
     handleRootClick,
     bookRef,
     bookTitle,

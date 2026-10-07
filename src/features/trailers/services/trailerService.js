@@ -50,7 +50,13 @@ export const trailerService = {
   },
   get: (id) => get(`/trailers/${pathId(id)}`),
   create: (bookId) => post(`/trailers/books/${pathId(bookId)}`),
-  readerTrailer: async (bookId) => trailerLinks(await get(`/books/${pathId(bookId)}/trailer`)),
+  readerTrailer: async (bookId) => {
+    const data = await get(`/books/${pathId(bookId)}/trailer`);
+    return {
+      ...trailerLinks(data),
+      id: data?.id ?? data?.trailerId ?? null,
+    };
+  },
   readerDownload: async (bookId) => trailerService.readerTrailer(bookId),
   download: async (id) => trailerLinks(await get(`/trailers/${pathId(id)}/download`)),
   cancel: (id) => post(`/trailers/${pathId(id)}/cancel`),

@@ -132,6 +132,23 @@
   text-rendering: optimizeLegibility;
 }
 
+.er-book-card-item.er-card-hidden {
+  pointer-events: none;
+}
+
+.er-modern-card-art-wrapper .home-cover-image {
+  transition: transform 0.4s ease;
+}
+
+.er-book-card-item:hover .home-cover-image {
+  transform: scale(1.04);
+}
+
+.er-carousel-arrow:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
 .er-modern-card-container {
   position: relative;
   width: 100%;

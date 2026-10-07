@@ -1,14 +1,12 @@
 import React from "react";
-import { Play, BookOpen } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import { useBooksMasonry } from "../../hooks/useBooksMasonry";
 import SectionHeader from "@/components/common/SectionHeader";
+import HomeCoverImage from "../HomeCoverImage/HomeCoverImage";
 import "./BooksMasonry.css";
 
 /**
- * Apple-style Audiobooks Showcase Component (Rebranded Light Mode).
- * Displays two infinite horizontal marquee rows of book album cards.
- * On mouse hover over a row, the scrolling animation smoothly decelerates.
- * Pure declarative JSX; all state, physics, and audio controls reside in useBooksMasonry.
+ * Displays public covers in two marquee rows; hovering slows the tracks.
  */
 export default function BooksMasonry() {
   const {
@@ -20,8 +18,13 @@ export default function BooksMasonry() {
     handleRow1MouseLeave,
     handleRow2MouseEnter,
     handleRow2MouseLeave,
-    handlePlayBook,
+    isLoading,
+    error,
+    retry,
+    refreshAfterImageError,
   } = useBooksMasonry();
+
+  if (!isLoading && !error && row1.length === 0) return null;
 
   return (
     <section id="library" className="er-masonry-section" dir="rtl">
@@ -36,7 +39,8 @@ export default function BooksMasonry() {
       </div>
 
       {/* Marquee Showcase Stage */}
-      <div className="er-masonry-stage">
+      {error && <div className="home-covers-error" role="status">{error}<button className="home-covers-retry" type="button" onClick={retry}>إعادة المحاولة</button></div>}
+      <div className="er-masonry-stage" aria-busy={isLoading}>
         {/* Row 1: Scrolling Track */}
         <div
           className="er-masonry-row-wrapper"
@@ -48,40 +52,13 @@ export default function BooksMasonry() {
               <div
                 key={`r1-${book.id}-${idx}`}
                 className="er-album-card"
-                aria-label={book.title}
               >
                 {/* Album Cover Art (2:3 Standard Book Ratio) */}
                 <div className="er-album-cover-wrapper">
-                  <img
-                    src={book.cover}
-                    alt={book.title}
-                    className="er-album-cover-img"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                  {/* Apple-style Hover Action Button */}
-                  <div className="er-album-hover-action">
-                    <button
-                      type="button"
-                      className="er-album-listen-pill"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handlePlayBook(book, e);
-                      }}
-                      aria-label={`استمع الآن إلى ${book.title}`}
-                    >
-                      <span>استمع الآن</span>
-                      <Play className="er-album-play-icon" size={14} fill="currentColor" />
-                    </button>
-                  </div>
+                  <HomeCoverImage src={book.cover} onImageError={refreshAfterImageError} />
+                  {/* Audio preview temporarily disabled: onClick={(event) => handlePlayBook(book, event)} */}
                 </div>
 
-                {/* Single Clean Title Line (Eleven Reader Style) */}
-                <div className="er-album-meta">
-                  <h4 className="er-album-title" title={book.title}>
-                    {book.title}
-                  </h4>
-                </div>
               </div>
             ))}
           </div>
@@ -98,40 +75,13 @@ export default function BooksMasonry() {
               <div
                 key={`r2-${book.id}-${idx}`}
                 className="er-album-card"
-                aria-label={book.title}
               >
                 {/* Album Cover Art */}
                 <div className="er-album-cover-wrapper">
-                  <img
-                    src={book.cover}
-                    alt={book.title}
-                    className="er-album-cover-img"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                  {/* Apple-style Hover Action Button */}
-                  <div className="er-album-hover-action">
-                    <button
-                      type="button"
-                      className="er-album-listen-pill"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handlePlayBook(book, e);
-                      }}
-                      aria-label={`استمع الآن إلى ${book.title}`}
-                    >
-                      <span>استمع الآن</span>
-                      <Play className="er-album-play-icon" size={14} fill="currentColor" />
-                    </button>
-                  </div>
+                  <HomeCoverImage src={book.cover} onImageError={refreshAfterImageError} />
+                  {/* Audio preview temporarily disabled: onClick={(event) => handlePlayBook(book, event)} */}
                 </div>
 
-                {/* Single Clean Title Line (Eleven Reader Style) */}
-                <div className="er-album-meta">
-                  <h4 className="er-album-title" title={book.title}>
-                    {book.title}
-                  </h4>
-                </div>
               </div>
             ))}
           </div>

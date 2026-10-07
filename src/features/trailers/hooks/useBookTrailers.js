@@ -3,7 +3,8 @@ import { trailerService } from "../services/trailerService";
 import { getTrailerQuota, isTrailerActive, isTrailerQueued, presentTrailer } from "../utils/trailerUtils";
 import { AlertToast } from "@/components/myui/AlertToast";
 
-export function useBookTrailers({ bookId, isAdmin = false, enabled = true }) {
+export function useBookTrailers({ bookId, isAdmin = false, enabled = true, role = null }) {
+  const isReviewer = isAdmin || ["AUTHOR", "LIBRARY_ADMIN", "ADMIN_LIBRARIAN"].includes(role);
   const [trailers, setTrailers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -95,8 +96,8 @@ export function useBookTrailers({ bookId, isAdmin = false, enabled = true }) {
     const active = itemsRef.current.some((item) => isTrailerActive(item.status));
     const currentQuota = getTrailerQuota(itemsRef.current);
     if (action === "create" && (active || (!isAdmin && currentQuota.isExact && currentQuota.remaining === 0))) return;
-    if (action === "cancel" && !isTrailerQueued(trailer?.status)) return;
-    if (["approve", "reject", "retry"].includes(action) && !isAdmin) return;
+    if (action === "cancel" && !isTrailerQueued(trailer?.status) && !(isAdmin && isTrailerActive(trailer?.status))) return;
+    if (["approve", "reject"].includes(action) && !isReviewer) return;
     if (action === "retry" && active) return;
     lock.current = true;
     const epoch = lifecycle.current;
@@ -105,12 +106,24 @@ export function useBookTrailers({ bookId, isAdmin = false, enabled = true }) {
     setError("");
     try {
       let result;
-      if (action === "create") result = await trailerService.create(bookId);
-      else if (action === "cancel") {
+      if (action === "create") {
+        result = await trailerService.create(bookId);
+      } else if (action === "cancel") {
         await trailerService.cancel(trailer.id);
         result = { ...trailer, status: "CANCELLED" };
-      } else if (action === "retry") result = await trailerService.retry(trailer.id);
-      else result = await trailerService.review(trailer.id, action === "approve");
+      } else if (action === "retry") {
+        try {
+          result = await trailerService.retry(trailer.id);
+        } catch (err) {
+          if (err.status === 403 || err.status === 404) {
+            result = await trailerService.create(bookId);
+          } else {
+            throw err;
+          }
+        }
+      } else {
+        result = await trailerService.review(trailer.id, action === "approve");
+      }
       if (epoch !== lifecycle.current) return;
       if (result?.id != null) {
         const previous = itemsRef.current.filter((item) => item.id !== result.id);
@@ -118,9 +131,18 @@ export function useBookTrailers({ bookId, isAdmin = false, enabled = true }) {
       }
       await refresh();
       if (epoch !== lifecycle.current) return;
-      AlertToast(action === "create"
-        ? (result?.notifyByEmail ? "تمت إضافة الإعلان إلى قائمة الانتظار. سنرسل لك بريداً عند اكتماله." : "تمت إضافة الإعلان إلى قائمة الانتظار.")
-        : "تم تحديث الإعلان بنجاح.", "SUCCESS");
+      AlertToast(
+        action === "create"
+          ? (result?.notifyByEmail ? "تمت إضافة الإعلان إلى قائمة الانتظار. سنرسل لك بريداً عند اكتماله." : "تمت إضافة الإعلان إلى قائمة الانتظار.")
+          : action === "retry"
+          ? "تمت إعادة جدولة إنتاج الإعلان بنجاح."
+          : action === "approve"
+          ? "تم اعتماد الإعلان بنجاح وأصبح متاحاً للمشاهدة."
+          : action === "reject"
+          ? "تم رفض الإعلان."
+          : "تم تحديث الإعلان بنجاح.",
+        "SUCCESS"
+      );
       return result;
     } catch (err) {
       if (epoch === lifecycle.current) {
@@ -138,11 +160,11 @@ export function useBookTrailers({ bookId, isAdmin = false, enabled = true }) {
         setOperation(null);
       }
     }
-  }, [bookId, enabled, isAdmin, commit, refresh]);
+  }, [bookId, enabled, isAdmin, isReviewer, commit, refresh]);
 
   const quota = getTrailerQuota(trailers);
   const hasActive = trailers.some((item) => isTrailerActive(item.status));
-  const items = useMemo(() => trailers.map((item) => presentTrailer(item, isAdmin)), [trailers, isAdmin]);
+  const items = useMemo(() => trailers.map((item) => presentTrailer(item, { isAdmin, role })), [trailers, isAdmin, role]);
   return {
     items, quota, loading, error, operation, hasActive, refresh, runAction,
     canCreate: enabled && !loading && !error && !operation && !hasActive && (isAdmin || !quota.isExact || quota.remaining > 0),

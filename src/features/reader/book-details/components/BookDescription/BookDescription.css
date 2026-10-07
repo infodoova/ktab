@@ -39,20 +39,24 @@
   transition: max-height 0.3s ease;
 }
 
-.apple-book-desc__content--clamped {
+.apple-book-desc__paragraph {
+  font-size: 1rem;
+  line-height: 1.85;
+  color: var(--brand-black);
+  opacity: 0.88;
+  margin: 0;
+  text-align: right;
+  word-break: break-word;
+}
+
+.apple-book-desc__paragraph--clamped {
   display: -webkit-box;
   -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
   overflow: hidden;
-}
-
-.apple-book-desc__paragraph {
-  font-size: 1rem;
-  line-height: 1.8;
-  color: var(--brand-black);
-  opacity: 0.85;
-  margin: 0;
-  text-align: justify;
+  text-overflow: ellipsis;
+  padding-bottom: 6px;
+  box-sizing: content-box;
 }
 
 .apple-book-desc__toggle-btn {

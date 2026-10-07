@@ -1,0 +1,107 @@
+.trailer-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: inherit;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+  user-select: none;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  transition: opacity 0.2s ease;
+}
+
+.trailer-status-badge--sm {
+  font-size: 12px;
+}
+
+.trailer-status-badge--md {
+  font-size: 13px;
+}
+
+.trailer-status-badge__icon {
+  flex-shrink: 0;
+}
+
+.trailer-status-badge__icon--spin {
+  animation: trailer-badge-spin 1.2s linear infinite;
+}
+
+@keyframes trailer-badge-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* QUEUED - Warm Amber / Yellow */
+.trailer-status-badge--queued {
+  color: #d97706;
+}
+
+/* RUNNING - Electric / Blue */
+.trailer-status-badge--running {
+  color: #2563eb;
+}
+
+/* HARVESTING - Cyan / Teal */
+.trailer-status-badge--harvesting {
+  color: #0891b2;
+}
+
+/* READY - Vibrant Emerald Green */
+.trailer-status-badge--ready {
+  color: #059669;
+}
+
+/* NEEDS_REVIEW - Violet / Purple */
+.trailer-status-badge--review {
+  color: #7c3aed;
+}
+
+/* FAILED - Coral / Rose Red */
+.trailer-status-badge--failed {
+  color: #dc2626;
+}
+
+/* CANCELLED - Neutral Gray */
+.trailer-status-badge--cancelled,
+.trailer-status-badge--unknown {
+  color: var(--trailer-muted);
+}
+
+/* Dark mode overrides */
+.ktab-layout--dark .trailer-status-badge--queued {
+  color: #fbbf24;
+}
+
+.ktab-layout--dark .trailer-status-badge--running {
+  color: #60a5fa;
+}
+
+.ktab-layout--dark .trailer-status-badge--harvesting {
+  color: #38bdf8;
+}
+
+.ktab-layout--dark .trailer-status-badge--ready {
+  color: #34d399;
+}
+
+.ktab-layout--dark .trailer-status-badge--review {
+  color: #a78bfa;
+}
+
+.ktab-layout--dark .trailer-status-badge--failed {
+  color: #f87171;
+}
+
+.ktab-layout--dark .trailer-status-badge--cancelled,
+.ktab-layout--dark .trailer-status-badge--unknown {
+  color: #9ca3af;
+}

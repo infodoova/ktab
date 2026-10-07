@@ -1,6 +1,136 @@
-@import url("https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;500;600;700;800&family=Montserrat:ital,wght@0,300..900;1,300..900&family=Tajawal:wght@200;300;400;500;700;800;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;500;600;700;800&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
+
+/* ==========================================================================
+   Local Fonts Setup: 29LT Zarid Display, Tajawal & Montserrat
+   Loaded directly from src/assets/fonts
+   ========================================================================== */
+
+@font-face {
+  font-family: "29LT Zarid Display";
+  src: url("./assets/fonts/29LT-Zarid-Display-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Tajawal Font Family (All Weights) */
+@font-face {
+  font-family: "Tajawal";
+  src: url("./assets/fonts/Tajawal/Tajawal-ExtraLight.ttf") format("truetype");
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Tajawal";
+  src: url("./assets/fonts/Tajawal/Tajawal-Light.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Tajawal";
+  src: url("./assets/fonts/Tajawal/Tajawal-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Tajawal";
+  src: url("./assets/fonts/Tajawal/Tajawal-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Tajawal";
+  src: url("./assets/fonts/Tajawal/Tajawal-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Tajawal";
+  src: url("./assets/fonts/Tajawal/Tajawal-ExtraBold.ttf") format("truetype");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Tajawal";
+  src: url("./assets/fonts/Tajawal/Tajawal-Black.ttf") format("truetype");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Montserrat Font Family (Variable Font + Static Weights) */
+@font-face {
+  font-family: "Montserrat";
+  src:
+    url("./assets/fonts/Montserrat/Montserrat-VariableFont_wght.ttf") format("truetype-variations"),
+    url("./assets/fonts/Montserrat/Montserrat-VariableFont_wght.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Montserrat";
+  src:
+    url("./assets/fonts/Montserrat/Montserrat-Italic-VariableFont_wght.ttf") format("truetype-variations"),
+    url("./assets/fonts/Montserrat/Montserrat-Italic-VariableFont_wght.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Static Montserrat Fallbacks */
+@font-face {
+  font-family: "Montserrat";
+  src: url("./assets/fonts/Montserrat/static/Montserrat-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Montserrat";
+  src: url("./assets/fonts/Montserrat/static/Montserrat-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Montserrat";
+  src: url("./assets/fonts/Montserrat/static/Montserrat-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Montserrat";
+  src: url("./assets/fonts/Montserrat/static/Montserrat-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  --font-arabic: "Tajawal", "Segoe UI", Tahoma, Arial, sans-serif;
+  --font-sans: var(--font-arabic);
+  --font-english: "Montserrat", "Segoe UI", sans-serif;
+}
 
 :root {
   -webkit-text-size-adjust: 100%;
@@ -151,7 +281,8 @@ optgroup,
 select,
 textarea {
   font-family: var(--font-arabic), var(--font-english), system-ui, -apple-system, sans-serif;
-  font-synthesis: none;
+  /* Zarid currently has only a Regular face; allow heavier UI text to use synthetic bold. */
+  font-synthesis: weight;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -170,7 +301,9 @@ textarea {
   -webkit-text-size-adjust: 100%;
 }
 
-.font-arabic {
+.font-arabic,
+.font-zarid,
+.font-tajawal {
   font-family: var(--font-arabic) !important;
 }
 .font-english {
@@ -787,4 +920,3 @@ button[class*="btn-publish"] svg,
   color: var(--brand-white, #ffffff) !important;
   stroke: currentColor;
 }
-
