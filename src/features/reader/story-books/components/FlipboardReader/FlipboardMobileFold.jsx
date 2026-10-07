@@ -33,6 +33,7 @@ const MobilePageSlot = memo(function MobilePageSlot({
           pageIndex={pageIndex}
           totalPages={totalPages}
           isMobileSlot={true}
+          slotPosition={position}
         />
       </div>
     </div>
@@ -101,19 +102,26 @@ export const FlipboardMobileFold = memo(function FlipboardMobileFold({
     return null;
   };
 
-  const currentTop = getPage(currentPage);
-  const currentBottom = getPage(currentPage + 1);
-
-  const nextTop = getPage(currentPage + 2);
-  const nextBottom = getPage(currentPage + 3);
-
-  const prevTop = getPage(currentPage - 2);
-  const prevBottom = getPage(currentPage - 1);
-
   const isFolding = foldDirection !== null;
   // Phase 1 (0° to 90°): Front face pointing at camera
   // Phase 2 (90° to 180°): Back face pointing at camera
   const isPhase1 = angle < 90;
+
+  // Lock base page reference during an active fold to eliminate 1-frame race condition jumps
+  const foldPageRef = useRef(currentPage);
+  if (!isFolding) {
+    foldPageRef.current = currentPage;
+  }
+  const basePage = foldPageRef.current;
+
+  const currentTop = getPage(basePage);
+  const currentBottom = getPage(basePage + 1);
+
+  const nextTop = getPage(basePage + 2);
+  const nextBottom = getPage(basePage + 3);
+
+  const prevTop = getPage(basePage - 2);
+  const prevBottom = getPage(basePage - 1);
 
   const handleClick = (e) => {
     // Ignore interactive element clicks
@@ -158,7 +166,7 @@ export const FlipboardMobileFold = memo(function FlipboardMobileFold({
       <div className="flipboard-fold-base flipboard-fold-base--top">
         <MobilePageSlot
           page={foldDirection === "prev" ? prevTop : currentTop}
-          pageIndex={foldDirection === "prev" ? currentPage - 2 : currentPage}
+          pageIndex={foldDirection === "prev" ? basePage - 2 : basePage}
           totalPages={totalPages}
           position="top"
         />
@@ -183,7 +191,7 @@ export const FlipboardMobileFold = memo(function FlipboardMobileFold({
       <div className="flipboard-fold-base flipboard-fold-base--bottom">
         <MobilePageSlot
           page={foldDirection === "next" ? nextBottom : currentBottom}
-          pageIndex={foldDirection === "next" ? currentPage + 3 : currentPage + 1}
+          pageIndex={foldDirection === "next" ? basePage + 3 : basePage + 1}
           totalPages={totalPages}
           position="bottom"
         />
@@ -231,7 +239,7 @@ export const FlipboardMobileFold = memo(function FlipboardMobileFold({
             >
               <MobilePageSlot
                 page={foldDirection === "next" ? currentBottom : currentTop}
-                pageIndex={foldDirection === "next" ? currentPage + 1 : currentPage}
+                pageIndex={foldDirection === "next" ? basePage + 1 : basePage}
                 totalPages={totalPages}
                 position={foldDirection === "next" ? "bottom" : "top"}
               />
@@ -251,7 +259,7 @@ export const FlipboardMobileFold = memo(function FlipboardMobileFold({
             >
               <MobilePageSlot
                 page={foldDirection === "next" ? nextTop : prevBottom}
-                pageIndex={foldDirection === "next" ? currentPage + 2 : currentPage - 1}
+                pageIndex={foldDirection === "next" ? basePage + 2 : basePage - 1}
                 totalPages={totalPages}
                 position={foldDirection === "next" ? "top" : "bottom"}
               />

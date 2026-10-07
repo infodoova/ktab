@@ -76,6 +76,8 @@
 
 .flipboard-mobile-slot--bottom {
   padding: 0;
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0.5rem));
+  box-sizing: border-box;
 }
 
 .flipboard-mobile-slot__inner {
@@ -147,6 +149,10 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform-style: flat;
+  -webkit-transform-style: flat;
 }
 
 .flipboard-flap-face--front {

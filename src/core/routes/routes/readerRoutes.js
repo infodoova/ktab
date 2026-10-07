@@ -128,6 +128,27 @@ export const readerRoutes = [
     roles: ["READER"],
   },
   {
+    name: "StorybookBookDeepLink",
+    path: "/storybook/books/:id",
+    component: StoryBooksView,
+    guard: "role",
+    roles: ["READER"],
+  },
+  {
+    name: "StorybookReaderDeepLink",
+    path: "/storybook/books/:id/reader",
+    component: FlipboardStoryReaderView,
+    guard: "role",
+    roles: ["READER"],
+  },
+  {
+    name: "StorybookDownloadDeepLink",
+    path: "/storybook/books/:id/download",
+    component: StoryBooksView,
+    guard: "role",
+    roles: ["READER"],
+  },
+  {
     name: "ReaderProfile",
     path: "/reader/profile",
     component: ReaderProfileView,

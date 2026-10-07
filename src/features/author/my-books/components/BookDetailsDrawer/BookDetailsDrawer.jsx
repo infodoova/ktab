@@ -1,3 +1,4 @@
+import { BookTrailerSection } from "@/features/trailers/components/BookTrailerSection/BookTrailerSection";
 import React from "react";
 import {
   Star,
@@ -200,6 +201,7 @@ export function BookDetailsDrawer({ isOpen, onClose, book, onSubmit }) {
           {description || "لا يوجد وصف مسجل لهذا الكتاب حتى الآن."}
         </p>
       </div>
+      <BookTrailerSection bookId={book?.id} book={book} title={title} poster={coverUrl} enabled={Boolean(isOpen && book)} />
     </DetailsDrawer>
   );
 }

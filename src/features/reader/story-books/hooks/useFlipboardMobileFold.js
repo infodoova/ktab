@@ -116,12 +116,10 @@ export function useFlipboardMobileFold({
         setFoldDirection("next");
         setAngle(0);
         requestAnimationFrame(() => {
-          animateToAngle(180, 380, () => {
+          animateToAngle(180, 360, () => {
+            setFoldDirection(null);
+            setAngle(0);
             if (onNext) onNext();
-            requestAnimationFrame(() => {
-              setFoldDirection(null);
-              setAngle(0);
-            });
           });
         });
       } else if (direction === "prev") {
@@ -129,12 +127,10 @@ export function useFlipboardMobileFold({
         setFoldDirection("prev");
         setAngle(0);
         requestAnimationFrame(() => {
-          animateToAngle(180, 380, () => {
+          animateToAngle(180, 360, () => {
+            setFoldDirection(null);
+            setAngle(0);
             if (onPrev) onPrev();
-            requestAnimationFrame(() => {
-              setFoldDirection(null);
-              setAngle(0);
-            });
           });
         });
       }
@@ -144,6 +140,7 @@ export function useFlipboardMobileFold({
       isDragging,
       currentPage,
       totalPages,
+      isAtLastPage,
       onCloseStory,
       onNext,
       onPrev,
@@ -253,7 +250,7 @@ export function useFlipboardMobileFold({
         }
       }
     },
-    [isAnimating, currentPage, totalPages]
+    [isAnimating, currentPage, totalPages, isAtLastPage]
   );
 
   // Core release handler (Handles both touch-scroll completion and instant tap)
@@ -316,21 +313,19 @@ export function useFlipboardMobileFold({
       const duration = Math.max(150, Math.min(320, baseDuration - speedBonus));
 
       animateToAngle(180, duration, () => {
-        if (foldDirection === "next") {
+        const dir = foldDirection;
+        setFoldDirection(null);
+        setAngle(0);
+        if (dir === "next") {
           if (isAtLastPage || currentPage >= totalPages - 1) {
             if (onCloseStory) onCloseStory();
             else if (onNext) onNext();
           } else {
             if (onNext) onNext();
           }
-        } else if (foldDirection === "prev") {
+        } else if (dir === "prev") {
           if (onPrev) onPrev();
         }
-        // Let the new page state commit before resetting fold flap
-        requestAnimationFrame(() => {
-          setFoldDirection(null);
-          setAngle(0);
-        });
       });
     } else {
       // Spring back to 0 degrees
@@ -348,6 +343,7 @@ export function useFlipboardMobileFold({
     triggerProgrammaticFold,
     currentPage,
     totalPages,
+    isAtLastPage,
     onNext,
     onPrev,
     onCloseStory,

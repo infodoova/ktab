@@ -60,6 +60,7 @@ export function ReaderGlassHeader(props) {
     isTTSLoading = false,
     onTogglePlay,
     voice,
+    voiceOptions = VOICES_LIST,
     onSelectVoice,
     effect = "none",
     onSelectEffect,
@@ -303,7 +304,7 @@ export function ReaderGlassHeader(props) {
             <span className="ktab-popover-subtitle">اختر الصوت المناسب لطبيعة الكتاب</span>
           </div>
           <div className="ktab-voices-popover-list">
-            {VOICES_LIST.map((v) => {
+            {voiceOptions.map((v) => {
               const isSelected = voice === v.id;
               const isMale = v.gender === "male";
               return (
@@ -312,7 +313,9 @@ export function ReaderGlassHeader(props) {
                   type="button"
                   className={`ktab-voice-popover-item ${
                     isSelected ? "ktab-voice-popover-item--active" : ""
-                  }`}
+                  } ${v.locked ? "ktab-voice-popover-item--locked" : ""}`}
+                  disabled={v.locked}
+                  aria-label={v.locked ? `${v.label}، مقفل` : v.label}
                   onClick={() => {
                     onSelectVoice?.(v.id);
                     onTogglePopover?.(null);
@@ -328,9 +331,9 @@ export function ReaderGlassHeader(props) {
                     </div>
                   </div>
                   <div className="flex items-center gap-1.5 flex-shrink-0">
-                    {isSelected && <Check size={16} strokeWidth={2.8} />}
+                    {v.locked ? <Lock size={15} aria-hidden="true" /> : isSelected && <Check size={16} strokeWidth={2.8} />}
                     <span className="ktab-voice-popover-tag">
-                      {isMale ? "قارئ" : "قارئة"}
+                      {v.locked ? "مقفل" : isMale ? "قارئ" : "قارئة"}
                     </span>
                   </div>
                 </button>

@@ -1,9 +1,7 @@
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import b1 from "@/assets/images/roles/b1.webp";
-import b2 from "@/assets/images/roles/b2.webp";
-import b3 from "@/assets/images/roles/b3.webp";
-import b4 from "@/assets/images/roles/b4.webp";
+import b1 from "@/assets/images/roles/b1.png";
+import b2 from "@/assets/images/roles/b2.png";
 
 /**
  * Authentic platform personas data styled exactly after ElevenLabs Bento Showcase.
@@ -34,30 +32,7 @@ const ROLES_DATA = [
       "لوحة تحليلات متقدمة لمتابعة معدلات الاستماع والمبيعات",
     ],
   },
-  {
-    id: "educator",
-    roleKey: "educator",
-    title: "المعلم",
-    headline: "أدوات متطورة لمتابعة استيعاب الطلاب وتحويل القراءة إلى شغف حي.",
-    image: b3,
-    features: [
-      "إنشاء نوادي قراءة تعليمية وتكليفات تفاعلية مخصصة",
-      "متابعة دقيقة لمعدلات استيعاب وسرعة قراءة الطلاب",
-      "اختبارات مدمجة ومناقشات تثري التجربة الصفية",
-    ],
-  },
-  {
-    id: "student",
-    roleKey: "student",
-    title: "الطالب",
-    headline: "ملخصات تفاعلية ذكية مدعومة بالصوت تتابع إنجازاتك الدراسية.",
-    image: b4,
-    features: [
-      "ملخصات صوتية ذكية تختصر أهم المفاهيم في دقائق",
-      "خرائط ذهنية وتدوين ملاحظات تفاعلي مدعوم بالذكاء الاصطناعي",
-      "إحصائيات تحفيزية وتتبع مستمر للإنجازات اليومية",
-    ],
-  },
+
 ];
 
 /**
@@ -173,8 +148,6 @@ export function useRoles() {
 
   const reader = ROLES_DATA.find((r) => r.id === "reader");
   const author = ROLES_DATA.find((r) => r.id === "author");
-  const educator = ROLES_DATA.find((r) => r.id === "educator");
-  const student = ROLES_DATA.find((r) => r.id === "student");
 
   const handleCardMouseEnter = useCallback((id) => {
     setHoveredRoleId(id);
@@ -192,8 +165,6 @@ export function useRoles() {
     roles: ROLES_DATA,
     reader,
     author,
-    educator,
-    student,
     hoveredRoleId,
     handleCardMouseEnter,
     handleCardMouseLeave,
@@ -207,4 +178,3 @@ export function useRoles() {
 }
 
 export default useRoles;
-

@@ -2379,3 +2379,13 @@
   border-color: #3b82f6 !important;
   color: #ffffff !important;
 }
+
+.ktab-voice-popover-item--locked {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.ktab-voice-popover-item--locked:hover {
+  background: var(--border-subtle);
+  border-color: var(--border-subtle);
+}

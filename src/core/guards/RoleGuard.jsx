@@ -21,7 +21,7 @@ export function RoleGuard({ allowedRoles = [], children }) {
     const validate = async () => {
       // If store is not initialized yet, verify session via HttpOnly cookies
       if (!useAuthStore.getState().isInitialized) {
-        await tokenManager.initSession({ force: true });
+        await tokenManager.initSession();
       }
 
       const currentUser = useAuthStore.getState().user;
@@ -53,4 +53,3 @@ export function RoleGuard({ allowedRoles = [], children }) {
 }
 
 export default RoleGuard;
-

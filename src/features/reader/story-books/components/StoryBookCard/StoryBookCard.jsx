@@ -1,4 +1,4 @@
-import React, { memo, useState, useCallback, useEffect, useRef } from "react";
+import React, { memo, useState, useCallback, useRef } from "react";
 import { MoreVertical, BookOpen, FileText, FileDown, Ban } from "lucide-react";
 import brandIconImg from "@/assets/logo/BrandIcon.png";
 import { getStoryStatusConfig } from "../../constants/storyBooksConstants";
@@ -22,21 +22,17 @@ export const StoryBookCard = memo(function StoryBookCard({
   onConvertToPdf,
   onCancel,
 }) {
+  const coverSrc = story?.coverImageUrl || story?.coverUrl || story?.cover;
   const [loaded, setLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const [prevCover, setPrevCover] = useState(coverSrc);
   const imgRef = useRef(null);
 
-  const coverSrc = story?.coverUrl || story?.cover;
-
-  useEffect(() => {
-    if (imgRef.current && imgRef.current.complete && imgRef.current.naturalWidth > 0) {
-      setLoaded(true);
-      setHasError(false);
-    } else {
-      setLoaded(false);
-      setHasError(false);
-    }
-  }, [coverSrc]);
+  if (prevCover !== coverSrc) {
+    setPrevCover(coverSrc);
+    setLoaded(false);
+    setHasError(false);
+  }
 
   const handleLoad = useCallback(() => setLoaded(true), []);
   const handleError = useCallback(() => {
@@ -62,7 +58,7 @@ export const StoryBookCard = memo(function StoryBookCard({
   const statusConfig = isApprovedAndGeneratingChar
     ? { label: "جاري إعداد مظهر البطل...", color: "#0f172a", bg: "#ffffff", border: "#94a3b8", canRead: false }
     : getStoryStatusConfig(status);
-  const isReady = status === "READY";
+  const isReady = status === "READY" || status === "COMPLETED";
   const isInProgress = ["DRAFT", "STORY_READY", "CHARACTER_READY", "ILLUSTRATING", "QA", "RENDERING"].includes(status);
 
   return (

@@ -1,9 +1,9 @@
-import React, { memo, useState, useEffect, useRef } from "react";
+import React, { memo, useState, useRef } from "react";
 import brandIconImg from "@/assets/logo/BrandIcon.png";
 import "./FlipboardPage.css";
 
 // In-memory set of loaded image URLs in the current session (prevents reloading flash on page turns)
-const loadedImageUrls = new Set();
+export const loadedImageUrls = new Set();
 
 /**
  * Clean & lightweight image component with smooth shimmer skeleton loader
@@ -14,21 +14,17 @@ export const FlipboardImage = memo(function FlipboardImage({
   className = "",
   loading = "eager",
 }) {
-  const [isLoaded, setIsLoaded] = useState(() => (src ? loadedImageUrls.has(src) : false));
+  const isCached = Boolean(src && loadedImageUrls.has(src));
+  const [isLoaded, setIsLoaded] = useState(isCached);
   const [hasError, setHasError] = useState(false);
+  const [prevSrc, setPrevSrc] = useState(src);
   const imgRef = useRef(null);
 
-  useEffect(() => {
-    if (!src) return;
-    if (loadedImageUrls.has(src)) {
-      setIsLoaded(true);
-      return;
-    }
-    if (imgRef.current?.complete && imgRef.current?.naturalWidth > 0) {
-      loadedImageUrls.add(src);
-      setIsLoaded(true);
-    }
-  }, [src]);
+  if (prevSrc !== src) {
+    setPrevSrc(src);
+    setIsLoaded(isCached);
+    setHasError(false);
+  }
 
   const handleLoad = () => {
     if (src) loadedImageUrls.add(src);
@@ -87,6 +83,7 @@ export const FlipboardPage = memo(function FlipboardPage({
   pageIndex,
   totalPages,
   isMobileSlot = false,
+  slotPosition = "top",
 }) {
   if (!page) return null;
 
@@ -96,15 +93,19 @@ export const FlipboardPage = memo(function FlipboardPage({
     image,
     narrative,
     celebrationText,
+    textZone = "BOTTOM_SPAN",
   } = page;
 
   const showCounter = totalPages > 1 && type !== "cover";
+  const hasTextContent = Boolean(narrative || celebrationText || (type === "cover" && title));
+  const showTextOverlay = hasTextContent && textZone !== "NONE";
+  const zoneClass = textZone ? `flipboard-page__cc-container--${textZone.toLowerCase().replace(/_/g, "-")}` : "flipboard-page__cc-container--bottom-span";
 
   return (
     <div
       className={`flipboard-page flipboard-page--${type} ${
         isMobileSlot ? "flipboard-page--mobile-slot" : ""
-      }`}
+      } ${isMobileSlot && slotPosition ? `flipboard-page--slot-${slotPosition}` : ""}`}
       dir="rtl"
     >
       <div className="flipboard-page__canvas">
@@ -123,9 +124,9 @@ export const FlipboardPage = memo(function FlipboardPage({
           </div>
         )}
 
-        {/* 2. Closed Captions (CC) Overlay */}
-        {(narrative || celebrationText || (type === "cover" && title)) && (
-          <div className="flipboard-page__cc-container" dir="rtl">
+        {/* 2. Closed Captions (CC) Overlay with Arabic Safe Zone Positioning */}
+        {showTextOverlay && (
+          <div className={`flipboard-page__cc-container ${zoneClass}`} dir="rtl">
             <div className="flipboard-page__cc-pill">
               {celebrationText && (
                 <span className="flipboard-page__cc-badge">{celebrationText}</span>

@@ -31,11 +31,6 @@ function buildQuery(pagination, page, size, url) {
  * Safely parses response as JSON, falling back to structured error object on failure.
  */
 async function parseResponse(res) {
-  if (res.status === 401) {
-    logger.warn("Received 401 Unauthorized from API. Invaliding session.");
-    useAuthStore.getState().clearAuth();
-  }
-
   try {
     const text = await res.text();
     if (!text || !text.trim()) {
@@ -52,11 +47,35 @@ async function parseResponse(res) {
   }
 }
 
+async function fetchWithAuthRetry(url, options) {
+  const hadSession = useAuthStore.getState().isAuthenticated;
+  const sentAuthorization = new Headers(options.headers).get("Authorization");
+  const sentToken = sentAuthorization?.startsWith("Bearer ")
+    ? sentAuthorization.slice(7)
+    : null;
+  let response = await fetch(url, options);
+  if (response.status !== 401 || (!sentToken && !hadSession)) return response;
+
+  // A request can leave the phone while its JWT is expiring. Retry once with
+  // the rotated token; the refresh endpoint alone decides if the cookie died.
+  const currentToken = tokenManager.getToken();
+  const freshToken = sentToken && currentToken !== sentToken
+    ? currentToken
+    : await tokenManager.safeRefresh();
+  if (!freshToken && !useAuthStore.getState().isAuthenticated) return response;
+  if (sentToken && freshToken === sentToken) return response;
+
+  const headers = new Headers(options.headers);
+  if (freshToken) headers.set("Authorization", `Bearer ${freshToken}`);
+  response = await fetch(url, { ...options, headers });
+  return response;
+}
+
 export async function getHelper({ url, headers = {}, pagination, page, size }) {
   const query = buildQuery(pagination, page, size, url);
 
   try {
-    const res = await fetch(url + query, {
+    const res = await fetchWithAuthRetry(url + query, {
       method: "GET",
       headers: buildHeaders(headers),
       credentials: "include",
@@ -71,7 +90,7 @@ export async function getHelper({ url, headers = {}, pagination, page, size }) {
 
 export async function postHelper({ url, body, headers = {} }) {
   try {
-    const res = await fetch(url, {
+    const res = await fetchWithAuthRetry(url, {
       method: "POST",
       headers: buildHeaders(headers),
       body: body !== undefined ? JSON.stringify(body) : undefined,
@@ -87,7 +106,7 @@ export async function postHelper({ url, body, headers = {} }) {
 
 export async function putHelper({ url, body, headers = {} }) {
   try {
-    const res = await fetch(url, {
+    const res = await fetchWithAuthRetry(url, {
       method: "PUT",
       headers: buildHeaders(headers),
       body: body !== undefined ? JSON.stringify(body) : undefined,
@@ -103,7 +122,7 @@ export async function putHelper({ url, body, headers = {} }) {
 
 export async function deleteHelper({ url, headers = {} }) {
   try {
-    const res = await fetch(url, {
+    const res = await fetchWithAuthRetry(url, {
       method: "DELETE",
       headers: buildHeaders(headers),
       credentials: "include",
@@ -138,7 +157,7 @@ export async function patchHelper({ url, body, headers = {} }) {
   }
 
   try {
-    const res = await fetch(url, fetchOptions);
+    const res = await fetchWithAuthRetry(url, fetchOptions);
     return await parseResponse(res);
   } catch (err) {
     logger.error("PATCH request failed:", err);
@@ -152,7 +171,7 @@ export async function postFormDataHelper({ url, formData }) {
   const token = tokenManager.getToken();
 
   try {
-    const response = await fetch(url, {
+    const response = await fetchWithAuthRetry(url, {
       method: "POST",
       headers: {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -171,4 +190,3 @@ export async function postFormDataHelper({ url, formData }) {
     };
   }
 }
-

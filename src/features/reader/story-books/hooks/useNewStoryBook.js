@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { AlertToast } from "@/components/myui/AlertToast";
 import { storyBooksService } from "../services/storyBooksService";
+import { STORYBOOK_VALIDATION } from "../constants/storyBooksConstants";
 
 /**
  * Hook driving the live personalized storybook creation wizard.
@@ -44,40 +45,28 @@ export function useNewStoryBook() {
 
   // Story Specifications Form Data
   const [storyData, setStoryData] = useState({
-    storyIdea: "يومي الأول في المدرسة",
-    interestsText: "",
-    blueprintKey: "custom",
+    storyIdea: "",
     interests: [],
-    setting: "BEIRUT",
+    place: "",
+    setting: "GENERIC_CITY",
+    theme: "الصداقة والتعاون",
+    storyTone: "مغامرة وتشويق",
     timeOfDay: "DAYTIME",
     style: "SOFT_WATERCOLOR",
-    pageCount: 10,
+    pageCount: 16,
     variety: "MSA",
-    tashkeelLevel: "FULL",
+    tashkeelLevel: "PARTIAL",
     dedication: "",
+    photoConsent: true,
+    hasCompanion: false,
+    companion: {
+      type: "CAT",
+      nameAr: "",
+      petColor: "ORANGE",
+    },
+    lesson: "",
+    thingsToAvoidText: "",
   });
-
-  // Dynamic Filters & Options from Backend (/storybook/filters)
-  const [filters, setFilters] = useState(null);
-  const [loadingFilters, setLoadingFilters] = useState(false);
-
-  const fetchFilters = useCallback(async () => {
-    setLoadingFilters(true);
-    try {
-      const res = await storyBooksService.getFilters();
-      if (res?.success && res.data) {
-        setFilters(res.data);
-      }
-    } catch {
-      // Non-blocking fallback
-    } finally {
-      setLoadingFilters(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchFilters();
-  }, [fetchFilters]);
 
   // Fetch children on mount
   const fetchChildren = useCallback(async () => {
@@ -86,18 +75,13 @@ export function useNewStoryBook() {
       const res = await storyBooksService.getChildren();
       if (res?.success && Array.isArray(res.data)) {
         setChildren(res.data);
-        if (res.data.length > 0 && !selectedChildId) {
-          setSelectedChildId(res.data[0].id);
-        } else if (res.data.length === 0) {
-          setShowNewChildForm(true);
-        }
       }
     } catch {
       AlertToast("تعذر جلب ملفات الأطفال", "ERROR");
     } finally {
       setLoadingChildren(false);
     }
-  }, [selectedChildId]);
+  }, []);
 
   useEffect(() => {
     fetchChildren();
@@ -108,56 +92,103 @@ export function useNewStoryBook() {
     return children.find((c) => c.id === selectedChildId) || null;
   }, [children, selectedChildId]);
 
-  // Fetch blueprints when selected child's ageBand changes
-  useEffect(() => {
-    const ageBand = selectedChild?.ageBand;
-    if (!ageBand) {
-      setBlueprints([]);
+  // Helper to extract primitive scalar values from synthetic events or primitives
+  const unwrapVal = (v) => {
+    if (v && typeof v === "object" && "target" in v && !Array.isArray(v)) {
+      return v.target?.value;
+    }
+    if (v && typeof v === "object" && "value" in v && !Array.isArray(v)) {
+      return v.value;
+    }
+    return v;
+  };
+
+  // Handle New Child Field Changes
+  const handleNewChildChange = useCallback((field, rawValue) => {
+    const value = unwrapVal(rawValue);
+    if (field === "nameAr" && selectedChildId) {
+      setSelectedChildId(null);
+    }
+    setNewChildData((prev) => {
+      const updated = { ...prev, [field]: value };
+      if (field === "gender" && value === "BOY") {
+        updated.appearance = {
+          ...updated.appearance,
+          hijab: false,
+          hairColor: updated.appearance?.hairColor || "BLACK",
+          hairStyle: updated.appearance?.hairStyle || "SHORT_STRAIGHT",
+        };
+      }
+      return updated;
+    });
+  }, [selectedChildId]);
+
+  const handleAppearanceChange = useCallback((field, rawValue) => {
+    const value = unwrapVal(rawValue);
+    setNewChildData((prev) => {
+      const updatedAppearance = {
+        ...prev.appearance,
+        [field]: value,
+      };
+      if (field === "hijab" && !value) {
+        if (!updatedAppearance.hairColor) updatedAppearance.hairColor = "BLACK";
+        if (!updatedAppearance.hairStyle) {
+          updatedAppearance.hairStyle = prev.gender === "GIRL" ? "LONG_STRAIGHT" : "SHORT_STRAIGHT";
+        }
+      }
+      return {
+        ...prev,
+        appearance: updatedAppearance,
+      };
+    });
+  }, []);
+
+  const handleSelectChild = useCallback((childInput) => {
+    const raw = unwrapVal(childInput);
+    const childId = raw !== undefined && raw !== null ? String(raw).trim() : "";
+
+    if (!childId || childId === "NEW" || childId === "null" || childId === "undefined") {
+      setSelectedChildId(null);
+      setNewChildData({
+        nameAr: "",
+        gender: "BOY",
+        ageBand: "AGE_3_5",
+        appearance: {
+          skinTone: "LIGHT",
+          hairColor: "BLACK",
+          hairStyle: "SHORT_STRAIGHT",
+          eyeColor: "BROWN",
+          hijab: false,
+          glasses: false,
+        },
+        image: null,
+      });
       return;
     }
 
-    let isMounted = true;
-    async function loadBlueprints() {
-      setLoadingBlueprints(true);
-      try {
-        const res = await storyBooksService.getBlueprints(ageBand);
-        if (res?.success && Array.isArray(res.data) && isMounted) {
-          setBlueprints(res.data);
-          if (res.data.length > 0) {
-            setStoryData((prev) => ({
-              ...prev,
-              blueprintKey: res.data[0].key,
-              setting: res.data[0].allowedSettings?.[0] || "GENERIC_CITY",
-            }));
-          }
-        }
-      } catch {
-        // Fallback
-      } finally {
-        if (isMounted) setLoadingBlueprints(false);
-      }
+    const found = children.find(
+      (c) => String(c.id) === childId || c.id === Number(childId)
+    );
+    if (found) {
+      setSelectedChildId(found.id);
+      const isGirl = found.gender === "GIRL";
+      const isHijab = Boolean(found.appearance?.hijab);
+      setNewChildData({
+        nameAr: found.nameAr || "",
+        gender: found.gender || "BOY",
+        ageBand: found.ageBand || "AGE_3_5",
+        appearance: {
+          skinTone: found.appearance?.skinTone || "LIGHT",
+          hairColor: found.appearance?.hairColor || (isHijab ? null : "BLACK"),
+          hairStyle: found.appearance?.hairStyle || (isHijab ? null : (isGirl ? "LONG_STRAIGHT" : "SHORT_STRAIGHT")),
+          eyeColor: found.appearance?.eyeColor || "BROWN",
+          hijab: isHijab,
+          glasses: Boolean(found.appearance?.glasses),
+        },
+        image: null,
+      });
     }
-
-    loadBlueprints();
-    return () => {
-      isMounted = false;
-    };
-  }, [selectedChild?.ageBand]);
-
-  // Handle New Child Field Changes
-  const handleNewChildChange = useCallback((field, value) => {
-    setNewChildData((prev) => ({ ...prev, [field]: value }));
-  }, []);
-
-  const handleAppearanceChange = useCallback((field, value) => {
-    setNewChildData((prev) => ({
-      ...prev,
-      appearance: {
-        ...prev.appearance,
-        [field]: value,
-      },
-    }));
-  }, []);
+  }, [children]);
 
   // Save New Child
   const handleSaveChild = useCallback(async () => {
@@ -168,8 +199,7 @@ export function useNewStoryBook() {
     }
 
     // Backend Arabic name regex validation
-    const arabicRegex = /^[\u0621-\u063A\u0641-\u064A\u0671-\u06D3][\u0621-\u063A\u0641-\u064A\u064B-\u0652\u0670\u0671-\u06D3 ]{1,29}$/;
-    if (!arabicRegex.test(name)) {
+    if (!STORYBOOK_VALIDATION.ARABIC_NAME_REGEX.test(name)) {
       AlertToast("يجب أن يحتوي اسم الطفل على أحرف عربية فقط بدون أرقام أو رموز", "WARNING");
       return;
     }
@@ -204,8 +234,32 @@ export function useNewStoryBook() {
   }, [newChildData, fetchChildren]);
 
   // Story Data Change Handlers
-  const handleStoryChange = useCallback((field, value) => {
-    setStoryData((prev) => ({ ...prev, [field]: value }));
+  const handleStoryChange = useCallback((field, rawValue) => {
+    const value = unwrapVal(rawValue);
+    setStoryData((prev) => {
+      const updated = { ...prev, [field]: value };
+      // If language variety is changed to a dialect, force tashkeelLevel to NONE
+      if (field === "variety") {
+        const isDialect = ["LEBANESE", "EGYPTIAN", "GULF"].includes(value);
+        if (isDialect) {
+          updated.tashkeelLevel = "NONE";
+        } else if (prev.tashkeelLevel === "NONE") {
+          updated.tashkeelLevel = "PARTIAL";
+        }
+      }
+      return updated;
+    });
+  }, []);
+
+  const handleCompanionChange = useCallback((field, rawValue) => {
+    const value = unwrapVal(rawValue);
+    setStoryData((prev) => ({
+      ...prev,
+      companion: {
+        ...prev.companion,
+        [field]: value,
+      },
+    }));
   }, []);
 
   const handleInterestToggle = useCallback((interestValue) => {
@@ -265,40 +319,73 @@ export function useNewStoryBook() {
         ? storyData.interestsText.split(/[،,]+/).map((s) => s.trim()).filter(Boolean)
         : (storyData.interests || []);
 
-      const payload = {
-        childProfileId: selectedChildId || 1,
-        childName: newChildData.nameAr.trim(),
-        gender: newChildData.gender,
-        ageBand: newChildData.ageBand,
-        appearance: newChildData.appearance,
-        blueprintKey: storyData.blueprintKey || "custom",
-        storyIdea: storyData.storyIdea?.trim() || "",
-        interests: parsedInterests,
-        setting: storyData.setting || "BEIRUT",
-        timeOfDay: storyData.timeOfDay || "DAYTIME",
-        style: storyData.style || "SOFT_WATERCOLOR",
-        pageCount: Number(storyData.pageCount) || 10,
-        variety: storyData.variety || "MSA",
-        tashkeelLevel: storyData.tashkeelLevel || "FULL",
-        dedication: storyData.dedication?.trim() || null,
-        heroImage: newChildData.image?.previewUrl || null,
-      };
+      const isDialect = ["LEBANESE", "EGYPTIAN", "GULF"].includes(storyData.variety);
+      const attachedFile = newChildData.image?.file || null;
 
-      try {
-        await storyBooksService.createStoryBook(payload);
-      } catch (err) {
-        // Log warning but allow UX flow since backend is mocked/fake
-        console.warn("API request handled with fallback", err);
+      let companionPayload = undefined;
+      if (storyData.hasCompanion && storyData.companion?.nameAr?.trim()) {
+        const isPet = ["CAT", "DOG", "RABBIT", "PARROT"].includes(storyData.companion.type);
+        companionPayload = {
+          type: storyData.companion.type || "CAT",
+          nameAr: storyData.companion.nameAr.trim(),
+          petColor: isPet ? (storyData.companion.petColor || "ORANGE") : undefined,
+        };
       }
 
-      AlertToast("تم بدء توليد القصة التفاعلية بنجاح!", "SUCCESS");
+      const thingsToAvoidList = storyData.thingsToAvoidText
+        ? storyData.thingsToAvoidText.split(/[،,]+/).map((s) => s.trim()).filter(Boolean)
+        : undefined;
+
+      /** @type {import("@/types/storybook").CreateStorybookRequest} */
+      const payload = {
+        childProfileId: selectedChildId ? Number(selectedChildId) : undefined,
+        child: {
+          nameAr: newChildData.nameAr.trim(),
+          gender: newChildData.gender,
+          ageBand: newChildData.ageBand,
+          appearance: {
+            skinTone: newChildData.appearance.skinTone,
+            hairColor: newChildData.appearance.hijab ? undefined : newChildData.appearance.hairColor,
+            hairStyle: newChildData.appearance.hijab ? undefined : newChildData.appearance.hairStyle,
+            eyeColor: newChildData.appearance.eyeColor,
+            glasses: Boolean(newChildData.appearance.glasses),
+            hijab: Boolean(newChildData.appearance.hijab),
+          },
+        },
+        companion: companionPayload,
+        pageCount: Math.min(Math.max(Number(storyData.pageCount) || 16, 15), 20),
+        style: "SOFT_WATERCOLOR",
+        orientation: "SQUARE",
+        variety: storyData.variety || "MSA",
+        tashkeelLevel: isDialect ? "NONE" : (storyData.tashkeelLevel || "PARTIAL"),
+        interests: Array.isArray(storyData.interests) ? storyData.interests.slice(0, 3) : [],
+        setting: storyData.setting || "GENERIC_CITY",
+        place: storyData.place?.trim() || undefined,
+        theme: (storyData.theme || "الصداقة والتعاون").trim(),
+        storyTone: (storyData.storyTone || "مغامرة وتشويق").trim(),
+        timeOfDay: storyData.timeOfDay || "DAYTIME",
+        storyIdea: storyData.storyIdea?.trim() || undefined,
+        lesson: storyData.lesson?.trim() || undefined,
+        thingsToAvoid: thingsToAvoidList,
+        dedication: storyData.dedication?.trim() || undefined,
+        photoConsent: Boolean(attachedFile || storyData.photoConsent),
+      };
+
+      const res = await storyBooksService.createStoryBook(payload, {
+        childPhoto: attachedFile,
+      });
+
+      AlertToast(
+        res?.message || "بدأنا برحلة إعداد القصة، وأرسلنا إليك تفاصيل الخطوات عبر البريد الإلكتروني.",
+        "SUCCESS"
+      );
       navigate("/reader/story-books");
     } catch (err) {
-      AlertToast(err.message || "حدث خطأ أثناء إطلاق توليد القصة", "ERROR");
+      AlertToast(err.message || "حدث خطأ أثناء إطلاق تأليف القصة", "ERROR");
     } finally {
       setIsSubmitting(false);
     }
-  }, [newChildData, selectedChildId, storyData, navigate]);
+  }, [newChildData, storyData, navigate, selectedChildId]);
 
   return {
     currentStep,
@@ -321,17 +408,13 @@ export function useNewStoryBook() {
     handleNewChildChange,
     handleAppearanceChange,
     handleSaveChild,
+    handleSelectChild,
 
-    // Blueprints & Story Data
-    blueprints,
-    loadingBlueprints,
+    // Story Data
     storyData,
     handleStoryChange,
+    handleCompanionChange,
     handleInterestToggle,
-
-    // Backend Dynamic Filters
-    filters,
-    loadingFilters,
   };
 }
 

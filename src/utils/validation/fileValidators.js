@@ -213,7 +213,7 @@ export async function validateSecureBookDocument(
       }
       return { valid: true, fileType: "pdf", extension: finalExt };
     }
-  } catch (err) {
+  } catch {
     return { valid: false, error: "تعذر قراءة بيانات الملف للتحقق الأمني." };
   }
 

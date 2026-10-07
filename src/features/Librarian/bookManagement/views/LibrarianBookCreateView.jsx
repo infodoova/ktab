@@ -190,7 +190,8 @@ export default function LibrarianBookCreateView() {
               </div>
             </div>
 
-            {/* 4. Audio Edition Option */}
+            {/* 4. Audio Edition Option (Commented out for now) */}
+            {/*
             <div className={`ktab-book-publish-form__audio-card ${formData.hasAudio ? "is-active" : ""}`}>
               <div className="ktab-book-publish-form__audio-meta">
                 <div className="ktab-book-publish-form__audio-icon" aria-hidden="true">
@@ -211,6 +212,7 @@ export default function LibrarianBookCreateView() {
                 disabled={submitting}
               />
             </div>
+            */}
 
             {/* 5. Upload Grid: Book PDF Document + Cover Image */}
             <div className="ktab-book-publish-form__upload-grid">

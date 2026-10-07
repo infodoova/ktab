@@ -248,6 +248,16 @@
   margin: 0 auto !important;
 }
 
+.login-google-retry {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  background: var(--bg-primary);
+  color: var(--primary-text);
+  cursor: pointer;
+}
+
 .login-google-skeleton {
   width: 100%;
   max-width: 380px;

@@ -174,8 +174,8 @@ class TokenManager {
     const isAuth = useAuthStore.getState().isAuthenticated;
     const isInit = useAuthStore.getState().isInitialized;
 
-    // Do not attempt refresh if unauthenticated and either already initialized or no session hint exists
-    if (!isAuth && (isInit || !hasSessionHint())) {
+    // After startup, avoid repeated refreshes for visitors with no known session.
+    if (!isAuth && isInit && !hasSessionHint()) {
       return null;
     }
 
@@ -184,22 +184,14 @@ class TokenManager {
 
   /**
    * Initializes session on application startup by checking HttpOnly cookies.
-   * Only calls backend refresh if a prior session hint exists (or forced by guard),
-   * completely eliminating unwanted 401 console errors for regular visitors.
+   * The cookie is authoritative. Browser storage can be cleared independently of it,
+   * especially on iOS, so the local hint must never prevent this check.
    */
-  async initSession(options = {}) {
-    const { force = false } = options;
-
-    if (!hasSessionHint() && !force) {
-      useAuthStore.getState().setInitialized(true);
-      return null;
-    }
-
+  async initSession() {
     try {
       return await this.safeRefresh();
     } catch {
-      setSessionHint(false);
-      useAuthStore.getState().clearAuth();
+      useAuthStore.getState().setInitialized(true);
       return null;
     }
   }
@@ -233,10 +225,20 @@ class TokenManager {
    * Performs the API refresh call and updates the Zustand store.
    * Leverages HttpOnly cookies via credentials: "include".
    */
-  async callRefreshAPI() {
+  async callRefreshAPI(allowRetry = true) {
     try {
       const storedRefreshToken = this.getRefreshToken();
+      const startingVersion = useAuthStore.getState().sessionVersion;
       const res = await refreshTokenApi(storedRefreshToken);
+
+      // A startup refresh may return 401 after a new login has succeeded.
+      // Retry against the new cookie instead of clearing the newer session.
+      if (useAuthStore.getState().sessionVersion !== startingVersion) {
+        if (allowRetry && useAuthStore.getState().isAuthenticated) {
+          return await this.callRefreshAPI(false);
+        }
+        return this.getToken();
+      }
 
       if (!res || !res.ok) {
         const isAuthError =
@@ -259,8 +261,9 @@ class TokenManager {
           return currentToken;
         }
 
-        setSessionHint(false);
-        useAuthStore.getState().clearAuth();
+        // A network/server failure does not prove that the cookie expired.
+        // Keep the hint so a later foreground check can restore the session.
+        useAuthStore.setState({ token: null, refreshToken: null, user: null, isAuthenticated: false, isInitialized: true });
         return null;
       }
 
@@ -288,13 +291,19 @@ class TokenManager {
         return newToken;
       }
 
-      // If response succeeded but returned no token body, mark state initialized
-      useAuthStore.getState().setInitialized(true);
+      // Cookie-only backends can return a successful refresh without exposing
+      // the access token to JavaScript. Keep the known profile in that case.
+      const knownUser = useAuthStore.getState().user;
+      if (knownUser) {
+        setSessionHint(true);
+        useAuthStore.setState({ isAuthenticated: true, isInitialized: true });
+        return null;
+      }
+      useAuthStore.setState({ token: null, refreshToken: null, user: null, isAuthenticated: false, isInitialized: true });
       return null;
     } catch (err) {
       logger.error("Refresh token error:", err);
-      setSessionHint(false);
-      useAuthStore.getState().clearAuth();
+      useAuthStore.setState({ token: null, refreshToken: null, user: null, isAuthenticated: false, isInitialized: true });
       return null;
     }
   }
@@ -302,4 +311,3 @@ class TokenManager {
 
 export const tokenManager = new TokenManager();
 export default tokenManager;
-

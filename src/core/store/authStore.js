@@ -24,7 +24,9 @@ function saveUserToStorage(user) {
     } else {
       localStorage.removeItem(USER_STORAGE_KEY);
     }
-  } catch {}
+  } catch {
+    // Storage can be unavailable in private browsing; the in-memory session still works.
+  }
 }
 
 function getUserFromStorage() {
@@ -64,6 +66,7 @@ export const useAuthStore = create((set, get) => ({
   isAuthenticated: Boolean(initialUser),
   isInitialized: false,
   isLoading: false,
+  sessionVersion: 0,
 
   /**
    * Sets authentication state and user data faithfully as returned by the backend.
@@ -146,6 +149,7 @@ export const useAuthStore = create((set, get) => ({
       isAuthenticated: isAuth,
       isInitialized: true,
       isLoading: false,
+      sessionVersion: get().sessionVersion + 1,
     });
   },
 
@@ -163,6 +167,7 @@ export const useAuthStore = create((set, get) => ({
       isAuthenticated: false,
       isInitialized: true,
       isLoading: false,
+      sessionVersion: get().sessionVersion + 1,
     });
   },
 

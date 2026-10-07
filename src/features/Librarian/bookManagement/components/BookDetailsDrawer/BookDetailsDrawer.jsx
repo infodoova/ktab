@@ -1,3 +1,4 @@
+import { BookTrailerSection } from "@/features/trailers/components/BookTrailerSection/BookTrailerSection";
 import React from "react";
 import {
   Download,
@@ -116,6 +117,8 @@ export function BookDetailsDrawer({
           <p className="ktab-lib-drawer-desc-box">{currentBook.description}</p>
         </div>
       )}
+
+      <BookTrailerSection bookId={currentBook?.id} book={currentBook} title={currentBook?.title} poster={currentBook?.coverImageUrl} enabled={Boolean(isOpen && currentBook)} />
 
       {/* Specifications Grid */}
       <div className="ktab-lib-drawer-section">

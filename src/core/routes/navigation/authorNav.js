@@ -1,3 +1,4 @@
+import { Film } from "lucide-react";
 import {
   LayoutDashboard,
   ScrollText,
@@ -29,12 +30,14 @@ export const AUTHOR_NAV_ITEMS = [
     icon: ScrollText,
     path: "/author/my-stories",
   },
-  {
-    name: "AuthorRatings",
-    label: "التقييمات والمراجعات",
-    icon: Star,
-    path: "/author/ratings",
-  },
+    { name: "AuthorTrailers", label: "إعلانات الكتب", icon: Film, path: "/author/trailers" },
+
+  // {
+  //   name: "AuthorRatings",
+  //   label: "التقييمات والمراجعات",
+  //   icon: Star,
+  //   path: "/author/ratings",
+  // },
   // {
   //   name: "AuthorAITools",
   //   label: "أدوات الذكاء الاصطناعي",

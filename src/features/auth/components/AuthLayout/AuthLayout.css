@@ -22,12 +22,14 @@
 
 .auth-form-panel {
   position: relative;
-  width: 50%;
+  flex: 1;
+  min-width: 0;
   height: 100%;
   height: 100dvh;
   display: flex;
   flex-direction: column;
   background-color: var(--bg-primary, #ffffff);
+  border-inline-end: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
   overflow-y: auto;
   overflow-x: hidden;
   box-sizing: border-box;
@@ -93,14 +95,18 @@
 
 /* ═══════════════════════════════════════════════════════════════════════════
    CINEMATIC VIDEO SHOWCASE PANEL (Left Side in RTL)
+   Calibrated for 3:4 portrait aspect ratio (834x1112)
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .auth-visual-panel {
   position: relative;
-  width: 50%;
+  flex: 0 0 clamp(380px, calc(100vh * 0.75), 48vw);
   height: 100%;
+  height: 100dvh;
   display: flex;
-  background-color: #000000;
+  align-items: center;
+  justify-content: center;
+  background-color: #0d0d0f;
   overflow: hidden;
   box-sizing: border-box;
 }
@@ -111,16 +117,16 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0.95;
+  object-position: center;
 }
 
 .auth-video-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    to left,
-    rgba(0, 0, 0, 0.25) 0%,
-    transparent 40%
+  background: radial-gradient(
+    ellipse at 50% 50%,
+    rgba(0, 0, 0, 0) 50%,
+    rgba(0, 0, 0, 0.2) 100%
   );
   pointer-events: none;
 }

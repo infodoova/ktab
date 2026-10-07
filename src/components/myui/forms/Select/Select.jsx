@@ -23,6 +23,8 @@ export function Select({
   icon,
   id,
   name,
+  multiple = false,
+  maxSelected,
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
@@ -32,18 +34,36 @@ export function Select({
     typeof opt === "object" && opt !== null ? opt : { value: opt, label: opt }
   );
 
-  // Find currently selected option (handles string/number conversions, case-insensitivity, and label fallback robustly)
-  const selectedOption = normalizedOptions.find((opt) => {
-    if (opt.value === value) return true;
-    if (value !== undefined && value !== null) {
-      const strVal = String(value).trim();
-      const optVal = String(opt.value).trim();
-      if (optVal === strVal || optVal.toLowerCase() === strVal.toLowerCase()) return true;
-      if (opt.label && (String(opt.label).trim() === strVal || String(opt.label).trim().toLowerCase() === strVal.toLowerCase())) return true;
-    }
-    return false;
-  });
+  // Multi-selection arrays
+  const selectedValues = multiple
+    ? (Array.isArray(value) ? value : value !== undefined && value !== null ? [value] : [])
+    : null;
 
+  const selectedLabels = multiple
+    ? selectedValues
+        .map((v) => normalizedOptions.find((opt) => opt.value === v)?.label || v)
+        .filter(Boolean)
+    : [];
+
+  // Find currently selected option for single select
+  const selectedOption = multiple
+    ? null
+    : normalizedOptions.find((opt) => {
+        if (opt.value === value) return true;
+        if (value !== undefined && value !== null) {
+          const strVal = String(value).trim();
+          const optVal = String(opt.value).trim();
+          if (optVal === strVal || optVal.toLowerCase() === strVal.toLowerCase()) return true;
+          if (opt.label && (String(opt.label).trim() === strVal || String(opt.label).trim().toLowerCase() === strVal.toLowerCase())) return true;
+        }
+        return false;
+      });
+
+  const displayText = multiple
+    ? (selectedLabels.length > 0 ? selectedLabels.join("، ") : placeholder)
+    : (selectedOption ? selectedOption.label : placeholder);
+
+  const hasSelected = multiple ? selectedValues.length > 0 : Boolean(selectedOption);
 
   // Close when clicked outside
   useEffect(() => {
@@ -62,17 +82,35 @@ export function Select({
   }, [isOpen]);
 
   const handleSelect = (val) => {
-    // Provide standard change event object with string primitive fallback and dual arguments
-    const event = {
-      target: { value: val, name },
-      currentTarget: { value: val, name },
-      value: val,
-      toString: () => String(val),
-      valueOf: () => val,
-      [Symbol.toPrimitive]: () => val,
-    };
-    onChange?.(event, val);
-    setIsOpen(false);
+    if (multiple) {
+      let updated;
+      if (selectedValues.includes(val)) {
+        updated = selectedValues.filter((v) => v !== val);
+      } else {
+        if (maxSelected && selectedValues.length >= maxSelected) {
+          return;
+        }
+        updated = [...selectedValues, val];
+      }
+      const event = {
+        target: { value: updated, name },
+        currentTarget: { value: updated, name },
+        value: updated,
+      };
+      onChange?.(event, updated);
+    } else {
+      // Provide standard change event object with string primitive fallback and dual arguments
+      const event = {
+        target: { value: val, name },
+        currentTarget: { value: val, name },
+        value: val,
+        toString: () => String(val),
+        valueOf: () => val,
+        [Symbol.toPrimitive]: () => val,
+      };
+      onChange?.(event, val);
+      setIsOpen(false);
+    }
   };
 
   const selectId = id || (label ? `select-${label.replace(/\s+/g, "-")}` : undefined);
@@ -114,12 +152,12 @@ export function Select({
             )}
             <span
               className={
-                selectedOption
+                hasSelected
                   ? "myui-select-selected-text"
                   : "myui-select-placeholder"
               }
             >
-              {selectedOption ? selectedOption.label : placeholder}
+              {displayText}
             </span>
           </div>
         </div>
@@ -146,7 +184,9 @@ export function Select({
               <div className="myui-select-empty">لا توجد خيارات متاحة</div>
             ) : (
               normalizedOptions.map((opt) => {
-                const isSelected = opt.value === value;
+                const isSelected = multiple
+                  ? selectedValues.includes(opt.value)
+                  : opt.value === value;
 
                 return (
                   <button

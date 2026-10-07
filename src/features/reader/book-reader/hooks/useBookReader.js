@@ -1,6 +1,7 @@
 import { useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useAuthStore, useReaderPreferencesStore } from "@/core/store";
+import { useAuthStore } from "@/core/store";
+import { useReaderVoices } from "./useReaderVoices";
 import { useReaderTTS } from "./useReaderTTS";
 import { useReaderContent } from "./useReaderContent";
 import { useReaderAmbientSound } from "./useReaderAmbientSound";
@@ -19,7 +20,7 @@ export function useBookReader() {
   const navigate = useNavigate();
   const token = useAuthStore((state) => state.token);
 
-  const { voice, setVoice } = useReaderPreferencesStore();
+  const { voice, setVoice, voiceOptions } = useReaderVoices();
 
   const bookRef = useRef(null);
 
@@ -228,6 +229,7 @@ export function useBookReader() {
     pagesCacheRef,
     voice,
     setVoice,
+    voiceOptions,
     effect,
     setEffect,
     isMuted,

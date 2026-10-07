@@ -30,6 +30,8 @@ export function useLogin() {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [isGoogleReady, setIsGoogleReady] = useState(false);
+  const [googleLoadFailed, setGoogleLoadFailed] = useState(false);
+  const [googleLoadAttempt, setGoogleLoadAttempt] = useState(0);
   const [resetOpen, setResetOpen] = useState(false);
 
   // Google OAuth pending registration state
@@ -70,6 +72,18 @@ export function useLogin() {
     navigate(destination, { replace: true });
   };
 
+  const establishSession = async (data) => {
+    if (data) setAuth(data);
+    // Some auth responses contain only a profile. Verify that the browser
+    // accepted the HttpOnly cookie before treating that as a signed-in session.
+    if (!useAuthStore.getState().token) {
+      await tokenManager.safeRefresh();
+    }
+    const state = useAuthStore.getState();
+    // A verified HttpOnly cookie session may have no JS-readable access token.
+    return Boolean(state.isAuthenticated && state.user);
+  };
+
   /**
    * Dispatches the Google ID token to the backend auth endpoint.
    */
@@ -107,10 +121,9 @@ export function useLogin() {
         return;
       }
 
-      if (res.data) {
-        setAuth(res.data);
-      } else {
-        await tokenManager.callRefreshAPI();
+      if (!(await establishSession(res.data))) {
+        AlertToast("تعذر إكمال جلسة تسجيل الدخول. يرجى المحاولة مجددًا.", "ERROR");
+        return;
       }
 
       AlertToast(res?.message || "تم تسجيل الدخول بنجاح", "SUCCESS");
@@ -147,10 +160,9 @@ export function useLogin() {
         return;
       }
 
-      if (res.data) {
-        setAuth(res.data);
-      } else {
-        await tokenManager.callRefreshAPI();
+      if (!(await establishSession(res.data))) {
+        AlertToast("تعذر إكمال جلسة تسجيل الدخول. يرجى المحاولة مجددًا.", "ERROR");
+        return;
       }
 
       AlertToast(res?.message || "تم إنشاء الحساب بنجاح", "SUCCESS");
@@ -175,9 +187,12 @@ export function useLogin() {
   useEffect(() => {
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
     if (!clientId || resetOpen || googleRoleOpen) return;
+    let active = true;
+    let script = null;
+    let timeoutId;
 
     const initGoogle = () => {
-      if (!window.google?.accounts?.id) return;
+      if (!active || !window.google?.accounts?.id) return;
 
       if (!_googleInitialized) {
         window.google.accounts.id.initialize({
@@ -205,28 +220,56 @@ export function useLogin() {
           });
         } catch (e) {
           logger.error("Failed to render Google button:", e);
+          setGoogleLoadFailed(true);
+          return;
         }
       }
+      clearTimeout(timeoutId);
+      setGoogleLoadFailed(false);
       setIsGoogleReady(true);
+    };
+
+    const failGoogle = () => {
+      if (!active || window.google?.accounts?.id) return;
+      setIsGoogleReady(false);
+      setGoogleLoadFailed(true);
+      script?.remove();
     };
 
     if (window.google?.accounts?.id) {
       initGoogle();
     } else {
-      const existingScript = document.getElementById("google-gsi-client");
-      if (!existingScript) {
-        const script = document.createElement("script");
+      script = document.getElementById("google-gsi-client");
+      if (!script) {
+        script = document.createElement("script");
         script.id = "google-gsi-client";
         script.src = "https://accounts.google.com/gsi/client?hl=ar";
         script.async = true;
         script.defer = true;
-        script.onload = initGoogle;
+        script.addEventListener("load", initGoogle);
+        script.addEventListener("error", failGoogle);
         document.body.appendChild(script);
       } else {
-        existingScript.addEventListener("load", initGoogle);
+        script.addEventListener("load", initGoogle);
+        script.addEventListener("error", failGoogle);
       }
+      timeoutId = window.setTimeout(() => {
+        if (window.google?.accounts?.id) initGoogle();
+        else failGoogle();
+      }, 12000);
     }
-  }, [resetOpen, googleRoleOpen]);
+    return () => {
+      active = false;
+      clearTimeout(timeoutId);
+      script?.removeEventListener("load", initGoogle);
+      script?.removeEventListener("error", failGoogle);
+    };
+  }, [resetOpen, googleRoleOpen, googleLoadAttempt]);
+
+  const retryGoogleLoad = () => {
+    setGoogleLoadFailed(false);
+    setGoogleLoadAttempt((attempt) => attempt + 1);
+  };
 
   const validate = () => {
     const nextErrors = {};
@@ -264,10 +307,9 @@ export function useLogin() {
       }
 
       // Apply returned user profile or tokens to store
-      if (res.data) {
-        setAuth(res.data);
-      } else {
-        await tokenManager.callRefreshAPI();
+      if (!(await establishSession(res.data))) {
+        AlertToast("تعذر إكمال جلسة تسجيل الدخول. يرجى المحاولة مجددًا.", "ERROR");
+        return;
       }
 
       AlertToast(res?.message || "تم تسجيل الدخول بنجاح", "SUCCESS");
@@ -282,18 +324,6 @@ export function useLogin() {
     }
   };
 
-  const triggerGooglePrompt = () => {
-    try {
-      document.cookie = "g_state=;path=/;expires=Thu, 01 Jan 1970 00:00:01 GMT";
-    } catch {}
-
-    if (window.google?.accounts?.id) {
-      window.google.accounts.id.prompt();
-    } else {
-      AlertToast("جاري تهيئة خدمة Google، يرجى المحاولة بعد لحظات...", "INFO");
-    }
-  };
-
   return {
     email,
     setEmail,
@@ -305,8 +335,9 @@ export function useLogin() {
     loading,
     googleLoading,
     isGoogleReady,
+    googleLoadFailed,
     googleBtnRef,
-    triggerGooglePrompt,
+    retryGoogleLoad,
     resetOpen,
     setResetOpen,
     googleRoleOpen,
@@ -322,4 +353,3 @@ export function useLogin() {
 }
 
 export default useLogin;
-

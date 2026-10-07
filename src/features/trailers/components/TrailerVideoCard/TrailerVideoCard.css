@@ -1,0 +1,14 @@
+.trailer-video-card { min-width: 0; padding: 10px; background: var(--brand-white); border: 1px solid var(--border-subtle); border-radius: 22px; }
+.trailer-video-card__details { display: flex; align-items: center; gap: 12px; padding: 16px 8px 8px; }
+.trailer-video-card__cover { display: grid; place-items: center; width: 32px; height: 44px; flex-shrink: 0; border-radius: 4px; overflow: hidden; background: var(--bg-secondary); }
+.trailer-video-card__cover img { width: 100%; height: 100%; object-fit: cover; }
+.trailer-video-card__title { flex: 1; min-width: 0; }
+.trailer-video-card__title h3 { margin: 0 0 5px; color: var(--brand-black); font-size: 15px; font-weight: 700; line-height: 1.6; overflow-wrap: anywhere; }
+.trailer-video-card__title p, .trailer-video-card__date { margin: 0; color: var(--text-subtle); font-size: 12px; }
+.trailer-video-card__date { flex-shrink: 0; }
+.trailer-video-card .trailer-player__open { background: var(--bg-dark); color: var(--brand-white); min-height: 0; }
+.trailer-video-card .trailer-player__poster { filter: grayscale(1) blur(3px); opacity: .18; transform: scale(1.04); }
+.trailer-video-card .trailer-player__play { width: 58px; height: 58px; }
+.trailer-video-card .trailer-player__loading { min-height: 0; }
+.trailer-video-card .trailer-player__downloads { padding: 0 8px; }
+@media (max-width: 480px) { .trailer-video-card__date { display: none; } .trailer-video-card__details { padding-inline: 4px; } }

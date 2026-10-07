@@ -12,18 +12,29 @@ import {
   Check,
   Type,
   Languages,
-  Sparkles,
+  Compass,
   Palette,
+  MapPin,
+  Pencil,
+  X,
+  Edit3,
+  ZoomIn,
 } from "lucide-react";
 import { DetailsDrawer } from "@/components/common/DetailsDrawer";
 import { storyBooksService } from "../../services/storyBooksService";
+import { useStoryPageRegeneration } from "../../hooks/useStoryPageRegeneration";
 import {
   getStoryStatusConfig,
   LANGUAGE_VARIETIES,
   TASHKEEL_LEVELS,
+  INTERESTS,
+  STORY_SETTINGS,
 } from "../../constants/storyBooksConstants";
 import { AlertToast } from "@/components/myui/AlertToast";
 import "./StoryBookDetailsDrawer.css";
+
+const MAX_PAGE_CHARS = 300;
+const MAX_TITLE_CHARS = 60;
 
 const PIPELINE_STAGES = [
   { id: "TEXT", label: "صياغة النص" },
@@ -68,7 +79,8 @@ const getProgressPercent = (currentStatus, isStoryApproved = false) => {
     case "ILLUSTRATING": return 70;
     case "QA": return 85;
     case "RENDERING": return 95;
-    case "READY": return 100;
+    case "READY":
+    case "COMPLETED": return 100;
     default: return 10;
   }
 };
@@ -76,22 +88,38 @@ const getProgressPercent = (currentStatus, isStoryApproved = false) => {
 /**
  * PageCardImage with inline loader and graceful fade-in
  */
-const PageCardImage = memo(function PageCardImage({ src, alt, isCover = false }) {
+const PageCardImage = memo(function PageCardImage({
+  src,
+  alt,
+  isCover = false,
+  onPreview = null,
+}) {
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
+  const [prevSrc, setPrevSrc] = useState(src);
 
-  useEffect(() => {
+  if (prevSrc !== src) {
+    setPrevSrc(src);
     setLoaded(false);
     setError(false);
-  }, [src]);
+  }
 
   if (!src) return null;
+
+  const isClickable = loaded && Boolean(onPreview);
 
   return (
     <div
       className={`child-story-drawer__story-card-img-wrap ${
         isCover ? "child-story-drawer__story-card-img-wrap--cover" : ""
-      }`}
+      } ${isClickable ? "child-story-drawer__story-card-img-wrap--clickable" : ""}`}
+      onClick={(e) => {
+        if (isClickable) {
+          e.stopPropagation();
+          onPreview({ src, alt });
+        }
+      }}
+      title={isClickable ? "انقر لعرض الرسمة بملء الشاشة" : undefined}
     >
       {!loaded && !error && (
         <div className="child-story-drawer__page-img-loading">
@@ -105,19 +133,83 @@ const PageCardImage = memo(function PageCardImage({ src, alt, isCover = false })
           <span>تعذر تحميل الرسمة</span>
         </div>
       ) : (
-        <img
-          src={src}
-          alt={alt}
-          className={`child-story-drawer__story-card-img ${
-            loaded
-              ? "child-story-drawer__story-card-img--loaded"
-              : "child-story-drawer__story-card-img--loading"
-          }`}
-          loading="lazy"
-          onLoad={() => setLoaded(true)}
-          onError={() => setError(true)}
-        />
+        <>
+          <img
+            src={src}
+            alt={alt}
+            className={`child-story-drawer__story-card-img ${
+              loaded
+                ? "child-story-drawer__story-card-img--loaded"
+                : "child-story-drawer__story-card-img--loading"
+            }`}
+            loading="lazy"
+            onLoad={() => setLoaded(true)}
+            onError={() => setError(true)}
+          />
+          {isClickable && (
+            <div className="child-story-drawer__img-zoom-badge" aria-hidden="true">
+              <ZoomIn size={13} />
+              <span>تكبير</span>
+            </div>
+          )}
+        </>
       )}
+    </div>
+  );
+});
+
+/**
+ * Full-screen image preview lightbox for StoryBook details modal.
+ */
+const StoryImageLightbox = memo(function StoryImageLightbox({ image, onClose }) {
+  useEffect(() => {
+    if (!image) return;
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [image, onClose]);
+
+  if (!image) return null;
+
+  return (
+    <div
+      className="child-story-drawer__lightbox-overlay"
+      onClick={onClose}
+      dir="rtl"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        className="child-story-drawer__lightbox-container"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="child-story-drawer__lightbox-header">
+          <span className="child-story-drawer__lightbox-title">
+            {image.alt || "معاينة الرسمة"}
+          </span>
+          <button
+            type="button"
+            className="child-story-drawer__lightbox-close-btn"
+            onClick={onClose}
+            title="إغلاق (Esc)"
+            aria-label="إغلاق"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        <div className="child-story-drawer__lightbox-media">
+          <img
+            src={image.src}
+            alt={image.alt || "معاينة الرسمة"}
+            className="child-story-drawer__lightbox-img"
+          />
+        </div>
+      </div>
     </div>
   );
 });
@@ -144,6 +236,12 @@ export const StoryBookDetailsDrawer = memo(function StoryBookDetailsDrawer({
   const [fetchError, setFetchError] = useState(false);
   const [actionInProgress, setActionInProgress] = useState(false);
   const [downloadingPdf, setDownloadingPdf] = useState(false);
+  const [previewImage, setPreviewImage] = useState(null);
+
+  // In-line page text editing state
+  const [editingPageIndex, setEditingPageIndex] = useState(null);
+  const [editingText, setEditingText] = useState("");
+  const [savingPage, setSavingPage] = useState(false);
 
   const storyId = story?.id;
 
@@ -166,6 +264,9 @@ export const StoryBookDetailsDrawer = memo(function StoryBookDetailsDrawer({
     if (!isOpen || !storyId) {
       setDetail(null);
       setFetchError(false);
+      setEditingPageIndex(null);
+      setEditingText("");
+      setPreviewImage(null);
       return;
     }
 
@@ -199,31 +300,88 @@ export const StoryBookDetailsDrawer = memo(function StoryBookDetailsDrawer({
     ? { label: "جاري إعداد مظهر البطل...", color: "#0f172a", bg: "#ffffff", border: "#94a3b8", canRead: false }
     : getStoryStatusConfig(status);
 
-  // Approve Story
-  const handleApproveStory = async () => {
-    setActionInProgress(true);
+  // Editing allowed strictly during text generation finish (STORY_READY) and BEFORE submission
+  const canEditPages = status === "STORY_READY" && !isStoryApproved;
+  const { canRegeneratePages, handleRegeneratePage } = useStoryPageRegeneration({
+    storyId,
+    status,
+    regenerationsLeft: activeData?.pageRegenerationsLeft,
+    actionInProgress,
+    setActionInProgress,
+    fetchDetail,
+    onStatusUpdated,
+  });
+
+  const handleStartEditPage = (pageIndex, currentText) => {
+    if (!canEditPages) return;
+    setEditingPageIndex(pageIndex);
+    setEditingText(currentText || "");
+  };
+
+  const handleCancelEditPage = () => {
+    setEditingPageIndex(null);
+    setEditingText("");
+  };
+
+  const handleSaveEditPage = async (pageIndex) => {
+    const trimmed = editingText.trim();
+    if (!trimmed) {
+      AlertToast("لا يمكن أن يكون النص فارغاً", "WARNING");
+      return;
+    }
+    if (savingPage) return;
+
+    const isCover = pageIndex === 0;
+    const snapshot = detail;
+
+    // Optimistic update + close editor immediately (no waiting on the server)
+    setDetail((prev) => {
+      if (!prev) return prev;
+      if (isCover) return { ...prev, titleAr: trimmed };
+      return {
+        ...prev,
+        pages: (prev.pages || []).map((p, idx) => {
+          const pIdx = Number.isInteger(p.pageIndex) ? p.pageIndex : (p.kind === "COVER" ? 0 : idx + 1);
+          return pIdx === pageIndex ? { ...p, textAr: trimmed } : p;
+        }),
+      };
+    });
+    setEditingPageIndex(null);
+    setEditingText("");
+    setSavingPage(true);
+
     try {
-      await storyBooksService.approveStory(storyId);
-      AlertToast("تم اعتماد نص القصة بنجاح، جاري بدء التوليد البصري", "SUCCESS");
-      await fetchDetail();
-      onStatusUpdated?.();
-    } catch {
-      AlertToast("تعذر اعتماد نص القصة حالياً", "ERROR");
+      // Backend: PUT /api/v1/storybook/books/{id}/story — send ONLY what changed
+      await storyBooksService.editStory(
+        storyId,
+        isCover
+          ? { titleAr: trimmed }
+          : { pages: [{ pageIndex, textAr: trimmed }] }
+      );
+      AlertToast("تم حفظ التعديل ✓", "SUCCESS");
+    } catch (err) {
+      setDetail(snapshot);
+      AlertToast(err?.message || "تعذر حفظ التعديل على الخادم", "ERROR");
     } finally {
-      setActionInProgress(false);
+      setSavingPage(false);
     }
   };
 
-  // Regenerate Story Text
-  const handleRegenerateStory = async () => {
+  // Approve Story (After submission, no further edits allowed)
+  const handleApproveStory = async () => {
     setActionInProgress(true);
+    setEditingPageIndex(null);
     try {
-      await storyBooksService.regenerateStory(storyId);
-      AlertToast("تم طلب إعادة تأليف نص جديد للقصة...", "SUCCESS");
+      // Edits are already persisted through PUT /story
+      const res = await storyBooksService.approveStory(storyId);
+      AlertToast(
+        res?.message || "تم اعتماد القصة بنجاح وبدأ رسم لوحة الشخصية، وسنرسل لك بريداً إلكترونياً فور جهوزيتها.",
+        "SUCCESS"
+      );
       await fetchDetail();
       onStatusUpdated?.();
-    } catch {
-      AlertToast("تعذر إعادة تأليف القصة حالياً، يرجى المحاولة لاحقاً", "ERROR");
+    } catch (err) {
+      AlertToast(err?.message || "تعذر اعتماد نص القصة حالياً", "ERROR");
     } finally {
       setActionInProgress(false);
     }
@@ -233,12 +391,15 @@ export const StoryBookDetailsDrawer = memo(function StoryBookDetailsDrawer({
   const handleApproveCharacter = async () => {
     setActionInProgress(true);
     try {
-      await storyBooksService.approveCharacter(storyId);
-      AlertToast("تم اعتماد مظهر البطل، جاري رسم صفحات القصة", "SUCCESS");
+      const res = await storyBooksService.approveCharacter(storyId);
+      AlertToast(
+        res?.message || "تم اعتماد رسم الشخصية بنجاح وبدأ رسم صفحات الكتاب، وسنرسل لك بريداً إلكترونياً فور اكتماله.",
+        "SUCCESS"
+      );
       await fetchDetail();
       onStatusUpdated?.();
-    } catch {
-      AlertToast("تعذر اعتماد مظهر البطل حالياً", "ERROR");
+    } catch (err) {
+      AlertToast(err?.message || "تعذر اعتماد مظهر البطل حالياً", "ERROR");
     } finally {
       setActionInProgress(false);
     }
@@ -248,12 +409,12 @@ export const StoryBookDetailsDrawer = memo(function StoryBookDetailsDrawer({
   const handleRegenerateCharacter = async () => {
     setActionInProgress(true);
     try {
-      await storyBooksService.regenerateCharacter(storyId);
-      AlertToast("تم طلب إعادة توليد مظهر البطل بنجاح", "SUCCESS");
+      const res = await storyBooksService.regenerateCharacter(storyId);
+      AlertToast(res?.message || "جاري إعادة رسم لوحة الشخصية بمظهر جديد.", "SUCCESS");
       await fetchDetail();
       onStatusUpdated?.();
-    } catch {
-      AlertToast("تعذر إعادة توليد مظهر البطل", "ERROR");
+    } catch (err) {
+      AlertToast(err?.message || "تعذر إعادة توليد مظهر البطل", "ERROR");
     } finally {
       setActionInProgress(false);
     }
@@ -316,7 +477,13 @@ export const StoryBookDetailsDrawer = memo(function StoryBookDetailsDrawer({
       : tashkeelLabel || "تشكيل كامل";
 
   const pages = detail?.pages || [];
-  const coverUrl = pages?.find((p) => p.pageIndex === 0 || p.kind === "COVER")?.imageUrl || activeData?.coverUrl || activeData?.cover;
+  const coverUrl =
+    pages?.find((p) => p.pageIndex === 0 || p.kind === "COVER")?.imageUrl ||
+    detail?.coverImageUrl ||
+    detail?.coverUrl ||
+    activeData?.coverImageUrl ||
+    activeData?.coverUrl ||
+    activeData?.cover;
 
   const displayPages = pages.length > 0 ? [...pages].sort((a, b) => (a.pageIndex ?? 0) - (b.pageIndex ?? 0)) : [];
   const storyPagesCount = displayPages.filter((p) => p.kind === "STORY" || (p.pageIndex > 0 && p.textAr)).length || pageCount;
@@ -324,7 +491,7 @@ export const StoryBookDetailsDrawer = memo(function StoryBookDetailsDrawer({
   // Editorial action footer
   const footer = (
     <div className="child-story-drawer__footer" dir="rtl">
-      {status === "READY" && (
+      {(status === "READY" || status === "COMPLETED") && (
         <div className="child-story-drawer__footer-stack">
           <button
             type="button"
@@ -381,28 +548,16 @@ export const StoryBookDetailsDrawer = memo(function StoryBookDetailsDrawer({
                 )}
                 <span>اعتماد نص الحكاية والبدء بالرسم</span>
               </button>
-              <div className="child-story-drawer__footer-sub-row">
-                <button
-                  type="button"
-                  className="child-story-drawer__btn-secondary"
-                  onClick={handleRegenerateStory}
-                  disabled={actionInProgress}
-                  title="توليد مسودة نصية جديدة"
-                >
-                  <RefreshCw size={14} />
-                  <span>إعادة تأليف نص آخر</span>
-                </button>
-                <button
-                  type="button"
-                  className="child-story-drawer__btn-secondary child-story-drawer__btn-secondary--danger"
-                  onClick={handleCancel}
-                  disabled={actionInProgress}
-                  title="إلغاء القصة"
-                >
-                  <Ban size={14} />
-                  <span>إلغاء القصة</span>
-                </button>
-              </div>
+              <button
+                type="button"
+                className="child-story-drawer__btn-secondary child-story-drawer__btn-secondary--danger"
+                onClick={handleCancel}
+                disabled={actionInProgress}
+                title="إلغاء القصة"
+              >
+                <Ban size={14} />
+                <span>إلغاء القصة</span>
+              </button>
             </>
           )}
         </div>
@@ -464,8 +619,9 @@ export const StoryBookDetailsDrawer = memo(function StoryBookDetailsDrawer({
   );
 
   return (
-    <DetailsDrawer
-      isOpen={isOpen}
+    <>
+      <DetailsDrawer
+        isOpen={isOpen}
       onClose={onClose}
       title={title}
       subtitle={childName ? `بطل الحكاية: ${childName}` : "تفاصيل الحكاية"}
@@ -500,6 +656,15 @@ export const StoryBookDetailsDrawer = memo(function StoryBookDetailsDrawer({
                 </div>
                 <span className="child-story-drawer__section-percent">{getProgressPercent(status, isStoryApproved)}%</span>
               </div>
+
+              {(detail?.statusMessage || statusConfig.description) && (
+                <p
+                  className="child-story-drawer__status-desc"
+                  style={{ fontSize: "0.85rem", color: "#475569", margin: "4px 0 10px", lineHeight: "1.5" }}
+                >
+                  {detail?.statusMessage || statusConfig.description}
+                </p>
+              )}
 
               <div className="child-story-drawer__pipeline-track">
                 <div
@@ -579,6 +744,40 @@ export const StoryBookDetailsDrawer = memo(function StoryBookDetailsDrawer({
             </div>
 
             <div className="child-story-drawer__spec-tile">
+              <span className="child-story-drawer__spec-icon"><MapPin size={15} /></span>
+              <div className="child-story-drawer__spec-meta">
+                <span className="child-story-drawer__spec-label">المكان والبيئة</span>
+                <span className="child-story-drawer__spec-value">
+                  {(() => {
+                    const settingVal = detail?.setting || detail?.settings;
+                    const settingObj = STORY_SETTINGS.find((s) => s.value === settingVal);
+                    const settingName = settingObj?.label || settingVal || "";
+                    if (detail?.place) {
+                      return settingName ? `${settingName} (${detail.place})` : detail.place;
+                    }
+                    return settingName || "عمّان";
+                  })()}
+                </span>
+              </div>
+            </div>
+
+            <div className="child-story-drawer__spec-tile">
+              <span className="child-story-drawer__spec-icon"><Compass size={15} /></span>
+              <div className="child-story-drawer__spec-meta">
+                <span className="child-story-drawer__spec-label">السمة والهدف</span>
+                <span className="child-story-drawer__spec-value">{detail?.theme || "الصداقة والتعاون"}</span>
+              </div>
+            </div>
+
+            <div className="child-story-drawer__spec-tile">
+              <span className="child-story-drawer__spec-icon"><Palette size={15} /></span>
+              <div className="child-story-drawer__spec-meta">
+                <span className="child-story-drawer__spec-label">نبرة الحكاية</span>
+                <span className="child-story-drawer__spec-value">{detail?.storyTone || "مغامرة وتشويق"}</span>
+              </div>
+            </div>
+
+            <div className="child-story-drawer__spec-tile">
               <span className="child-story-drawer__spec-icon"><Languages size={15} /></span>
               <div className="child-story-drawer__spec-meta">
                 <span className="child-story-drawer__spec-label">اللغة واللهجة</span>
@@ -594,6 +793,32 @@ export const StoryBookDetailsDrawer = memo(function StoryBookDetailsDrawer({
               </div>
             </div>
           </div>
+
+          {((Array.isArray(detail?.interests) && detail.interests.length > 0) || (Array.isArray(activeData?.interests) && activeData.interests.length > 0)) && (
+            <div style={{ marginTop: "8px", display: "flex", flexWrap: "wrap", alignItems: "center", gap: "5px" }}>
+              <span style={{ fontSize: "0.7rem", fontWeight: "700", color: "#64748b" }}>اهتمامات الطفل:</span>
+              {(detail?.interests || activeData?.interests || []).map((code) => {
+                const interestObj = INTERESTS.find((i) => i.value === code);
+                const label = interestObj ? interestObj.label : code;
+                return (
+                  <span
+                    key={code}
+                    style={{
+                      fontSize: "0.68rem",
+                      fontWeight: "600",
+                      padding: "2px 7px",
+                      borderRadius: "9999px",
+                      backgroundColor: "var(--bg-secondary, #f8fafc)",
+                      color: "var(--brand-black, #0f172a)",
+                      border: "1px solid var(--border-subtle, #e2e8f0)",
+                    }}
+                  >
+                    {label}
+                  </span>
+                );
+              })}
+            </div>
+          )}
 
           {detail?.dedication && (
             <div className="child-story-drawer__info-dedication">
@@ -620,7 +845,8 @@ export const StoryBookDetailsDrawer = memo(function StoryBookDetailsDrawer({
             <div className="child-story-drawer__char-sheet-box">
               <PageCardImage
                 src={detail.characterSheetUrl}
-                alt="مظهر البطل"
+                alt="مظهر البطل المقترح"
+                onPreview={setPreviewImage}
               />
             </div>
           </section>
@@ -635,11 +861,17 @@ export const StoryBookDetailsDrawer = memo(function StoryBookDetailsDrawer({
               <BookOpen size={16} />
               <h4>
                 {status === "STORY_READY"
-                  ? (isStoryApproved ? `فصول الحكاية المعتمدة (${storyPagesCount})` : "مراجعة فصول الحكاية")
+                  ? (isStoryApproved ? `فصول الحكاية المعتمدة (${storyPagesCount})` : "مراجعة وتعديل فصول الحكاية")
                   : `فصول الحكاية (${storyPagesCount})`}
               </h4>
             </div>
-            {status === "STORY_READY" && !isStoryApproved && (
+            {canEditPages && (
+              <span className="child-story-drawer__edit-hint-badge">
+                <Pencil size={11} />
+                <span>انقر على أي صفحة لتعديل نصها</span>
+              </span>
+            )}
+            {status === "STORY_READY" && !isStoryApproved && !canEditPages && (
               <span className="child-story-drawer__section-tag child-story-drawer__section-tag--warning">
                 بانتظار اعتمادك
               </span>
@@ -674,7 +906,7 @@ export const StoryBookDetailsDrawer = memo(function StoryBookDetailsDrawer({
                   <h5>جاري صياغة وتدقيق فصول القصة...</h5>
                   <p>
                     يقوم النظام الآن بمراجعة التراكيب اللغوية، وضبط التشكيل، وملاءمة المفردات لعمر الطفل.
-                    سيصبح النص متاحاً للاعتماد فور اكتمال هذه المراجعة التلقائية.
+                    سيصبح النص متاحاً للاعتماد والتعديل فور اكتمال هذه المراجعة التلقائية.
                   </p>
                 </div>
               </div>
@@ -698,25 +930,159 @@ export const StoryBookDetailsDrawer = memo(function StoryBookDetailsDrawer({
             <div className="child-story-drawer__story-cards-list">
               {displayPages.map((p, idx) => {
                 const isCover = p.kind === "COVER" || p.pageIndex === 0;
+                const pageKey = isCover ? 0 : (Number.isInteger(p.pageIndex) ? p.pageIndex : idx + 1);
                 const pageTitle = isCover ? "غلاف القصة" : `الصفحة ${p.pageIndex ?? idx + 1}`;
                 const imgUrl = p.imageUrl || (isCover ? coverUrl : null);
                 const isGeneratingImg = !imgUrl && ["ILLUSTRATING", "QA", "RENDERING"].includes(status);
                 const pageText = p.textAr || (isCover && title !== "قصة مخصصة" ? title : null);
                 const isTopText = p.textZone === "TOP";
+                const isEditing = editingPageIndex === pageKey;
+                const currentLimit = isCover ? MAX_TITLE_CHARS : MAX_PAGE_CHARS;
+
+                const renderPageTextBlock = (positionClass) => {
+                  if (isEditing) {
+                    return (
+                      <div
+                        className={`child-story-drawer__story-editor-wrap child-story-drawer__story-card-body--${positionClass}`}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <textarea
+                          className="child-story-drawer__story-editor-textarea"
+                          value={editingText}
+                          onChange={(e) => setEditingText(e.target.value)}
+                          maxLength={currentLimit}
+                          rows={3}
+                          dir="rtl"
+                          placeholder={isCover ? "اكتب عنوان القصة هنا..." : "اكتب نص الصفحة هنا..."}
+                          autoFocus
+                        />
+                        <div className="child-story-drawer__story-editor-footer">
+                          <span
+                            className={`child-story-drawer__char-counter ${
+                              editingText.length >= currentLimit ? "child-story-drawer__char-counter--limit" : ""
+                            }`}
+                          >
+                            {editingText.length} / {currentLimit} حرف
+                          </span>
+                          <div className="child-story-drawer__story-editor-actions">
+                            <button
+                              type="button"
+                              className="child-story-drawer__btn-save-edit"
+                              onClick={() => handleSaveEditPage(pageKey)}
+                              disabled={savingPage || !editingText.trim()}
+                              title="حفظ التعديل"
+                            >
+                              {savingPage ? <Loader2 size={13} className="child-story-drawer__spinner" /> : <Check size={13} />}
+                              <span>حفظ</span>
+                            </button>
+                            <button
+                              type="button"
+                              className="child-story-drawer__btn-cancel-edit"
+                              onClick={handleCancelEditPage}
+                              disabled={savingPage}
+                              title="إلغاء التعديل"
+                            >
+                              <X size={13} />
+                              <span>إلغاء</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  if (!pageText && !canEditPages) return null;
+
+                  return (
+                    <div
+                      className={`child-story-drawer__story-card-body child-story-drawer__story-card-body--${positionClass} ${
+                        canEditPages ? "child-story-drawer__story-card-body--clickable" : ""
+                      }`}
+                      onClick={() => {
+                        if (canEditPages) {
+                          handleStartEditPage(pageKey, pageText);
+                        }
+                      }}
+                      title={canEditPages ? "انقر لتعديل نص الصفحة" : undefined}
+                    >
+                      <p className="child-story-drawer__story-text" dir="rtl">
+                        {pageText || (canEditPages ? "انقر لإضافة نص لهذه الصفحة..." : "")}
+                      </p>
+                      {canEditPages && (
+                        <span className="child-story-drawer__click-to-edit-hint">
+                          <Pencil size={11} /> انقر للتعديل (الحد: {currentLimit} حرف)
+                        </span>
+                      )}
+                    </div>
+                  );
+                };
 
                 return (
                   <div
-                    key={p.pageIndex ?? idx}
-                    className={`child-story-drawer__story-card ${isCover ? "child-story-drawer__story-card--cover" : ""}`}
+                    key={pageKey}
+                    className={`child-story-drawer__story-card ${isCover ? "child-story-drawer__story-card--cover" : ""} ${
+                      canEditPages ? "child-story-drawer__story-card--editable" : ""
+                    }`}
                   >
                     <div className="child-story-drawer__story-card-header">
                       <span className={`child-story-drawer__story-page-pill ${isCover ? "child-story-drawer__story-page-pill--cover" : ""}`}>
                         {pageTitle}
                       </span>
+
+                      {/* Edit button: only visible during STORY_READY step before submission */}
+                      {canEditPages && !isEditing && (
+                        <button
+                          type="button"
+                          className="child-story-drawer__btn-edit-page"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleStartEditPage(pageKey, pageText);
+                          }}
+                          title={isCover ? "تعديل عنوان القصة" : "تعديل نص هذه الصفحة"}
+                        >
+                          <Pencil size={11} />
+                          <span>{isCover ? "تعديل العنوان" : "تعديل النص"}</span>
+                        </button>
+                      )}
+
                       {imgUrl ? (
-                        <span className="child-story-drawer__story-illus-badge">
-                          تم تجهيز الرسمة ✓
-                        </span>
+                        <>
+                          <span className="child-story-drawer__story-illus-badge">
+                            تم تجهيز الرسمة ✓
+                          </span>
+                          {canRegeneratePages && (
+                            <button
+                              type="button"
+                              className="child-story-drawer__btn-mini-regen"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRegeneratePage(pageKey);
+                              }}
+                              disabled={actionInProgress}
+                              title={isCover ? "إعادة رسم غلاف القصة" : "إعادة رسم هذه الصفحة"}
+                              style={{
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "4px",
+                                padding: "2px 8px",
+                                fontSize: "0.75rem",
+                                fontWeight: "600",
+                                color: "#0f172a",
+                                backgroundColor: "#f1f5f9",
+                                border: "1px solid #cbd5e1",
+                                borderRadius: "6px",
+                                cursor: "pointer",
+                                marginRight: "auto",
+                              }}
+                            >
+                              <RefreshCw size={11} className={actionInProgress ? "child-story-drawer__spinner" : ""} />
+                              <span>
+                                {isCover ? "إعادة رسم الغلاف" : "إعادة رسم"}
+                                {typeof detail?.pageRegenerationsLeft === "number" ? ` (${detail.pageRegenerationsLeft})` : ""}
+                              </span>
+                            </button>
+                          )}
+                        </>
                       ) : isGeneratingImg ? (
                         <span className="child-story-drawer__story-illus-generating-badge">
                           <Loader2 size={12} className="child-story-drawer__spinner" />
@@ -726,13 +1092,7 @@ export const StoryBookDetailsDrawer = memo(function StoryBookDetailsDrawer({
                     </div>
 
                     {/* If textZone is TOP, render text above image */}
-                    {isTopText && pageText && (
-                      <div className="child-story-drawer__story-card-body child-story-drawer__story-card-body--top">
-                        <p className="child-story-drawer__story-text" dir="rtl">
-                          {pageText}
-                        </p>
-                      </div>
-                    )}
+                    {isTopText && renderPageTextBlock("top")}
 
                     {/* Page Image: Loaded in its page card */}
                     {imgUrl ? (
@@ -740,6 +1100,7 @@ export const StoryBookDetailsDrawer = memo(function StoryBookDetailsDrawer({
                         src={imgUrl}
                         alt={isCover ? `غلاف: ${title}` : `مشهد الصفحة ${p.pageIndex ?? idx + 1}`}
                         isCover={isCover}
+                        onPreview={setPreviewImage}
                       />
                     ) : isGeneratingImg ? (
                       <div className="child-story-drawer__story-card-img-wrap child-story-drawer__story-card-img-wrap--generating">
@@ -751,16 +1112,61 @@ export const StoryBookDetailsDrawer = memo(function StoryBookDetailsDrawer({
                     ) : null}
 
                     {/* If textZone is not TOP (e.g. BOTTOM or default), render text below image */}
-                    {!isTopText && pageText && (
-                      <div className="child-story-drawer__story-card-body child-story-drawer__story-card-body--bottom">
-                        <p className="child-story-drawer__story-text" dir="rtl">
-                          {pageText}
-                        </p>
-                      </div>
-                    )}
+                    {!isTopText && renderPageTextBlock("bottom")}
                   </div>
                 );
               })}
+            </div>
+          ) : coverUrl ? (
+            <div className="child-story-drawer__story-cards-list">
+              <div className="child-story-drawer__story-card child-story-drawer__story-card--cover">
+                <div className="child-story-drawer__story-card-header">
+                  <span className="child-story-drawer__story-page-pill child-story-drawer__story-page-pill--cover">
+                    غلاف القصة
+                  </span>
+                  <span className="child-story-drawer__story-illus-badge">
+                    تم تجهيز الرسمة ✓
+                  </span>
+                  {canRegeneratePages && (
+                    <button
+                      type="button"
+                      className="child-story-drawer__btn-mini-regen"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRegeneratePage(0);
+                      }}
+                      disabled={actionInProgress}
+                      title="إعادة رسم غلاف القصة"
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "4px",
+                        padding: "2px 8px",
+                        fontSize: "0.75rem",
+                        fontWeight: "600",
+                        color: "#0f172a",
+                        backgroundColor: "#f1f5f9",
+                        border: "1px solid #cbd5e1",
+                        borderRadius: "6px",
+                        cursor: "pointer",
+                        marginRight: "auto",
+                      }}
+                    >
+                      <RefreshCw size={11} className={actionInProgress ? "child-story-drawer__spinner" : ""} />
+                      <span>
+                        إعادة رسم الغلاف
+                        {typeof detail?.pageRegenerationsLeft === "number" ? ` (${detail.pageRegenerationsLeft})` : ""}
+                      </span>
+                    </button>
+                  )}
+                </div>
+                <PageCardImage
+                  src={coverUrl}
+                  alt={title || "غلاف القصة"}
+                  isCover={true}
+                  onPreview={setPreviewImage}
+                />
+              </div>
             </div>
           ) : (
             <div className="child-story-drawer__empty-pages">
@@ -774,6 +1180,13 @@ export const StoryBookDetailsDrawer = memo(function StoryBookDetailsDrawer({
         </section>
       </div>
     </DetailsDrawer>
+
+    {/* Full-Screen Image Lightbox Modal */}
+    <StoryImageLightbox
+      image={previewImage}
+      onClose={() => setPreviewImage(null)}
+    />
+  </>
   );
 });
 

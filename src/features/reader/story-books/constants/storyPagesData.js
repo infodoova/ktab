@@ -27,7 +27,8 @@ export function getStoryPages(story) {
       return {
         pageNumber: typeof p.order === "number" ? p.order : (typeof p.pageIndex === "number" ? p.pageIndex : idx + 1),
         type,
-        image: p.imageUrl || p.image || story.coverUrl || story.cover || "",
+        textZone: p.textZone || "BOTTOM_SPAN",
+        image: p.imageUrl || p.image || story?.coverImageUrl || story?.coverUrl || story?.cover || "",
         narrative: p.textAr || p.narrative || "",
         celebrationText: type === "ending" ? "النهاية" : "",
         title: story.title || story.titleAr || "",
@@ -36,12 +37,13 @@ export function getStoryPages(story) {
   }
 
   // 2. Fallback single cover page if no pages generated yet
-  if (story.coverUrl || story.cover) {
+  const fallbackCover = story?.coverImageUrl || story?.coverUrl || story?.cover;
+  if (fallbackCover) {
     return [
       {
         pageNumber: 1,
         type: "cover",
-        image: story.coverUrl || story.cover,
+        image: fallbackCover,
         title: story.title || story.titleAr || "قصة مخصصة",
         narrative: "",
       },

@@ -6,6 +6,7 @@ import {
   DEFAULT_BACKGROUND_ID,
   getReaderBackground,
 } from "../constants/readerBackgrounds";
+import { loadedImageUrls } from "../components/FlipboardReader/FlipboardPage";
 
 /**
  * Custom hook managing the 3D Flipboard Reader with live backend story data:
@@ -37,7 +38,15 @@ export function useFlipboardReader(storyId, initialStory = null) {
 
   const checkIsLandscapePC = useCallback(() => {
     if (typeof window === "undefined") return false;
-    return window.innerWidth >= 1024 && window.innerWidth > window.innerHeight;
+    const isPointerFine = Boolean(window.matchMedia?.("(pointer: fine)")?.matches);
+    const isWideEnough = window.innerWidth >= 768;
+    const isLandscape = window.innerWidth >= window.innerHeight;
+
+    // Desktop/Laptop PC with mouse/trackpad: always dual-page 3D book when width >= 768px
+    if (isPointerFine && isWideEnough) return true;
+
+    // Tablets/Touch screens: require landscape orientation and width >= 768px
+    return isWideEnough && isLandscape;
   }, []);
 
   const [isDualPage, setIsDualPage] = useState(checkIsLandscapePC);
@@ -122,6 +131,7 @@ export function useFlipboardReader(storyId, initialStory = null) {
   }, [story]);
 
   const totalPages = pages.length;
+  const bookCoverImg = story?.coverImageUrl || story?.cover || story?.coverUrl || "";
 
   // Preload book cover and story pages in background
   useEffect(() => {
@@ -130,14 +140,26 @@ export function useFlipboardReader(storyId, initialStory = null) {
     pages.forEach((p) => {
       if (p?.image) {
         const img = new Image();
+        img.onload = () => loadedImageUrls.add(p.image);
         img.src = p.image;
+        if (img.complete) {
+          loadedImageUrls.add(p.image);
+        }
       }
     });
-  }, [pages]);
+    if (bookCoverImg) {
+      const img = new Image();
+      img.onload = () => loadedImageUrls.add(bookCoverImg);
+      img.src = bookCoverImg;
+      if (img.complete) {
+        loadedImageUrls.add(bookCoverImg);
+      }
+    }
+  }, [pages, bookCoverImg]);
 
-  // Responsive Dual-Page detection
+  // Responsive Dual-Page detection (runs immediately, on RAF, and timeouts to prevent transition race conditions)
   useEffect(() => {
-    function handleResize() {
+    function updateMode() {
       const isLandscapePC = checkIsLandscapePC();
       setIsDualPage((prevWide) => {
         if (prevWide !== isLandscapePC && isLandscapePC) {
@@ -147,12 +169,19 @@ export function useFlipboardReader(storyId, initialStory = null) {
       });
     }
 
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    window.addEventListener("orientationchange", handleResize);
+    updateMode();
+    const rafId = requestAnimationFrame(updateMode);
+    const timer1 = setTimeout(updateMode, 50);
+    const timer2 = setTimeout(updateMode, 150);
+
+    window.addEventListener("resize", updateMode);
+    window.addEventListener("orientationchange", updateMode);
     return () => {
-      window.removeEventListener("resize", handleResize);
-      window.removeEventListener("orientationchange", handleResize);
+      cancelAnimationFrame(rafId);
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      window.removeEventListener("resize", updateMode);
+      window.removeEventListener("orientationchange", updateMode);
     };
   }, [checkIsLandscapePC]);
 
@@ -328,14 +357,16 @@ export function useFlipboardReader(storyId, initialStory = null) {
         setFlipDirection(null);
       }, 450);
     },
-    [isFlipping, currentPage, isDualPage, maxPage, playFlipSound]
+    [isFlipping, currentPage, maxPage, playFlipSound]
   );
 
   const selectBackground = useCallback((id) => {
     setSelectedBgId(id);
     try {
       localStorage.setItem("ktab_storybook_bg", id);
-    } catch {}
+    } catch {
+      /* ignore storage error */
+    }
   }, []);
 
   const selectNextBackground = useCallback(() => {
@@ -345,7 +376,9 @@ export function useFlipboardReader(storyId, initialStory = null) {
       const nextId = READER_BACKGROUNDS[nextIndex].id;
       try {
         localStorage.setItem("ktab_storybook_bg", nextId);
-      } catch {}
+      } catch {
+        /* ignore storage error */
+      }
       return nextId;
     });
   }, []);
@@ -523,7 +556,7 @@ export function useFlipboardReader(storyId, initialStory = null) {
     isBookClosed,
     isClosing,
     restartStory,
-    bookCoverImg: story?.cover || story?.coverUrl || "",
+    bookCoverImg,
     bookTitle: story?.title || story?.titleAr || "حكاية ممتعة للأطفال",
 
     // Handlers

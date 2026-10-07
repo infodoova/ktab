@@ -32,6 +32,7 @@ export function BookDisplayView() {
     pagesCacheRef,
     voice,
     setVoice,
+    voiceOptions,
     effect,
     setEffect,
     fontSize,
@@ -102,6 +103,7 @@ export function BookDisplayView() {
           isTTSLoading={isTTSLoading}
           onTogglePlay={handleTogglePlay}
           voice={voice}
+          voiceOptions={voiceOptions}
           onSelectVoice={setVoice}
           effect={effect}
           onSelectEffect={setEffect}

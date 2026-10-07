@@ -33,7 +33,7 @@
   justify-content: center;
   overflow: hidden;
   border-radius: inherit;
-  background-color: #f8fafc;
+  background-color: transparent;
 }
 
 /* Full 1:1 Artwork Image */
@@ -93,6 +93,33 @@
   pointer-events: none;
   max-width: calc(100% - 1rem);
   margin: 0 auto;
+}
+
+/* Arabic Text Safe Zones Positioning */
+.flipboard-page__cc-container--top-span {
+  top: clamp(0.5rem, 2.5%, 1.2rem);
+  bottom: auto;
+}
+
+.flipboard-page__cc-container--bottom-span {
+  bottom: clamp(0.5rem, 2.5%, 1.2rem);
+  top: auto;
+}
+
+.flipboard-page__cc-container--left-half {
+  top: 50%;
+  transform: translateY(-50%);
+  left: clamp(0.5rem, 2.5%, 1.2rem);
+  right: auto;
+  max-width: 48%;
+}
+
+.flipboard-page__cc-container--right-half {
+  top: 50%;
+  transform: translateY(-50%);
+  right: clamp(0.5rem, 2.5%, 1.2rem);
+  left: auto;
+  max-width: 48%;
 }
 
 .flipboard-page__cc-pill {
@@ -191,6 +218,48 @@
   object-fit: cover !important;
 }
 
+/* Mobile Slot Closed Captions container and typography */
+.flipboard-page--mobile-slot .flipboard-page__cc-container {
+  bottom: clamp(0.35rem, 1.5vh, 0.65rem);
+  left: clamp(0.4rem, 2vw, 0.75rem);
+  right: clamp(0.4rem, 2vw, 0.75rem);
+  max-width: calc(100% - 0.8rem);
+}
+
+/* Bottom slot on mobile fold: explicitly lifted above iOS home indicator & browser toolbar */
+.flipboard-page--slot-bottom .flipboard-page__cc-container,
+.flipboard-page--slot-bottom .flipboard-page__cc-container--bottom-span,
+.flipboard-mobile-slot--bottom .flipboard-page__cc-container,
+.flipboard-mobile-slot--bottom .flipboard-page__cc-container--bottom-span {
+  bottom: max(1.15rem, calc(env(safe-area-inset-bottom, 0px) + 0.75rem)) !important;
+  top: auto;
+}
+
+.flipboard-page--mobile-slot .flipboard-page__cc-pill {
+  padding: clamp(0.32rem, 0.85vh, 0.48rem) clamp(0.65rem, 2vw, 0.95rem);
+  border-radius: 0.85rem;
+  max-width: 96%;
+  max-height: 48%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.22), 0 1px 4px rgba(0, 0, 0, 0.12);
+}
+
+.flipboard-page--mobile-slot .flipboard-page__cc-text {
+  font-size: clamp(0.78rem, 2.35vw, 0.88rem);
+  line-height: 1.42;
+  font-weight: 700;
+}
+
+.flipboard-page--mobile-slot .flipboard-page__cc-badge {
+  font-size: 0.72rem;
+  padding: 0.1rem 0.45rem;
+}
+
+.flipboard-page--mobile-slot .flipboard-page__cc-title {
+  font-size: clamp(0.85rem, 2.5vw, 1rem);
+}
+
 /* --------------------------------------------------------------------------
    Simple & Smooth Image Loader
    -------------------------------------------------------------------------- */
@@ -203,24 +272,20 @@
   justify-content: center;
   overflow: hidden;
   border-radius: inherit;
+  background-color: transparent;
 }
 
 .flipboard-img-element {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0;
-  transition: opacity 0.35s ease-in-out;
-}
-
-.flipboard-img-element--loaded {
   opacity: 1;
 }
 
 .flipboard-img-loader {
   position: absolute;
   inset: 0;
-  background-color: #f8fafc;
+  background-color: transparent;
   display: flex;
   align-items: center;
   justify-content: center;

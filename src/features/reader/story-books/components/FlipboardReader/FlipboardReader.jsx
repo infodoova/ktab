@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { memo, useState, useEffect, useCallback } from "react";
 import {
   ArrowRight,
   ChevronRight,
@@ -7,6 +7,8 @@ import {
   Check,
   X,
   RotateCcw,
+  Maximize,
+  Minimize,
 } from "lucide-react";
 import { FlipboardPage, FlipboardImage } from "./FlipboardPage";
 import { FlipboardMobileFold } from "./FlipboardMobileFold";
@@ -70,6 +72,74 @@ export const FlipboardReader = memo(function FlipboardReader({
     handleMouseUp,
     handleMouseLeave,
   } = useFlipboardReader(storyId, initialStory);
+
+  // Native Fullscreen API state & toggle
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const isFs = Boolean(
+        document.fullscreenElement ||
+        document.webkitFullscreenElement ||
+        document.mozFullScreenElement ||
+        document.msFullscreenElement
+      );
+      setIsFullscreen(isFs);
+    };
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
+    document.addEventListener("mozfullscreenchange", handleFullscreenChange);
+    document.addEventListener("MSFullscreenChange", handleFullscreenChange);
+
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+      document.removeEventListener("webkitfullscreenchange", handleFullscreenChange);
+      document.removeEventListener("mozfullscreenchange", handleFullscreenChange);
+      document.removeEventListener("MSFullscreenChange", handleFullscreenChange);
+    };
+  }, []);
+
+  const toggleFullscreen = useCallback(async (e) => {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    try {
+      const doc = document;
+      const docEl = document.documentElement;
+      const isFs = Boolean(
+        doc.fullscreenElement ||
+        doc.webkitFullscreenElement ||
+        doc.mozFullScreenElement ||
+        doc.msFullscreenElement
+      );
+
+      if (!isFs) {
+        if (docEl.requestFullscreen) {
+          await docEl.requestFullscreen({ navigationUI: "hide" }).catch(() => docEl.requestFullscreen());
+        } else if (docEl.webkitRequestFullscreen) {
+          docEl.webkitRequestFullscreen();
+        } else if (docEl.mozRequestFullScreen) {
+          docEl.mozRequestFullScreen();
+        } else if (docEl.msRequestFullscreen) {
+          docEl.msRequestFullscreen();
+        }
+      } else {
+        if (doc.exitFullscreen) {
+          await doc.exitFullscreen();
+        } else if (doc.webkitExitFullscreen) {
+          doc.webkitExitFullscreen();
+        } else if (doc.mozCancelFullScreen) {
+          doc.mozCancelFullScreen();
+        } else if (doc.msExitFullscreen) {
+          doc.msExitFullscreen();
+        }
+      }
+    } catch (err) {
+      console.warn("Fullscreen toggle warning:", err);
+    }
+  }, []);
 
   if (loading || !story) {
     return (
@@ -139,20 +209,41 @@ export const FlipboardReader = memo(function FlipboardReader({
       dir="rtl"
     >
       {/* ------------------------------------------------------------------
-          1. Top Floating Row: Back Button & Authentic Theme UI Popover
+          1. Top Floating Row: Back Button & Fullscreen / Theme Controls
           ------------------------------------------------------------------ */}
       <div className="flipboard-floating-top-row">
-        {/* Right Corner (RTL): Back Button */}
-        <button
-          type="button"
-          className="flipboard-floating-back-btn"
-          onClick={onExit}
-          aria-label="الرجوع للقصص"
-          title="الرجوع للقصص"
-        >
-          <ArrowRight size={22} strokeWidth={2.6} className="flipboard-floating-back-arrow" />
-          <span className="flipboard-floating-back-label">الرجوع</span>
-        </button>
+        {/* Right Corner (RTL): Navigation & Actions Group */}
+        <div className="flipboard-floating-nav-group">
+          <button
+            type="button"
+            className="flipboard-floating-back-btn"
+            onClick={onExit}
+            aria-label="الرجوع للقصص"
+            title="الرجوع للقصص"
+          >
+            <ArrowRight size={22} strokeWidth={2.6} className="flipboard-floating-back-arrow" />
+            <span className="flipboard-floating-back-label">الرجوع</span>
+          </button>
+
+          <button
+            type="button"
+            className={`flipboard-floating-fullscreen-btn ${
+              isFullscreen ? "flipboard-floating-fullscreen-btn--active" : ""
+            }`}
+            onClick={toggleFullscreen}
+            aria-label={isFullscreen ? "تصغير الشاشة" : "ملء الشاشة"}
+            title={isFullscreen ? "تصغير الشاشة" : "ملء الشاشة"}
+          >
+            {isFullscreen ? (
+              <Minimize size={19} strokeWidth={2.4} />
+            ) : (
+              <Maximize size={19} strokeWidth={2.4} />
+            )}
+            <span className="flipboard-floating-fullscreen-label">
+              {isFullscreen ? "تصغير" : "ملء الشاشة"}
+            </span>
+          </button>
+        </div>
 
         {/* Left Corner (RTL): Authentic Theme UI Anchor & Popover (Desktop Only) */}
         {isDualPage && (

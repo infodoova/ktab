@@ -57,17 +57,6 @@ export function SignupView() {
               </p>
             </header>
 
-            {/* Minimal Step Indicator */}
-            <div className="signup-step-indicator">
-              <span className="signup-step-text">
-                {step === 1 ? "الخطوة 1: البيانات الأساسية" : "الخطوة 2: تأمين الحساب"}
-              </span>
-              <div className="signup-step-dots" aria-hidden="true">
-                <span className={`signup-dot ${step >= 1 ? "is-active" : ""}`} />
-                <span className={`signup-dot ${step >= 2 ? "is-active" : ""}`} />
-              </div>
-            </div>
-
             {/* Form Content with Animated Step Transition */}
             <form onSubmit={step === 1 ? (e) => { e.preventDefault(); nextStep(); } : handleSubmit}>
               <AnimatePresence mode="wait">

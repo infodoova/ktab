@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { AppLayout } from "@/components/myui/layout";
 import {
   ArrowRight,
@@ -16,6 +16,10 @@ import {
   Eye,
   Scissors,
   Glasses,
+  Check,
+  MapPin,
+  Compass,
+  Heart,
 } from "lucide-react";
 import { InputComponent as Input } from "@/components/myui/forms/Input/Input";
 import { Select } from "@/components/myui/forms/Select/Select";
@@ -30,10 +34,15 @@ import {
   HAIR_STYLES,
   EYE_COLORS,
   STORY_SETTINGS,
+  STORY_TONES,
+  STORY_THEMES,
+  INTERESTS,
   STORY_TIMES,
   PAGE_COUNTS,
   LANGUAGE_VARIETIES,
   TASHKEEL_LEVELS,
+  COMPANION_TYPES,
+  PET_COLORS,
 } from "../constants/storyBooksConstants";
 import "./NewStoryBookView.css";
 
@@ -41,13 +50,12 @@ import "./NewStoryBookView.css";
  * Editorial Studio View for Creating Children's Story Books.
  * Streamlined 4-step wizard:
  * 1. Child Data with all appearance selectors (Select inputs instead of radio/circles) + Secured Optional Image
- * 2. Story Idea (Text Input) + Interests (Text Input) + Setting & Time (Selects)
+ * 2. Story Idea (Text Input) + Interests (Text Input) + Setting & Time (Selects) + Optional Companion & Values
  * 3. Book Specs (Selects for pages, variety, tashkeel) + Dedication
  * 4. Review & Launch
  */
 export function NewStoryBookView({ pageName = "ابتكار قصة أطفال جديدة" }) {
   const location = useLocation();
-  const navigate = useNavigate();
 
   const {
     currentStep,
@@ -58,6 +66,9 @@ export function NewStoryBookView({ pageName = "ابتكار قصة أطفال ج
     handleSaveAndPublish,
 
     // Hero / Child Data
+    children,
+    selectedChildId,
+    handleSelectChild,
     newChildData,
     handleNewChildChange,
     handleAppearanceChange,
@@ -65,6 +76,8 @@ export function NewStoryBookView({ pageName = "ابتكار قصة أطفال ج
     // Story Data
     storyData,
     handleStoryChange,
+    handleCompanionChange,
+    handleInterestToggle,
 
     // Backend Dynamic Filters
     filters,
@@ -108,7 +121,7 @@ export function NewStoryBookView({ pageName = "ابتكار قصة أطفال ج
     }
 
     // 4. File name sanitization
-    const cleanName = file.name.replace(/[^a-zA-Z0-9._\-]/g, "_");
+    const cleanName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
 
     const formattedSize =
       file.size > 1024 * 1024
@@ -175,9 +188,23 @@ export function NewStoryBookView({ pageName = "ابتكار قصة أطفال ج
     parentPath: "/reader/story-books",
   };
 
-  const selectedGenderLabel = genderOptions.find((g) => g.value === newChildData.gender)?.label || "ولد";
-  const selectedAgeBandLabel = ageBandOptions.find((a) => a.value === newChildData.ageBand)?.label || "٣ - ٥ سنوات";
-  const selectedSkinToneLabel = skinToneOptions.find((s) => s.value === newChildData.appearance.skinTone)?.label || "فاتحة";
+  const unwrapScalar = (val, fallback = "") => {
+    if (val === null || val === undefined) return fallback;
+    if (typeof val === "object") {
+      if ("value" in val && typeof val.value !== "object") return val.value;
+      if ("target" in val && val.target && typeof val.target.value !== "object") return val.target.value;
+      return fallback;
+    }
+    return val;
+  };
+
+  const safeGender = unwrapScalar(newChildData?.gender, "BOY");
+  const safeAgeBand = unwrapScalar(newChildData?.ageBand, "AGE_3_5");
+  const safeSkinTone = unwrapScalar(newChildData?.appearance?.skinTone, "LIGHT");
+
+  const selectedGenderLabel = genderOptions.find((g) => g.value === safeGender)?.label || "ولد";
+  const selectedAgeBandLabel = ageBandOptions.find((a) => a.value === safeAgeBand)?.label || "٣ - ٥ سنوات";
+  const selectedSkinToneLabel = skinToneOptions.find((s) => s.value === safeSkinTone)?.label || "فاتحة";
 
   return (
     <AppLayout pageName={pageName} breadcrumb={breadcrumb} showSearch={false}>
@@ -205,6 +232,31 @@ export function NewStoryBookView({ pageName = "ابتكار قصة أطفال ج
                 </div>
 
                 <div className="new-child-story-form-grid">
+                  {/* Saved Child Profiles Selector */}
+                  {Array.isArray(children) && children.length > 0 && (
+                    <div className="new-child-story-col--full">
+                      <Select
+                        label="اختيار بطل من الملفات المحفوظة"
+                        placeholder="اختر طفلاً محفوظاً أو أنشئ بطلاً جديداً..."
+                        options={[
+                          { value: "NEW", label: "✨ إدخال بطل جديد (ملف فارغ)" },
+                          ...children.map((c) => {
+                            const genderText = c.gender === "BOY" ? "ولد" : "بنت";
+                            const ageBandObj = dynamicAgeBands.find((a) => a.value === c.ageBand);
+                            const ageText = ageBandObj?.label || (c.ageBand === "AGE_3_5" ? "٣ - ٥ سنوات" : c.ageBand === "AGE_6_8" ? "٦ - ٨ سنوات" : "٩ - ١٠ سنوات");
+                            return {
+                              value: c.id,
+                              label: `${c.nameAr} (#${c.id} • ${genderText} • ${ageText})`,
+                            };
+                          }),
+                        ]}
+                        value={selectedChildId || "NEW"}
+                        onChange={(e, val) => handleSelectChild(val !== undefined ? val : e?.target?.value ?? e)}
+                        icon={<User size={16} />}
+                      />
+                    </div>
+                  )}
+
                   {/* Hero Name (Text Input) */}
                   <div className="new-child-story-col--full">
                     <Input
@@ -223,7 +275,7 @@ export function NewStoryBookView({ pageName = "ابتكار قصة أطفال ج
                       label="الجنس"
                       options={genderOptions}
                       value={newChildData.gender}
-                      onChange={(val) => handleNewChildChange("gender", val)}
+                      onChange={(e, val) => handleNewChildChange("gender", val !== undefined ? val : e?.target?.value ?? e)}
                     />
                   </div>
 
@@ -233,7 +285,7 @@ export function NewStoryBookView({ pageName = "ابتكار قصة أطفال ج
                       label="المرحلة العمرية"
                       options={ageBandOptions}
                       value={newChildData.ageBand}
-                      onChange={(val) => handleNewChildChange("ageBand", val)}
+                      onChange={(e, val) => handleNewChildChange("ageBand", val !== undefined ? val : e?.target?.value ?? e)}
                     />
                   </div>
 
@@ -243,7 +295,7 @@ export function NewStoryBookView({ pageName = "ابتكار قصة أطفال ج
                       label="درجة لون البشرة"
                       options={skinToneOptions}
                       value={newChildData.appearance.skinTone}
-                      onChange={(val) => handleAppearanceChange("skinTone", val)}
+                      onChange={(e, val) => handleAppearanceChange("skinTone", val !== undefined ? val : e?.target?.value ?? e)}
                       icon={<Palette size={16} />}
                     />
                   </div>
@@ -254,7 +306,7 @@ export function NewStoryBookView({ pageName = "ابتكار قصة أطفال ج
                       label="لون العينين"
                       options={eyeColorOptions}
                       value={newChildData.appearance.eyeColor}
-                      onChange={(val) => handleAppearanceChange("eyeColor", val)}
+                      onChange={(e, val) => handleAppearanceChange("eyeColor", val !== undefined ? val : e?.target?.value ?? e)}
                       icon={<Eye size={16} />}
                     />
                   </div>
@@ -266,7 +318,7 @@ export function NewStoryBookView({ pageName = "ابتكار قصة أطفال ج
                         label="ارتداء الحجاب"
                         options={hijabOptions}
                         value={Boolean(newChildData.appearance.hijab)}
-                        onChange={(val) => handleAppearanceChange("hijab", Boolean(val))}
+                        onChange={(e, val) => handleAppearanceChange("hijab", Boolean(val !== undefined ? val : e?.target?.value ?? e))}
                       />
                     </div>
                   )}
@@ -279,7 +331,7 @@ export function NewStoryBookView({ pageName = "ابتكار قصة أطفال ج
                           label="لون الشعر"
                           options={hairColorOptions}
                           value={newChildData.appearance.hairColor}
-                          onChange={(val) => handleAppearanceChange("hairColor", val)}
+                          onChange={(e, val) => handleAppearanceChange("hairColor", val !== undefined ? val : e?.target?.value ?? e)}
                         />
                       </div>
 
@@ -288,7 +340,7 @@ export function NewStoryBookView({ pageName = "ابتكار قصة أطفال ج
                           label="تسريحة الشعر"
                           options={hairStyleOptions}
                           value={newChildData.appearance.hairStyle}
-                          onChange={(val) => handleAppearanceChange("hairStyle", val)}
+                          onChange={(e, val) => handleAppearanceChange("hairStyle", val !== undefined ? val : e?.target?.value ?? e)}
                           icon={<Scissors size={16} />}
                         />
                       </div>
@@ -301,7 +353,7 @@ export function NewStoryBookView({ pageName = "ابتكار قصة أطفال ج
                       label="نظارات طبية"
                       options={glassesOptions}
                       value={Boolean(newChildData.appearance.glasses)}
-                      onChange={(val) => handleAppearanceChange("glasses", Boolean(val))}
+                      onChange={(e, val) => handleAppearanceChange("glasses", Boolean(val !== undefined ? val : e?.target?.value ?? e))}
                       icon={<Glasses size={16} />}
                     />
                   </div>
@@ -355,6 +407,42 @@ export function NewStoryBookView({ pageName = "ابتكار قصة أطفال ج
                         </div>
                       )}
 
+                      {heroImagePreview && (
+                        <div
+                          style={{
+                            marginTop: "12px",
+                            padding: "12px 14px",
+                            backgroundColor: "var(--bg-secondary, #f8fafc)",
+                            border: "1px solid var(--border-subtle, #e2e8f0)",
+                            borderRadius: "10px",
+                            fontSize: "0.85rem",
+                            lineHeight: "1.5",
+                          }}
+                        >
+                          <p style={{ color: "#475569", marginBottom: "8px" }}>
+                            🔒 <strong>الخصوصية وأمان البيانات:</strong> تُشفر الصورة فور رفعها وتُحذف نهائياً وتلقائياً من خوادمنا بمجرد اعتماد لوحة رسم الشخصية.
+                          </p>
+                          <label
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "8px",
+                              cursor: "pointer",
+                              color: "#0f172a",
+                              fontWeight: "500",
+                            }}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={Boolean(storyData.photoConsent)}
+                              onChange={(e) => handleStoryChange("photoConsent", e.target.checked)}
+                              style={{ width: "16px", height: "16px", accentColor: "#0f172a", cursor: "pointer" }}
+                            />
+                            <span>أؤكد أنني ولي أمر الطفل وأوافق على استخدام الصورة لرسم شخصية الحكاية.</span>
+                          </label>
+                        </div>
+                      )}
+
                       {imageError && (
                         <div className="new-child-image-error">
                           <AlertCircle size={14} />
@@ -391,23 +479,64 @@ export function NewStoryBookView({ pageName = "ابتكار قصة أطفال ج
                     />
                   </div>
 
-                  {/* Child Interests (Text Input without misleading icon) */}
+                  {/* Child Interests (Select dropdown, not radio) */}
                   <div className="new-child-story-col--full">
-                    <Input
+                    <Select
                       label="اهتمامات وهوايات الطفل"
-                      placeholder="مثال: كرة القدم، الرسم والتلوين، الفضاء والكواكب، استكشاف الحيوانات..."
-                      value={storyData.interestsText}
-                      onChange={(e) => handleStoryChange("interestsText", e.target.value)}
+                      options={INTERESTS}
+                      value={storyData.interests}
+                      multiple={true}
+                      maxSelected={3}
+                      placeholder="اختر حتى ٣ اهتمامات..."
+                      onChange={(e, updatedValues) => {
+                        const arr = Array.isArray(updatedValues) ? updatedValues : Array.isArray(e) ? e : [updatedValues];
+                        handleStoryChange("interests", arr.slice(0, 3));
+                      }}
+                      icon={<Heart size={16} />}
                     />
                   </div>
 
-                  {/* Setting (Text Input instead of Selection dropdown) */}
+                  {/* Setting (Enum Select Dropdown) */}
+                  <div className="new-child-story-col--half">
+                    <Select
+                      label="بيئة وموقع القصة"
+                      options={dynamicSettings}
+                      value={storyData.setting || "GENERIC_CITY"}
+                      onChange={(e, val) => handleStoryChange("setting", val !== undefined ? val : e?.target?.value ?? e)}
+                      icon={<MapPin size={16} />}
+                    />
+                  </div>
+
+                  {/* Place (Optional Text Input) */}
                   <div className="new-child-story-col--half">
                     <Input
-                      label="بيئة ومكان المغامرة"
-                      placeholder="مثال: بيروت (كورنيش البحر)، غابة سحرية، شاطئ البحر، الفضاء..."
-                      value={storyData.setting}
-                      onChange={(e) => handleStoryChange("setting", e.target.value)}
+                      label="المكان المحدد "
+                      placeholder="مثال: حديقة الحي، المدرسة، شاطئ البحر، بيت الجدة..."
+                      value={storyData.place || ""}
+                      onChange={(e) => handleStoryChange("place", e.target.value)}
+                      icon={<MapPin size={16} />}
+                    />
+                  </div>
+
+                  {/* Story Tone */}
+                  <div className="new-child-story-col--half">
+                    <Select
+                      label="نبرة الحكاية"
+                      options={STORY_TONES}
+                      value={storyData.storyTone}
+                      onChange={(e, val) => handleStoryChange("storyTone", val !== undefined ? val : e?.target?.value ?? e)}
+                      icon={<Palette size={16} />}
+                    />
+                  </div>
+
+                  {/* Theme */}
+                  <div className="new-child-story-col--half">
+                    <Select
+                      label="السمة والهدف التربوي"
+                      options={STORY_THEMES}
+                      value={storyData.theme}
+                      onChange={(e, val) => handleStoryChange("theme", val !== undefined ? val : e?.target?.value ?? e)}
+                      icon={<Compass size={16} />}
                     />
                   </div>
 
@@ -417,9 +546,96 @@ export function NewStoryBookView({ pageName = "ابتكار قصة أطفال ج
                       label="وقت المشهد والقصة"
                       options={dynamicTimesOfDay}
                       value={storyData.timeOfDay}
-                      onChange={(val) => handleStoryChange("timeOfDay", val)}
+                      onChange={(e, val) => handleStoryChange("timeOfDay", val !== undefined ? val : e?.target?.value ?? e)}
                       icon={<Clock size={16} />}
                     />
+                  </div>
+
+                  {/* Moral Lesson */}
+                  <div className="new-child-story-col--half">
+                    <Input
+                      label="العبرة والقيمة الأخلاقية"
+                      placeholder="مثال: التعاون، الشجاعة، الصدق، حب الطبيعة..."
+                      value={storyData.lesson}
+                      onChange={(e) => handleStoryChange("lesson", e.target.value)}
+                    />
+                  </div>
+
+                  {/* Things to Avoid */}
+                  <div className="new-child-story-col--half">
+                    <Input
+                      label="أمور يُفضل تجنبها "
+                      placeholder="مثال: الوحوش المخيفة، الظلام الدامس..."
+                      value={storyData.thingsToAvoidText}
+                      onChange={(e) => handleStoryChange("thingsToAvoidText", e.target.value)}
+                    />
+                  </div>
+
+                  {/* Companion (Pet or Sibling) */}
+                  <div className="new-child-story-col--full">
+                    <div
+                      style={{
+                        padding: "14px 16px",
+                        backgroundColor: "var(--bg-secondary, #f8fafc)",
+                        border: "1px solid var(--border-subtle, #e2e8f0)",
+                        borderRadius: "12px",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "12px",
+                      }}
+                    >
+                      <label
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px",
+                          cursor: "pointer",
+                          fontWeight: "600",
+                          color: "#0f172a",
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={Boolean(storyData.hasCompanion)}
+                          onChange={(e) => handleStoryChange("hasCompanion", e.target.checked)}
+                          style={{ width: "16px", height: "16px", accentColor: "#0f172a", cursor: "pointer" }}
+                        />
+                        <span>إضافة مرافق للطفل في القصة (حيوان أليف أو أخ/أخت) - اختياري</span>
+                      </label>
+
+                      {storyData.hasCompanion && (
+                        <div className="new-child-story-form-grid" style={{ marginTop: "4px" }}>
+                          <div className="new-child-story-col--half">
+                            <Select
+                              label="نوع المرافق"
+                              options={COMPANION_TYPES}
+                              value={storyData.companion?.type || "CAT"}
+                              onChange={(e, val) => handleCompanionChange("type", val !== undefined ? val : e?.target?.value ?? e)}
+                            />
+                          </div>
+
+                          <div className="new-child-story-col--half">
+                            <Input
+                              label="اسم المرافق"
+                              placeholder="مثال: مشمش، ريكو، سارة..."
+                              value={storyData.companion?.nameAr || ""}
+                              onChange={(e) => handleCompanionChange("nameAr", e.target.value)}
+                            />
+                          </div>
+
+                          {["CAT", "DOG", "RABBIT", "PARROT"].includes(storyData.companion?.type) && (
+                            <div className="new-child-story-col--half">
+                              <Select
+                                label="لون الحيوان الأليف"
+                                options={PET_COLORS}
+                                value={storyData.companion?.petColor || "ORANGE"}
+                                onChange={(e, val) => handleCompanionChange("petColor", val !== undefined ? val : e?.target?.value ?? e)}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -443,7 +659,7 @@ export function NewStoryBookView({ pageName = "ابتكار قصة أطفال ج
                       label="عدد صفحات الكتاب المصور"
                       options={pageCountOptions}
                       value={storyData.pageCount}
-                      onChange={(val) => handleStoryChange("pageCount", Number(val))}
+                      onChange={(e, val) => handleStoryChange("pageCount", Number(val !== undefined ? val : e?.target?.value ?? e))}
                       icon={<Layers size={16} />}
                     />
                   </div>
@@ -454,7 +670,7 @@ export function NewStoryBookView({ pageName = "ابتكار قصة أطفال ج
                       label="اللغة واللهجة"
                       options={dynamicVarieties}
                       value={storyData.variety}
-                      onChange={(val) => handleStoryChange("variety", val)}
+                      onChange={(e, val) => handleStoryChange("variety", val !== undefined ? val : e?.target?.value ?? e)}
                     />
                   </div>
 
@@ -464,7 +680,7 @@ export function NewStoryBookView({ pageName = "ابتكار قصة أطفال ج
                       label="مستوى التشكيل"
                       options={dynamicTashkeel}
                       value={storyData.tashkeelLevel}
-                      onChange={(val) => handleStoryChange("tashkeelLevel", val)}
+                      onChange={(e, val) => handleStoryChange("tashkeelLevel", val !== undefined ? val : e?.target?.value ?? e)}
                     />
                   </div>
 
@@ -492,57 +708,77 @@ export function NewStoryBookView({ pageName = "ابتكار قصة أطفال ج
               <div className="new-child-story-review-card" dir="rtl">
                 <div className="new-child-story-review-details">
                   <div className="new-child-story-review-meta">
-                    <span>{dynamicVarieties.find((v) => v.value === storyData.variety)?.label || "العربية الفصحى"}</span>
+                    <span>{dynamicVarieties.find((v) => v.value === unwrapScalar(storyData.variety))?.label || "العربية الفصحى"}</span>
                     <span className="new-child-story-review-sep">•</span>
-                    <span>{storyData.pageCount} صفحة</span>
+                    <span>{String(unwrapScalar(storyData.pageCount, 16))} صفحة</span>
                     <span className="new-child-story-review-sep">•</span>
                     <span>{selectedAgeBandLabel}</span>
                   </div>
 
                   <h3 className="new-child-story-review-title">
-                    {storyData.storyIdea?.trim() || "مغامرة البطل الصغير"}
+                    {unwrapScalar(storyData.storyIdea)?.trim() || "مغامرة البطل الصغير"}
                   </h3>
 
                   <div className="new-child-story-review-hero-row">
                     {heroImagePreview && (
                       <div className="new-child-story-review-avatar">
-                        <img src={heroImagePreview} alt={newChildData.nameAr} />
+                        <img src={heroImagePreview} alt={unwrapScalar(newChildData.nameAr)} />
                       </div>
                     )}
                     <p className="new-child-story-review-hero">
-                      بطل الحكاية: <strong>{newChildData.nameAr || "البطل الصغير"}</strong> ({selectedGenderLabel} • {selectedSkinToneLabel})
+                      بطل الحكاية: <strong>{unwrapScalar(newChildData.nameAr) || "البطل الصغير"}</strong> ({selectedGenderLabel} • {selectedSkinToneLabel})
                     </p>
                   </div>
 
                   <div className="new-child-story-review-summary-box">
                     <div className="new-child-story-review-row">
-                      <span className="new-child-story-review-label">البيئة والوقت</span>
+                      <span className="new-child-story-review-label">البيئة والمكان</span>
                       <span className="new-child-story-review-val">
-                        {dynamicSettings.find((s) => s.value === storyData.setting)?.label} • {dynamicTimesOfDay.find((t) => t.value === storyData.timeOfDay)?.label}
+                        {STORY_SETTINGS.find((s) => s.value === unwrapScalar(storyData.setting))?.label || unwrapScalar(storyData.setting, "عمّان")}
+                        {unwrapScalar(storyData.place) ? ` (${unwrapScalar(storyData.place)})` : ""}
+                        {" • "}
+                        {dynamicTimesOfDay.find((t) => t.value === unwrapScalar(storyData.timeOfDay))?.label}
                       </span>
                     </div>
 
-                    {storyData.interestsText?.trim() && (
+                    {storyData.interests && storyData.interests.length > 0 && (
                       <div className="new-child-story-review-row">
                         <span className="new-child-story-review-label">الاهتمامات</span>
                         <span className="new-child-story-review-val">
-                          {storyData.interestsText}
+                          {storyData.interests.map((val) => {
+                            const raw = unwrapScalar(val);
+                            return INTERESTS.find((i) => i.value === raw)?.label || raw;
+                          }).filter(Boolean).join("، ")}
                         </span>
                       </div>
                     )}
 
                     <div className="new-child-story-review-row">
-                      <span className="new-child-story-review-label">التشكيل</span>
+                      <span className="new-child-story-review-label">نبرة الحكاية</span>
                       <span className="new-child-story-review-val">
-                        {dynamicTashkeel.find((t) => t.value === storyData.tashkeelLevel)?.label}
+                        {STORY_TONES.find((t) => t.value === unwrapScalar(storyData.storyTone))?.label || unwrapScalar(storyData.storyTone, "مغامرة وتشويق")}
                       </span>
                     </div>
 
-                    {storyData.dedication && (
+                    <div className="new-child-story-review-row">
+                      <span className="new-child-story-review-label">السمة والهدف</span>
+                      <span className="new-child-story-review-val">
+                        {STORY_THEMES.find((th) => th.value === unwrapScalar(storyData.theme))?.label || unwrapScalar(storyData.theme, "الصداقة والتعاون")}
+                      </span>
+                    </div>
+
+                    <div className="new-child-story-review-row">
+                      <span className="new-child-story-review-label">التشكيل</span>
+                      <span className="new-child-story-review-val">
+                        {dynamicTashkeel.find((t) => t.value === unwrapScalar(storyData.tashkeelLevel))?.label || "تشكيل جزئي"}
+                      </span>
+                    </div>
+
+                    {unwrapScalar(storyData.dedication) && (
                       <div className="new-child-story-review-row">
                         <span className="new-child-story-review-label">الإهداء</span>
                         <span className="new-child-story-review-val" style={{ fontStyle: "italic" }}>
-                          «{storyData.dedication}»
+                          «{unwrapScalar(storyData.dedication)}»
                         </span>
                       </div>
                     )}

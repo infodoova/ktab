@@ -28,6 +28,12 @@
   --highlight-yellow-soft: #fef08a;
   --highlight-yellow-glow: rgba(253, 224, 71, 0.45);
 
+  /* Monochrome trailer workspace */
+  --trailer-muted: #6e6e73;
+  --trailer-surface: #f5f5f7;
+  --trailer-surface-hover: #ededf0;
+  --trailer-line: #e8e8ed;
+
   /* Status & Notification Tokens */
   --color-danger: #ef4444;
   --color-danger-glow: rgba(239, 68, 68, 0.4);

@@ -1,9 +1,6 @@
 import { lazy } from "react";
 import { ROLES, ROLE_CODES } from "@/core/constants/roles";
 
-const AdminDashboardView = lazy(() =>
-  import("../../../features/Admin/dashboard/views/AdminDashboardView")
-);
 const AdminLibraryView = lazy(() =>
   import("../../../features/Admin/libraryManagement/views/AdminLibraryView")
 );
@@ -25,9 +22,7 @@ export const adminRoutes = [
   {
     name: "AdminDashboard",
     path: "/admin/dashboard",
-    component: AdminDashboardView,
-    guard: "role",
-    roles: [ROLES.ADMIN, ROLE_CODES.ADMIN],
+    redirect: "/admin/library",
   },
   {
     name: "AdminLibrary",
@@ -59,7 +54,7 @@ export const adminRoutes = [
   },
   {
     path: "/admin",
-    redirect: "/admin/dashboard",
+    redirect: "/admin/library",
   },
 ];
 

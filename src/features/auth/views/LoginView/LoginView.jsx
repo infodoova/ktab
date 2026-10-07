@@ -30,8 +30,9 @@ export function LoginView() {
     loading,
     googleLoading,
     isGoogleReady,
+    googleLoadFailed,
     googleBtnRef,
-    triggerGooglePrompt,
+    retryGoogleLoad,
     resetOpen,
     setResetOpen,
     googleRoleOpen,
@@ -151,8 +152,13 @@ export function LoginView() {
                 ref={googleBtnRef}
                 className="login-google-btn-rendered"
               />
-              {!isGoogleReady && (
+              {!isGoogleReady && !googleLoadFailed && (
                 <div className="login-google-skeleton" aria-hidden="true" />
+              )}
+              {googleLoadFailed && (
+                <button type="button" className="login-google-retry" onClick={retryGoogleLoad}>
+                  تعذر تحميل Google. إعادة المحاولة
+                </button>
               )}
             </div>
 

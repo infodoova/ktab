@@ -7,6 +7,8 @@ import { libraryAdminRoutes } from "./libraryAdminRoutes";
 import { librarianRoutes } from "./librarianRoutes";
 import { publisherRoutes } from "./publisherRoutes";
 
+import { trailerRoutes } from "./trailerRoutes";
+
 const NotFoundView = lazy(() => import("../../../features/common/views/NotFoundView"));
 
 export { publicRoutes } from "./publicRoutes";
@@ -29,6 +31,7 @@ export const routes = [
   ...libraryAdminRoutes,
   ...librarianRoutes,
   ...publisherRoutes,
+  ...trailerRoutes,
 
   // 404 Catch-All
   {

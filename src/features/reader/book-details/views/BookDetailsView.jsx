@@ -1,3 +1,4 @@
+import { BookTrailerSection } from "@/features/trailers/components/BookTrailerSection/BookTrailerSection";
 import React from "react";
 import { useParams } from "react-router-dom";
 import { ArrowLeft, ArrowRight } from "lucide-react";
@@ -133,6 +134,8 @@ export function BookDetailsView() {
 
             {/* Apple Books Metadata Strip (Genre, Author, Language, Pages, Age, Released, Publisher) */}
             <BookMetadataStrip book={bookData} />
+
+            <BookTrailerSection bookId={bookId} book={bookData} title={bookData.title} poster={bookData.coverImageUrl} readerMode />
 
             {/* Customer Reviews Section */}
             <BookReviews

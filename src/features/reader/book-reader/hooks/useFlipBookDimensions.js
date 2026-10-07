@@ -11,12 +11,13 @@ import { useState, useEffect, useMemo, useCallback } from "react";
  */
 export function useFlipBookDimensions({ fontSize = 18, wordsPerPage = 110 } = {}) {
   const getViewportDimensions = useCallback(() => {
-    if (typeof window === "undefined") return { width: 390, height: 844 };
-    const width = document.documentElement.clientWidth || window.innerWidth;
+    if (typeof window === "undefined") return { width: 1200, height: 800 };
+    const width = window.innerWidth || document.documentElement.clientWidth || 1200;
     const height =
+      window.innerHeight ||
       window.visualViewport?.height ||
       document.documentElement.clientHeight ||
-      window.innerHeight;
+      800;
     return {
       width: Math.round(width),
       height: Math.round(height),
@@ -37,7 +38,6 @@ export function useFlipBookDimensions({ fontSize = 18, wordsPerPage = 110 } = {}
 
     function handleOrientation() {
       handleResize();
-      // Viewport metrics settle 100-300ms after physical rotation on iOS Safari
       setTimeout(handleResize, 120);
       setTimeout(handleResize, 300);
     }
@@ -46,20 +46,35 @@ export function useFlipBookDimensions({ fontSize = 18, wordsPerPage = 110 } = {}
       window.addEventListener("resize", handleResize);
       window.addEventListener("orientationchange", handleOrientation);
       window.visualViewport?.addEventListener("resize", handleResize);
-      handleResize();
-    }
 
-    return () => {
-      if (rafId) cancelAnimationFrame(rafId);
-      if (typeof window !== "undefined") {
+      // Multi-stage settle to defeat SPA navigation race conditions:
+      // Immediate, next animation frame, 50ms, 150ms, and 300ms
+      handleResize();
+      const t1 = setTimeout(handleResize, 50);
+      const t2 = setTimeout(handleResize, 150);
+      const t3 = setTimeout(handleResize, 300);
+
+      return () => {
+        if (rafId) cancelAnimationFrame(rafId);
+        clearTimeout(t1);
+        clearTimeout(t2);
+        clearTimeout(t3);
         window.removeEventListener("resize", handleResize);
         window.removeEventListener("orientationchange", handleOrientation);
         window.visualViewport?.removeEventListener("resize", handleResize);
-      }
-    };
+      };
+    }
   }, [getViewportDimensions]);
 
   const { width: vw, height: vh } = windowDimensions;
+
+  // Check if primary input pointer is fine (PC mouse / touchpad)
+  const isPointerFine = useMemo(() => {
+    return (
+      typeof window !== "undefined" &&
+      Boolean(window.matchMedia?.("(pointer: fine)")?.matches)
+    );
+  }, []);
 
   const isTouchDevice = useMemo(() => {
     return (
@@ -70,34 +85,43 @@ export function useFlipBookDimensions({ fontSize = 18, wordsPerPage = 110 } = {}
     );
   }, []);
 
+  // Desktop/Laptop PC with mouse or precision trackpad: always a desktop card view if width >= 768px
+  const isPCDesktop = isPointerFine && vw >= 768;
+
+  // Mobile phone screen: narrow width under 768px
   const isMobile = vw < 768;
 
-  // Identify iPads and all tablets in both portrait and landscape orientation, including HTML5 fullscreen
+  // Identify iPads and dedicated tablets ONLY when not operating as a PC desktop with fine mouse pointer
   const isIPadOrTablet = useMemo(() => {
     if (typeof window === "undefined") return false;
+    // PC with mouse/trackpad pointer is NEVER a tablet
+    if (isPCDesktop) return false;
+
     const isAppleTablet =
       /iPad|Tablet|PlayBook/i.test(navigator.userAgent) ||
-      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1 && !isPointerFine);
 
-    const minDim = Math.min(vw, vh);
-    const maxDim = Math.max(vw, vh);
+    if (isAppleTablet) return true;
 
-    const hasTabletDimensions =
-      minDim >= 600 && minDim <= 1100 && maxDim >= 900 && maxDim <= 1450;
+    // Only apply tablet dimensional heuristics to touch devices without a fine mouse pointer
+    if (isTouchDevice && !isPointerFine) {
+      const minDim = Math.min(vw, vh);
+      const maxDim = Math.max(vw, vh);
+      return (
+        (minDim >= 600 && minDim <= 1100 && maxDim >= 900 && maxDim <= 1450) ||
+        (vw >= 768 && vw <= 1366) ||
+        (minDim >= 600 && minDim <= 1100)
+      );
+    }
 
-    return (
-      isAppleTablet ||
-      hasTabletDimensions ||
-      (isTouchDevice && vw >= 768 && vw <= 1366) ||
-      (isTouchDevice && minDim >= 600 && minDim <= 1100)
-    );
-  }, [vw, vh, isTouchDevice]);
+    return false;
+  }, [vw, vh, isTouchDevice, isPointerFine, isPCDesktop]);
 
-  // Fullscreen edge-to-edge layout for all mobile phones, iPads, and tablets (portrait & landscape)
-  const isMobileOrTablet = isMobile || isIPadOrTablet || (vw <= 1366 && isTouchDevice);
-  const isDesktop = !isMobileOrTablet && vw > 1366;
+  // Fullscreen edge-to-edge layout for mobile phones and touch tablets; elegant wide card on PC
+  const isMobileOrTablet = isMobile || (isIPadOrTablet && !isPCDesktop);
+  const isDesktop = !isMobileOrTablet && (isPCDesktop || vw >= 768);
 
-  // Single-page height & width: Fullscreen edge-to-edge on mobile, iPads, & tablets; elegant wide card on PC
+  // Single-page height & width: Fullscreen edge-to-edge on mobile & tablets; elegant wide card on PC
   const pageHeight = useMemo(() => {
     if (isMobileOrTablet) {
       return vh;
@@ -154,3 +178,4 @@ export function useFlipBookDimensions({ fontSize = 18, wordsPerPage = 110 } = {}
 }
 
 export default useFlipBookDimensions;
+

@@ -85,7 +85,7 @@
   padding: 2.5rem 1.5rem 5rem;
   display: flex;
   flex-direction: column;
-  gap: 3rem;
+  gap: 2rem;
   flex: 1;
 }
 
@@ -149,7 +149,7 @@
 @media (max-width: 768px) {
   .apple-book-details-container {
     padding: 1.25rem 1rem 3.5rem;
-    gap: 2.25rem;
+    gap: 1.25rem;
   }
 
   .apple-book-details-nav-title {

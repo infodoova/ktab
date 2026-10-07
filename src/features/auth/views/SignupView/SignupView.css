@@ -15,7 +15,7 @@
 
 /* Header */
 .signup-header {
-  margin-bottom: 24px;
+  margin-bottom: 28px;
   text-align: center;
 }
 
@@ -53,41 +53,6 @@
   color: var(--text-subtle, #64748b);
   margin: 0;
   line-height: 1.5;
-}
-
-/* Minimal Step Progress Indicator */
-.signup-step-indicator {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.06));
-}
-
-.signup-step-text {
-  font-size: 13px;
-  font-weight: 750;
-  color: var(--brand-black, #0a0a0a);
-}
-
-.signup-step-dots {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.signup-dot {
-  width: 24px;
-  height: 4px;
-  border-radius: 9999px;
-  background-color: var(--border-card, rgba(0, 0, 0, 0.1));
-  transition: all 0.3s ease;
-}
-
-.signup-dot.is-active {
-  background-color: var(--brand-black, #0a0a0a);
-  width: 32px;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════

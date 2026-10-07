@@ -6,9 +6,7 @@ import { useEnumStore } from "@/core/store";
 import { validateStoryStep, validateFullStory } from "../validation/storyWizardValidation";
 import {
   GENRE_PRESETS,
-  LENS_OPTIONS,
   LENS_SELECT_OPTIONS,
-  ART_STYLES,
   ART_STYLE_SELECT_OPTIONS,
   SCENE_COUNT_CONFIG,
   MAX_COVER_SIZE_BYTES,

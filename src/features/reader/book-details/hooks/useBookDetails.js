@@ -59,6 +59,8 @@ export function useBookDetails(bookId) {
 
       setBookData({
         id: b.id,
+        trailer: b.trailer ?? null,
+        trailerVideoUrl: b.trailerVideoUrl ?? null,
         title: b.title ?? "كتاب",
         description: b.description ?? "",
         genre: b.mainGenreName ?? b.genre ?? null,

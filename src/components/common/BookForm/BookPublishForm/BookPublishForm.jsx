@@ -121,7 +121,8 @@ export const BookPublishForm = memo(function BookPublishForm({
           </div>
         </div>
 
-        {/* 4. Audio Edition Option */}
+        {/* 4. Audio Edition Option (Commented out for now) */}
+        {/*
         <div className={`book-publish-form__audio-card ${formData.hasAudio ? "is-active" : ""}`}>
           <div className="book-publish-form__audio-meta">
             <div className="book-publish-form__audio-icon" aria-hidden="true">
@@ -142,6 +143,7 @@ export const BookPublishForm = memo(function BookPublishForm({
             disabled={loading}
           />
         </div>
+        */}
 
         {/* 5. Upload Grid: Book Document (PDF) + Cover Image */}
         <div className="book-publish-form__upload-grid">

@@ -31,8 +31,8 @@ export const ROLE_LABELS = Object.freeze({
 });
 
 export const ROLE_DEFAULT_ROUTES = Object.freeze({
-  [ROLES.ADMIN]: "/admin/dashboard",
-  [ROLES.LIBRARY_ADMIN]: "/library-admin/dashboard",
+  [ROLES.ADMIN]: "/admin/library",
+  [ROLES.LIBRARY_ADMIN]: "/library-admin/library-management",
   [ROLES.LIBRARIAN]: "/librarian/dashboard",
   [ROLES.PUBLISHER]: "/publisher/library-management",
   [ROLES.AUTHOR]: "/author/control",
@@ -52,7 +52,7 @@ export function normalizeRole(role) {
   if (str === "10" || str === "AUTHOR") return ROLES.AUTHOR;
   if (str === "20" || str === "READER") return ROLES.READER;
   if (str === "30" || str === "LIBRARIAN") return ROLES.LIBRARIAN;
-  if (str === "35" || str === "LIBRARY_ADMIN" || str === "LIBRARYADMIN") return ROLES.LIBRARY_ADMIN;
+  if (str === "35" || str === "LIBRARY_ADMIN" || str === "LIBRARYADMIN" || str === "ADMIN_LIBRARIAN") return ROLES.LIBRARY_ADMIN;
   if (str === "40" || str === "PUBLISHER") return ROLES.PUBLISHER;
   return str;
 }

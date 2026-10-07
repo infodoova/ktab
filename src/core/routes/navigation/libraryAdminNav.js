@@ -1,3 +1,4 @@
+import { Film } from "lucide-react";
 import { LayoutDashboard, Building2, BookOpen, Users } from "lucide-react";
 
 /**
@@ -32,6 +33,8 @@ export const LIBRARY_ADMIN_NAV_ITEMS = [
     icon: Users,
     path: "/library-admin/staff",
   },
+    { name: "LibraryAdminTrailers", label: "إعلانات الكتب", icon: Film, path: "/library-admin/trailers" },
+
 ];
 
 export default LIBRARY_ADMIN_NAV_ITEMS;

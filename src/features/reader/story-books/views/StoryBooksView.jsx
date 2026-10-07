@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { AppLayout } from "@/components/myui/layout";
 import { Plus } from "lucide-react";
 import { AlertToast } from "@/components/myui/AlertToast";
@@ -23,10 +23,11 @@ import "./StoryBooksView.css";
  */
 export function StoryBooksView({ pageName = "قصص الأطفال" }) {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { id: routeBookId } = useParams();
   const {
     stories,
     loading,
-    totalCount,
     searchQuery,
     setSearchQuery,
     handleClearFilters,
@@ -39,6 +40,23 @@ export function StoryBooksView({ pageName = "قصص الأطفال" }) {
     handleClosePreview,
     handleCancelStory,
   } = useStoryBooks();
+
+  // Support direct deep-link to a book from emails (/storybook/books/:id or /storybook/books/:id/download)
+  useEffect(() => {
+    if (routeBookId) {
+      handleCardClick({ id: routeBookId });
+      if (location.pathname.endsWith("/download")) {
+        storyBooksService.getStoryBookDownloadUrl(routeBookId).then((res) => {
+          if (res?.url) {
+            window.open(res.url, "_blank");
+            AlertToast("جاري تنزيل نسخة الطباعة (PDF)", "SUCCESS");
+          }
+        }).catch(() => {
+          AlertToast("تعذر تحميل ملف الـ PDF حالياً", "ERROR");
+        });
+      }
+    }
+  }, [routeBookId, location.pathname, handleCardClick]);
 
   const [storyToDelete, setStoryToDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
@@ -123,15 +141,6 @@ export function StoryBooksView({ pageName = "قصص الأطفال" }) {
       AlertToast("تعذر تحميل ملف الـ PDF حالياً", "ERROR");
     }
   };
-
-  const countLabel =
-    totalCount === 1
-      ? "قصة"
-      : totalCount === 2
-      ? "قصتان"
-      : totalCount > 10
-      ? "قصة"
-      : "قصص";
 
   return (
     <AppLayout
