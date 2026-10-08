@@ -2403,3 +2403,82 @@
   background: var(--border-subtle);
   border-color: var(--border-subtle);
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   IPAD & TABLET VERTICAL VIEW (Taller Tools Drawer & Palette)
+   Screen heights (1024px to 1366px) accommodate a much taller,
+   more spacious liquid glass tools palette with full visibility.
+   ═══════════════════════════════════════════════════════════════════ */
+@media (min-width: 768px) and (max-width: 1366px) and (orientation: portrait),
+       (min-width: 600px) and (max-width: 1024px) and (min-height: 880px) {
+  /* Taller Left Edge Slider Drawer on iPad Vertical */
+  .ktab-mobile-slider-drawer {
+    width: 74px !important;
+    max-height: min(840px, calc(88vh - 32px)) !important;
+    padding: 18px 0 20px !important;
+    border-radius: 28px !important;
+    left: max(16px, env(safe-area-inset-left, 16px)) !important;
+  }
+
+  .ktab-mobile-slider-handle {
+    width: 26px !important;
+    height: 68px !important;
+    right: -26px !important;
+    border-radius: 0 18px 18px 0 !important;
+  }
+
+  .ktab-mobile-slider-handle__chevron svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+
+  .ktab-mobile-slider-drawer__header {
+    padding-bottom: 12px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .ktab-mobile-slider-drawer__close {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  .ktab-mobile-slider-drawer__close svg {
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  .ktab-mobile-slider-drawer__scroll {
+    gap: 13px !important;
+    padding: 6px 0 10px !important;
+  }
+
+  .ktab-left-drawer-icon-btn {
+    width: 46px !important;
+    height: 46px !important;
+    min-width: 46px !important;
+    min-height: 46px !important;
+  }
+
+  .ktab-left-drawer-icon-btn svg {
+    width: 21px !important;
+    height: 21px !important;
+  }
+
+  /* Popovers centered elegantly on iPad vertical */
+  .ktab-glass-popover {
+    top: 96px !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+    width: min(480px, calc(100vw - 48px)) !important;
+    max-width: 480px !important;
+    border-radius: 26px !important;
+    padding: 20px !important;
+  }
+
+  .ktab-voices-popover-list,
+  .ktab-ambient-popover-list {
+    max-height: 380px !important;
+  }
+}
+

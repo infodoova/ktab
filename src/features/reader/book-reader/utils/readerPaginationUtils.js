@@ -200,3 +200,92 @@ export function findSnippetTokenRange(tokens, rawSnippet) {
 
   return null;
 }
+
+/**
+ * Detects whether the current device/viewport corresponds to an iPad or tablet.
+ * Supports iPadOS desktop-class Safari, native user-agents, touch tablet heuristics,
+ * and DevTools responsive emulation.
+ *
+ * @param {number} [width]
+ * @param {number} [height]
+ * @returns {boolean}
+ */
+export function isIPadDevice(width, height) {
+  if (typeof window === "undefined") return false;
+
+  const w = width ?? (window.innerWidth || document.documentElement?.clientWidth || 0);
+  const h = height ?? (window.innerHeight || document.documentElement?.clientHeight || 0);
+  const userAgent =
+    (typeof navigator !== "undefined" && (navigator.userAgent || navigator.vendor || window.opera)) ||
+    "";
+
+  // 1. Explicit iPad in user agent string
+  if (/iPad/i.test(userAgent)) return true;
+
+  // 2. iPadOS desktop-class browser mode (Safari on iPad reports MacIntel platform with multi-touch points)
+  if (
+    typeof navigator !== "undefined" &&
+    (navigator.platform === "MacIntel" || /Macintosh/i.test(userAgent)) &&
+    navigator.maxTouchPoints > 1
+  ) {
+    return true;
+  }
+
+  // 3. Known tablet user agents
+  if (/Tablet|PlayBook|Silk|Kindle/i.test(userAgent)) return true;
+
+  // 4. Touch tablet dimensional bounds (typical iPads range from 768x1024 to 1024x1366)
+  const minDim = Math.min(w, h);
+  const maxDim = Math.max(w, h);
+  const isTouchDevice =
+    "ontouchstart" in window ||
+    (typeof navigator !== "undefined" && navigator.maxTouchPoints > 0);
+
+  if (isTouchDevice && minDim >= 600 && minDim <= 1100 && maxDim >= 900 && maxDim <= 1450) {
+    return true;
+  }
+
+  // 5. DevTools simulation bounds without simulated touch (e.g. iPad Air: 820x1180, iPad Mini: 768x1024, iPad Pro: 1024x1366)
+  if (minDim >= 700 && minDim <= 1050 && maxDim >= 950 && maxDim <= 1400) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Checks if the current viewport is in vertical (portrait) orientation.
+ *
+ * @param {number} [width]
+ * @param {number} [height]
+ * @returns {boolean}
+ */
+export function isVerticalView(width, height) {
+  if (typeof window === "undefined") return false;
+  const w = width ?? (window.innerWidth || document.documentElement?.clientWidth || 0);
+  const h = height ?? (window.innerHeight || document.documentElement?.clientHeight || 0);
+  return h > w;
+}
+
+/**
+ * Checks if the device is an iPad/tablet in vertical (portrait) view.
+ *
+ * @param {number} [width]
+ * @param {number} [height]
+ * @returns {boolean}
+ */
+export function isIPadVertical(width, height) {
+  return isIPadDevice(width, height) && isVerticalView(width, height);
+}
+
+/**
+ * Determines target words-per-page for the book reader:
+ * 160 words on iPads/tablets in vertical view, 80 words otherwise.
+ *
+ * @param {number} [width]
+ * @param {number} [height]
+ * @returns {number}
+ */
+export function getTargetWordsPerPage(width, height) {
+  return isIPadVertical(width, height) ? 160 : 80;
+}

@@ -9,6 +9,9 @@ const FreeVoucherView = lazy(() => import("../../../features/free-voucher/views/
 const RoleErrorView = lazy(() => import("../../../features/common/views/RoleErrorView"));
 const ShareRedirectView = lazy(() => import("../../../features/common/views/ShareRedirectView"));
 
+// Feature: Selectables Hub (Public Direct Link)
+const SelectablesView = lazy(() => import("../../../features/selectables/views/SelectablesView"));
+
 // Feature: Auth
 const LoginView = lazy(() => import("../../../features/auth/views/LoginView"));
 const SignupView = lazy(() => import("../../../features/auth/views/SignupView"));
@@ -74,6 +77,11 @@ export const publicRoutes = [
     name: "Share",
     path: "/share",
     component: ShareRedirectView,
+  },
+  {
+    name: "Selectables",
+    path: "/selectables",
+    component: SelectablesView,
   },
 
   // ==========================================

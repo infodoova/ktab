@@ -1,0 +1,417 @@
+/* ==========================================================================
+   SELECTABLES DESTINATION HUB — APPLE FULL-WIDTH SLANTED SHOWCASE
+   Strict Light Mode • Full-Width Edge-to-Edge • No Footer • No Upper Text
+   ========================================================================== */
+
+.ktab-selectables-page {
+  color-scheme: light !important;
+  height: 100vh;
+  height: 100dvh;
+  max-height: 100dvh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: #fbfbfd !important;
+  background: radial-gradient(1400px 800px at 50% 0%, #ffffff 0%, #f7f8fa 55%, #f1f3f6 100%) !important;
+  color: #1d1d1f !important;
+  font-family: var(--font-arabic), "Tajawal", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+}
+
+.ktab-selectables-container {
+  height: 100%;
+  max-height: 100%;
+  width: 100%;
+  max-width: 100% !important;
+  margin: 0 !important;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  animation: ktabSelectablesFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes ktabSelectablesFadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Brand Header (Minimal Logo Top Bar)
+   ───────────────────────────────────────────────────────────────────────── */
+.ktab-selectables-header {
+  flex-shrink: 0;
+  width: 100%;
+  padding: clamp(8px, 1.4vh, 16px) clamp(20px, 4vw, 48px);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+}
+
+.ktab-selectables-logo-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  text-decoration: none;
+}
+
+.ktab-selectables-logo-wrap:hover {
+  transform: scale(1.05);
+}
+
+.ktab-selectables-logo {
+  height: clamp(34px, 4.5vh, 46px);
+  width: auto;
+  object-fit: contain;
+  display: block;
+  user-select: none;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   4 Diagonal Slanted Slices Showcase (Full-Width Edge-to-Edge)
+   ───────────────────────────────────────────────────────────────────────── */
+.ktab-selectables-showcase {
+  flex: 1 1 0;
+  min-height: 0;
+  width: 100% !important;
+  max-width: 100% !important;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff !important;
+  border-top: 1px solid rgba(0, 0, 0, 0.08) !important;
+  border-bottom: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-radius: 0 !important;
+  box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.02) !important;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Diagonal Slanted SVG Dividers cutting between sections */
+.ktab-selectables-slant-divider {
+  position: relative;
+  height: 0;
+  width: 100%;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.ktab-selectables-slant-svg {
+  position: absolute;
+  top: -12px;
+  left: 0;
+  width: 100%;
+  height: 24px;
+  display: block;
+  stroke: rgba(0, 0, 0, 0.09);
+}
+
+/* Section Row Slice (Edge-to-Edge with generous padding) */
+.ktab-selectables-section {
+  flex: 1 1 0;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 0 clamp(24px, 6vw, 72px);
+  box-sizing: border-box;
+  text-decoration: none;
+  color: #1d1d1f !important;
+  cursor: pointer;
+  outline: none;
+  position: relative;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: flex 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              background 0.24s ease;
+}
+
+/* Subtle Interactive Expansion */
+.ktab-selectables-showcase:hover .ktab-selectables-section {
+  flex: 0.92 1 0;
+}
+
+.ktab-selectables-section:hover {
+  flex: 1.25 1 0 !important;
+  z-index: 2;
+}
+
+.ktab-selectables-section:active {
+  transform: scale(0.997);
+}
+
+.ktab-selectables-section:focus-visible {
+  outline: 2px solid #0f172a;
+  outline-offset: -2px;
+}
+
+/* Section Subtle Brand Tints & Full-Width Gradients */
+.ktab-selectables-section--ocean {
+  background: rgba(2, 132, 199, 0.02);
+}
+.ktab-selectables-section--ocean:hover {
+  background: linear-gradient(135deg, rgba(2, 132, 199, 0.08) 0%, rgba(6, 182, 212, 0.03) 100%) !important;
+}
+
+.ktab-selectables-section--sunset {
+  background: rgba(244, 63, 94, 0.02);
+}
+.ktab-selectables-section--sunset:hover {
+  background: linear-gradient(135deg, rgba(244, 63, 94, 0.08) 0%, rgba(251, 146, 60, 0.03) 100%) !important;
+}
+
+.ktab-selectables-section--instagram {
+  background: rgba(214, 41, 118, 0.02);
+}
+.ktab-selectables-section--instagram:hover {
+  background: linear-gradient(135deg, rgba(147, 51, 234, 0.08) 0%, rgba(236, 72, 153, 0.03) 100%) !important;
+}
+
+.ktab-selectables-section--emerald {
+  background: rgba(13, 148, 136, 0.02);
+}
+.ktab-selectables-section--emerald:hover {
+  background: linear-gradient(135deg, rgba(13, 148, 136, 0.08) 0%, rgba(45, 212, 191, 0.03) 100%) !important;
+}
+
+/* Section Lead (Icon + Text) */
+.ktab-selectables-section__lead {
+  display: flex;
+  align-items: center;
+  gap: clamp(16px, 3.2vw, 24px);
+  min-width: 0;
+  flex: 1;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   iOS-Style App Squircles with Accurate Logos & Official Gradients
+   ───────────────────────────────────────────────────────────────────────── */
+.ktab-selectables-icon-squircle {
+  width: clamp(54px, 8vh, 66px);
+  height: clamp(54px, 8vh, 66px);
+  min-width: clamp(54px, 8vh, 66px);
+  min-height: clamp(54px, 8vh, 66px);
+  border-radius: clamp(14px, 2vh, 18px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff !important;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+  position: relative;
+}
+
+.ktab-selectables-section:hover .ktab-selectables-icon-squircle {
+  transform: scale(1.08) rotate(-2deg);
+}
+
+.ktab-selectables-icon-svg {
+  display: block;
+  stroke: #ffffff;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.16));
+}
+
+/* Ktab Official BrandIcon.png in Crisp White Squircle */
+.ktab-selectables-brand-img {
+  width: 78%;
+  height: 78%;
+  object-fit: contain;
+  display: block;
+  user-select: none;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.06));
+}
+
+.ktab-selectables-icon--emerald {
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.09) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.02) !important;
+}
+.ktab-selectables-section--emerald:hover .ktab-selectables-icon--emerald {
+  background: #ffffff !important;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.1) !important;
+  border-color: rgba(13, 148, 136, 0.3) !important;
+}
+
+/* Official Instagram Radial & Linear Blend Gradient */
+.ktab-selectables-icon--instagram {
+  background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285aeb 90%);
+  box-shadow: 0 8px 18px -4px rgba(214, 41, 118, 0.42);
+}
+.ktab-selectables-section--instagram:hover .ktab-selectables-icon--instagram {
+  box-shadow: 0 12px 24px -4px rgba(214, 41, 118, 0.58);
+}
+
+/* Ocean Sapphire (Early Access) */
+.ktab-selectables-icon--ocean {
+  background: linear-gradient(135deg, #0284c7 0%, #06b6d4 50%, #0d9488 100%);
+  box-shadow: 0 8px 18px -4px rgba(2, 132, 199, 0.42);
+}
+.ktab-selectables-section--ocean:hover .ktab-selectables-icon--ocean {
+  box-shadow: 0 12px 24px -4px rgba(2, 132, 199, 0.58);
+}
+
+/* Sunset Warm Coral (Free Voucher) */
+.ktab-selectables-icon--sunset {
+  background: linear-gradient(135deg, #f43f5e 0%, #fb923c 50%, #f59e0b 100%);
+  box-shadow: 0 8px 18px -4px rgba(244, 63, 94, 0.42);
+}
+.ktab-selectables-section--sunset:hover .ktab-selectables-icon--sunset {
+  box-shadow: 0 12px 24px -4px rgba(244, 63, 94, 0.58);
+}
+
+/* Section Text Stack */
+.ktab-selectables-section__text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  text-align: right;
+}
+
+.ktab-selectables-section__title {
+  margin: 0;
+  font-size: clamp(16px, 2.5vh, 19px);
+  font-weight: 700;
+  color: #0f172a !important;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ktab-selectables-section__subtitle {
+  margin: 0;
+  font-size: clamp(12.5px, 1.8vh, 14px);
+  font-weight: 400;
+  color: #64748b !important;
+  line-height: 1.4;
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Section Action (Badge + Arrow) */
+.ktab-selectables-section__action {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.ktab-selectables-section__badge {
+  font-size: clamp(11.5px, 1.6vh, 12.5px);
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  background: #f1f5f9;
+  color: #475569;
+  letter-spacing: -0.01em;
+  transition: background 0.2s ease, color 0.2s ease;
+  white-space: nowrap;
+}
+
+.ktab-selectables-section--ocean:hover .ktab-selectables-section__badge {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.ktab-selectables-section--sunset:hover .ktab-selectables-section__badge {
+  background: #ffe4e6;
+  color: #e11d48;
+}
+
+.ktab-selectables-section--instagram:hover .ktab-selectables-section__badge {
+  background: #fdf2f8;
+  color: #be185d;
+}
+
+.ktab-selectables-section--emerald:hover .ktab-selectables-section__badge {
+  background: #ccfbf1;
+  color: #0f766e;
+}
+
+.ktab-selectables-section__arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s ease;
+}
+
+.ktab-selectables-section:hover .ktab-selectables-section__arrow {
+  color: #0f172a;
+  transform: translateX(-4px);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Mobile & Small Screen Fallbacks ("Unless scrolling is a must if devices is too small")
+   ───────────────────────────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .ktab-selectables-section__badge {
+    display: none;
+  }
+}
+
+@media (max-height: 520px), (max-width: 340px) {
+  .ktab-selectables-page {
+    height: auto;
+    min-height: 100vh;
+    overflow-y: auto;
+  }
+
+  .ktab-selectables-showcase {
+    min-height: 440px;
+    flex: none;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Strict Light Mode Enforcement
+   ───────────────────────────────────────────────────────────────────────── */
+:global(.dark) .ktab-selectables-page,
+:global(html.dark) .ktab-selectables-page,
+:global(body.dark) .ktab-selectables-page {
+  color-scheme: light !important;
+  background: #fbfbfd !important;
+  background: radial-gradient(1400px 800px at 50% 0%, #ffffff 0%, #f7f8fa 55%, #f1f3f6 100%) !important;
+  color: #1d1d1f !important;
+}
+
+:global(.dark) .ktab-selectables-showcase,
+:global(html.dark) .ktab-selectables-showcase,
+:global(body.dark) .ktab-selectables-showcase {
+  background: #ffffff !important;
+  border-top-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+:global(.dark) .ktab-selectables-section__title,
+:global(html.dark) .ktab-selectables-section__title,
+:global(body.dark) .ktab-selectables-section__title {
+  color: #0f172a !important;
+}
+
+:global(.dark) .ktab-selectables-section__subtitle,
+:global(html.dark) .ktab-selectables-section__subtitle,
+:global(body.dark) .ktab-selectables-section__subtitle {
+  color: #64748b !important;
+}

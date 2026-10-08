@@ -13,6 +13,13 @@ export function isIOSDevice() {
   return isIOS || isIPadOS;
 }
 
+export {
+  isIPadDevice,
+  isVerticalView,
+  isIPadVertical,
+  getTargetWordsPerPage,
+} from "./readerPaginationUtils";
+
 /**
  * Safari-compatible decodeAudioData wrapper
  */

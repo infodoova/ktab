@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
+import { isIPadDevice } from "../utils/readerPaginationUtils";
 
 /**
  * Custom hook managing responsive viewport metrics, device categorizations,
@@ -9,7 +10,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
  * @param {number} params.wordsPerPage
  * @returns {Object} Responsive metrics, typography parameters, and layout bounds
  */
-export function useFlipBookDimensions({ fontSize = 18, wordsPerPage = 110 } = {}) {
+export function useFlipBookDimensions({ fontSize = 18, wordsPerPage = 80 } = {}) {
   const getViewportDimensions = useCallback(() => {
     if (typeof window === "undefined") return { width: 1200, height: 800 };
     const width = window.innerWidth || document.documentElement.clientWidth || 1200;
@@ -85,40 +86,22 @@ export function useFlipBookDimensions({ fontSize = 18, wordsPerPage = 110 } = {}
     );
   }, []);
 
-  // Desktop/Laptop PC with mouse or precision trackpad: always a desktop card view if width >= 768px
-  const isPCDesktop = isPointerFine && vw >= 768;
+  // Identify iPads and dedicated tablets (including iPadOS desktop Safari and DevTools simulation)
+  const isIPadOrTablet = useMemo(() => {
+    return isIPadDevice(vw, vh);
+  }, [vw, vh]);
+
+  const isVertical = vh > vw;
+  const isVerticalIPad = isIPadOrTablet && isVertical;
+
+  // Desktop/Laptop PC with mouse or precision trackpad: desktop card view when not an iPad/tablet
+  const isPCDesktop = isPointerFine && vw >= 768 && !isIPadOrTablet;
 
   // Mobile phone screen: narrow width under 768px
-  const isMobile = vw < 768;
-
-  // Identify iPads and dedicated tablets ONLY when not operating as a PC desktop with fine mouse pointer
-  const isIPadOrTablet = useMemo(() => {
-    if (typeof window === "undefined") return false;
-    // PC with mouse/trackpad pointer is NEVER a tablet
-    if (isPCDesktop) return false;
-
-    const isAppleTablet =
-      /iPad|Tablet|PlayBook/i.test(navigator.userAgent) ||
-      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1 && !isPointerFine);
-
-    if (isAppleTablet) return true;
-
-    // Only apply tablet dimensional heuristics to touch devices without a fine mouse pointer
-    if (isTouchDevice && !isPointerFine) {
-      const minDim = Math.min(vw, vh);
-      const maxDim = Math.max(vw, vh);
-      return (
-        (minDim >= 600 && minDim <= 1100 && maxDim >= 900 && maxDim <= 1450) ||
-        (vw >= 768 && vw <= 1366) ||
-        (minDim >= 600 && minDim <= 1100)
-      );
-    }
-
-    return false;
-  }, [vw, vh, isTouchDevice, isPointerFine, isPCDesktop]);
+  const isMobile = vw < 768 && !isIPadOrTablet;
 
   // Fullscreen edge-to-edge layout for mobile phones and touch tablets; elegant wide card on PC
-  const isMobileOrTablet = isMobile || (isIPadOrTablet && !isPCDesktop);
+  const isMobileOrTablet = isMobile || isIPadOrTablet;
   const isDesktop = !isMobileOrTablet && (isPCDesktop || vw >= 768);
 
   // Single-page height & width: Fullscreen edge-to-edge on mobile & tablets; elegant wide card on PC
@@ -140,25 +123,28 @@ export function useFlipBookDimensions({ fontSize = 18, wordsPerPage = 110 } = {}
   // Font size and line height calibrated for reading density on iPad & mobile
   const effectiveFontSize = useMemo(() => {
     const base = Math.min(28, Math.max(14, fontSize));
+    if (isVerticalIPad) {
+      // 160 words on vertical iPad: 15% calibrated scale for optimal line fitting without clipping
+      return Math.round(base * 1.15);
+    }
     if (isIPadOrTablet) {
       return Math.round(base * 1.28);
     }
     if (isDesktop) return Math.max(base, 19);
     return base;
-  }, [fontSize, isIPadOrTablet, isDesktop]);
+  }, [fontSize, isVerticalIPad, isIPadOrTablet, isDesktop]);
 
   const dynamicFontSize = `${effectiveFontSize}px`;
-  const dynamicLineHeight = isIPadOrTablet ? "1.86" : (isMobile ? "1.75" : "1.88");
+  const dynamicLineHeight = isVerticalIPad
+    ? "1.80"
+    : isIPadOrTablet
+    ? "1.86"
+    : isMobile
+    ? "1.75"
+    : "1.88";
 
-  // 110 words (~650 chars) across standard mobile/desktop; 220 words (~1,300 chars) on iPads/tablets
-  const BASE_WORDS_PER_PAGE = wordsPerPage || 110;
-
-  const calculatedWordsPerPage = useMemo(() => {
-    if (isIPadOrTablet) {
-      return BASE_WORDS_PER_PAGE * 2;
-    }
-    return BASE_WORDS_PER_PAGE;
-  }, [isIPadOrTablet, BASE_WORDS_PER_PAGE]);
+  // 160 words on vertical iPad / tablet; 80 words elsewhere
+  const calculatedWordsPerPage = wordsPerPage || (isVerticalIPad ? 160 : 80);
 
   return {
     vw,
@@ -166,6 +152,7 @@ export function useFlipBookDimensions({ fontSize = 18, wordsPerPage = 110 } = {}
     isTouchDevice,
     isMobile,
     isIPadOrTablet,
+    isVerticalIPad,
     isMobileOrTablet,
     isDesktop,
     pageHeight,
@@ -178,4 +165,5 @@ export function useFlipBookDimensions({ fontSize = 18, wordsPerPage = 110 } = {}
 }
 
 export default useFlipBookDimensions;
+
 

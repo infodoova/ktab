@@ -144,14 +144,20 @@ export function useReaderNavigation({
     [bookId, token, onPageChangeNotification, loadPage]
   );
 
-  // Initial citation lookup and page fetch happen in useReaderContent before this effect.
+  // Initial citation lookup, page fetch, or orientation/wordsPerPage changes
   useEffect(() => {
-    if (!hasInitialTargetRef.current || loadingText || !initialNavigation) return;
+    if (!initialNavigation?.page || loadingText) return;
+    if (initialNavigation.isWppChange) {
+      bookRef.current?.goToPage?.(initialNavigation.page, true);
+      setCurrentPage(initialNavigation.page);
+      return;
+    }
+    if (!hasInitialTargetRef.current) return;
     pendingSnippetQueryRef.current = initialNavigation;
     resolveSnippetNavigation();
     const timer = setTimeout(resolveSnippetNavigation, 350);
     return () => clearTimeout(timer);
-  }, [initialNavigation, loadingText, resolveSnippetNavigation]);
+  }, [initialNavigation, loadingText, resolveSnippetNavigation, bookRef]);
 
   // Clean snippet highlights on unmount
   useEffect(() => {

@@ -730,3 +730,16 @@
     -webkit-user-select: none !important;
   }
 }
+
+/* Portrait orientation on iPad & tablets: optimize padding for 160 words density */
+@media (min-width: 768px) and (max-width: 1366px) and (orientation: portrait) {
+  .ktab-book-page__content-wrap {
+    padding: 60px 48px calc(44px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .ktab-book-page__text {
+    max-width: min(860px, calc(100vw - 80px)) !important;
+    max-height: calc(100% - 32px) !important;
+  }
+}
+

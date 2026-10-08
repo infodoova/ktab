@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { fetchReaderPage, locateReaderPdfPage, locateReaderSnippet } from "../services/bookReaderService";
 import { fetchBookDetailsById } from "@/features/reader/book-details/services/bookDetailsService";
+import { getTargetWordsPerPage } from "../utils/readerPaginationUtils";
 import { AlertToast } from "@/components/myui/AlertToast";
 
 /**
@@ -39,16 +40,58 @@ export function useReaderContent(id) {
   const [bookText, setBookText] = useState("");
   const [loadingText, setLoadingText] = useState(true);
   const [totalPages, setTotalPages] = useState(1);
-  const [wordsPerPage, setWordsPerPage] = useState(80);
+  const [wordsPerPage, setWordsPerPage] = useState(() => getTargetWordsPerPage());
   const [currentPageData, setCurrentPageData] = useState(null);
   const [initialNavigation, setInitialNavigation] = useState(null);
+
+  // Active page number and words-per-page transition flag for orientation/viewport changes
+  const activePageRef = useRef(1);
+  const isWppChangeRef = useRef(false);
 
   // In-memory cache for loaded pages (pageNumber -> pageData)
   const pagesCacheRef = useRef({});
 
+  // Monitor viewport dimensions / device rotation to update wordsPerPage dynamically
+  useEffect(() => {
+    let rafId = null;
+
+    function handleViewportChange() {
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        const nextWpp = getTargetWordsPerPage();
+        setWordsPerPage((prevWpp) => {
+          if (nextWpp === prevWpp) return prevWpp;
+
+          const currentPage = activePageRef.current || 1;
+          const currentWordIndex = (currentPage - 1) * prevWpp;
+          const mappedPage = Math.floor(currentWordIndex / nextWpp) + 1;
+          activePageRef.current = mappedPage;
+          isWppChangeRef.current = true;
+          return nextWpp;
+        });
+      });
+    }
+
+    if (typeof window !== "undefined") {
+      window.addEventListener("resize", handleViewportChange);
+      window.addEventListener("orientationchange", handleViewportChange);
+      window.visualViewport?.addEventListener("resize", handleViewportChange);
+    }
+
+    return () => {
+      if (rafId) cancelAnimationFrame(rafId);
+      if (typeof window !== "undefined") {
+        window.removeEventListener("resize", handleViewportChange);
+        window.removeEventListener("orientationchange", handleViewportChange);
+        window.visualViewport?.removeEventListener("resize", handleViewportChange);
+      }
+    };
+  }, []);
+
   const loadPage = useCallback(
     async (pageNum) => {
       if (!id || pageNum < 1) return null;
+      activePageRef.current = pageNum;
 
       // 1. Check in-memory cache first
       if (pagesCacheRef.current[pageNum]) {
@@ -116,7 +159,13 @@ export function useReaderContent(id) {
         const pdfPage = Number(params.get("pdfPage") || entryLocation.state?.pdfPageNumber);
         const directPage = Number(params.get("page")
           || entryLocation.state?.targetPage || entryLocation.state?.initialPage);
-        let targetPage = Number.isInteger(directPage) && directPage > 0 ? directPage : 1;
+        
+        let targetPage;
+        if (isWppChangeRef.current && activePageRef.current > 0) {
+          targetPage = activePageRef.current;
+        } else {
+          targetPage = Number.isInteger(directPage) && directPage > 0 ? directPage : 1;
+        }
         let wordRange = null;
 
         if (snippet || pdfPage > 0) {
@@ -143,9 +192,13 @@ export function useReaderContent(id) {
 
         const data = res.data;
         if (active && data) {
+          const isWpp = isWppChangeRef.current;
+          isWppChangeRef.current = false;
+          activePageRef.current = data.page || targetPage;
           pagesCacheRef.current[data.page || targetPage] = data;
           setInitialNavigation({
             page: data.page || targetPage,
+            isWppChange: isWpp,
             snippet: wordRange?.found ? snippet : null,
             startWordIndex: wordRange?.startWordIndex ?? null,
             endWordIndex: wordRange?.endWordIndex ?? null,
