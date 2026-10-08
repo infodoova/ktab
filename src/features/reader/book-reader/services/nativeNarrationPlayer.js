@@ -1,4 +1,4 @@
-import { SILENT_WAV_DATA_URI } from "../utils/readerUtils";
+import silentPrimeMp3 from "../assets/silent-prime.mp3";
 
 function playWithTimeout(audio, timeoutMs = 15000) {
   let timer;
@@ -53,8 +53,14 @@ export function createNativeNarrationPlayer() {
     prime() {
       stop();
       audio.loop = true;
-      audio.src = SILENT_WAV_DATA_URI;
-      return playWithTimeout(audio, 5000);
+      // Safari can leave play() pending for a WAV data URI even though the
+      // element will later play MP3. Use the same codec as narration and let
+      // the WebSocket request proceed while media activation settles.
+      audio.src = silentPrimeMp3;
+      const activation = audio.play();
+      activation?.catch((error) => {
+        if (error.name !== "AbortError") console.warn("Narration audio activation failed:", error);
+      });
     },
     async playChunks(chunks, { onProgress, onEnded, onError }) {
       if (!chunks.length) throw new Error("TTS returned no audio");

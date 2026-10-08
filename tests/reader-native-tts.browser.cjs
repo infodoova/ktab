@@ -47,9 +47,20 @@ const {chromium,webkit}=require(path.join(root,'node_modules/playwright'));
  await page.waitForFunction(()=>window.tts);
  const assert=(value,message)=>{if(!value)throw Error(message);console.log('PASS',message)};
  assert(await page.evaluate(()=>audioContexts===0),'iOS TTS and ambient never instantiate the broken AudioContext');
+ // Model iPhone Safari keeping the first silent play() promise pending. The
+ // element still starts, but narration must not wait for that promise.
+ await page.evaluate(()=>{
+  const originalPlay=HTMLMediaElement.prototype.play;
+  let first=true;
+  HTMLMediaElement.prototype.play=function(...args){
+   const actual=originalPlay.apply(this,args);
+   if(first){first=false;actual?.catch(()=>{});return new Promise(()=>{});}
+   return actual;
+  };
+ });
  await page.click('#play');
  await page.waitForFunction(()=>tts.isPlaying&&tts.isLoading);
- assert(await page.evaluate(()=>startResult),'Native element is primed by the Play gesture');
+ assert(await page.evaluate(()=>Promise.race([startResult,new Promise(resolve=>setTimeout(()=>resolve(false),1000))])),'A pending silent play does not block the TTS request');
  const payload={bookId:1,voiceId:'voice',page:1,startWord:42,endWord:44,wordsPerPage:2,isLastPage:false,text:'word text'};
  await page.evaluate(p=>tts.startPageStream(p),payload);
  await page.evaluate(base64=>window.mp3=Uint8Array.from(atob(base64),x=>x.charCodeAt(0)),fs.readFileSync(path.join(root,'src/assets/audio/rain.mp3')).toString('base64'));

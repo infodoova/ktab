@@ -254,8 +254,7 @@ export function useNativeReaderTTS({ enabled, onPageEnded, onPrefetchNextPage, o
     try {
       playerRef.current ||= createNativeNarrationPlayer();
       // Prime THIS media element before any connection or synthesis await.
-      const primed = playerRef.current.prime();
-      await primed;
+      playerRef.current.prime();
       await connect();
       return !disposedRef.current && playingRef.current && lifecycle === lifecycleRef.current;
     } catch (error) {
