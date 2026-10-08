@@ -22,6 +22,14 @@ export const FOOTER_SECTIONS = [
       { id: "s3", label: "تسجيل الدخول", href: "/login" },
     ],
   },
+  {
+    id: "legal",
+    title: "الشروط والخصوصية",
+    links: [
+      { id: "l1", label: "الشروط والأحكام", href: "/terms", targetBlank: true },
+      { id: "l2", label: "سياسة الخصوصية", href: "/privacy", targetBlank: true },
+    ],
+  },
 ];
 
 export const SOCIAL_LINKS = [];
@@ -35,6 +43,11 @@ export function useFooter() {
 
   const handleLinkClick = useCallback(
     (e, link) => {
+      // If targetBlank, let browser natively open the link in a new tab
+      if (link.targetBlank) {
+        return;
+      }
+
       // Smooth scroll to anchor on current page
       if (link.target) {
         e.preventDefault();

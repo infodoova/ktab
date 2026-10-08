@@ -27,7 +27,7 @@ export default function Footer() {
               type="button"
               className="er-footer-logo-btn"
               onClick={scrollToTop}
-              aria-label="كتاب — العودة للأعلى"
+              aria-label="كتّاب: العودة للأعلى"
             >
               <img src={logo} alt="Ktab Logo" className="er-footer-logo" />
             </button>
@@ -49,6 +49,8 @@ export default function Footer() {
                       <a
                         href={link.href || `#${link.target}`}
                         className="er-footer-link"
+                        target={link.targetBlank ? "_blank" : undefined}
+                        rel={link.targetBlank ? "noopener noreferrer" : undefined}
                         onClick={(e) => handleLinkClick(e, link)}
                       >
                         {link.label}
@@ -61,11 +63,32 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Bottom Bar: Copyright + Back to top */}
+        {/* Bottom Bar: Copyright + Legal Links + Back to top */}
         <div className="er-footer-bottom">
-          <p className="er-footer-copy">
-            © {year} كتاب — جميع الحقوق محفوظة.
-          </p>
+          <div className="er-footer-bottom-info">
+            <p className="er-footer-copy">
+              © {year} كتّاب. جميع الحقوق محفوظة.
+            </p>
+            <div className="er-footer-bottom-legal">
+              <a
+                href="/terms"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="er-footer-bottom-legal-link"
+              >
+                الشروط والأحكام
+              </a>
+              <span className="er-footer-bottom-sep" aria-hidden="true">·</span>
+              <a
+                href="/privacy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="er-footer-bottom-legal-link"
+              >
+                سياسة الخصوصية
+              </a>
+            </div>
+          </div>
 
           <button
             type="button"

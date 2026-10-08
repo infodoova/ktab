@@ -1,217 +1,248 @@
 /**
- * Authentic, production-grade legal and policy articles for the Ktab platform.
- * Complete with official terms, privacy safeguards, and IP protections.
+ * Authentic, pure-text legal policies for Ktab (Early Access MVP Phase).
+ * Bilingual (Arabic & English), with zero artificial badges or decorative fluff.
  */
 
 export const LEGAL_ARTICLES = {
   terms: {
     id: "terms",
-    title: "الشروط والأحكام",
-    subtitle: "اتفاقية الاستخدام والضوابط القانونية لمنصة وتطبيقات كتاب",
-    lastUpdated: "أكتوبر ٢٠٢٦",
-    badge: "وثيقة رسمية",
-    intro:
-      "أهلاً بك في منصة كتاب (ktab.app). يرجى قراءة هذه الشروط والأحكام بعناية قبل استخدام الموقع أو التطبيق. بمجرد استخدامك للمنصة أو التسجيل في أي من خدماتها أو طلب الوصول المبكر، فإنك توافق على الالتزام الكامل بهذه الشروط والضوابط القانونية.",
-    sections: [
-      {
-        id: "acceptance",
-        number: "١",
-        title: "قبول الشروط وأهلية الاستخدام",
-        content:
-          "يشكل استخدامك لمنصة كتاب عقداً ملزماً قانونياً بينك وبين المنصة. باستخدام الخدمة، تقر بأنك تبلغ السن القانونية التي تؤهلك لإبرام العقود، أو أنك تستخدمها بموافقة وإشراف ولي الأمر إذا كنت قاصراً.",
-        bullets: [
-          "الالتزام بجميع القوانين واللوائح المحلية والدولية المنظمة لاستخدام الإنترنت.",
-          "تقديم معلومات دقيقة وصحيحة ومحدثة عند التسجيل أو طلب الوصول المبكر.",
-          "تحمل المسؤولية الكاملة عن الحفاظ على سرية بيانات حسابك وأمان تسجيل الدخول.",
-        ],
-      },
-      {
-        id: "services",
-        number: "٢",
-        title: "طبيعة الخدمات ونطاقها",
-        content:
-          "منصة كتاب هي منصة رقمية متطورة توفر بيئة تفاعلية لقراءة الكتب وسماعها بتقنيات الصوت الذكي الفائق، بالإضافة إلى إتاحة تأليف ومطالعة القصص التفاعلية متعددة المسارات.",
-        bullets: [
-          "تخضع الخدمات للتحديث والتطوير المستمر لتحسين تجربة المستخدم.",
-          "يحق للمنصة إضافة ميزات جديدة أو تعديل واجهات الاستخدام بما يخدم جودة المنظومة.",
-          "قسائم الوصول المبكر والعروض الترويجية تخضع للشروط المحددة لكل فئة (شهر مجاني للقرّاء، وخصم 50% للمؤلفين).",
-        ],
-      },
-      {
-        id: "intellectual-property",
-        number: "٣",
-        title: "حقوق الملكية الفكرية",
-        content:
-          "جميع الحقوق الأدبية والفكرية للكتب والروايات المتاحة عبر المنصة محفوظة حصرياً لمؤلفيها ودور النشر المرخصة. تصميم المنصة وشعارها والبرمجيات ونماذج الصوت الذكية هي ملكية خاصة لكتاب ولا يجوز نسخها أو إعادة هندستها.",
-        bullets: [
-          "يُحظر نسخ أو تسجيل أو إعادة نشر أي محتوى صوتي أو نصي خارج بيئة المنصة دون إذن خطي.",
-          "لا يُمنح المستخدم أي حقوق ملكية بالمحتوى المقروء أو المسموع عدا حق الاستخدام الشخصي غير التجاري.",
-        ],
-      },
-      {
-        id: "author-obligations",
-        number: "٤",
-        title: "مسؤوليات المؤلفين وصنّاع المحتوى",
-        content:
-          "عند قيامك بنشر كتاب أو تأليف قصة تفاعلية، فإنك تقر بأنك المالك الأصلي للعمل أو تمتلك التراخيص اللازمة لنشره، وأن العمل لا ينتهك حقوق أي طرف ثالث.",
-        bullets: [
-          "يمنع منعاً باتاً نشر محتوى ينطوي على كراهية أو تحريض أو انتهاك للخصوصية أو ممارسات غير قانونية.",
-          "تحتفظ المنصة بحق مراجعة الأعمال الأدبية أو تعليق نشر ما يخالف معايير الجودة والنزاهة الأدبية.",
-        ],
-      },
-      {
-        id: "ai-usage",
-        number: "٥",
-        title: "ضوابط تقنيات الذكاء الاصطناعي",
-        content:
-          "تستخدم كتاب تقنيات الذكاء الاصطناعي لتوليد القراءات الصوتية الواقعية والمؤثرات وتحسين تجربة القصص التفاعلية. يجب استخدام هذه الأدوات وفق أطر أخلاقية صارمة.",
-        bullets: [
-          "يمنع استخدام نماذج الصوت لمحاكاة شخصيات عامة أو انتحال هويات دون تصريح رسمي.",
-          "تلتزم المنصة بضمان دقة النطق ومراعاة قواعد اللغة العربية في معالجات الصوت الذكية.",
-        ],
-      },
-      {
-        id: "limitation-of-liability",
-        number: "٦",
-        title: "إخلاء المسؤولية وحدود الالتزام",
-        content:
-          "نبذل قصارى جهدنا لضمان استمرارية الخدمة بأعلى كفاءة. ومع ذلك، تُقدم الخدمة على أساس 'كما هي' ولا نتحمل أي مسؤولية عن انقطاعات الخدمة الناتجة عن أسباب قاهرة أو تحديثات دورية مجدولة.",
-      },
-      {
-        id: "modifications",
-        number: "٧",
-        title: "تعديل الشروط والإنهاء",
-        content:
-          "يحق للمنصة تعديل هذه الشروط عند الضرورة، وسيتم إخطار المستخدمين بأي تغييرات جوهرية قبل سريانها. استمرارك في استخدام المنصة بعد التعديل يعد قبولاً للشروط المحدثة.",
-      },
-    ],
+    ar: {
+      title: "الشروط والأحكام",
+      subtitle: "شروط الاستخدام لمنصة كتّاب (مرحلة الوصول المبكر، المرحلة الثانية التجريبية MVP)",
+      lastUpdated: "أكتوبر ٢٠٢٦",
+      phaseNotice: "ملاحظة: منصة كتّاب تعمل حالياً ضمن مرحلة الوصول المبكر (المرحلة الثانية التجريبية Early Access MVP Phase 2). الميزات والشروط تعكس طبيعة هذه المرحلة التأسيسية وتخضع للتطوير والتحسين المستمر.",
+      intro:
+        "مرحباً بك في منصة كتّاب (ktab.app). منصة كتّاب هي منصة رقمية متخصصة في القراءة العربية الذكية وسماع الكتب وتأليف القصص التفاعلية، وتمر حالياً بمرحلة الوصول المبكر في مرحلتها الثانية التجريبية (Early Access MVP Phase 2). باستخدامك للموقع أو التطبيق، فإنك توافق على هذه الشروط والأحكام التي توضح حقوقك والتزاماتنا المشتركة خلال هذه المرحلة التأسيسية.",
+      sections: [
+        {
+          id: "mvp-nature",
+          title: "١. طبيعة مرحلة الوصول المبكر (المرحلة الثانية التجريبية Early Access MVP Phase 2)",
+          content:
+            "تعمل منصة كتّاب حالياً كنسخة تجريبية ضمن المرحلة الثانية للوصول المبكر (Minimum Viable Product Phase 2). نهدف في هذه المرحلة إلى اختبار وتطوير محرك تحويل النص إلى صوت (TTS)، والقراءة التفاعلية، ومعالجة النصوص العربية، بمشاركة مباشرة من القرّاء والكتّاب.",
+          bullets: [
+            "الخدمات والميزات قيد التحسين المستمر وفقاً للملاحظات العملية من المستخدمين.",
+            "قد تجري المنصة تحديثات دورية أو فترات صيانة لتحسين البنية التحتية وسرعة الخوادم.",
+            "يحصل مستخدمو الوصول المبكر على قسائم استخدام تجريبية للاستفادة الكاملة من ميزات المنصة مجاناً خلال فترة التجربة.",
+          ],
+        },
+        {
+          id: "accounts",
+          title: "٢. الحسابات وقسائم الوصول",
+          content:
+            "يتطلب الوصول إلى بعض الميزات إنشاء حساب شخصي بواسطة البريد الإلكتروني. تتيح قسائم الوصول المبكر للقرّاء والمؤلفين تجربة القراءة والاستماع دون دفع رسوم مسبقة أثناء فترة التقييم.",
+          bullets: [
+            "أنت مسؤول عن الحفاظ على سرية بيانات حسابك وأمان تسجيل الدخول الخاص بك.",
+            "قسائم الوصول المبكر مخصصة للاستخدام الفردي غير التجاري.",
+            "يمكنك إلغاء حسابك أو طلب حذفه نهائياً في أي وقت.",
+          ],
+        },
+        {
+          id: "ip-rights",
+          title: "٣. حقوق الملكية الفكرية وحماية المحتوى",
+          content:
+            "تلتزم كتّاب بالاحترام التام لحقوق المؤلفين ودور النشر. يحتفظ المؤلفون والناشرون بحقوق الملكية الفكرية والأدبية الكاملة لكتبهم ونصوصهم الأصلية.",
+          bullets: [
+            "يحصل القارئ على ترخيص شخصي وغير حصري للقراءة والاستماع داخل بيئة التطبيق فقط.",
+            "يُمنع منعاً باتاً استخراج أو نسخ أو إعادة بيع النصوص أو التسجيلات الصوتية الناتجة خارج المنصة دون إذن خطي صريح.",
+            "العلامة التجارية لمنصة كتّاب والتصميم والواجهات البرمجية هي ملكية حصرية لشركة Doova المطورة للمشروع.",
+          ],
+        },
+        {
+          id: "ai-narration",
+          title: "٤. القراءة الصوتية وأدوات الذكاء الاصطناعي",
+          content:
+            "تستخدم المنصة تقنيات متطورة لتوليد القراءة الصوتية باللغة العربية ومساعدة الكتّاب في بناء مسارات القصص التفاعلية. الغرض من هذه الأدوات هو إثراء تجربة القراءة والاحتفاء بجمال اللغة العربية.",
+          bullets: [
+            "تعمل النماذج الصوتية وفق ضوابط تمنع انتحال الشخصيات أو الاستخدام غير المصرح به.",
+            "نواصل العمل المستمر على ضبط دقة التشكيل ومخارج الحروف العربية لضمان أعلى جودة استماع.",
+          ],
+        },
+        {
+          id: "acceptable-use",
+          title: "٥. الاستخدام المقبول",
+          content:
+            "يتعهد المستخدم بعدم إساءة استخدام المنصة، وعدم محاولة اختراق أنظمتها أو التحايل على حدود الاستخدام العادل، وعدم رفع محتوى ينتهك حقوق الآخرين أو يتعارض مع القوانين والآداب العامة.",
+        },
+        {
+          id: "updates",
+          title: "٦. التحديثات والتعديلات",
+          content:
+            "مع نضوج المنصة والانتقال إلى مراحل الإطلاق اللاحقة، قد نحدث هذه الشروط لتشمل الميزات الجديدة. سيتم نشر أي تحديثات على هذه الصفحة مع توضيح تاريخ التعديل.",
+        },
+      ],
+    },
+    en: {
+      title: "Terms of Service",
+      subtitle: "Terms and conditions for Ktab platform (Early Access MVP Phase 2)",
+      lastUpdated: "October 2026",
+      phaseNotice: "Note: Ktab is currently operating in its Early Access MVP Phase 2 stage. All features and policies reflect this foundational release and are subject to continuous refinement.",
+      intro:
+        "Welcome to Ktab (ktab.app). Ktab is a digital platform dedicated to smart Arabic reading, voice narration, and interactive storytelling, currently operating in its Early Access MVP (Phase 2) stage. By accessing or using our website and application, you agree to these Terms, which set out our mutual rights and responsibilities during this foundational phase.",
+      sections: [
+        {
+          id: "mvp-nature",
+          title: "1. Early Access MVP (Phase 2) Nature",
+          content:
+            "Ktab is currently provided as an Early Access Minimum Viable Product (Phase 2). Our primary goal during this phase is to evaluate and refine our real-time Arabic speech narration, dynamic reading interfaces, and interactive story workflows with authentic reader and author engagement.",
+          bullets: [
+            "Features, audio quality, and interfaces are continuously tuned based on direct community feedback.",
+            "Periodic updates or scheduled maintenance may occur as server infrastructure expands.",
+            "Early Access participants receive complimentary access vouchers to test reader features at no initial cost.",
+          ],
+        },
+        {
+          id: "accounts",
+          title: "2. Accounts and Access Vouchers",
+          content:
+            "Access to personal reading libraries and voice customization requires creating an account via email. Early access vouchers grant trial reading privileges without upfront financial obligations.",
+          bullets: [
+            "You are responsible for maintaining the security and confidentiality of your login credentials.",
+            "Early access trial vouchers are strictly personal and intended for non-commercial individual use.",
+            "You may request account deletion or discontinue usage at any time.",
+          ],
+        },
+        {
+          id: "ip-rights",
+          title: "3. Intellectual Property and Author Rights",
+          content:
+            "We hold the highest respect for authors, illustrators, and publishing houses. Rights-holders retain full, exclusive intellectual property ownership of their original books and written works.",
+          bullets: [
+            "Readers receive a personal, non-exclusive license to read and listen strictly within the Ktab application.",
+            "Scraping, downloading, unauthorized recording, or commercial redistribution of books or audio narration outside Ktab is strictly prohibited.",
+            "The Ktab trademark, branding, and proprietary reader interface code are owned exclusively by Doova.",
+          ],
+        },
+        {
+          id: "ai-narration",
+          title: "4. Voice Narration and AI Assistance",
+          content:
+            "Ktab uses speech synthesis technologies to deliver natural Arabic audio narration and assist creators in designing branching story choices. These tools are built to celebrate Arabic literature, not to deceive or impersonate real persons.",
+          bullets: [
+            "Audio synthesis models operate under strict ethical boundaries preventing unauthorized voice cloning.",
+            "We continuously refine diacritic parsing (tashkeel) and pronunciation accuracy.",
+          ],
+        },
+        {
+          id: "acceptable-use",
+          title: "5. Acceptable Use",
+          content:
+            "Users agree not to exploit the platform, circumvent system guardrails or rate limits, reverse-engineer proprietary code, or upload content that infringes upon third-party rights or applicable laws.",
+        },
+        {
+          id: "updates",
+          title: "6. Modifications and Service Evolution",
+          content:
+            "As Ktab expands beyond the Early Access Phase 2 into full general release, these Terms may be updated to reflect newly launched capabilities. Updates will be published directly on this page with the effective date.",
+        },
+      ],
+    },
   },
 
   privacy: {
     id: "privacy",
-    title: "سياسة الخصوصية",
-    subtitle: "التزامنا بحماية بياناتك الشخصية وضمان أمان تصفحك وتجربتك",
-    lastUpdated: "أكتوبر ٢٠٢٦",
-    badge: "حماية البيانات",
-    intro:
-      "نحن في كتاب نضع حماية خصوصيتك في صميم أولوياتنا. توضح هذه السياسة بوضوح نوعية البيانات التي نجمعها، وكيفية استخدامها لحماية وتطوير تجربة القراءة والاستماع الخاصة بك، دون أي تنازل عن معايير الأمان والشفافية.",
-    sections: [
-      {
-        id: "data-collection",
-        number: "١",
-        title: "البيانات التي نقوم بجمعها",
-        content:
-          "نجمع فقط البيانات الضرورية لتقديم خدمات المنصة وإدارتها بكفاءة عالية، وتشمل:",
-        bullets: [
-          "بيانات التسجيل: مثل الاسم، عنوان البريد الإلكتروني، ورقم الهاتف (إن وُجد).",
-          "بيانات الاستخدام: تقدمك في القراءة، مواقع توقف الاستماع، الإشارات المرجعية، والمكتبة الشخصية.",
-          "التفضيلات الأدبية: أنواع الكتب التي تفضلها، ومعدلات سرعة الصوت المختارة.",
-          "البيانات التقنية: نوع المتصفح والجهاز ونظام التشغيل لضمان استقرار العرض والأداء.",
-        ],
-      },
-      {
-        id: "data-usage",
-        number: "٢",
-        title: "كيف نستخدم هذه البيانات؟",
-        content:
-          "نستخدم بياناتك حصرياً لأغراض تشغيلية وتطويرية تصب مباشرة في مصلحة تجربتك:",
-        bullets: [
-          "مزامنة دقيقة وسلسة لموقع القراءة والاستماع الصوتي عبر جميع أجهزتك.",
-          "تقديم اقتراحات مخصصة للكتب والروايات والقصص التفاعلية بناءً على اهتماماتك.",
-          "إرسال إشعارات التحديثات الهامة ورموز تفعيل الوصول المبكر والقسائم الترويجية.",
-          "رصد الأخطاء التقنية وحلها لضمان أعلى مستوى من الاستقرار وسرعة التحميل.",
-        ],
-      },
-      {
-        id: "no-sharing",
-        number: "٣",
-        title: "عدم بيع أو تأجير البيانات",
-        content:
-          "نلتزم التزاماً مطلقاً وصارماً بعدم بيع، تأجير، أو المتاجرة ببياناتك الشخصية لأي طرف ثالث، أو شبكات الإعلانات المستهدفة، تحت أي ظرف من الظروف.",
-        bullets: [
-          "لا تتم مشاركة البيانات إلا مع مزودي الاستضافة والبنية التحتية السحابية الموثوقين المشفرين.",
-          "تخضع أي معالجة طرف ثالث لاتفاقيات حماية بيانات سرية متوافقة مع أعلى المعايير العالمية.",
-        ],
-      },
-      {
-        id: "security",
-        number: "٤",
-        title: "أمان البيانات وتشفيرها",
-        content:
-          "نطبق معايير أمان مصرفية لحماية بياناتك من الوصول غير المصرح به أو التغيير أو الإفشاء:",
-        bullets: [
-          "تشفير كامل للاتصالات عبر بروتوكولات SSL/TLS القياسية.",
-          "تشفير كلمات المرور والبيانات الحساسة في قواعد البيانات بأحدث خوارزميات التجزئة.",
-          "فصل قواعد بيانات الوصول المبكر عن جداول الحسابات الرسمية لحماية الخصوصية.",
-        ],
-      },
-      {
-        id: "user-rights",
-        number: "٥",
-        title: "حقوقك والتحكم ببياناتك",
-        content:
-          "أنت تملك التحكم الكامل في معلوماتك وحسابك على كتاب، ويشمل ذلك:",
-        bullets: [
-          "حق طلب نسخة كاملة من بياناتك المحفوظة لدينا.",
-          "حق تعديل أو تحديث أي معلومات شخصية غير دقيقة عبر إعدادات الحساب.",
-          "حق حذف حسابك وبياناتك بالكامل من خوادمنا بشكل نهائي عبر خيارات الحساب أو مراسلة الدعم.",
-        ],
-      },
-      {
-        id: "contact-dpo",
-        number: "٦",
-        title: "التواصل بخصوص الخصوصية",
-        content:
-          "إذا كان لديك أي سؤال أو استفسار حول سياسة الخصوصية أو كيفية تعاملنا مع بياناتك، يمكنك مراسلتنا مباشرة عبر البريد الإلكتروني المخصص: privacy@ktab.com أو support@ktab.com.",
-      },
-    ],
-  },
-
-  copyright: {
-    id: "copyright",
-    title: "حقوق النشر والملكية الفكرية",
-    subtitle: "سياسة حماية المبدعين والمؤلفين وصون الملكية الأدبية العربية",
-    lastUpdated: "أكتوبر ٢٠٢٦",
-    badge: "حماية الإبداع",
-    intro:
-      "تأسست منصة كتاب لدعم الثقافة العربية وصون حقوق مؤلفيها وناشريها. نؤمن بأن حماية العمل الأدبي هي الركيزة الأساسية لاستدامة الإبداع ونمو المكتبة العربية الرقمية.",
-    sections: [
-      {
-        id: "authors-ownership",
-        number: "١",
-        title: "ملكية المؤلفين والناشرين",
-        content:
-          "المؤلفون ودور النشر الشريكة هم المالكون الأصليون والحصريون لكافة النصوص والمخطوطات والروايات المنشورة على المنصة. لا تدّعي كتاب أي ملكية أدبية أو فكرية على محتوى الكتب المنشورة.",
-      },
-      {
-        id: "license-scope",
-        number: "٢",
-        title: "نطاق الترخيص والتمثيل",
-        content:
-          "عندما ينشر مؤلف أو ناشر عملاً عبر كتاب، فإنه يمنح المنصة ترخيصاً رقمياً غير حصري لعرض العمل وتوفير إمكانية القراءة والاستماع الذكي لمشتركي المنصة حصراً وفق شروط الاتفاقية المبرمة.",
-      },
-      {
-        id: "anti-piracy",
-        number: "٣",
-        title: "مكافحة القرصنة والحماية الرقمية",
-        content:
-          "تستخدم كتاب أنظمة حماية رقمية متقدمة (DRM) لمنع استخراج أو تفريغ أو نسخ الملفات النصية والصوتية خارج بيئة التطبيق الرسمية، مما يضمن أمان الكتب ضد التداول غير المصرح به.",
-      },
-      {
-        id: "ip-reports",
-        number: "٤",
-        title: "الإبلاغ عن انتهاك حقوق الملكية الفكرية",
-        content:
-          "إذا كنت مؤلفاً أو وكيلاً أدبياً أو دار نشر وتعتقد أن عملاً ما تم استخدامه أو رفعه دون تفويض مناسب، يرجى تقديم إشعار رسمي فوري وسنقوم باتخاذ الإجراءات اللازمة خلال ٤٨ ساعة عمل.",
-        bullets: [
-          "اسم صاحب الحق أو الممثل القانوني المخوّل.",
-          "تحديد العمل المنتهك ورابطه على منصة كتاب.",
-          "إثبات الملكية أو وثيقة التوكيل القانوني.",
-          "إرسال البلاغ إلى فريق الشؤون القانونية: legal@ktab.com.",
-        ],
-      },
-    ],
+    ar: {
+      title: "سياسة الخصوصية",
+      subtitle: "نهجنا الشفاف والصارم لحماية بياناتك في مرحلة الوصول المبكر (المرحلة الثانية MVP)",
+      lastUpdated: "أكتوبر ٢٠٢٦",
+      phaseNotice: "ملاحظة: منصة كتّاب تعمل حالياً ضمن مرحلة الوصول المبكر (المرحلة الثانية التجريبية Early Access MVP Phase 2). نلتزم بمبدأ الحد الأدنى من البيانات لحماية خصوصيتك.",
+      intro:
+        "نحن في كتّاب نؤمن بأن خصوصية القارئ مقدسة. توضح هذه الوثيقة البيانات المحدودة التي نجمعها لتشغيل المنصة في مرحلتها التجريبية الثانية (Early Access MVP Phase 2)، وكيفية حمايتها دون أي بيع أو متاجرة بمعلوماتك الشخصية.",
+      sections: [
+        {
+          id: "data-minimal",
+          title: "١. الحد الأدنى من البيانات المجمعة",
+          content:
+            "نقتصر في جمع البيانات على ما هو ضروري تماماً لتقديم تجربة قراءة واستماع مريحة ومستمرة:",
+          bullets: [
+            "معلومات الحساب: عنوان البريد الإلكتروني والاسم المستعار لإدارة الدخول واستعادة الحساب.",
+            "تفضيلات القراءة: حجم الخط، السمة اللونية، ونوع الصوت المفضل للراوي لحفظ إعداداتك الخاصة.",
+            "مزامنة التقدم: رقم الصفحة الحالية والعلامات المرجعية لتمكينك من متابعة قراءتك بدقة.",
+            "بيانات تقنية مجهولة المصدر: نوع المتصفح ونظام التشغيل وسجلات الأعطال البرمجية لحل المشاكل التقنية في النسخة التجريبية.",
+          ],
+        },
+        {
+          id: "no-sale",
+          title: "٢. حظر بيع البيانات ومشاركتها الإعلانية",
+          content:
+            "لا نقوم إطلاقاً ببيع أو تأجير أو مشاركة بياناتك الشخصية أو سجلات قراءتك مع أي طرف ثالث أو شبكة إعلانية. بياناتك تستخدم حصرياً داخل كتّاب لتشغيل ميزات المنصة.",
+        },
+        {
+          id: "storage-security",
+          title: "٣. أمان البيانات والحماية التقنية",
+          content:
+            "نعتمد بروتوكولات حماية وتشفير معيارية (HTTPS/TLS واتصال WSS الآمن للصوت) مع عزل قواعد البيانات وإدارة وصول محمية للمحافظة على سلامة معلومات المستخدمين.",
+        },
+        {
+          id: "cookies",
+          title: "٤. ملفات تعريف الارتباط والجلسات",
+          content:
+            "نستخدم فقط ملفات تعريف ارتباط وظيفية لحفظ تسجيل دخولك وحفظ اختيارات القراءة محلياً في متصفحك. لا نستخدم أي ملفات تتبع إعلانية خارجية.",
+        },
+        {
+          id: "user-rights",
+          title: "٥. حقوق المستخدم والتحكم بالبيانات",
+          content:
+            "لك كامل الحق في مراجعة بياناتك، أو طلب تصحيحها، أو طلب الحذف النهائي لحسابك وكافة سجلاتك المرتبطة به من خوادمنا في أي وقت.",
+        },
+        {
+          id: "contact",
+          title: "٦. التواصل بشأن الخصوصية",
+          content:
+            "إذا كانت لديك أي استفسارات أو ملاحظات تتعلق بالخصوصية خلال مرحلة الوصول المبكر، يمكنك مراسلتنا مباشرة عبر البريد الإلكتروني: support@ktab.app.",
+        },
+      ],
+    },
+    en: {
+      title: "Privacy Policy",
+      subtitle: "Transparent, minimal data practices for Ktab Early Access MVP (Phase 2)",
+      lastUpdated: "October 2026",
+      phaseNotice: "Note: Ktab is currently operating in its Early Access MVP Phase 2 stage. We practice strict data minimization to protect reader privacy.",
+      intro:
+        "At Ktab, we believe reader privacy is paramount. This Privacy Policy details the minimal information we collect to operate our Early Access MVP (Phase 2), how we safeguard it, and our strict policy against selling or commercially exploiting personal data.",
+      sections: [
+        {
+          id: "data-minimal",
+          title: "1. Minimal Data Collection",
+          content:
+            "We collect only the bare essentials required to deliver an intuitive, synchronized reading and listening experience:",
+          bullets: [
+            "Account Essentials: Your email address and display name to manage authentication and account recovery.",
+            "Reader Preferences: Font size, viewer theme, and selected narrator voice to preserve your personalized experience.",
+            "Reading Continuity: Current page index and bookmarks so you can pick up exactly where you left off.",
+            "Anonymous Telemetry: Browser type, operating system, and crash diagnostics to resolve bugs during the Early Access phase.",
+          ],
+        },
+        {
+          id: "no-sale",
+          title: "2. Zero Sale of Personal Information",
+          content:
+            "We do not sell, rent, or trade your personal information or reading records to advertisers or third-party brokers. Your data is used exclusively to operate Ktab.",
+        },
+        {
+          id: "storage-security",
+          title: "3. Data Security and Infrastructure",
+          content:
+            "We enforce standard encryption protocols across all communications (HTTPS/TLS and secure WSS channels for audio streaming) alongside isolated cloud database protections.",
+        },
+        {
+          id: "cookies",
+          title: "4. Functional Session Cookies",
+          content:
+            "We only use essential functional cookies to keep you signed in and remember your browser viewer settings. We do not use third-party tracking or advertising pixels.",
+        },
+        {
+          id: "user-rights",
+          title: "5. Your Rights and Data Control",
+          content:
+            "You retain full control over your data. You may review, correct, or request the permanent deletion of your account and all associated reading history at any time.",
+        },
+        {
+          id: "contact",
+          title: "6. Contact Our Privacy Team",
+          content:
+            "For questions, data deletion requests, or feedback regarding our privacy practices during this Early Access stage, contact us at: support@ktab.app.",
+        },
+      ],
+    },
   },
 };
-
-export default LEGAL_ARTICLES;

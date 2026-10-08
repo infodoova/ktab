@@ -128,12 +128,43 @@
   box-sizing: border-box;
 }
 
+.er-footer-bottom-info {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
 .er-footer-copy {
   font-family: var(--font-arabic);
   font-size: 14px;
   font-weight: 500;
   color: var(--text-subtle, #64748b);
   margin: 0;
+}
+
+.er-footer-bottom-legal {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.er-footer-bottom-legal-link {
+  font-family: var(--font-arabic);
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--text-subtle, #64748b);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.er-footer-bottom-legal-link:hover {
+  color: var(--brand-black, #0a0a0a);
+}
+
+.er-footer-bottom-sep {
+  color: rgba(0, 0, 0, 0.25);
+  font-size: 12px;
 }
 
 .er-footer-top-btn {

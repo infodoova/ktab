@@ -11,17 +11,26 @@ export const ALLOW_RIGHT_CLICK = true;
 
 export const VOICES_LIST = [
   {
+    id: "aCChyB4P5WEomwRsOKRh",
+    label: "سلمى",
+    gender: "female",
+    desc: "صوت تعبيري شاب ومتمكن من اللغة العربية.",
+    isFree: true,
+  },
+  {
+    id: "s83SAGdFTflAwJcAV81K",
+    label: "أديب",
+    gender: "male",
+    desc: "صوت سردي متقن ومثالي للأدب والرواية.",
+    isFree: true,
+  },
+  {
     id: "IES4nrmZdUBHByLBde0P",
     label: "هيثم",
     gender: "male",
     desc: "صوت دافئ ونشيط، مثالي للسرد القصصي والمحادثات.",
   },
-  {
-    id: "aCChyB4P5WEomwRsOKRh",
-    label: "سلمى",
-    gender: "female",
-    desc: "صوت تعبيري شاب ومتمكن من اللغة العربية.",
-  },
+
   {
     id: "rFDdsCQRZCUL8cPOWtnP",
     label: "غيداء",
@@ -52,12 +61,7 @@ export const VOICES_LIST = [
     gender: "male",
     desc: "صوت مصري مهني ودافئ للإلقاء.",
   },
-  {
-    id: "s83SAGdFTflAwJcAV81K",
-    label: "أديب",
-    gender: "male",
-    desc: "صوت سردي متقن ومثالي للأدب والرواية.",
-  },
+
   {
     id: "5Spsi3mCH9e7futpnGE5",
     label: "فارس",

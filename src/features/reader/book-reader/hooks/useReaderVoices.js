@@ -8,20 +8,33 @@ export function useReaderVoices() {
   const savedVoice = useReaderPreferencesStore((state) => state.voice);
   const saveVoice = useReaderPreferencesStore((state) => state.setVoice);
   const isReader = normalizeRole(role) === "READER";
-  const firstVoiceId = VOICES_LIST[0].id;
+  const freeVoiceIds = useMemo(
+    () => VOICES_LIST.filter((v, idx) => v.isFree || idx < 2).map((v) => v.id),
+    []
+  );
+  const defaultVoiceId = freeVoiceIds[0] || VOICES_LIST[0].id;
 
   // Resolve before sending TTS requests so a previously saved voice cannot
   // select a locked option during manual playback, page changes or prefetch.
-  const voice = isReader ? firstVoiceId : savedVoice;
-  const voiceOptions = useMemo(() => VOICES_LIST.map((option, index) => ({
-    ...option,
-    locked: isReader && index > 0,
-  })), [isReader]);
+  const isSavedVoiceAllowed = !isReader || freeVoiceIds.includes(savedVoice);
+  const voice = isSavedVoiceAllowed && savedVoice ? savedVoice : defaultVoiceId;
 
-  const setVoice = useCallback((voiceId) => {
-    if (isReader && voiceId !== firstVoiceId) return;
-    saveVoice(voiceId);
-  }, [isReader, firstVoiceId, saveVoice]);
+  const voiceOptions = useMemo(
+    () =>
+      VOICES_LIST.map((option, index) => ({
+        ...option,
+        locked: isReader && !(option.isFree || index < 2),
+      })),
+    [isReader]
+  );
+
+  const setVoice = useCallback(
+    (voiceId) => {
+      if (isReader && !freeVoiceIds.includes(voiceId)) return;
+      saveVoice(voiceId);
+    },
+    [isReader, freeVoiceIds, saveVoice]
+  );
 
   return { voice, setVoice, voiceOptions };
 }
