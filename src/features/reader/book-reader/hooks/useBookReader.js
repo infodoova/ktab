@@ -7,6 +7,7 @@ import { useReaderContent } from "./useReaderContent";
 import { useReaderAmbientSound } from "./useReaderAmbientSound";
 import { useReaderUIState } from "./useReaderUIState";
 import { useReaderNavigation } from "./useReaderNavigation";
+import { AlertToast } from "@/components/myui/AlertToast";
 
 /**
  * Master coordinator hook for the book reading experience, delegating
@@ -141,6 +142,10 @@ export function useBookReader() {
     totalPages: effectiveTotalPages,
   });
 
+  const handleNarrationError = useCallback(() => {
+    AlertToast("تعذر تشغيل القراءة الصوتية. اضغط تشغيل للمحاولة مرة أخرى.", "ERROR");
+  }, []);
+
   // 5. TTS narration integration
   const {
     isPlaying,
@@ -153,6 +158,7 @@ export function useBookReader() {
   } = useReaderTTS({
     // Cookie sessions authenticate without exposing an access token to JS.
     enabled: isAuthenticated,
+    onError: handleNarrationError,
     onPageEnded: handleNextPage,
     onPrefetchNextPage: () => {
       const nextPage = currentPage + 1;

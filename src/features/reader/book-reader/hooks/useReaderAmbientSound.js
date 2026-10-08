@@ -1,9 +1,10 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useMemo, useCallback } from "react";
 import { useReaderPreferencesStore } from "@/core/store";
 import {
   createAudioContextSafe,
   fetchAndDecode,
   createGainNode,
+  isIOSDevice,
 } from "../utils/readerUtils";
 
 import rainFile from "@/assets/audio/rain.mp3";
@@ -24,20 +25,47 @@ const EFFECT_FILES = {
 export function useReaderAmbientSound() {
   const {
     ambientEffect: effect,
-    setAmbientEffect: setEffect,
+    setAmbientEffect: saveEffect,
     volume,
     isMuted,
     cycleVolume,
   } = useReaderPreferencesStore();
 
+  const nativePlayback = useMemo(() => isIOSDevice(), []);
+  const nativeAudioRef = useRef(null);
   const audioCtxRef = useRef(null);
   const gainNodeRef = useRef(null);
   const currentSourceRef = useRef(null);
   const audioBuffersRef = useRef({});
   const loadingAudioRef = useRef({});
 
+  const setEffect = useCallback((nextEffect) => {
+    if (nativePlayback && EFFECT_FILES[nextEffect]) {
+      const audio = nativeAudioRef.current ||= new Audio();
+      audio.loop = true;
+      audio.volume = volume;
+      audio.muted = isMuted;
+      audio.src = EFFECT_FILES[nextEffect];
+      // Activate ambient media in the effect button gesture as well. A second
+      // AudioContext would reintroduce the iOS session/resume failure.
+      audio.play().catch((error) => console.warn("Ambient playback failed:", error));
+    }
+    saveEffect(nextEffect);
+  }, [nativePlayback, volume, isMuted, saveEffect]);
+
   // Initialize Web Audio Context and Master Gain Node
   useEffect(() => {
+    if (nativePlayback) {
+      return () => {
+        const audio = nativeAudioRef.current;
+        if (audio) {
+          audio.pause();
+          audio.removeAttribute("src");
+          audio.load();
+          nativeAudioRef.current = null;
+        }
+      };
+    }
     const ctx = createAudioContextSafe();
     if (!ctx) return;
     audioCtxRef.current = ctx;
@@ -61,10 +89,15 @@ export function useReaderAmbientSound() {
         // Ignored
       }
     };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [nativePlayback]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Ambient Gain Volume Update
   useEffect(() => {
+    if (nativePlayback) {
+      const audio = nativeAudioRef.current;
+      if (audio) { audio.volume = volume; audio.muted = isMuted; }
+      return;
+    }
     const gain = gainNodeRef.current;
     const ctx = audioCtxRef.current;
     if (!gain || !ctx) return;
@@ -76,10 +109,15 @@ export function useReaderAmbientSound() {
     } catch {
       gain.gain.value = targetVal;
     }
-  }, [volume, isMuted]);
+  }, [nativePlayback, volume, isMuted]);
 
   // Ambient Effect Switch (Lazy-loaded on demand)
   useEffect(() => {
+    if (nativePlayback) {
+      const audio = nativeAudioRef.current;
+      if (effect === "none" || !EFFECT_FILES[effect]) audio?.pause();
+      return;
+    }
     const ctx = audioCtxRef.current;
     const gain = gainNodeRef.current;
     if (!ctx || !gain) return;
@@ -143,7 +181,7 @@ export function useReaderAmbientSound() {
     return () => {
       isMounted = false;
     };
-  }, [effect]);
+  }, [nativePlayback, effect]);
 
   return {
     effect,

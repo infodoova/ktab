@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   getWsUrl,
   createAudioContextSafe,
@@ -9,14 +9,24 @@ import {
   startMobileAudioKeepAlive,
   stopMobileAudioKeepAlive,
   resumeAudioContextSafe,
+  isIOSDevice,
 } from "../utils/readerUtils";
+
+import { useNativeReaderTTS } from "./useNativeReaderTTS";
 
 const PREFETCH_RATIO = 0.4;
 
 /**
  * Hook for managing Reader real-time streaming TTS and word highlighting synchronization.
  */
-export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
+export function useReaderTTS(options) {
+  const nativePlayback = useMemo(() => isIOSDevice(), []);
+  const native = useNativeReaderTTS({ ...options, enabled: options.enabled && nativePlayback });
+  const webAudio = useWebReaderTTS({ ...options, enabled: options.enabled && !nativePlayback });
+  return nativePlayback ? native : webAudio;
+}
+
+function useWebReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -767,6 +777,7 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
 
   // Mobile: Pre-unlock audio on first touch/click anywhere on page
   useEffect(() => {
+    if (!enabled) return;
     const handleFirstGesture = () => {
       try {
         const ctx = ensureCtx();
@@ -783,7 +794,7 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
       window.removeEventListener("touchstart", handleFirstGesture);
       window.removeEventListener("click", handleFirstGesture);
     };
-  }, [ensureCtx]);
+  }, [enabled, ensureCtx]);
 
   // Mobile: Handle visibility changes (tab sleeping / returning from background)
   useEffect(() => {
