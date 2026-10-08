@@ -32,7 +32,7 @@ export default function Navbar() {
           className="er-navbar-brand"
           onClick={scrollToTop}
           type="button"
-          aria-label="كُتّاب الرئيسية"
+          aria-label="كتاب الرئيسية"
         >
           <img src={logo} alt="Ktab Logo" className="er-navbar-logo" />
         </button>

@@ -5,7 +5,7 @@ import ShowcaseVideo from "../components/ShowcaseVideo";
 import RolesSection from "../components/Roles";
 import InteractiveStories from "../components/InteractiveStories";
 import BooksMasonry from "../components/BooksMasonry";
-import PricingSection from "../components/Pricing";
+// import PricingSection from "../components/Pricing";
 import ReadAnywhere from "../components/ReadAnywhere";
 import FAQ from "../components/FAQ";
 import Footer from "../components/Footer";
@@ -29,7 +29,8 @@ export function HomeView() {
       <BooksMasonry />
       <InteractiveStories />
       <ReadAnywhere />
-      <PricingSection />
+      {/* Payment / Pricing section temporarily commented out */}
+      {/* <PricingSection /> */}
       <FAQ />
       <Footer />
 

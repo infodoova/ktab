@@ -11,7 +11,7 @@
 }
 
 .ktab-section-modal__content {
-  font-family: var(--font-arabic), "Amiri", "Traditional Arabic", serif;
+  font-family: var(--font-book-arabic, "Noto Naskh Arabic", serif), var(--font-book-english, "Literata", serif), serif;
   line-height: 1.75;
   color: inherit;
   text-align: right;

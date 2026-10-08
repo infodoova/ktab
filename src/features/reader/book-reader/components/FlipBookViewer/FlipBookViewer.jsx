@@ -7,7 +7,7 @@ import { PageCurlTransition } from "../transitions/PageCurlTransition";
 import { BookPageSkeleton } from "../BookPageSkeleton";
 import { PreservedGuillemets } from "../PreservedGuillemets";
 import { ALLOW_RIGHT_CLICK } from "../../constants/readerConstants";
-import { normalizeText, tokenize } from "../../utils/readerPaginationUtils";
+import { normalizeText, tokenize, isArabicText } from "../../utils/readerPaginationUtils";
 import "./FlipBookViewer.css";
 
 /* ==========================================================================
@@ -83,6 +83,8 @@ export function FlipBookViewer(props) {
         return (
           <div
             className="ktab-book-page__content-wrap ktab-book-page__content-wrap--end"
+            dir="rtl"
+            lang="ar"
             onCopy={(e) => e.preventDefault()}
             onCut={(e) => e.preventDefault()}
             onContextMenu={(e) => {
@@ -114,6 +116,8 @@ export function FlipBookViewer(props) {
         return (
           <div
             className="ktab-book-page__content-wrap"
+            dir="rtl"
+            lang="ar"
             onCopy={(e) => e.preventDefault()}
             onCut={(e) => e.preventDefault()}
             onContextMenu={(e) => {
@@ -122,9 +126,10 @@ export function FlipBookViewer(props) {
           >
             <div
               className="ktab-page-skeleton__body"
+              dir="rtl"
               style={{ width: "100%", gap: "16px", flex: 1, justifyContent: "center" }}
             >
-              <div className="ktab-page-skeleton__paragraph" style={{ gap: "14px" }}>
+              <div className="ktab-page-skeleton__paragraph" dir="rtl" style={{ gap: "14px" }}>
                 <div className="ktab-page-skeleton__line" style={{ width: "98%" }} />
                 <div className="ktab-page-skeleton__line" style={{ width: "93%" }} />
                 <div className="ktab-page-skeleton__line" style={{ width: "97%" }} />
@@ -133,7 +138,7 @@ export function FlipBookViewer(props) {
                 <div className="ktab-page-skeleton__line" style={{ width: "65%" }} />
               </div>
             </div>
-            <div className="ktab-book-page__footer">
+            <div className="ktab-book-page__footer" dir="ltr">
               <span className="ktab-book-page__number">{pageNum}</span>
             </div>
           </div>
@@ -142,6 +147,10 @@ export function FlipBookViewer(props) {
 
       // Keep the source gaps around each word so reader text matches the API spacing.
       const cleanText = normalizeText(pageText);
+      const isArabic = isArabicText(cleanText || text);
+      const pageDir = isArabic ? "rtl" : "ltr";
+      const pageLang = isArabic ? "ar" : "en";
+
       const pageTokens = tokenize(cleanText);
       const wordElements = [];
       const baseWordOffset = (pageNum - 1) * (wordsPerPage || 80);
@@ -165,7 +174,11 @@ export function FlipBookViewer(props) {
 
       return (
         <div
-          className="ktab-book-page__content-wrap"
+          className={`ktab-book-page__content-wrap ${
+            isArabic ? "ktab-book-page__content-wrap--rtl" : "ktab-book-page__content-wrap--ltr"
+          }`}
+          dir={pageDir}
+          lang={pageLang}
           onCopy={(e) => e.preventDefault()}
           onCut={(e) => e.preventDefault()}
           onContextMenu={(e) => {
@@ -173,16 +186,28 @@ export function FlipBookViewer(props) {
           }}
         >
           <div
-            className="ktab-book-page__text"
+            className={`ktab-book-page__text ${
+              isArabic ? "ktab-book-page__text--rtl" : "ktab-book-page__text--ltr"
+            }`}
+            dir={pageDir}
+            lang={pageLang}
             style={{
               lineHeight: dynamicLineHeight,
               fontSize: dynamicFontSize,
             }}
           >
-            <p className="ktab-book-page__paragraph">{wordElements}</p>
+            <p
+              className={`ktab-book-page__paragraph ${
+                isArabic ? "ktab-book-page__paragraph--rtl" : "ktab-book-page__paragraph--ltr"
+              }`}
+              dir={pageDir}
+              lang={pageLang}
+            >
+              {wordElements}
+            </p>
           </div>
 
-          <div className="ktab-book-page__footer">
+          <div className="ktab-book-page__footer" dir="ltr">
             <span className="ktab-book-page__number">{pageNum}</span>
           </div>
         </div>
@@ -217,7 +242,7 @@ export function FlipBookViewer(props) {
       onContextMenu={(e) => {
         if (!ALLOW_RIGHT_CLICK) e.preventDefault();
       }}
-      dir="ltr"
+      dir="rtl"
     >
       {(!ready || loading || !currentPage) && (
         <BookPageSkeleton

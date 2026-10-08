@@ -519,8 +519,8 @@ function ImagePreview({ scenes = [], previewImage, onClose }) {
       if (navigator.share) {
         try {
           await navigator.share({
-            title: `المشهد ${currentIndex + 1} - كُتّاب`,
-            text: currentScene.sceneText || "قصة تفاعلية على منصة كُتّاب",
+            title: `المشهد ${currentIndex + 1} - كتاب`,
+            text: currentScene.sceneText || "قصة تفاعلية على منصة كتاب",
             url: currentScene.sceneImage,
           });
           return;

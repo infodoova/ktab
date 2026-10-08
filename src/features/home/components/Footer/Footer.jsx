@@ -1,27 +1,30 @@
 import React from "react";
-import { Instagram, Facebook, Youtube, Mail, ArrowUp } from "lucide-react";
+import { ArrowUp } from "lucide-react";
 import logo from "@/assets/logo/logo.png";
 import { useFooter } from "../../hooks/useFooter";
+import LegalArticleModal from "../LegalArticleModal/LegalArticleModal";
 import "./Footer.css";
 
-const SOCIAL_ICONS = {
-  instagram: Instagram,
-  facebook: Facebook,
-  youtube: Youtube,
-  mail: Mail,
-};
-
 /**
- * Rebranded Footer Component — Eleven Reader + Apple inspired.
- * Pure Light Mode, prominent official logo, zero clutter, strictly no 'صنع بحب'.
+ * Minimalist luxury Footer for Ktab platform.
+ * Pure Light Mode, prominent official logo, zero clutter, big brand signature under.
  */
 export default function Footer() {
-  const { year, sections, socials, handleLinkClick, scrollToTop } = useFooter();
+  const {
+    year,
+    sections,
+    activeArticleId,
+    isArticleModalOpen,
+    openArticle,
+    closeArticle,
+    handleLinkClick,
+    scrollToTop,
+  } = useFooter();
 
   return (
     <footer className="er-footer" dir="rtl">
       <div className="er-footer-container">
-        {/* Main Grid: Brand Column + 4 Nav Columns */}
+        {/* Main Grid: Brand Column + 2 Local Sections */}
         <div className="er-footer-grid">
           {/* Brand Column with Prominent Logo */}
           <div className="er-footer-brand-col">
@@ -38,29 +41,9 @@ export default function Footer() {
               المنصة العربية الأولى الرائدة في القراءة والاستماع الذكي وصناعة
               القصص التفاعلية لمختلف الأجيال.
             </p>
-
-            {/* Social Links */}
-            <div className="er-footer-socials" aria-label="روابط التواصل الاجتماعي">
-              {socials.map((item) => {
-                const IconComponent = SOCIAL_ICONS[item.id] || Mail;
-
-                return (
-                  <a
-                    key={item.id}
-                    href={item.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="er-footer-social-btn"
-                    aria-label={item.label}
-                  >
-                    <IconComponent size={18} strokeWidth={2} />
-                  </a>
-                );
-              })}
-            </div>
           </div>
 
-          {/* Links Columns */}
+          {/* Links Columns (الدعم والمساعدة + السياسات والضوابط) */}
           <div className="er-footer-links-group">
             {sections.map((section) => (
               <div key={section.id} className="er-footer-col">
@@ -83,10 +66,10 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Bottom Bar: Pure Copyright + Back to top */}
+        {/* Bottom Bar: Copyright + Back to top */}
         <div className="er-footer-bottom">
           <p className="er-footer-copy">
-            © {year} كُتّاب — جميع الحقوق محفوظة.
+            © {year} كتاب — جميع الحقوق محفوظة.
           </p>
 
           <button
@@ -100,6 +83,14 @@ export default function Footer() {
           </button>
         </div>
       </div>
+
+      {/* Production Legal & Policy Article Modal */}
+      <LegalArticleModal
+        articleId={activeArticleId}
+        isOpen={isArticleModalOpen}
+        onClose={closeArticle}
+        onSelectArticle={openArticle}
+      />
     </footer>
   );
 }

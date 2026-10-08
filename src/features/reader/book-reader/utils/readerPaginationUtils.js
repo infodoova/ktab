@@ -289,3 +289,19 @@ export function isIPadVertical(width, height) {
 export function getTargetWordsPerPage(width, height) {
   return isIPadVertical(width, height) ? 160 : 80;
 }
+
+/**
+ * Detects whether a string primarily consists of or contains Arabic script characters.
+ * Defaults to true if empty or non-string, matching Ktab's core Arabic-first presentation.
+ *
+ * @param {string} text
+ * @returns {boolean}
+ */
+export function isArabicText(text = "") {
+  if (!text) return true;
+  // Arabic Unicode ranges (Basic, Supplement, Extended-A, Presentation Forms A & B)
+  const arabicRegex = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/;
+  if (arabicRegex.test(text)) return true;
+  // Fallback: If no Latin characters are present, treat as Arabic/RTL by default
+  return !/[a-zA-Z]/.test(text);
+}

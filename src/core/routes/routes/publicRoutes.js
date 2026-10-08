@@ -4,6 +4,7 @@ import { lazy } from "react";
 const HomeView = lazy(() => import("../../../features/home/views/HomeView"));
 const EarlyAccessView = lazy(() => import("../../../features/early-access/views/EarlyAccessView/EarlyAccessView"));
 const FreeVoucherView = lazy(() => import("../../../features/free-voucher/views/FreeVoucherView/FreeVoucherView"));
+const LegalArticleView = lazy(() => import("../../../features/home/views/LegalArticleView"));
 
 // Feature: Common & Errors
 const RoleErrorView = lazy(() => import("../../../features/common/views/RoleErrorView"));
@@ -82,6 +83,26 @@ export const publicRoutes = [
     name: "Selectables",
     path: "/selectables",
     component: SelectablesView,
+  },
+  {
+    name: "Terms",
+    path: "/terms",
+    component: LegalArticleView,
+  },
+  {
+    name: "Privacy",
+    path: "/privacy",
+    component: LegalArticleView,
+  },
+  {
+    name: "Copyright",
+    path: "/copyright",
+    component: LegalArticleView,
+  },
+  {
+    name: "LegalArticle",
+    path: "/legal/:articleId",
+    component: LegalArticleView,
   },
 
   // ==========================================

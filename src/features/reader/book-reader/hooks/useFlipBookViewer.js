@@ -6,6 +6,7 @@ import {
   paginate,
   normalizeArabicWord,
   findSnippetTokenRange,
+  isArabicText,
 } from "../utils/readerPaginationUtils";
 import { useFlipBookDimensions } from "./useFlipBookDimensions";
 import { useFlipBookGestures } from "./useFlipBookGestures";
@@ -18,6 +19,7 @@ export {
   paginate,
   normalizeArabicWord,
   findSnippetTokenRange,
+  isArabicText,
 };
 
 /**

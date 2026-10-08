@@ -291,9 +291,13 @@
 
 .ktab-3page-section__text {
   margin: 0;
-  font-family: var(--font-arabic), serif;
+  font-family: var(--font-book-arabic, "Noto Naskh Arabic", serif), var(--font-book-english, "Literata", Georgia, serif), serif;
   text-align: justify;
   text-justify: inter-word;
+  text-align-last: right;
+  direction: rtl;
+  unicode-bidi: isolate;
+  letter-spacing: 0 !important;
   white-space: pre-wrap;
   word-break: break-word;
 }

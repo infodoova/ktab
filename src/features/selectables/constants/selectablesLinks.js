@@ -4,7 +4,7 @@
  * 1. Early Access (الوصول المبكر للمكتبات)
  * 2. Free Voucher (قسيمة شهر مجاني)
  * 3. Instagram Official Link (حساب إنستغرام)
- * 4. Main App Domain (منصة كُتّاب الرئيسية ktab.app)
+ * 4. Main App Domain (منصة كتاب الرئيسية ktab.app)
  */
 
 export const SELECTABLES_LINKS = [
@@ -20,8 +20,8 @@ export const SELECTABLES_LINKS = [
   },
   {
     id: "free-voucher",
-    title: "قسيمة شهر مجاني",
-    subtitle: "احجز شهرك المجاني كقارئ أو مؤلف فور انطلاق المنصة رسمياً",
+    title: "عروض وقسائم الإطلاق",
+    subtitle: "شهر مجاني للقرّاء وخصم 50% على أول 10 كتب للمؤلفين فور انطلاق المنصة رسمياً",
     badge: "هدية الإطلاق",
     href: "/free-voucher",
     isExternal: false,
@@ -30,7 +30,7 @@ export const SELECTABLES_LINKS = [
   },
   {
     id: "instagram",
-    title: "إنستغرام كُتّاب",
+    title: "إنستغرام كتاب",
     subtitle: "كواليس التأسيس، آخر التحديثات، والتواصل مع المجتمع",
     badge: "متابعة وتواصل",
     href: "https://www.instagram.com/ktab.app?stkn=MWw5YnVrbmF2d2F5aA==",
@@ -40,7 +40,7 @@ export const SELECTABLES_LINKS = [
   },
   {
     id: "main-app",
-    title: "منصة كُتّاب الرئيسية",
+    title: "منصة كتاب الرئيسية",
     subtitle: "ktab.app البوابة الرسمية لتجربة القراءة الرقمية والتفاعلية",
     badge: "تطبيق الويب",
     href: "https://ktab.app",

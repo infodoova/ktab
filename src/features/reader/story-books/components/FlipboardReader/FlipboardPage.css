@@ -15,7 +15,7 @@
   justify-content: center;
   overflow: hidden;
   user-select: none;
-  font-family: var(--font-children, "Baloo Bhaijaan 2", "Tajawal", sans-serif);
+  font-family: var(--font-children, "Baloo Bhaijaan 2", "IBM Plex Sans Arabic", "Tajawal", sans-serif);
   background-color: transparent;
   padding: 0;
 }
@@ -140,7 +140,7 @@
 }
 
 .flipboard-page__cc-text {
-  font-family: var(--font-children, "Baloo Bhaijaan 2", "Tajawal", sans-serif);
+  font-family: var(--font-children, "Baloo Bhaijaan 2", "IBM Plex Sans Arabic", "Tajawal", sans-serif);
   font-size: clamp(0.92rem, 1.8vw, 1.18rem);
   font-weight: 700;
   line-height: 1.6;
@@ -183,7 +183,7 @@
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 9999px;
   padding: 0.18rem 0.6rem;
-  font-family: var(--font-children, "Baloo Bhaijaan 2", "Tajawal", sans-serif);
+  font-family: var(--font-children, "Baloo Bhaijaan 2", "IBM Plex Sans Arabic", "Tajawal", sans-serif);
   font-size: 0.78rem;
   font-weight: 800;
   color: #0a0a0a;

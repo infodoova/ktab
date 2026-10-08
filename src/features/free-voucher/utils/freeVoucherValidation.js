@@ -1,4 +1,4 @@
-import { PERSON_FIELDS, VOUCHER_PLAN } from "../constants/freeVoucherFields";
+import { PERSON_FIELDS, VOUCHER_PLANS, VOUCHER_PLAN } from "../constants/freeVoucherFields";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_PATTERN = /^[0-9]{6,31}$/;
@@ -9,7 +9,8 @@ export function prepareFreeVoucherRequest(values, role) {
     return { errors: { roleAllowed: "يرجى اختيار صفة الانضمام (قارئ أو مؤلف)." }, payload: null };
   }
 
-  const payload = { role, plan: VOUCHER_PLAN };
+  const plan = VOUCHER_PLANS?.[role] || (role === "AUTHOR" ? "discount-50" : VOUCHER_PLAN);
+  const payload = { role, plan };
 
   for (const field of PERSON_FIELDS) {
     const value = String(values[field.name] ?? "").trim();

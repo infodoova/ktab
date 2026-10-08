@@ -7,7 +7,7 @@ const REAL_NAV_LINKS = [
   { id: "roles", label: "الأدوار والقرّاء", target: "roles" },
   { id: "library", label: "المكتبة العربية", target: "library" },
   { id: "interactive-stories", label: "القصص التفاعلية", target: "interactive-stories" },
-  { id: "pricing", label: "الباقات والأسعار", target: "pricing" },
+  // { id: "pricing", label: "الباقات والأسعار", target: "pricing" },
 ];
 
 import { useAuthStore } from "@/core/store/authStore";

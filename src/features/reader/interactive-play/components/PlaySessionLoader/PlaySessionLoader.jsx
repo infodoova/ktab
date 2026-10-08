@@ -13,7 +13,7 @@ export function PlaySessionLoader({ message = "جاري تجهيز مغامرت�
         <div className="ktab-play-loader__logo-wrap">
           <img
             src={brandIconImg}
-            alt="كُتّاب"
+            alt="كتاب"
             className="ktab-play-loader__logo"
           />
         </div>

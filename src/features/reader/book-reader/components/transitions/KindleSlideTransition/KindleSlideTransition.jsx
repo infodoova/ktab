@@ -15,7 +15,7 @@ export function KindleSlideTransition({
   if (!currentPage) return null;
 
   return (
-    <div className="ktab-kindle-slide-wrap">
+    <div className="ktab-kindle-slide-wrap" dir="rtl">
       <div
         key={currentPageIndex}
         className={`ktab-kindle-slide-page ktab-book-page--${theme} ${

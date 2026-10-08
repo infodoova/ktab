@@ -65,7 +65,7 @@ export function Footer() {
             <div>
               <h3 className="ktab-footer__col-title">المنصّة</h3>
               <ul className="ktab-footer__links-list">
-                <FooterLink href="#">كيف يعمل كتّاب؟</FooterLink>
+                <FooterLink href="#">كيف يعمل كتاب؟</FooterLink>
                 <FooterLink href="#">التجربة التفاعلية</FooterLink>
                 <FooterLink href="#">المكتبة العربية</FooterLink>
                 <FooterLink href="#">المدونة</FooterLink>
@@ -78,7 +78,7 @@ export function Footer() {
                 <FooterLink href="#">للأهل</FooterLink>
                 <FooterLink href="#">للمعلّمين</FooterLink>
                 <FooterLink href="#">للمدارس</FooterLink>
-                <FooterLink href="#">للكتّاب والرسامين</FooterLink>
+                <FooterLink href="#">للكتاب والرسامين</FooterLink>
               </ul>
             </div>
           </div>
@@ -108,7 +108,7 @@ export function Footer() {
         {/* BOTTOM */}
         <div className="ktab-footer__bottom">
           <p className="ktab-footer__bottom-text">
-            © {year} كُتّاب — جميع الحقوق محفوظة.
+            © {year} كتاب — جميع الحقوق محفوظة.
           </p>
 
           <p className="ktab-footer__bottom-love">

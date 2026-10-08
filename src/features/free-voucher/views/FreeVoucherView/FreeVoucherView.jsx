@@ -16,8 +16,8 @@ export default function FreeVoucherView() {
   return (
     <main className="voucher-page" dir="rtl">
       <header className="voucher-brand">
-        <Link to="/" aria-label="كُتّاب — الرئيسية">
-          <img src={logo} alt="كُتّاب" />
+        <Link to="/" aria-label="كتاب — الرئيسية">
+          <img src={logo} alt="كتاب" />
         </Link>
       </header>
 
@@ -27,10 +27,14 @@ export default function FreeVoucherView() {
             <div className="voucher-check">
               <Check size={32} aria-hidden="true" />
             </div>
-            <h1 id="voucher-title">تم حجز قسيمتك بنجاح</h1>
+            <h1 id="voucher-title">
+              {selectedRole === "author" ? "تم حجز قسيمة الخصم بنجاح" : "تم حجز قسيمتك بنجاح"}
+            </h1>
             <p>{message}</p>
             <p className="voucher-note">
-              ستصلك تفاصيل تفعيل شهرك المجاني عبر البريد الإلكتروني فور إطلاق التطبيق.
+              {selectedRole === "author"
+                ? "ستصلك تفاصيل تفعيل كود خصم 50% على أول 10 كتب عبر البريد الإلكتروني فور إطلاق التطبيق."
+                : "ستصلك تفاصيل تفعيل شهرك المجاني عبر البريد الإلكتروني فور إطلاق التطبيق."}
             </p>
             <Link className="voucher-home-link" to="/">
               العودة إلى الرئيسية
@@ -39,8 +43,16 @@ export default function FreeVoucherView() {
         ) : (
           <>
             <div className="voucher-heading">
-              <h1 id="voucher-title">احصل على شهر مجاني عند الانضمام إلى كُتّاب</h1>
-              <p>سجّل الآن كقارئ أو كمؤلف، واحصل على قسيمة اشتراك لشهر كامل مجانًا فور إطلاق المنصة.</p>
+              <h1 id="voucher-title">
+                {selectedRole === "author"
+                  ? "احصل على خصم 50% على أول 10 كتب عند الانضمام إلى كتاب"
+                  : "احصل على شهر مجاني عند الانضمام إلى كتاب"}
+              </h1>
+              <p>
+                {selectedRole === "author"
+                  ? "سجّل الآن كمؤلف، واحصل على قسيمة خصم 50% على أول 10 كتب فور إطلاق المنصة."
+                  : "سجّل الآن كقارئ، واحصل على قسيمة اشتراك لشهر كامل مجانًا فور إطلاق المنصة."}
+              </p>
             </div>
 
             <form className="voucher-form" onSubmit={handleSubmit} noValidate aria-busy={isSubmitting}>
@@ -98,11 +110,15 @@ export default function FreeVoucherView() {
                   ? "جارٍ إرسال الطلب…"
                   : retrySeconds > 0
                   ? `انتظر ${retrySeconds} ثانية`
+                  : selectedRole === "author"
+                  ? "احصل على قسيمة خصم 50% على أول 10 كتب"
                   : "احصل على قسيمة الشهر المجاني"}
               </Button>
 
               <p className="voucher-note">
-                هذا طلب للحصول على قسيمة شهر مجاني، وسيُفعّل حسابك وتصلك بيانات القسيمة عند الإطلاق.
+                {selectedRole === "author"
+                  ? "هذا طلب للحصول على قسيمة خصم 50% على أول 10 كتب، وسيُفعّل حسابك وتصلك بيانات القسيمة عند الإطلاق."
+                  : "هذا طلب للحصول على قسيمة شهر مجاني، وسيُفعّل حسابك وتصلك بيانات القسيمة عند الإطلاق."}
               </p>
             </form>
           </>

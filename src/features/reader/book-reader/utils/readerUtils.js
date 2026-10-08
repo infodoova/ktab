@@ -20,54 +20,93 @@ export {
   getTargetWordsPerPage,
 } from "./readerPaginationUtils";
 
-/**
- * Safari-compatible decodeAudioData wrapper
- */
-export function decodeAudioDataSafe(ctx, arrayBuffer) {
-  if (isIOSDevice()) {
-    return new Promise((resolve, reject) => {
-      const timeout = setTimeout(() => {
-        reject(new Error("Audio decode timeout on iOS"));
-      }, 10000);
+// 44-byte silent WAV data URI to unlock iOS audio session category to Playback (overrides hardware mute switch)
+const SILENT_WAV_DATA_URI =
+  "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA";
+let iosUnlockAudioEl = null;
 
-      ctx.decodeAudioData(
-        arrayBuffer,
-        (buffer) => {
-          clearTimeout(timeout);
-          resolve(buffer);
-        },
-        (err) => {
-          clearTimeout(timeout);
-          reject(err || new Error("Audio decode failed"));
-        }
-      );
-    });
+/**
+ * Robust decodeAudioData wrapper for all platforms (iOS WebKit, Android, Desktop)
+ */
+export async function decodeAudioDataSafe(ctx, arrayBuffer) {
+  if (!ctx) throw new Error("AudioContext required");
+
+  // On iOS Safari, resume context if it was suspended before attempting decode
+  if (ctx.state === "suspended" || ctx.state === "interrupted") {
+    try {
+      await ctx.resume();
+    } catch (e) {
+      console.warn("AudioContext resume before decode warning:", e);
+    }
   }
-  return ctx.decodeAudioData(arrayBuffer);
+
+  // Clone arrayBuffer to protect against detachment
+  const bufferCopy = arrayBuffer.slice ? arrayBuffer.slice(0) : arrayBuffer;
+
+  // 1. Modern Promise-based decode (supported on all modern browsers: iOS Safari 14.5+, Chrome, Edge, Firefox)
+  try {
+    const res = ctx.decodeAudioData(bufferCopy);
+    if (res && typeof res.then === "function") {
+      return await res;
+    }
+  } catch (err) {
+    console.warn("Promise decodeAudioData failed, falling back to callback:", err);
+  }
+
+  // 2. Fallback for older WebKit / browsers that require callback syntax
+  return new Promise((resolve, reject) => {
+    ctx.decodeAudioData(
+      arrayBuffer.slice ? arrayBuffer.slice(0) : arrayBuffer,
+      (buffer) => resolve(buffer),
+      (err) => reject(err || new Error("Audio decode failed"))
+    );
+  });
 }
 
 /**
- * Unlock iOS audio hardware by playing silent audio directly from user gesture
+ * Unlock iOS audio hardware and audio session:
+ * 1. Resumes AudioContext
+ * 2. Plays a silent Web Audio buffer
+ * 3. Plays a silent HTML5 Audio element to switch iOS AVAudioSession to "Playback"
+ *    (Ensures TTS audio plays through speakers even if the iPhone physical silent switch is ON!)
  */
 export function unlockIOSAudio(ctx) {
   if (!ctx) return;
 
-  if (ctx.state === "suspended") {
+  if (ctx.state === "suspended" || ctx.state === "interrupted") {
     ctx.resume().catch((err) => console.warn("ctx.resume failed:", err));
   }
 
   if (!isIOSDevice()) return;
 
+  // 1. Play silent HTML5 Audio element to promote audio session to Playback category
   try {
-    const oscillator = ctx.createOscillator();
-    const silentGain = ctx.createGain();
-    silentGain.gain.value = 0;
-    oscillator.connect(silentGain);
-    silentGain.connect(ctx.destination);
-    oscillator.start(0);
-    oscillator.stop(0.001);
+    if (!iosUnlockAudioEl && typeof Audio !== "undefined") {
+      iosUnlockAudioEl = new Audio();
+      iosUnlockAudioEl.src = SILENT_WAV_DATA_URI;
+      iosUnlockAudioEl.setAttribute("playsinline", "true");
+      iosUnlockAudioEl.setAttribute("webkit-playsinline", "true");
+      iosUnlockAudioEl.volume = 0.01;
+    }
+    if (iosUnlockAudioEl) {
+      const p = iosUnlockAudioEl.play();
+      if (p !== undefined) {
+        p.catch(() => {});
+      }
+    }
   } catch (err) {
-    console.warn("Failed to unlock iOS audio:", err);
+    console.warn("iOS HTML5 audio unlock error:", err);
+  }
+
+  // 2. Play 1-sample silent Web Audio buffer
+  try {
+    const buffer = ctx.createBuffer(1, 1, 22050);
+    const source = ctx.createBufferSource();
+    source.buffer = buffer;
+    source.connect(ctx.destination);
+    source.start(0);
+  } catch (err) {
+    console.warn("Failed to unlock iOS Web Audio buffer:", err);
   }
 }
 

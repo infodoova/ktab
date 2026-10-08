@@ -1,77 +1,77 @@
-import { useCallback } from "react";
+import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
 export const FOOTER_SECTIONS = [
   {
-    id: "platform",
-    title: "المنصّة",
-    links: [
-      { id: "p1", label: "كيف يعمل كتّاب؟", target: "hero" },
-      { id: "p2", label: "القصص التفاعلية", target: "interactive-stories" },
-      { id: "p3", label: "المكتبة العربية", target: "books-catalog" },
-      { id: "p4", label: "الاشتراكات والأسعار", target: "pricing" },
-    ],
-  },
-  {
-    id: "audience",
-    title: "لمن؟",
-    links: [
-      { id: "a1", label: "للأهل واليافعين", href: "/login" },
-      { id: "a2", label: "للمعلّمين والفصول", href: "/login" },
-      { id: "a3", label: "للمدارس والمؤسسات", href: "/login" },
-      { id: "a4", label: "للمؤلفين وصنّاع المحتوى", href: "/login" },
-    ],
-  },
-  {
     id: "support",
-    title: "الدعم",
+    title: "الدعم والمساعدة",
     links: [
       { id: "s1", label: "الأسئلة الشائعة", target: "FAQ" },
-      { id: "s2", label: "مركز المساعدة", href: "/login" },
-      { id: "s3", label: "تواصل معنا", href: "mailto:support@ktab.com" },
     ],
   },
   {
     id: "legal",
-    title: "قانوني",
+    title: "السياسات والضوابط",
     links: [
-      { id: "l1", label: "الشروط والأحكام", href: "/terms" },
-      { id: "l2", label: "سياسة الخصوصية", href: "/privacy" },
-      { id: "l3", label: "ملفات الارتباط", href: "/cookies" },
+      { id: "l1", label: "الشروط والأحكام", href: "/terms", articleId: "terms" },
+      { id: "l2", label: "سياسة الخصوصية", href: "/privacy", articleId: "privacy" },
+      { id: "l3", label: "حقوق النشر والملكية الفكرية", href: "/copyright", articleId: "copyright" },
     ],
   },
 ];
 
-export const SOCIAL_LINKS = [
-  { id: "instagram", label: "Instagram", href: "https://instagram.com" },
-  { id: "facebook", label: "Facebook", href: "https://facebook.com" },
-  { id: "youtube", label: "YouTube", href: "https://youtube.com" },
-  { id: "mail", label: "Email", href: "mailto:support@ktab.com" },
-];
+export const SOCIAL_LINKS = [];
 
 /**
- * Hook for Footer logic, navigation, and structured link groups.
+ * Hook for Footer logic, navigation, and article modal state.
  */
 export function useFooter() {
   const navigate = useNavigate();
   const year = new Date().getFullYear();
+  const [activeArticleId, setActiveArticleId] = useState(null);
+  const [isArticleModalOpen, setIsArticleModalOpen] = useState(false);
+
+  const openArticle = useCallback((articleId) => {
+    setActiveArticleId(articleId || "terms");
+    setIsArticleModalOpen(true);
+  }, []);
+
+  const closeArticle = useCallback(() => {
+    setIsArticleModalOpen(false);
+  }, []);
 
   const handleLinkClick = useCallback(
     (e, link) => {
+      // If the link opens a true legal/policy article
+      if (link.articleId) {
+        e.preventDefault();
+        openArticle(link.articleId);
+        return;
+      }
+
+      // Smooth scroll to anchor on current page
       if (link.target) {
         e.preventDefault();
         const el = document.getElementById(link.target);
         if (el) {
-          el.scrollIntoView({ behavior: "smooth" });
+          const headerOffset = 80;
+          const elementPosition = el.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.scrollY - headerOffset;
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: "smooth",
+          });
           return;
         }
       }
+
+      // External or standard internal navigation
       if (link.href && link.href.startsWith("/")) {
         e.preventDefault();
         navigate(link.href);
       }
     },
-    [navigate]
+    [navigate, openArticle]
   );
 
   const scrollToTop = useCallback(() => {
@@ -82,6 +82,10 @@ export function useFooter() {
     year,
     sections: FOOTER_SECTIONS,
     socials: SOCIAL_LINKS,
+    activeArticleId,
+    isArticleModalOpen,
+    openArticle,
+    closeArticle,
     handleLinkClick,
     scrollToTop,
   };

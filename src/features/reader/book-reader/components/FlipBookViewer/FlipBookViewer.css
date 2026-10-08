@@ -13,7 +13,7 @@
   position: relative;
   user-select: none;
   overflow: hidden;
-  direction: ltr !important;
+  direction: rtl;
   touch-action: pan-y;
   transition: background-color 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -266,7 +266,7 @@
   font-weight: 800;
   letter-spacing: 0.08em;
   color: inherit;
-  font-family: var(--font-arabic, "Tajawal", system-ui, sans-serif);
+  font-family: var(--font-book-arabic, "Noto Naskh Arabic", serif);
 }
 
 
@@ -283,6 +283,14 @@
   background-color: inherit;
   position: relative;
   z-index: 2;
+  direction: rtl;
+  text-align: right;
+}
+
+.ktab-book-page__content-wrap--ltr,
+.ktab-book-page__content-wrap[dir="ltr"] {
+  direction: ltr;
+  text-align: left;
 }
 
 @media (min-width: 768px) {
@@ -298,31 +306,60 @@
   max-height: calc(100% - 48px);
   margin: auto 0;
   overflow: hidden;
-  font-family: var(--font-arabic), "Tajawal", system-ui, sans-serif;
+  font-family: var(--font-book-arabic, "Noto Naskh Arabic", serif), var(--font-book-english, "Literata", serif), serif;
   user-select: none !important;
   -webkit-user-select: none !important;
   -moz-user-select: none !important;
   -ms-user-select: none !important;
   -webkit-text-size-adjust: 100% !important;
   text-size-adjust: 100% !important;
-  direction: rtl;
+  direction: rtl !important;
+  text-align: justify !important;
+  text-align-last: right !important;
+  unicode-bidi: isolate;
   outline: none;
   word-break: break-word;
   overflow-wrap: break-word;
 }
 
+/* Explicit LTR / English books only (Never triggered via generic ancestor dir) */
+.ktab-book-page__text[dir="ltr"],
+.ktab-book-page__text--ltr,
+.ktab-book-page__text:lang(en) {
+  font-family: var(--font-book-english, "Literata", serif), var(--font-book-arabic, "Noto Naskh Arabic", serif), serif;
+  direction: ltr !important;
+  text-align: justify !important;
+  text-align-last: left !important;
+  unicode-bidi: isolate;
+}
+
 .ktab-book-page__paragraph {
   margin: 0 0 0.85em 0;
   white-space: pre-wrap;
-  text-align: justify;
-  text-align-last: start;
+  text-align: justify !important;
+  text-align-last: right !important;
+  direction: rtl !important;
+  unicode-bidi: isolate;
   line-height: inherit;
   word-spacing: normal;
-  letter-spacing: normal;
+  letter-spacing: 0 !important;
 }
 
 .ktab-book-page__paragraph:last-child {
   margin-bottom: 0;
+}
+
+.ktab-book-page__text[dir="ltr"] .ktab-book-page__paragraph,
+.ktab-book-page__text--ltr .ktab-book-page__paragraph,
+.ktab-book-page__text:lang(en) .ktab-book-page__paragraph,
+.ktab-book-page__paragraph[dir="ltr"],
+.ktab-book-page__paragraph--ltr,
+.ktab-book-page__paragraph:lang(en) {
+  direction: ltr !important;
+  text-align: justify !important;
+  text-align-last: left !important;
+  letter-spacing: normal !important;
+  unicode-bidi: isolate;
 }
 
 /* Page Number Footer */
@@ -391,7 +428,7 @@
   margin: 0 0 12px;
   color: inherit;
   letter-spacing: -0.015em;
-  font-family: var(--font-arabic, "Tajawal", system-ui, sans-serif);
+  font-family: var(--font-book-arabic, "Noto Naskh Arabic", serif);
 }
 
 .ktab-book-end-page__author {
@@ -400,7 +437,7 @@
   opacity: 0.65;
   margin: 0;
   color: inherit;
-  font-family: var(--font-arabic, "Tajawal", system-ui, sans-serif);
+  font-family: var(--font-book-arabic, "Noto Naskh Arabic", serif);
   letter-spacing: 0.01em;
 }
 

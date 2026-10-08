@@ -70,9 +70,22 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
 
   const ensureCtx = useCallback(() => {
     if (disposedRef.current) throw new Error("Reader TTS has been disposed");
-    if (!audioCtxRef.current) audioCtxRef.current = createAudioContextSafe();
-    if (!audioCtxRef.current) throw new Error("Web Audio API not available");
-    return audioCtxRef.current;
+    let ctx = audioCtxRef.current;
+    if (
+      !ctx ||
+      ctx.state === "closed" ||
+      (isIOSDevice() && ctx.state === "interrupted")
+    ) {
+      if (ctx && ctx.state !== "closed") {
+        try {
+          ctx.close();
+        } catch (_) {}
+      }
+      ctx = createAudioContextSafe();
+      audioCtxRef.current = ctx;
+    }
+    if (!ctx) throw new Error("Web Audio API not available");
+    return ctx;
   }, []);
 
   const clearHighlight = useCallback(() => {
@@ -245,7 +258,7 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
     }
 
     try {
-      if (isIOSDevice() && ctx.state !== "running") {
+      if (ctx.state === "suspended" || ctx.state === "interrupted") {
         await ctx.resume().catch((e) => console.warn("TTS: Resume failed", e));
       }
 
@@ -334,7 +347,7 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
       allWordsRef.current = allWords;
       totalDurationRef.current = expectedDuration;
 
-      const startAt = ctx.currentTime + 0.05;
+      const startAt = Math.max(ctx.currentTime + 0.05, ctx.currentTime);
       playbackStartTimeRef.current = startAt;
 
       const src = ctx.createBufferSource();
@@ -514,8 +527,6 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
     if (disposedRef.current) return null;
     if (connectPromiseRef.current) return connectPromiseRef.current;
 
-    ensureCtx();
-
     connectPromiseRef.current = new Promise((resolve, reject) => {
       try {
         const ws = new WebSocket(getWsUrl());
@@ -649,7 +660,7 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
   useEffect(() => {
     disposedRef.current = !enabled;
     // Strict Mode replays effects synchronously. Defer preconnection so its
-    // first cleanup cancels the task before opening a socket or audio context.
+    // first cleanup cancels the task before opening a socket.
     const connectionTimeout = enabled
       ? setTimeout(() => connect().catch(() => {}), 0)
       : null;
@@ -658,6 +669,46 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
       stopReader();
     };
   }, [enabled, connect, stopReader]);
+
+  // iOS: Pre-unlock audio on first touch/click anywhere on page
+  useEffect(() => {
+    if (!isIOSDevice()) return;
+
+    const handleFirstGesture = () => {
+      try {
+        const ctx = ensureCtx();
+        unlockIOSAudio(ctx);
+      } catch (err) {
+        // Ignored
+      }
+    };
+
+    window.addEventListener("touchstart", handleFirstGesture, { once: true, passive: true });
+    window.addEventListener("click", handleFirstGesture, { once: true, passive: true });
+
+    return () => {
+      window.removeEventListener("touchstart", handleFirstGesture);
+      window.removeEventListener("click", handleFirstGesture);
+    };
+  }, [ensureCtx]);
+
+  // iOS: Handle visibility changes (tab sleeping / returning from background)
+  useEffect(() => {
+    if (!isIOSDevice()) return;
+
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible" && audioCtxRef.current) {
+        if (audioCtxRef.current.state === "suspended" || audioCtxRef.current.state === "interrupted") {
+          audioCtxRef.current.resume().catch((err) => {
+            console.warn("Failed to resume audio context on visibility change:", err);
+          });
+        }
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
+  }, []);
 
   const togglePlay = useCallback(async () => {
     if (disposedRef.current) return;
@@ -727,7 +778,7 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
     streamCancelledRef.current = false;
     prefetchTriggeredRef.current = false;
 
-    const startAt = ctx.currentTime + 0.05;
+    const startAt = Math.max(ctx.currentTime + 0.05, ctx.currentTime);
     playbackStartTimeRef.current = startAt;
 
     const src = ctx.createBufferSource();
@@ -771,8 +822,8 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
         throw err;
       }
       if (isIOSDevice()) await new Promise((r) => setTimeout(r, 150));
-      if (disposedRef.current || lifecycleId !== lifecycleIdRef.current) return;
-      ensureCtx();
+      const ctx = ensureCtx();
+      unlockIOSAudio(ctx);
 
       if (prefetch) {
         isPrefetchingRef.current = true;

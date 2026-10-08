@@ -179,7 +179,7 @@ const PageLeaf = React.memo(
         dir="rtl"
       >
         {/* Front Face: Book Text Content */}
-        <div className="ktab-page-curl-content">
+        <div className="ktab-page-curl-content" dir="rtl">
           {inWindow ? renderContent(page, pageNum) : null}
         </div>
 

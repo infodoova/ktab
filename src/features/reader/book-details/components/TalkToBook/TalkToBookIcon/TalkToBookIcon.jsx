@@ -9,9 +9,9 @@ import "./TalkToBookIcon.css";
  * @param {Object} props
  * @param {number} [props.size=24] - Square dimension in pixels.
  * @param {string} [props.className=""] - Additional CSS class names.
- * @param {string} [props.alt="كتّاب"] - Alternative text description.
+ * @param {string} [props.alt="كتاب"] - Alternative text description.
  */
-export function TalkToBookIcon({ size = 24, className = "", alt = "كتّاب", ...props }) {
+export function TalkToBookIcon({ size = 24, className = "", alt = "كتاب", ...props }) {
   return (
     <img
       src={brandIconImg}

@@ -24,7 +24,7 @@ export function RouteLoadingFallback() {
   return (
     <div className="er-route-loading-stage" dir="rtl">
       <div className="er-route-loading-box">
-        <img src={logo} alt="كُتّاب" className="er-route-loading-logo" />
+        <img src={logo} alt="كتاب" className="er-route-loading-logo" />
         <div className="er-route-progress-track" dir="ltr">
           <div
             className="er-route-progress-bar"

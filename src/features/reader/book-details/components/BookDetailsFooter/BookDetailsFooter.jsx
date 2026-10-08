@@ -11,7 +11,7 @@ export function BookDetailsFooter({ onScrollToTop, currentYear }) {
     <footer className="ktab-book-details-footer" dir="rtl">
       <div className="ktab-book-details-footer__inner">
         <p className="ktab-book-details-footer__copy">
-          © {currentYear || new Date().getFullYear()} كُتّاب — جميع الحقوق محفوظة.
+          © {currentYear || new Date().getFullYear()} كتاب — جميع الحقوق محفوظة.
         </p>
 
         {onScrollToTop && (

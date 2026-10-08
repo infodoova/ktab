@@ -16,7 +16,7 @@ export default function EarlyAccessView() {
   return (
     <main className="early-access-page" dir="rtl">
       <header className="early-access-brand">
-        <Link to="/" aria-label="كُتّاب — الرئيسية"><img src={logo} alt="كُتّاب" /></Link>
+        <Link to="/" aria-label="كتاب — الرئيسية"><img src={logo} alt="كتاب" /></Link>
       </header>
       <section className="early-access-card" aria-labelledby="early-access-title">
         {result ? (
@@ -31,7 +31,7 @@ export default function EarlyAccessView() {
           <>
             <div className="early-access-heading">
               <h1 id="early-access-title">{roleInfo?.title}</h1>
-              <p>{roleInfo?.subtitle || "سجّل بيانات مؤسستك المكتبية، وكن من أوائل الشركاء في إتاحة المعرفة عبر كُتّاب."}</p>
+              <p>{roleInfo?.subtitle || "سجّل بيانات مؤسستك المكتبية، وكن من أوائل الشركاء في إتاحة المعرفة عبر كتاب."}</p>
             </div>
             <form className="early-access-form" onSubmit={handleSubmit} noValidate aria-busy={isSubmitting}>
               {roleOptions.length > 1 && (

@@ -25,13 +25,13 @@ export function Flip3DTransition({
     <div className="ktab-vertical-flip-stage" dir="rtl">
       {/* 1. Underlying stationary page layer */}
       {isTransitioning && transitionDir === "next" && currentPage && (
-        <div className={`ktab-vertical-page-underlying ktab-book-page--${theme}`}>
+        <div className={`ktab-vertical-page-underlying ktab-book-page--${theme}`} dir="rtl">
           {renderContent(currentPage, currentPageIndex + 1)}
         </div>
       )}
 
       {isTransitioning && transitionDir === "prev" && nextPage && (
-        <div className={`ktab-vertical-page-underlying ktab-book-page--${theme}`}>
+        <div className={`ktab-vertical-page-underlying ktab-book-page--${theme}`} dir="rtl">
           {renderContent(nextPage, currentPageIndex + 2)}
         </div>
       )}
@@ -45,6 +45,7 @@ export function Flip3DTransition({
               : "ktab-vertical-page-sheet--flipping-down"
             : ""
         }`}
+        dir="rtl"
       >
         {isTransitioning && transitionDir === "next" && prevPage
           ? renderContent(prevPage, currentPageIndex)

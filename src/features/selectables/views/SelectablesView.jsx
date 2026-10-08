@@ -95,7 +95,7 @@ function renderAccurateAppIcon(item) {
       return (
         <img
           src={ktabBrandIcon}
-          alt="كُتّاب"
+          alt="كتاب"
           className="ktab-selectables-brand-img"
         />
       );
@@ -116,11 +116,11 @@ function renderAccurateAppIcon(item) {
 export default function SelectablesView() {
   return (
     <div className="ktab-selectables-page" dir="rtl" style={{ colorScheme: "light" }}>
-      <main className="ktab-selectables-container" aria-label="روابط منصة كُتّاب">
+      <main className="ktab-selectables-container" aria-label="روابط منصة كتاب">
         {/* Minimal Clean Logo Top Bar */}
         <header className="ktab-selectables-header">
-          <Link to="/" aria-label="كُتّاب — الرئيسية" className="ktab-selectables-logo-wrap">
-            <img src={logo} alt="كُتّاب" className="ktab-selectables-logo" />
+          <Link to="/" aria-label="كتاب — الرئيسية" className="ktab-selectables-logo-wrap">
+            <img src={logo} alt="كتاب" className="ktab-selectables-logo" />
           </Link>
         </header>
 

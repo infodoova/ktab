@@ -68,47 +68,18 @@
   margin: 0;
 }
 
-/* Social Buttons */
-.er-footer-socials {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 4px;
-}
-
-.er-footer-social-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background-color: var(--bg-primary, #ffffff);
-  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
-  color: var(--brand-black, #0a0a0a);
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  text-decoration: none;
-}
-
-.er-footer-social-btn:hover {
-  background-color: var(--brand-black, #0a0a0a);
-  border-color: var(--brand-black, #0a0a0a);
-  color: var(--brand-white, #ffffff);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-}
-
-/* Navigation Links Columns Group */
+/* Navigation Links Columns Group (Local Support & Legal Sections) */
 .er-footer-links-group {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 40px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 72px;
   flex-grow: 1;
 }
 
 .er-footer-col {
   display: flex;
   flex-direction: column;
+  min-width: 170px;
 }
 
 .er-footer-col-title {
@@ -208,7 +179,7 @@
 @media (max-width: 1024px) {
   .er-footer-grid {
     flex-direction: column;
-    gap: 48px;
+    gap: 40px;
   }
 
   .er-footer-brand-col {
@@ -216,19 +187,19 @@
   }
 
   .er-footer-links-group {
+    justify-content: flex-start;
+    gap: 48px;
     width: 100%;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 32px;
   }
 }
 
 @media (max-width: 640px) {
   .er-footer {
-    padding: 60px 20px 32px;
+    padding: 50px 20px 28px;
   }
 
   .er-footer-links-group {
-    grid-template-columns: 1fr;
+    flex-direction: column;
     gap: 28px;
   }
 
@@ -237,4 +208,15 @@
     align-items: flex-start;
     gap: 16px;
   }
+
+  .er-footer-big-brand {
+    padding-top: 36px;
+    margin-top: 18px;
+  }
+
+  .er-footer-big-text {
+    font-size: clamp(64px, 22vw, 120px);
+    line-height: 0.95;
+  }
 }
+

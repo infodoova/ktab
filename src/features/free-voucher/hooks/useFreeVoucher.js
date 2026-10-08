@@ -96,7 +96,7 @@ export function useFreeVoucher() {
     if (!roleInfo || requestRef.current || form.retryUntil > Date.now()) return;
     const { payload, errors } = prepareFreeVoucherRequest(form.values, roleInfo.role);
     if (Object.keys(errors).length) {
-      setForm({ ...form, errors, message: "يرجى مراجعة الحقول لتأكيد استلام القسيمة المجانية." });
+      setForm({ ...form, errors, message: "يرجى مراجعة الحقول لتأكيد استلام القسيمة." });
       event.currentTarget.elements.namedItem(Object.keys(errors)[0])?.focus();
       return;
     }
@@ -107,6 +107,7 @@ export function useFreeVoucher() {
       const { status, body, retryAfter } = await submitFreeVoucher(payload, controller.signal);
       if (controller.signal.aborted) return;
       if (status === 201 && body?.success !== false) {
+        const isAuthor = slug === "author";
         setForm({
           ...form,
           isSubmitting: false,
@@ -114,9 +115,13 @@ export function useFreeVoucher() {
           result: "created",
           submittedData: {
             ...payload,
-            voucherCode: `KTAB-${slug.toUpperCase()}-FREE30`,
+            voucherCode: isAuthor ? "KTAB-AUTHOR-50OFF" : `KTAB-${slug.toUpperCase()}-FREE30`,
           },
-          message: body?.message || "تهانينا! تم تسجيلك وحجز قسيمة الشهر المجاني بنجاح.",
+          message:
+            body?.message ||
+            (isAuthor
+              ? "تهانينا! تم تسجيلك وحجز قسيمة خصم 50% على أول 10 كتب بنجاح."
+              : "تهانينا! تم تسجيلك وحجز قسيمة الشهر المجاني بنجاح."),
         });
       } else if (status === 409) {
         const errorMsg = body?.message || "هذا البريد الإلكتروني مسجّل بالفعل في المنصة.";
