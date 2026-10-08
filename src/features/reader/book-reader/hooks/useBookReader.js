@@ -220,6 +220,43 @@ export function useBookReader() {
     }
   }, [isPlaying, currentPage, id, voice, togglePlay, startPageStream, cancelStream, generatedPagesRef, pagesCacheRef, currentPageData, bookText, wordsPerPage]);
 
+  // Mobile Lock Screen & OS MediaSession integration
+  useEffect(() => {
+    if (typeof navigator === "undefined" || !("mediaSession" in navigator)) return;
+
+    if (isPlaying) {
+      try {
+        navigator.mediaSession.playbackState = "playing";
+        if (typeof MediaMetadata !== "undefined") {
+          navigator.mediaSession.metadata = new MediaMetadata({
+            title: bookTitle || "كتاب",
+            artist: bookAuthor || "القارئ الصوتي",
+            album: "Doova Ktab",
+          });
+        }
+
+        navigator.mediaSession.setActionHandler("play", () => {
+          handleTogglePlay();
+        });
+        navigator.mediaSession.setActionHandler("pause", () => {
+          handleTogglePlay();
+        });
+        navigator.mediaSession.setActionHandler("nexttrack", () => {
+          handleNextPage();
+        });
+        navigator.mediaSession.setActionHandler("previoustrack", () => {
+          handlePrevPage();
+        });
+      } catch (e) {
+        console.warn("MediaSession setup warning:", e);
+      }
+    } else {
+      try {
+        navigator.mediaSession.playbackState = "paused";
+      } catch (_) {}
+    }
+  }, [isPlaying, bookTitle, bookAuthor, handleTogglePlay, handleNextPage, handlePrevPage]);
+
   return {
     id,
     navigate,

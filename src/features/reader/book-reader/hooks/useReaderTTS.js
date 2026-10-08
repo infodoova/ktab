@@ -4,7 +4,10 @@ import {
   createAudioContextSafe,
   safeJsonParse,
   decodeAudioDataSafe,
-  unlockIOSAudio,
+  mergeAudioBuffers,
+  unlockMobileAudio,
+  startMobileAudioKeepAlive,
+  stopMobileAudioKeepAlive,
   isIOSDevice,
 } from "../utils/readerUtils";
 
@@ -71,16 +74,7 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
   const ensureCtx = useCallback(() => {
     if (disposedRef.current) throw new Error("Reader TTS has been disposed");
     let ctx = audioCtxRef.current;
-    if (
-      !ctx ||
-      ctx.state === "closed" ||
-      (isIOSDevice() && ctx.state === "interrupted")
-    ) {
-      if (ctx && ctx.state !== "closed") {
-        try {
-          ctx.close();
-        } catch (_) {}
-      }
+    if (!ctx || ctx.state === "closed") {
       ctx = createAudioContextSafe();
       audioCtxRef.current = ctx;
     }
@@ -249,20 +243,42 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
       return;
     }
 
-    const totalLength = allAudioChunksRef.current.reduce((sum, c) => sum + c.byteLength, 0);
-    const combined = new Uint8Array(totalLength);
-    let offset = 0;
-    for (const chunk of allAudioChunksRef.current) {
-      combined.set(new Uint8Array(chunk), offset);
-      offset += chunk.byteLength;
-    }
-
     try {
       if (ctx.state === "suspended" || ctx.state === "interrupted") {
         await ctx.resume().catch((e) => console.warn("TTS: Resume failed", e));
       }
 
-      const decoded = await decodeAudioDataSafe(ctx, combined.buffer.slice(0));
+      // Decode each chunk individually to prevent CoreAudio / WebKit MP3 multi-header decoding errors
+      const decodedChunks = [];
+      for (let i = 0; i < allAudioChunksRef.current.length; i++) {
+        const chunk = allAudioChunksRef.current[i];
+        try {
+          const buf = await decodeAudioDataSafe(ctx, chunk);
+          if (buf) decodedChunks.push(buf);
+        } catch (chunkErr) {
+          console.warn(`TTS: Chunk ${i} individual decode failed:`, chunkErr);
+        }
+      }
+
+      let decoded = null;
+      if (decodedChunks.length > 0) {
+        decoded = mergeAudioBuffers(ctx, decodedChunks);
+      } else {
+        // Fallback: try decoding combined buffer if individual decoding returned nothing
+        const totalLength = allAudioChunksRef.current.reduce((sum, c) => sum + c.byteLength, 0);
+        const combined = new Uint8Array(totalLength);
+        let offset = 0;
+        for (const chunk of allAudioChunksRef.current) {
+          combined.set(new Uint8Array(chunk), offset);
+          offset += chunk.byteLength;
+        }
+        decoded = await decodeAudioDataSafe(ctx, combined.buffer.slice(0));
+      }
+
+      if (!decoded) {
+        throw new Error("No decoded audio buffer available");
+      }
+
       const actualDuration = decoded.duration;
 
       if (
@@ -355,7 +371,29 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
       src.playbackRate.value = playbackRate;
       src.connect(ctx.destination);
       activeSourcesRef.current.add(src);
-      src.onended = () => activeSourcesRef.current.delete(src);
+
+      src.onended = () => {
+        activeSourcesRef.current.delete(src);
+        // Fallback for background / locked screen where requestAnimationFrame is paused by mobile OS
+        if (
+          gotCompleteRef.current &&
+          !pageEndedFiredRef.current &&
+          !streamCancelledRef.current
+        ) {
+          pageEndedFiredRef.current = true;
+          setIsStreaming(false);
+          clearHighlight();
+
+          if (isLastPageRef.current) {
+            setIsPlaying(false);
+            stopMobileAudioKeepAlive();
+            stopLoop();
+          } else {
+            onPageEnded?.();
+          }
+        }
+      };
+
       src.start(startAt);
 
       scheduledSourceRef.current = src;
@@ -364,7 +402,7 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
       console.error("Audio decode failed:", err);
       setIsLoading(false);
     }
-  }, []);
+  }, [clearHighlight, onPageEnded, stopLoop]);
 
   const cancelStream = useCallback(() => {
     streamIdRef.current += 1;
@@ -427,17 +465,34 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
     if (disposedRef.current) return;
     if (!ctx || prefetchAudioChunksRef.current.length === 0) return;
 
-    const totalLength = prefetchAudioChunksRef.current.reduce((sum, c) => sum + c.byteLength, 0);
-    const combined = new Uint8Array(totalLength);
-    let offset = 0;
-    for (const chunk of prefetchAudioChunksRef.current) {
-      combined.set(new Uint8Array(chunk), offset);
-      offset += chunk.byteLength;
-    }
-
     try {
-      const decoded = await decodeAudioDataSafe(ctx, combined.buffer.slice(0));
+      const decodedChunks = [];
+      for (let i = 0; i < prefetchAudioChunksRef.current.length; i++) {
+        const chunk = prefetchAudioChunksRef.current[i];
+        try {
+          const buf = await decodeAudioDataSafe(ctx, chunk);
+          if (buf) decodedChunks.push(buf);
+        } catch (chunkErr) {
+          console.warn(`TTS prefetch: Chunk ${i} decode failed:`, chunkErr);
+        }
+      }
+
+      let decoded = null;
+      if (decodedChunks.length > 0) {
+        decoded = mergeAudioBuffers(ctx, decodedChunks);
+      } else {
+        const totalLength = prefetchAudioChunksRef.current.reduce((sum, c) => sum + c.byteLength, 0);
+        const combined = new Uint8Array(totalLength);
+        let offset = 0;
+        for (const chunk of prefetchAudioChunksRef.current) {
+          combined.set(new Uint8Array(chunk), offset);
+          offset += chunk.byteLength;
+        }
+        decoded = await decodeAudioDataSafe(ctx, combined.buffer.slice(0));
+      }
+
       if (
+        !decoded ||
         disposedRef.current || lifecycleId !== lifecycleIdRef.current ||
         streamId !== prefetchStreamIdRef.current || ctx !== audioCtxRef.current
       ) return;
@@ -641,6 +696,7 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
     // Invalidate work waiting for a connection or decode before releasing audio.
     disposedRef.current = true;
     lifecycleIdRef.current += 1;
+    stopMobileAudioKeepAlive();
     cancelStream();
     stopLoop();
     setIsPlaying(false);
@@ -670,14 +726,12 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
     };
   }, [enabled, connect, stopReader]);
 
-  // iOS: Pre-unlock audio on first touch/click anywhere on page
+  // Mobile: Pre-unlock audio on first touch/click anywhere on page
   useEffect(() => {
-    if (!isIOSDevice()) return;
-
     const handleFirstGesture = () => {
       try {
         const ctx = ensureCtx();
-        unlockIOSAudio(ctx);
+        unlockMobileAudio(ctx);
       } catch (err) {
         // Ignored
       }
@@ -692,29 +746,31 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
     };
   }, [ensureCtx]);
 
-  // iOS: Handle visibility changes (tab sleeping / returning from background)
+  // Mobile: Handle visibility changes (tab sleeping / returning from background)
   useEffect(() => {
-    if (!isIOSDevice()) return;
-
     const handleVisibility = () => {
-      if (document.visibilityState === "visible" && audioCtxRef.current) {
-        if (audioCtxRef.current.state === "suspended" || audioCtxRef.current.state === "interrupted") {
-          audioCtxRef.current.resume().catch((err) => {
+      if (document.visibilityState === "visible") {
+        const ctx = audioCtxRef.current;
+        if (ctx && (ctx.state === "suspended" || ctx.state === "interrupted")) {
+          ctx.resume().catch((err) => {
             console.warn("Failed to resume audio context on visibility change:", err);
           });
+        }
+        if (isPlaying) {
+          startMobileAudioKeepAlive();
         }
       }
     };
 
     document.addEventListener("visibilitychange", handleVisibility);
     return () => document.removeEventListener("visibilitychange", handleVisibility);
-  }, []);
+  }, [isPlaying]);
 
   const togglePlay = useCallback(async () => {
     if (disposedRef.current) return;
     const lifecycleId = lifecycleIdRef.current;
     const ctx = ensureCtx();
-    unlockIOSAudio(ctx);
+    unlockMobileAudio(ctx);
 
     if (!isPlaying) {
       setIsPlaying(true);
@@ -728,13 +784,7 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
         setIsLoading(false);
       }
     } else {
-      if (!isIOSDevice()) {
-        try {
-          await ctx.suspend();
-        } catch (e) {
-          console.warn("ctx.suspend failed:", e);
-        }
-      }
+      stopMobileAudioKeepAlive();
       stopLoop();
       setIsPlaying(false);
       setIsLoading(false);
@@ -786,7 +836,29 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
     src.playbackRate.value = prefetchPlaybackRateRef.current;
     src.connect(ctx.destination);
     activeSourcesRef.current.add(src);
-    src.onended = () => activeSourcesRef.current.delete(src);
+
+    src.onended = () => {
+      activeSourcesRef.current.delete(src);
+      // Fallback for background / locked screen where requestAnimationFrame is paused
+      if (
+        gotCompleteRef.current &&
+        !pageEndedFiredRef.current &&
+        !streamCancelledRef.current
+      ) {
+        pageEndedFiredRef.current = true;
+        setIsStreaming(false);
+        clearHighlight();
+
+        if (isLastPageRef.current) {
+          setIsPlaying(false);
+          stopMobileAudioKeepAlive();
+          stopLoop();
+        } else {
+          onPageEnded?.();
+        }
+      }
+    };
+
     src.start(startAt);
 
     scheduledSourceRef.current = src;
@@ -812,7 +884,7 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
       if (!prefetch) {
         setIsLoading(true);
         clearTimeout(loadingTimeoutRef.current);
-        loadingTimeoutRef.current = setTimeout(() => setIsLoading(false), 12000);
+        loadingTimeoutRef.current = setTimeout(() => setIsLoading(false), 15000);
       }
 
       try {
@@ -821,9 +893,8 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
         if (disposedRef.current || lifecycleId !== lifecycleIdRef.current) return;
         throw err;
       }
-      if (isIOSDevice()) await new Promise((r) => setTimeout(r, 150));
       const ctx = ensureCtx();
-      unlockIOSAudio(ctx);
+      unlockMobileAudio(ctx);
 
       if (prefetch) {
         isPrefetchingRef.current = true;

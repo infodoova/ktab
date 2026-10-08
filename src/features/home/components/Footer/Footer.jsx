@@ -2,21 +2,16 @@ import React from "react";
 import { ArrowUp } from "lucide-react";
 import logo from "@/assets/logo/logo.png";
 import { useFooter } from "../../hooks/useFooter";
-import LegalArticleModal from "../LegalArticleModal/LegalArticleModal";
 import "./Footer.css";
 
 /**
  * Minimalist luxury Footer for Ktab platform.
- * Pure Light Mode, prominent official logo, zero clutter, big brand signature under.
+ * Pure Light Mode, prominent official logo, zero clutter, in-app navigation redirects.
  */
 export default function Footer() {
   const {
     year,
     sections,
-    activeArticleId,
-    isArticleModalOpen,
-    openArticle,
-    closeArticle,
     handleLinkClick,
     scrollToTop,
   } = useFooter();
@@ -24,7 +19,7 @@ export default function Footer() {
   return (
     <footer className="er-footer" dir="rtl">
       <div className="er-footer-container">
-        {/* Main Grid: Brand Column + 2 Local Sections */}
+        {/* Main Grid: Brand Column + In-App Navigation Sections */}
         <div className="er-footer-grid">
           {/* Brand Column with Prominent Logo */}
           <div className="er-footer-brand-col">
@@ -43,7 +38,7 @@ export default function Footer() {
             </p>
           </div>
 
-          {/* Links Columns (الدعم والمساعدة + السياسات والضوابط) */}
+          {/* Links Columns (In-app Navigation) */}
           <div className="er-footer-links-group">
             {sections.map((section) => (
               <div key={section.id} className="er-footer-col">
@@ -83,14 +78,6 @@ export default function Footer() {
           </button>
         </div>
       </div>
-
-      {/* Production Legal & Policy Article Modal */}
-      <LegalArticleModal
-        articleId={activeArticleId}
-        isOpen={isArticleModalOpen}
-        onClose={closeArticle}
-        onSelectArticle={openArticle}
-      />
     </footer>
   );
 }

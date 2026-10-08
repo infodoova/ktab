@@ -20,18 +20,171 @@ export {
   getTargetWordsPerPage,
 } from "./readerPaginationUtils";
 
-// 44-byte silent WAV data URI to unlock iOS audio session category to Playback (overrides hardware mute switch)
-const SILENT_WAV_DATA_URI =
-  "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA";
-let iosUnlockAudioEl = null;
+// 1-second silent WAV data URI (8000Hz, 8-bit mono PCM silence) for keeping mobile audio hardware active
+// and enforcing AVAudioSessionCategoryPlayback on iOS (overrides hardware mute switch)
+export const SILENT_WAV_DATA_URI =
+  "data:audio/wav;base64,UklGRmQCAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAIAAAA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA" +
+  "gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=";
+
+let mobileKeepAliveAudioEl = null;
 
 /**
- * Robust decodeAudioData wrapper for all platforms (iOS WebKit, Android, Desktop)
+ * Starts a silent, looping HTML5 audio element.
+ * 1. Elevates iOS AVAudioSession category to "Playback" (ignores iPhone silent switch).
+ * 2. Prevents the mobile OS from shutting down audio hardware / sleeping the Web Audio pipeline
+ *    during network streaming latencies (waiting for TTS chunk synthesis).
+ * 3. Bridges gap across automated page turns without requiring new user touches.
  */
-export async function decodeAudioDataSafe(ctx, arrayBuffer) {
+export function startMobileAudioKeepAlive() {
+  if (typeof window === "undefined" || typeof Audio === "undefined") return;
+
+  // 1. Declare AudioSession category as "playback" (iOS 15+ standard)
+  if (typeof navigator !== "undefined" && navigator.audioSession) {
+    try {
+      navigator.audioSession.type = "playback";
+    } catch (_) {}
+  }
+
+  // 2. Play silent looping audio element
+  try {
+    if (!mobileKeepAliveAudioEl) {
+      mobileKeepAliveAudioEl = new Audio();
+      mobileKeepAliveAudioEl.src = SILENT_WAV_DATA_URI;
+      mobileKeepAliveAudioEl.loop = true;
+      mobileKeepAliveAudioEl.setAttribute("playsinline", "true");
+      mobileKeepAliveAudioEl.setAttribute("webkit-playsinline", "true");
+      mobileKeepAliveAudioEl.setAttribute("x-webkit-airplay", "deny");
+      mobileKeepAliveAudioEl.volume = 0.01;
+    }
+    if (mobileKeepAliveAudioEl.paused) {
+      const p = mobileKeepAliveAudioEl.play();
+      if (p !== undefined) {
+        p.catch((err) => console.warn("Mobile audio keep-alive play warning:", err));
+      }
+    }
+  } catch (err) {
+    console.warn("startMobileAudioKeepAlive error:", err);
+  }
+}
+
+/**
+ * Pauses the silent audio loop when TTS narration is intentionally paused or stopped.
+ */
+export function stopMobileAudioKeepAlive() {
+  if (mobileKeepAliveAudioEl && !mobileKeepAliveAudioEl.paused) {
+    try {
+      mobileKeepAliveAudioEl.pause();
+      mobileKeepAliveAudioEl.currentTime = 0;
+    } catch (_) {}
+  }
+}
+
+/**
+ * Robust decodeAudioData wrapper for all platforms (iOS WebKit, Android Chrome, Desktop).
+ * Includes timeout protection and handles both modern Promise and legacy callback WebKit decoders.
+ */
+export async function decodeAudioDataSafe(ctx, arrayBuffer, timeoutMs = 12000) {
   if (!ctx) throw new Error("AudioContext required");
 
-  // On iOS Safari, resume context if it was suspended before attempting decode
+  // On mobile browsers, resume context if suspended or interrupted
   if (ctx.state === "suspended" || ctx.state === "interrupted") {
     try {
       await ctx.resume();
@@ -40,65 +193,112 @@ export async function decodeAudioDataSafe(ctx, arrayBuffer) {
     }
   }
 
-  // Clone arrayBuffer to protect against detachment
+  // Clone arrayBuffer to protect against WebKit detachment
   const bufferCopy = arrayBuffer.slice ? arrayBuffer.slice(0) : arrayBuffer;
 
-  // 1. Modern Promise-based decode (supported on all modern browsers: iOS Safari 14.5+, Chrome, Edge, Firefox)
-  try {
-    const res = ctx.decodeAudioData(bufferCopy);
-    if (res && typeof res.then === "function") {
-      return await res;
-    }
-  } catch (err) {
-    console.warn("Promise decodeAudioData failed, falling back to callback:", err);
-  }
+  const decodePromise = new Promise((resolve, reject) => {
+    let resolved = false;
 
-  // 2. Fallback for older WebKit / browsers that require callback syntax
-  return new Promise((resolve, reject) => {
-    ctx.decodeAudioData(
-      arrayBuffer.slice ? arrayBuffer.slice(0) : arrayBuffer,
-      (buffer) => resolve(buffer),
-      (err) => reject(err || new Error("Audio decode failed"))
-    );
+    try {
+      const res = ctx.decodeAudioData(
+        bufferCopy,
+        (decoded) => {
+          if (!resolved) {
+            resolved = true;
+            resolve(decoded);
+          }
+        },
+        (err) => {
+          if (!resolved) {
+            resolved = true;
+            reject(err || new Error("Audio decode failed"));
+          }
+        }
+      );
+
+      if (res && typeof res.then === "function") {
+        res
+          .then((decoded) => {
+            if (!resolved) {
+              resolved = true;
+              resolve(decoded);
+            }
+          })
+          .catch((err) => {
+            if (!resolved) {
+              resolved = true;
+              reject(err || new Error("Audio decode failed"));
+            }
+          });
+      }
+    } catch (err) {
+      if (!resolved) {
+        resolved = true;
+        reject(err);
+      }
+    }
   });
+
+  const timerPromise = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error("decodeAudioData timeout")), timeoutMs)
+  );
+
+  return Promise.race([decodePromise, timerPromise]);
 }
 
 /**
- * Unlock iOS audio hardware and audio session:
- * 1. Resumes AudioContext
- * 2. Plays a silent Web Audio buffer
- * 3. Plays a silent HTML5 Audio element to switch iOS AVAudioSession to "Playback"
- *    (Ensures TTS audio plays through speakers even if the iPhone physical silent switch is ON!)
+ * Merges multiple decoded AudioBuffer objects into a single continuous AudioBuffer.
+ * This completely avoids MP3 multi-header concatenation bugs where iOS CoreAudio rejects
+ * or truncates raw binary concatenated MP3 chunks.
  */
-export function unlockIOSAudio(ctx) {
+export function mergeAudioBuffers(ctx, buffers) {
+  if (!buffers || buffers.length === 0) return null;
+  const validBuffers = buffers.filter(Boolean);
+  if (validBuffers.length === 0) return null;
+  if (validBuffers.length === 1) return validBuffers[0];
+
+  const totalLength = validBuffers.reduce((sum, b) => sum + b.length, 0);
+  const numberOfChannels = validBuffers[0].numberOfChannels || 1;
+  const sampleRate = validBuffers[0].sampleRate || ctx?.sampleRate || 44100;
+  const merged = ctx.createBuffer(numberOfChannels, totalLength, sampleRate);
+
+  for (let channel = 0; channel < numberOfChannels; channel++) {
+    const channelData = merged.getChannelData(channel);
+    let offset = 0;
+    for (const b of validBuffers) {
+      if (channel < b.numberOfChannels) {
+        channelData.set(b.getChannelData(channel), offset);
+      }
+      offset += b.length;
+    }
+  }
+
+  return merged;
+}
+
+/**
+ * Unlock mobile audio hardware and audio session on user gesture:
+ * 1. Resumes Web Audio Context synchronously.
+ * 2. Starts mobile keep-alive loop (elevates to Playback category, bypassing iOS silent switch).
+ * 3. Plays a 1-sample silent Web Audio buffer to warm up the graph.
+ */
+export function unlockMobileAudio(ctx) {
   if (!ctx) return;
+
+  // Direct AudioSession category set
+  if (typeof navigator !== "undefined" && navigator.audioSession) {
+    try {
+      navigator.audioSession.type = "playback";
+    } catch (_) {}
+  }
 
   if (ctx.state === "suspended" || ctx.state === "interrupted") {
     ctx.resume().catch((err) => console.warn("ctx.resume failed:", err));
   }
 
-  if (!isIOSDevice()) return;
+  startMobileAudioKeepAlive();
 
-  // 1. Play silent HTML5 Audio element to promote audio session to Playback category
-  try {
-    if (!iosUnlockAudioEl && typeof Audio !== "undefined") {
-      iosUnlockAudioEl = new Audio();
-      iosUnlockAudioEl.src = SILENT_WAV_DATA_URI;
-      iosUnlockAudioEl.setAttribute("playsinline", "true");
-      iosUnlockAudioEl.setAttribute("webkit-playsinline", "true");
-      iosUnlockAudioEl.volume = 0.01;
-    }
-    if (iosUnlockAudioEl) {
-      const p = iosUnlockAudioEl.play();
-      if (p !== undefined) {
-        p.catch(() => {});
-      }
-    }
-  } catch (err) {
-    console.warn("iOS HTML5 audio unlock error:", err);
-  }
-
-  // 2. Play 1-sample silent Web Audio buffer
+  // Play 1-sample silent Web Audio buffer to warm up Web Audio output node
   try {
     const buffer = ctx.createBuffer(1, 1, 22050);
     const source = ctx.createBufferSource();
@@ -106,9 +306,12 @@ export function unlockIOSAudio(ctx) {
     source.connect(ctx.destination);
     source.start(0);
   } catch (err) {
-    console.warn("Failed to unlock iOS Web Audio buffer:", err);
+    console.warn("Failed to unlock Web Audio buffer:", err);
   }
 }
+
+// Backwards compatibility alias
+export const unlockIOSAudio = unlockMobileAudio;
 
 export function getWsUrl() {
   const envWs = import.meta.env.VITE_WS_URL;

@@ -1,21 +1,25 @@
-import { useState, useCallback } from "react";
+import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
 export const FOOTER_SECTIONS = [
+  {
+    id: "platform",
+    title: "المنصّة",
+    links: [
+      { id: "p1", label: "كيف يعمل كتّاب؟", target: "hero" },
+      { id: "p2", label: "المكتبة العربية", target: "library" },
+      { id: "p3", label: "القصص التفاعلية", target: "interactive-stories" },
+      { id: "p4", label: "اقرأ في أي مكان", target: "read-anywhere" },
+      { id: "p5", label: "لمن كتّاب؟", target: "roles" },
+    ],
+  },
+ 
   {
     id: "support",
     title: "الدعم والمساعدة",
     links: [
       { id: "s1", label: "الأسئلة الشائعة", target: "FAQ" },
-    ],
-  },
-  {
-    id: "legal",
-    title: "السياسات والضوابط",
-    links: [
-      { id: "l1", label: "الشروط والأحكام", href: "/terms", articleId: "terms" },
-      { id: "l2", label: "سياسة الخصوصية", href: "/privacy", articleId: "privacy" },
-      { id: "l3", label: "حقوق النشر والملكية الفكرية", href: "/copyright", articleId: "copyright" },
+      { id: "s3", label: "تسجيل الدخول", href: "/login" },
     ],
   },
 ];
@@ -23,32 +27,14 @@ export const FOOTER_SECTIONS = [
 export const SOCIAL_LINKS = [];
 
 /**
- * Hook for Footer logic, navigation, and article modal state.
+ * Hook for Footer logic and structured in-app link navigation.
  */
 export function useFooter() {
   const navigate = useNavigate();
   const year = new Date().getFullYear();
-  const [activeArticleId, setActiveArticleId] = useState(null);
-  const [isArticleModalOpen, setIsArticleModalOpen] = useState(false);
-
-  const openArticle = useCallback((articleId) => {
-    setActiveArticleId(articleId || "terms");
-    setIsArticleModalOpen(true);
-  }, []);
-
-  const closeArticle = useCallback(() => {
-    setIsArticleModalOpen(false);
-  }, []);
 
   const handleLinkClick = useCallback(
     (e, link) => {
-      // If the link opens a true legal/policy article
-      if (link.articleId) {
-        e.preventDefault();
-        openArticle(link.articleId);
-        return;
-      }
-
       // Smooth scroll to anchor on current page
       if (link.target) {
         e.preventDefault();
@@ -62,16 +48,19 @@ export function useFooter() {
             behavior: "smooth",
           });
           return;
+        } else {
+          navigate(`/#${link.target}`);
+          return;
         }
       }
 
-      // External or standard internal navigation
+      // In-app route navigation
       if (link.href && link.href.startsWith("/")) {
         e.preventDefault();
         navigate(link.href);
       }
     },
-    [navigate, openArticle]
+    [navigate]
   );
 
   const scrollToTop = useCallback(() => {
@@ -82,10 +71,6 @@ export function useFooter() {
     year,
     sections: FOOTER_SECTIONS,
     socials: SOCIAL_LINKS,
-    activeArticleId,
-    isArticleModalOpen,
-    openArticle,
-    closeArticle,
     handleLinkClick,
     scrollToTop,
   };
