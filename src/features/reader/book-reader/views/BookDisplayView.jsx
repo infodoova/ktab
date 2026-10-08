@@ -173,6 +173,7 @@ export function BookDisplayView() {
               transitionMode={transitionMode}
               isRTL={true}
               isLocked={isLocked}
+              navigationDisabled={isTTSLoading}
               onPageChange={handlePageChange}
               onPagesGenerated={onPagesGenerated}
               bookTitle={bookTitle}

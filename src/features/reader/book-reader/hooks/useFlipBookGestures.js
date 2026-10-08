@@ -50,6 +50,10 @@ export function useFlipBookGestures({
   const handleTouchEnd = useCallback(
     (e) => {
       const data = touchDataRef.current;
+      if (readOnly) {
+        data.active = false;
+        return;
+      }
       if (!data.active) return;
       data.active = false;
 
@@ -114,7 +118,7 @@ export function useFlipBookGestures({
         }
       }
     },
-    [onFlipNext, onFlipPrev]
+    [readOnly, onFlipNext, onFlipPrev]
   );
 
   // Mouse wheel pagination listener
@@ -124,6 +128,10 @@ export function useFlipBookGestures({
     if (!el) return;
 
     const onWheel = (e) => {
+      if (readOnly) {
+        e.preventDefault();
+        return;
+      }
       const now = Date.now();
       if (now - lastWheelTimeRef.current < 350) {
         e.preventDefault();
@@ -144,7 +152,7 @@ export function useFlipBookGestures({
 
     el.addEventListener("wheel", onWheel, { passive: false });
     return () => el.removeEventListener("wheel", onWheel);
-  }, [containerRef, onFlipNext, onFlipPrev]);
+  }, [containerRef, readOnly, onFlipNext, onFlipPrev]);
 
   // Keyboard navigation (Arrows, PageUp/Down, Space)
   useEffect(() => {

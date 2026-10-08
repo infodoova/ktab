@@ -38,7 +38,8 @@ export function useFlipBookViewer({
   transitionMode: propTransitionMode,
   onPageChange,
   onPagesGenerated,
-  readOnly = false,
+  readOnly: propReadOnly = false,
+  navigationDisabled = false,
   bookTitle = "",
   bookAuthor = "",
   onBack,
@@ -48,6 +49,7 @@ export function useFlipBookViewer({
   pagesCacheRef = null,
   loadPage = null,
 }) {
+  const readOnly = propReadOnly || navigationDisabled;
   const storeTransitionMode = useReaderPreferencesStore((s) => s.transitionMode);
   const transitionMode = propTransitionMode || storeTransitionMode || "curl";
   const curlRef = useRef(null);
@@ -193,6 +195,7 @@ export function useFlipBookViewer({
   }, [currentPageIndex, onPageChange]);
 
   const handleFlipNext = useCallback(() => {
+    if (readOnly) return;
     const now = Date.now();
     if (now - lastFlipTimeRef.current < 450) return;
     lastFlipTimeRef.current = now;
@@ -221,6 +224,7 @@ export function useFlipBookViewer({
       setTransitionDir(null);
     }, transitionDuration);
   }, [
+    readOnly,
     currentPageIndex,
     totalPages,
     transitionMode,
@@ -230,6 +234,7 @@ export function useFlipBookViewer({
   ]);
 
   const handleFlipPrev = useCallback(() => {
+    if (readOnly) return;
     const now = Date.now();
     if (now - lastFlipTimeRef.current < 450) return;
     lastFlipTimeRef.current = now;
@@ -258,6 +263,7 @@ export function useFlipBookViewer({
       setTransitionDir(null);
     }, transitionDuration);
   }, [
+    readOnly,
     currentPageIndex,
     transitionMode,
     isTransitioning,
@@ -267,6 +273,7 @@ export function useFlipBookViewer({
 
   const goToPage = useCallback(
     (targetPage, force = false) => {
+      if (readOnly && !force) return;
       const now = Date.now();
       if (!force && now - lastFlipTimeRef.current < 450) return;
       lastFlipTimeRef.current = now;
@@ -290,7 +297,7 @@ export function useFlipBookViewer({
         setTransitionDir(null);
       }, transitionDuration);
     },
-    [currentPageIndex, totalPages, transitionMode, transitionDuration, onPageChange]
+    [readOnly, currentPageIndex, totalPages, transitionMode, transitionDuration, onPageChange]
   );
 
   // Gestural input controls (touch swiping, wheel, keyboard)

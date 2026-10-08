@@ -90,7 +90,7 @@ export function useBookReader() {
     currentPageText,
     handleNextPage,
     handlePrevPage,
-    handleGoToPage,
+    handleGoToPage: navigateToPage,
     handlePageChange,
     onPagesGenerated,
   } = useReaderNavigation({
@@ -180,6 +180,11 @@ export function useBookReader() {
     },
   });
 
+  const handleGoToPage = useCallback((page) => {
+    if (isTTSLoading) return;
+    navigateToPage(page);
+  }, [isTTSLoading, navigateToPage]);
+
   const handleReaderBack = useCallback(() => {
     stopReader();
     handleBack();
@@ -199,7 +204,8 @@ export function useBookReader() {
       const info = pages[currentPage - 1];
       if (info && !info.isEndPage) {
         const pageContent = pagesCacheRef?.current?.[currentPage]?.content || currentPageData?.content || bookText || "";
-        await togglePlay();
+        const started = await togglePlay();
+        if (!started) return;
         startPageStream(
           {
             bookId: id,

@@ -8,7 +8,7 @@ import {
   unlockMobileAudio,
   startMobileAudioKeepAlive,
   stopMobileAudioKeepAlive,
-  isIOSDevice,
+  resumeAudioContextSafe,
 } from "../utils/readerUtils";
 
 const PREFETCH_RATIO = 0.4;
@@ -238,15 +238,11 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
 
     if (!gotCompleteRef.current) return;
 
-    if (allAudioChunksRef.current.length === 0) {
-      setIsLoading(false);
-      return;
-    }
-
     try {
-      if (ctx.state === "suspended" || ctx.state === "interrupted") {
-        await ctx.resume().catch((e) => console.warn("TTS: Resume failed", e));
+      if (allAudioChunksRef.current.length === 0) {
+        throw new Error("TTS returned no audio");
       }
+      await resumeAudioContextSafe(ctx);
 
       // Decode each chunk individually to prevent CoreAudio / WebKit MP3 multi-header decoding errors
       const decodedChunks = [];
@@ -397,10 +393,19 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
       src.start(startAt);
 
       scheduledSourceRef.current = src;
+      clearTimeout(loadingTimeoutRef.current);
       setIsLoading(false);
     } catch (err) {
-      console.error("Audio decode failed:", err);
+      if (disposedRef.current || lifecycleId !== lifecycleIdRef.current || streamId !== streamIdRef.current) return;
+      console.error("Audio playback failed:", err);
+      streamCancelledRef.current = true;
+      clearTimeout(loadingTimeoutRef.current);
       setIsLoading(false);
+      setIsPlaying(false);
+      setIsStreaming(false);
+      clearHighlight();
+      stopLoop();
+      stopMobileAudioKeepAlive();
     }
   }, [clearHighlight, onPageEnded, stopLoop]);
 
@@ -457,6 +462,35 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
     setIsLoading(false);
     clearHighlight();
   }, [clearHighlight]);
+
+  const disconnect = useCallback(() => {
+    // Discard pending server messages before a retry creates a new stream.
+    const ws = wsRef.current;
+    wsRef.current = null;
+    connectPromiseRef.current = null;
+    if (ws) {
+      ws.onmessage = null;
+      if (ws.readyState < WebSocket.CLOSING) ws.close();
+    }
+  }, []);
+
+  const failPlayback = useCallback((error) => {
+    console.error("Reader TTS failed:", error);
+    cancelStream();
+    disconnect();
+    setIsPlaying(false);
+    stopLoop();
+    stopMobileAudioKeepAlive();
+  }, [cancelStream, disconnect, stopLoop]);
+
+  const startLoadingTimeout = useCallback(() => {
+    clearTimeout(loadingTimeoutRef.current);
+    // Keep navigation blocked through synthesis and decoding. A timeout aborts
+    // the attempt instead of hiding the spinner while the stream is pending.
+    loadingTimeoutRef.current = setTimeout(() => {
+      failPlayback(new Error("TTS loading timed out"));
+    }, 60000);
+  }, [failPlayback]);
 
   const decodePrefetchedAudio = useCallback(async () => {
     const ctx = audioCtxRef.current;
@@ -611,6 +645,9 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
             wsRef.current = null;
             connectPromiseRef.current = null;
           }
+          if (!disposedRef.current && !streamCancelledRef.current) {
+            failPlayback(new Error("TTS WebSocket closed"));
+          }
           reject(new Error("TTS WebSocket closed"));
         };
 
@@ -653,6 +690,8 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
                   gotCompleteRef.current = true;
                   tryPlayAll();
                 }
+              } else if (msg.type === "error") {
+                failPlayback(new Error(msg.message || "TTS server error"));
               } else if (msg.type === "ack") {
                 if (!isPrefetchingRef.current) {
                   totalChunksExpectedRef.current = msg.totalChunks;
@@ -690,7 +729,7 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
     });
 
     return connectPromiseRef.current;
-  }, [ensureCtx, tryPlayAll, decodePrefetchedAudio]);
+  }, [tryPlayAll, decodePrefetchedAudio, failPlayback]);
 
   const stopReader = useCallback(() => {
     // Invalidate work waiting for a connection or decode before releasing audio.
@@ -732,8 +771,8 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
       try {
         const ctx = ensureCtx();
         unlockMobileAudio(ctx);
-      } catch (err) {
-        // Ignored
+      } catch {
+        // Audio may be unavailable until a supported playback gesture.
       }
     };
 
@@ -767,29 +806,35 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
   }, [isPlaying]);
 
   const togglePlay = useCallback(async () => {
-    if (disposedRef.current) return;
+    if (disposedRef.current) return false;
     const lifecycleId = lifecycleIdRef.current;
-    const ctx = ensureCtx();
-    unlockMobileAudio(ctx);
+    const requestStreamId = streamIdRef.current;
 
     if (!isPlaying) {
       setIsPlaying(true);
       setIsLoading(true);
-      startLoop();
       try {
+        // Unlock before the first await so Safari sees the Play button gesture.
+        const ctx = ensureCtx();
+        await unlockMobileAudio(ctx);
         await connect();
+        if (disposedRef.current || lifecycleId !== lifecycleIdRef.current || requestStreamId !== streamIdRef.current) return false;
+        startLoop();
+        return true;
       } catch (err) {
-        if (disposedRef.current || lifecycleId !== lifecycleIdRef.current) return;
-        console.error("Toggle play connection failed:", err);
-        setIsLoading(false);
+        if (disposedRef.current || lifecycleId !== lifecycleIdRef.current) return false;
+        failPlayback(err);
+        return false;
       }
     } else {
+      cancelStream();
+      disconnect();
       stopMobileAudioKeepAlive();
       stopLoop();
       setIsPlaying(false);
-      setIsLoading(false);
+      return false;
     }
-  }, [connect, ensureCtx, isPlaying, startLoop, stopLoop]);
+  }, [connect, ensureCtx, isPlaying, startLoop, stopLoop, failPlayback, cancelStream, disconnect]);
 
   const hasPrefetch = useCallback(() => {
     return prefetchGotCompleteRef.current && prefetchDecodedBufferRef.current !== null;
@@ -863,6 +908,7 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
 
     scheduledSourceRef.current = src;
     setIsStreaming(true);
+    clearTimeout(loadingTimeoutRef.current);
     setIsLoading(false);
 
     prefetchDecodedBufferRef.current = null;
@@ -872,29 +918,32 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
     prefetchGotCompleteRef.current = false;
 
     return true;
-  }, [clearHighlight]);
+  }, [clearHighlight, onPageEnded, stopLoop]);
 
   const startPageStream = useCallback(
     async (payload, charOffset = 0, options = {}) => {
       if (disposedRef.current) return;
       const lifecycleId = lifecycleIdRef.current;
+      const requestStreamId = streamIdRef.current;
       const { prefetch = false } = options;
       const payloadStr = JSON.stringify(payload);
 
       if (!prefetch) {
         setIsLoading(true);
-        clearTimeout(loadingTimeoutRef.current);
-        loadingTimeoutRef.current = setTimeout(() => setIsLoading(false), 15000);
+        startLoadingTimeout();
       }
 
       try {
         await connect();
       } catch (err) {
         if (disposedRef.current || lifecycleId !== lifecycleIdRef.current) return;
-        throw err;
+        failPlayback(err);
+        return;
       }
-      const ctx = ensureCtx();
-      unlockMobileAudio(ctx);
+      if (disposedRef.current || lifecycleId !== lifecycleIdRef.current || requestStreamId !== streamIdRef.current) return;
+      // The context was unlocked by Play. Automated page turns must not wait
+      // for another user gesture just to decode the next page.
+      ensureCtx();
 
       if (prefetch) {
         isPrefetchingRef.current = true;
@@ -948,8 +997,9 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
         }
 
         if (prefetchPayloadRef.current === payloadStr && prefetchGotCompleteRef.current) {
-          promotePrefetch();
-          return;
+          if (!prefetchDecodedBufferRef.current) await decodePrefetchedAudio();
+          if (disposedRef.current || lifecycleId !== lifecycleIdRef.current || requestStreamId !== streamIdRef.current) return;
+          if (promotePrefetch()) return;
         }
 
         cancelStream();
@@ -979,7 +1029,7 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
         setIsStreaming(true);
         setIsLoading(true);
         clearHighlight();
-        loadingTimeoutRef.current = setTimeout(() => setIsLoading(false), 12000);
+        startLoadingTimeout();
       }
 
       const ws = wsRef.current;
@@ -988,12 +1038,17 @@ export function useReaderTTS({ enabled, onPageEnded, onPrefetchNextPage }) {
           setIsStreaming(false);
           setIsLoading(false);
         }
-        throw new Error("WebSocket not ready");
+        failPlayback(new Error("WebSocket not ready"));
+        return;
       }
 
-      ws.send(payloadStr);
+      try {
+        ws.send(payloadStr);
+      } catch (error) {
+        failPlayback(error);
+      }
     },
-    [connect, ensureCtx, clearHighlight, cancelStream, promotePrefetch]
+    [connect, ensureCtx, clearHighlight, cancelStream, promotePrefetch, decodePrefetchedAudio, failPlayback, startLoadingTimeout]
   );
 
   return {
