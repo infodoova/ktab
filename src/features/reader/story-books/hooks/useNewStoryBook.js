@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { AlertToast } from "@/components/myui/AlertToast";
 import { storyBooksService } from "../services/storyBooksService";
-import { STORYBOOK_VALIDATION } from "../constants/storyBooksConstants";
+import { COMPANION_TYPES, STORYBOOK_VALIDATION } from "../constants/storyBooksConstants";
 
 /**
  * Hook driving the live personalized storybook creation wizard.
@@ -193,14 +193,8 @@ export function useNewStoryBook() {
   // Save New Child
   const handleSaveChild = useCallback(async () => {
     const name = newChildData.nameAr?.trim();
-    if (!name || name.length < 2) {
-      AlertToast("يرجى إدخال اسم الطفل باللغة العربية (حرفان على الأقل)", "WARNING");
-      return;
-    }
-
-    // Backend Arabic name regex validation
-    if (!STORYBOOK_VALIDATION.ARABIC_NAME_REGEX.test(name)) {
-      AlertToast("يجب أن يحتوي اسم الطفل على أحرف عربية فقط بدون أرقام أو رموز", "WARNING");
+    if (!STORYBOOK_VALIDATION.ARABIC_NAME_REGEX.test(name || "")) {
+      AlertToast(STORYBOOK_VALIDATION.ARABIC_NAME_ERROR, "WARNING");
       return;
     }
 
@@ -280,8 +274,8 @@ export function useNewStoryBook() {
   const goToNextStep = useCallback(() => {
     if (currentStep === 1) {
       const name = newChildData.nameAr?.trim();
-      if (!name || name.length < 2) {
-        AlertToast("يرجى إدخال اسم الطفل باللغة العربية (حرفان على الأقل)", "WARNING");
+      if (!STORYBOOK_VALIDATION.ARABIC_NAME_REGEX.test(name || "")) {
+        AlertToast(STORYBOOK_VALIDATION.ARABIC_NAME_ERROR, "WARNING");
         return;
       }
     }
@@ -308,8 +302,8 @@ export function useNewStoryBook() {
 
   // Final Submission to Backend: POST /api/v1/storybook/books
   const handleSaveAndPublish = useCallback(async () => {
-    if (!newChildData.nameAr?.trim()) {
-      AlertToast("يرجى إدخال اسم الطفل أولاً", "WARNING");
+    if (!STORYBOOK_VALIDATION.ARABIC_NAME_REGEX.test(newChildData.nameAr?.trim() || "")) {
+      AlertToast(STORYBOOK_VALIDATION.ARABIC_NAME_ERROR, "WARNING");
       return;
     }
 
@@ -324,11 +318,14 @@ export function useNewStoryBook() {
 
       let companionPayload = undefined;
       if (storyData.hasCompanion && storyData.companion?.nameAr?.trim()) {
-        const isPet = ["CAT", "DOG", "RABBIT", "PARROT"].includes(storyData.companion.type);
+        // Legacy sibling selections have no appearance form and cannot be submitted.
+        const type = COMPANION_TYPES.some((option) => option.value === storyData.companion.type)
+          ? storyData.companion.type
+          : "CAT";
         companionPayload = {
-          type: storyData.companion.type || "CAT",
+          type,
           nameAr: storyData.companion.nameAr.trim(),
-          petColor: isPet ? (storyData.companion.petColor || "ORANGE") : undefined,
+          petColor: storyData.companion.petColor || "ORANGE",
         };
       }
 

@@ -1,6 +1,6 @@
 import { getHelper, postHelper, putHelper, patchHelper, deleteHelper, postFormDataHelper } from "@/core/api/apiHelpers";
 import { sanitizeId } from "@/lib/sanitize";
-import { STORYBOOK_VALIDATION } from "../constants/storyBooksConstants";
+import { COMPANION_TYPES, PET_COLORS, STORYBOOK_VALIDATION } from "../constants/storyBooksConstants";
 
 const RAW_API_BASE = (import.meta.env.VITE_API_URL || "").trim().replace(/\/$/, "");
 const API_BASE = RAW_API_BASE
@@ -27,13 +27,22 @@ export function validateStorybookPayload(payload = {}, files = {}) {
   }
 
   // 2. Child Name (if inline child profile is provided)
-  if (payload.child?.nameAr) {
-    const trimmed = payload.child.nameAr.trim();
+  if (payload.child) {
+    const trimmed = typeof payload.child.nameAr === "string" ? payload.child.nameAr.trim() : "";
     if (!STORYBOOK_VALIDATION.ARABIC_NAME_REGEX.test(trimmed)) {
-      errors.nameAr = "اسم الطفل يجب أن يتكون من أحرف عربية ومسافات فقط (بين ٢ و ٣٠ حرفاً).";
+      errors.nameAr = STORYBOOK_VALIDATION.ARABIC_NAME_ERROR;
     }
   } else if (!payload.childProfileId && !payload.child) {
     errors.child = "يرجى تحديد ملف الطفل أو إدخال بياناته الأساسية.";
+  }
+
+  // The frontend supports pets only; sibling appearance is not collected yet.
+  if (payload.companion) {
+    if (!COMPANION_TYPES.some((option) => option.value === payload.companion.type)) {
+      errors.companion = "يرجى اختيار حيوان أليف مرافق للقصة.";
+    } else if (!PET_COLORS.some((option) => option.value === payload.companion.petColor)) {
+      errors.petColor = "يرجى اختيار لون الحيوان الأليف.";
+    }
   }
 
   // 3. Interests count (0 - 3)
@@ -229,6 +238,21 @@ export const storyBooksService = {
    * @param {{ childPhoto?: File|null, companionPhoto?: File|null, characterPhotos?: File[] }} [files]
    */
   async createStoryBook(payload, files = {}) {
+    payload = {
+      ...payload,
+      ...(payload.child && {
+        child: { ...payload.child, nameAr: typeof payload.child.nameAr === "string" ? payload.child.nameAr.trim() : "" },
+      }),
+      // Also protect callers restoring drafts outside the creation wizard.
+      ...(["BROTHER", "SISTER"].includes(payload.companion?.type) && {
+        companion: {
+          ...payload.companion,
+          type: "CAT",
+          petColor: payload.companion.petColor || "ORANGE",
+          siblingAppearance: undefined,
+        },
+      }),
+    };
     // 1. Pre-flight validation
     const validation = validateStorybookPayload(payload, files);
     if (!validation.valid) {
@@ -547,10 +571,14 @@ export const storyBooksService = {
    * Payload: CreateChildProfileRequest (nameAr, gender, ageBand, appearance, photoBase64)
    */
   async createChild(payload) {
+    const nameAr = typeof payload.nameAr === "string" ? payload.nameAr.trim() : "";
+    if (!STORYBOOK_VALIDATION.ARABIC_NAME_REGEX.test(nameAr)) {
+      throw new Error(STORYBOOK_VALIDATION.ARABIC_NAME_ERROR);
+    }
     const res = await postHelper({
       url: `${API_BASE}/storybook/children`,
       body: {
-        nameAr: payload.nameAr?.trim(),
+        nameAr,
         gender: payload.gender,
         ageBand: payload.ageBand,
         appearance: {

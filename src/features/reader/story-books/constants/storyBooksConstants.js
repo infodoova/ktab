@@ -18,6 +18,7 @@ export const STORYBOOK_VALIDATION = {
   MAX_DEDICATION_LENGTH: 300,
   MAX_PHOTO_SIZE_BYTES: 10 * 1024 * 1024, // 10 MB
   ALLOWED_IMAGE_MIME_TYPES: ["image/jpeg", "image/png"],
+  ARABIC_NAME_ERROR: "اسم الطفل يجب أن يكون بالأحرف العربية فقط (من حرفين إلى 30 حرفًا)، دون أرقام أو رموز.",
   // eslint-disable-next-line no-misleading-character-class
   ARABIC_NAME_REGEX: /^[\u0621-\u063A\u0641-\u064A\u0671-\u06D3][\u0621-\u063A\u0641-\u064A\u064B-\u0652\u0670\u0671-\u06D3 ]{1,29}$/u,
 };
@@ -88,8 +89,6 @@ export const COMPANION_TYPES = [
   { value: "DOG", label: "كلب", isPet: true },
   { value: "RABBIT", label: "أرنب", isPet: true },
   { value: "PARROT", label: "ببغاء", isPet: true },
-  { value: "BROTHER", label: "أخ", isPet: false },
-  { value: "SISTER", label: "أخت", isPet: false },
 ];
 
 export const PET_COLORS = [
