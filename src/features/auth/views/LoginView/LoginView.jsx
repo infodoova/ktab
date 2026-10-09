@@ -78,6 +78,7 @@ export function LoginView() {
                 <input
                   id="loginEmail"
                   type="email"
+                  dir="ltr"
                   placeholder="name@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -108,6 +109,7 @@ export function LoginView() {
                   <input
                     id="loginPassword"
                     type={showPassword ? "text" : "password"}
+                    dir="ltr"
                     placeholder="أدخل كلمة المرور"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}

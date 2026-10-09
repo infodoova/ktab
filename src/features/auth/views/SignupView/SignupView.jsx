@@ -95,6 +95,7 @@ export function SignupView() {
                         <input
                           id="firstName"
                           type="text"
+                          dir="ltr"
                           placeholder="مثال: أحمد"
                           value={form.firstName}
                           onChange={(e) => setFormField("firstName", e.target.value)}
@@ -114,6 +115,7 @@ export function SignupView() {
                         <input
                           id="lastName"
                           type="text"
+                          dir="ltr"
                           placeholder="مثال: العلي"
                           value={form.lastName}
                           onChange={(e) => setFormField("lastName", e.target.value)}
@@ -134,6 +136,7 @@ export function SignupView() {
                       <input
                         id="email"
                         type="email"
+                        dir="ltr"
                         placeholder="name@example.com"
                         value={form.email}
                         onChange={(e) => setFormField("email", e.target.value)}
@@ -178,6 +181,7 @@ export function SignupView() {
                         <input
                           id="password"
                           type={showPassword ? "text" : "password"}
+                          dir="ltr"
                           placeholder="8 أحرف تشمل حروفاً كبيرة وصغيرة ورقماً ورمزاً"
                           value={form.password}
                           onChange={(e) => setFormField("password", e.target.value)}
@@ -207,6 +211,7 @@ export function SignupView() {
                         <input
                           id="confirmPassword"
                           type={showConfirm ? "text" : "password"}
+                          dir="ltr"
                           placeholder="أعد إدخال كلمة المرور"
                           value={form.confirmPassword}
                           onChange={(e) => setFormField("confirmPassword", e.target.value)}

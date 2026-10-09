@@ -102,6 +102,7 @@ export function ResetPasswordModal({ onClose, inline = false }) {
             <input
               id="resetEmail"
               type="email"
+              dir="ltr"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="name@example.com"
@@ -227,6 +228,7 @@ export function ResetPasswordModal({ onClose, inline = false }) {
               <input
                 id="resetNewPassword"
                 type={showPw ? "text" : "password"}
+                dir="ltr"
                 value={newPw}
                 onChange={(e) => setNewPw(e.target.value)}
                 placeholder="أدخل كلمة المرور الجديدة"
@@ -260,6 +262,7 @@ export function ResetPasswordModal({ onClose, inline = false }) {
               <input
                 id="resetConfirmPassword"
                 type={showConfirm ? "text" : "password"}
+                dir="ltr"
                 value={confirmPw}
                 onChange={(e) => setConfirmPw(e.target.value)}
                 placeholder="أعد إدخال كلمة المرور"

@@ -154,6 +154,8 @@
   color: var(--brand-black, #0a0a0a);
   box-sizing: border-box;
   outline: none;
+  direction: ltr;
+  text-align: left;
   transition: all 0.2s ease;
 }
 
@@ -173,6 +175,8 @@
 .signup-input::placeholder {
   color: #94a3b8;
   font-size: 13.5px;
+  text-align: left;
+  direction: ltr;
 }
 
 /* Password Input with Toggle Button */
@@ -182,12 +186,14 @@
 }
 
 .signup-password-input {
-  padding-left: 44px;
+  padding-right: 44px;
+  padding-left: 16px;
 }
 
 .signup-eye-btn {
   position: absolute;
-  left: 12px;
+  right: 12px;
+  left: auto;
   top: 50%;
   transform: translateY(-50%);
   background: transparent;
