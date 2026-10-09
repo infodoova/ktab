@@ -15,6 +15,7 @@ import {
   resetGoogleNonceCache,
   parseUrlFragment,
   cleanGoogleRedirectUrl,
+  decodeBase64Url,
 } from "../utils/googleAuth";
 
 // Module-level flags so Google SDK is only initialized once per page load,
@@ -99,9 +100,11 @@ export function useLogin() {
       setGoogleLoading(true);
       (async () => {
         try {
-          await tokenManager.safeRefresh();
+          // Read user profile from fragment, Base64URL-decode and JSON.parse
+          const profile = decodeBase64Url(fragment.user);
+          const ok = await establishSession(profile);
           const authState = useAuthStore.getState();
-          if (authState.isAuthenticated && authState.user) {
+          if (ok && authState.user) {
             AlertToast("تم تسجيل الدخول بنجاح", "SUCCESS");
             navigateAfterAuth(authState.user);
           } else {

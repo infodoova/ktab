@@ -7,6 +7,7 @@ import {
   resetGoogleNonceCache,
   parseUrlFragment,
   cleanGoogleRedirectUrl,
+  decodeBase64Url,
 } from "../src/features/auth/utils/googleAuth.js";
 
 test("isIOSDevice correctly identifies iPhone, iPad, iPod, and iPadOS desktop mode", () => {
@@ -189,4 +190,39 @@ test("cleanGoogleRedirectUrl strips google parameter and hash fragment via repla
 
   cleanGoogleRedirectUrl("https://ktab.app/login?google=pending#pending=secret_token");
   assert.equal(replacedUrl, "/login");
+
+  cleanGoogleRedirectUrl("https://ktab.app/login?google=success#user=eyJpZCI6MTB9");
+  assert.equal(replacedUrl, "/login");
+});
+
+test("decodeBase64Url correctly decodes ASCII, UTF-8 Arabic text, and URL-safe characters", () => {
+  // 1. Standard payload
+  const payload1 = { id: 101, email: "user@ktab.app", role: "READER" };
+  const b64url1 = Buffer.from(JSON.stringify(payload1)).toString("base64url");
+  assert.deepEqual(decodeBase64Url(b64url1), payload1);
+
+  // 2. Arabic UTF-8 payload
+  const payload2 = {
+    id: 110,
+    firstName: "محمد",
+    lastName: "جواد ظريف",
+    role: "AUTHOR",
+    email: "zarif@ktab.app",
+  };
+  const b64url2 = Buffer.from(JSON.stringify(payload2), "utf8").toString("base64url");
+  assert.deepEqual(decodeBase64Url(b64url2), payload2);
+
+  // 3. Payload resulting in '-' and '_'
+  const payload3 = { special: ">>>???<<<///+++" };
+  const b64url3 = Buffer.from(JSON.stringify(payload3)).toString("base64url");
+  assert.deepEqual(decodeBase64Url(b64url3), payload3);
+
+  // 4. Fragment parsing with #user=
+  const fragment = parseUrlFragment(`#user=${b64url2}`);
+  assert.deepEqual(decodeBase64Url(fragment.user), payload2);
+
+  // 5. Invalid / corrupted input handling
+  assert.equal(decodeBase64Url(null), null);
+  assert.equal(decodeBase64Url(""), null);
+  assert.equal(decodeBase64Url("not-valid-base64-or-json@@@"), null);
 });

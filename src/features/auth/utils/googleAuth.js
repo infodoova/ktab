@@ -99,6 +99,30 @@ export function parseUrlFragment(hash = "") {
 }
 
 /**
+ * Decodes a Base64URL-encoded UTF-8 JSON string.
+ *
+ * @param {string} [str]
+ * @returns {any} parsed JSON object or null if invalid
+ */
+export function decodeBase64Url(str) {
+  if (!str || typeof str !== "string") return null;
+  try {
+    let base64 = str.replace(/-/g, "+").replace(/_/g, "/");
+    while (base64.length % 4) {
+      base64 += "=";
+    }
+    const binary = atob(base64);
+    const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
+    const decoded = new TextDecoder().decode(bytes);
+    return JSON.parse(decoded);
+  } catch (err) {
+    logger.error("Failed to decode base64url payload:", err);
+    return null;
+  }
+}
+
+
+/**
  * Removes ?google= parameter and hash fragment from the address bar
  * via history.replaceState to prevent reload replay.
  *
