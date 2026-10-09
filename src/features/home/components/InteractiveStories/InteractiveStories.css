@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    INTERACTIVE STORIES SHOWCASE (APPLE BOOKS BENTO ARCHITECTURE)
-   Light Mode · Ultra-Clean Typography · Framed Device & UI Previews
+   Light Mode · Application Image Previews
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .apple-stories-section {
@@ -37,7 +37,7 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   TOP HERO CARD (FULL-WIDTH PANORAMIC WITH CENTERED DEVICE MOCKUP)
+   TOP HERO CARD
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .apple-bento-hero {
@@ -140,7 +140,7 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   CENTERED IPHONE DEVICE SHOWCASE
+   CENTERED STORY PREVIEW
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .apple-hero-device-wrapper {
@@ -148,7 +148,7 @@
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  padding: 0 24px;
+  padding: 0 24px 24px;
   box-sizing: border-box;
   position: relative;
   background: radial-gradient(
@@ -158,69 +158,12 @@
   );
 }
 
-.apple-phone-frame {
-  position: relative;
-  width: clamp(280px, 30vw, 360px);
-  max-width: 100%;
-  background-color: var(--brand-black, #0a0a0a);
-  border: 8px solid var(--brand-black, #0a0a0a);
-  border-bottom: none;
-  border-radius: 42px 42px 0 0;
-  box-shadow:
-    0 -8px 30px rgba(0, 0, 0, 0.08),
-    0 24px 60px rgba(0, 0, 0, 0.14);
-  box-sizing: border-box;
-  overflow: hidden;
-  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.apple-bento-hero:hover .apple-phone-frame {
-  transform: translateY(-4px);
-}
-
-/* Phone Dynamic Island / Camera Cutout */
-.apple-phone-notch {
-  position: absolute;
-  top: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 82px;
-  height: 20px;
-  background-color: var(--brand-black, #0a0a0a);
-  border-radius: 12px;
-  z-index: 5;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-}
-
-.apple-phone-screen {
-  width: 100%;
-  border-radius: 34px 34px 0 0;
-  overflow: hidden;
-  background-color: var(--bg-primary, #ffffff);
-  display: flex;
-  flex-direction: column;
-}
-
 .apple-screen-img {
-  width: 100%;
+  width: min(100%, 440px);
   height: auto;
   display: block;
-  object-fit: cover;
+  object-fit: contain;
   object-position: top center;
-}
-
-/* Phone Home Bar */
-.apple-phone-home-indicator {
-  position: absolute;
-  bottom: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 96px;
-  height: 4px;
-  background-color: rgba(255, 255, 255, 0.7);
-  border-radius: 9999px;
-  z-index: 5;
-  pointer-events: none;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -230,6 +173,7 @@
 .apple-bento-subgrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  align-items: stretch;
   gap: 24px;
   width: 100%;
   box-sizing: border-box;
@@ -243,7 +187,7 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
   box-sizing: border-box;
   transition:
     border-color 0.35s ease,
@@ -258,6 +202,7 @@
 }
 
 .apple-subcard-text-content {
+  flex: 1;
   padding: 48px 44px 0;
   display: flex;
   flex-direction: column;
@@ -278,49 +223,34 @@
 }
 
 .apple-subcard-btn {
+  margin-top: auto;
   padding: 9px 20px;
   font-size: 13.5px;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   FRAMED APPLICATION SCREENSHOT CONTAINER
+   APPLICATION IMAGE CONTAINER
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .apple-subcard-preview-wrapper {
-  margin-top: 36px;
+  /* Different source ratios share one preview height without cropping. */
+  height: clamp(260px, 30vw, 400px);
+  flex-shrink: 0;
+  margin-top: 24px;
   display: flex;
   justify-content: center;
-  align-items: flex-end;
-  padding: 0 32px;
+  align-items: flex-start;
+  padding: 0 32px 32px;
   box-sizing: border-box;
   overflow: hidden;
-}
-
-.apple-subcard-preview-frame {
-  width: 100%;
-  max-height: 320px;
-  border-radius: 20px 20px 0 0;
-  border: 1px solid var(--border-card, rgba(0, 0, 0, 0.08));
-  border-bottom: none;
-  background-color: var(--bg-primary, #ffffff);
-  box-shadow:
-    0 -4px 20px rgba(0, 0, 0, 0.05),
-    0 12px 30px rgba(0, 0, 0, 0.08);
-  box-sizing: border-box;
-  overflow: hidden;
-  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.apple-subcard:hover .apple-subcard-preview-frame {
-  transform: translateY(-4px);
 }
 
 .apple-subcard-img {
   width: 100%;
-  height: auto;
+  height: 100%;
   display: block;
-  object-fit: cover;
-  object-position: top center;
+  object-fit: contain;
+  object-position: center;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -342,9 +272,6 @@
     padding: 40px 36px 0;
   }
 
-  .apple-subcard-preview-frame {
-    max-height: 280px;
-  }
 }
 
 /* Mobile: Single Column with Streamlined Whitespace */
@@ -384,23 +311,7 @@
 
   .apple-hero-device-wrapper {
     margin-top: 28px;
-    padding: 0 16px;
-  }
-
-  .apple-phone-frame {
-    width: 260px;
-    border-width: 6px;
-    border-radius: 34px 34px 0 0;
-  }
-
-  .apple-phone-notch {
-    width: 68px;
-    height: 16px;
-    top: 8px;
-  }
-
-  .apple-phone-screen {
-    border-radius: 28px 28px 0 0;
+    padding: 0 16px 16px;
   }
 
   .apple-subcard-text-content {
@@ -409,11 +320,7 @@
 
   .apple-subcard-preview-wrapper {
     margin-top: 24px;
-    padding: 0 20px;
+    padding: 0 20px 20px;
   }
 
-  .apple-subcard-preview-frame {
-    max-height: 220px;
-    border-radius: 16px 16px 0 0;
-  }
 }

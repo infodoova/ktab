@@ -245,3 +245,9 @@
     height: 22px;
   }
 }
+
+@media (min-width: 681px) and (max-width: 1366px) and (any-pointer: coarse) {
+  .er-showcase-section {
+    padding-top: 40px;
+  }
+}

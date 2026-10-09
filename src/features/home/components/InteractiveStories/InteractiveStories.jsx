@@ -12,7 +12,7 @@ import "./InteractiveStories.css";
  * Modern Apple Books-inspired Interactive Stories showcase.
  * Architecture:
  * 1. Section Header (Editorial typography with naked icon).
- * 2. Full-width Hero Card featuring the live interactive story experience in an Apple device frame.
+ * 2. Full-width Hero Card featuring the interactive story preview.
  * 3. Two-column companion subgrid for Story Creation Studio & Catalog Discovery.
  */
 export default function InteractiveStories() {
@@ -41,7 +41,7 @@ export default function InteractiveStories() {
 
         {/* ═══════════ APPLE BENTO SHOWCASE ═══════════ */}
         <div className="apple-bento-layout">
-          {/* Top Hero Card: Experience the Story in Device Frame */}
+          {/* Top Hero Card: Interactive Story Preview */}
           {heroStory && (
             <div className="apple-bento-hero">
               <div className="apple-hero-text-content">
@@ -58,22 +58,14 @@ export default function InteractiveStories() {
                 </button>
               </div>
 
-              {/* Centered Device Showcase */}
+              {/* The asset already includes its device artwork. */}
               <div className="apple-hero-device-wrapper">
-                <div className="apple-phone-frame">
-                  {/* Dynamic Island / Bezel Top Accent */}
-                  <div className="apple-phone-notch" />
-                  <div className="apple-phone-screen">
-                    <img
-                      src={heroStory.image}
-                      alt={heroStory.title}
-                      className="apple-screen-img"
-                      loading="lazy"
-                    />
-                  </div>
-                  {/* Home Indicator Bar */}
-                  <div className="apple-phone-home-indicator" />
-                </div>
+                <img
+                  src={heroStory.image}
+                  alt={heroStory.title}
+                  className="apple-screen-img"
+                  loading="lazy"
+                />
               </div>
             </div>
           )}
@@ -100,16 +92,14 @@ export default function InteractiveStories() {
                   </button>
                 </div>
 
-                {/* Framed Application Screenshot */}
+                {/* Application preview at its original aspect ratio. */}
                 <div className="apple-subcard-preview-wrapper">
-                  <div className="apple-subcard-preview-frame">
-                    <img
-                      src={story.image}
-                      alt={story.title}
-                      className="apple-subcard-img"
-                      loading="lazy"
-                    />
-                  </div>
+                  <img
+                    src={story.image}
+                    alt={story.title}
+                    className="apple-subcard-img"
+                    loading="lazy"
+                  />
                 </div>
               </div>
             ))}

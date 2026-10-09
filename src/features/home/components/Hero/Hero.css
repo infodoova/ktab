@@ -398,6 +398,14 @@
    RESPONSIVE QUERIES
    ═══════════════════════════════════════════════════════════════════════════ */
 
+/* Tablet content should determine the section height, rather than a full viewport. */
+@media (min-width: 681px) and (max-width: 1366px) and (any-pointer: coarse) {
+  .er-hero-section {
+    min-height: auto;
+    padding-bottom: 36px;
+  }
+}
+
 @media (max-width: 680px) {
   .er-hero-section {
     padding-top: 105px;

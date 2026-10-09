@@ -600,7 +600,7 @@ export function NewStoryBookView({ pageName = "ابتكار قصة أطفال ج
                           onChange={(e) => handleStoryChange("hasCompanion", e.target.checked)}
                           style={{ width: "16px", height: "16px", accentColor: "#0f172a", cursor: "pointer" }}
                         />
-                        <span>إضافة مرافق للطفل في القصة (حيوان أليف أو أخ/أخت) - اختياري</span>
+                        <span>إضافة مرافق للطفل في القصة (حيوان أليف) - اختياري</span>
                       </label>
 
                       {storyData.hasCompanion && (
