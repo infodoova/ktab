@@ -147,7 +147,23 @@ export function LoginView() {
             </div>
 
             {/* Google OAuth Action: Clean native Google button */}
-            <div className="login-google-wrap">
+            <div
+              className="login-google-wrap"
+              onClick={() => {
+                try {
+                  if (
+                    redirectTarget &&
+                    redirectTarget.startsWith("/") &&
+                    !redirectTarget.startsWith("/login") &&
+                    !redirectTarget.startsWith("/signup")
+                  ) {
+                    sessionStorage.setItem("ktab_post_login_redirect", redirectTarget);
+                  }
+                } catch {
+                  // ignore
+                }
+              }}
+            >
               <div
                 ref={googleBtnRef}
                 className="login-google-btn-rendered"

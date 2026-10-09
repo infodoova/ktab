@@ -1,6 +1,6 @@
-import logger from "@/lib/logger";
+import logger from "../../lib/logger.js";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "";
+const API_BASE_URL = import.meta?.env?.VITE_API_URL || "";
 
 const defaultHeaders = {
   "Content-Type": "application/json",
@@ -167,3 +167,36 @@ export async function logoutApi(refreshToken) {
     refreshToken ? { refreshToken } : undefined
   );
 }
+
+/**
+ * Fetches single-use nonce for Google OAuth redirect mode on iOS.
+ * Backend returns { data: { nonce } } and sets GOOGLE_NONCE HttpOnly cookie.
+ *
+ * @returns {Promise<{ ok: boolean, success: boolean, nonce: string|null }>}
+ */
+export async function fetchGoogleNonceApi() {
+  const url = `${API_BASE_URL}/auth/google/nonce`;
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: defaultHeaders,
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      return { ok: false, success: false, nonce: null };
+    }
+
+    const json = await response.json();
+    const nonce = json?.data?.nonce || json?.nonce || null;
+    return {
+      ok: true,
+      success: true,
+      nonce,
+    };
+  } catch (error) {
+    logger.error("Failed to fetch Google OAuth nonce:", error);
+    return { ok: false, success: false, nonce: null };
+  }
+}
+

@@ -1,8 +1,4 @@
 import { useState, useEffect, useRef } from "react";
-
-// Module-level flag so Google SDK is only initialized once per page load,
-// surviving React StrictMode double-invocations and component remounts.
-let _googleInitialized = false;
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "@/core/store/authStore";
 import { tokenManager } from "@/core/services/tokenManager";
@@ -12,10 +8,24 @@ import { getRoleDefaultRoute } from "@/core/constants/roles";
 import { sanitizeEmail } from "@/lib/sanitize";
 import { validateEmail, validateLoginPassword } from "@/utils/validation";
 import logger from "@/lib/logger";
+import {
+  isIOSDevice,
+  getGoogleRedirectUri,
+  getCachedGoogleNonce,
+  resetGoogleNonceCache,
+  parseUrlFragment,
+  cleanGoogleRedirectUrl,
+} from "../utils/googleAuth";
+
+// Module-level flags so Google SDK is only initialized once per page load,
+// and redirect returns are processed once, surviving React StrictMode double-invocations.
+let _googleInitialized = false;
+let _googleRedirectHandled = false;
 
 /**
  * Custom hook handling all login business logic, state, validation, navigation,
- * and Google OAuth2 Identity Services integration.
+ * and Google OAuth2 Identity Services integration (popup mode on desktop/Android,
+ * redirect mode on iPhone/iPad).
  */
 export function useLogin() {
   const navigate = useNavigate();
@@ -50,11 +60,86 @@ export function useLogin() {
     };
   }, []);
 
+  // Remember ?redirect= target in sessionStorage before leaving (e.g. for Google redirect on iOS)
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(location.search || window.location.search);
+      const redirectParam = params.get("redirect");
+      if (
+        redirectParam &&
+        redirectParam.startsWith("/") &&
+        !redirectParam.startsWith("/login") &&
+        !redirectParam.startsWith("/signup")
+      ) {
+        sessionStorage.setItem("ktab_post_login_redirect", redirectParam);
+      }
+    } catch {
+      // ignore in environments where sessionStorage is unavailable
+    }
+  }, [location.search]);
+
+  // Handle return when /login loads with a Google redirect parameter (?google=success, ?google=pending#pending=<token>, ?google=error)
+  useEffect(() => {
+    if (_googleRedirectHandled) return;
+
+    const params = new URLSearchParams(window.location.search);
+    const googleStatus = params.get("google");
+    if (!googleStatus) return;
+
+    _googleRedirectHandled = true;
+
+    // Extract pending token from fragment (hash) if present
+    const fragment = parseUrlFragment(window.location.hash);
+    const pendingToken = fragment.pending || null;
+
+    // Remove both google param and fragment from address bar immediately
+    cleanGoogleRedirectUrl();
+
+    if (googleStatus === "success") {
+      setGoogleLoading(true);
+      (async () => {
+        try {
+          await tokenManager.safeRefresh();
+          const authState = useAuthStore.getState();
+          if (authState.isAuthenticated && authState.user) {
+            AlertToast("تم تسجيل الدخول بنجاح", "SUCCESS");
+            navigateAfterAuth(authState.user);
+          } else {
+            AlertToast("تعذر استرجاع بيانات الجلسة. يرجى تسجيل الدخول مجددًا.", "ERROR");
+          }
+        } catch (err) {
+          logger.error("Session verification failed after Google redirect:", err);
+          AlertToast("تعذر إكمال تسجيل الدخول عبر Google. حاول مجددًا.", "ERROR");
+        } finally {
+          setGoogleLoading(false);
+        }
+      })();
+    } else if (googleStatus === "pending") {
+      if (pendingToken) {
+        setPendingGoogleToken(pendingToken);
+        setGoogleRoleOpen(true);
+      } else {
+        AlertToast("فشل استلام رمز التحقق من Google.", "ERROR");
+      }
+    } else {
+      // googleStatus === "error" or any unexpected value
+      AlertToast("فشل تسجيل الدخول عبر Google. يرجى المحاولة مجددًا.", "ERROR");
+    }
+  }, []);
+
   const navigateAfterAuth = (user) => {
+    let savedRedirect = null;
+    try {
+      savedRedirect = sessionStorage.getItem("ktab_post_login_redirect");
+      sessionStorage.removeItem("ktab_post_login_redirect");
+    } catch {
+      // ignore
+    }
+
     const params = new URLSearchParams(location.search || window.location.search);
     const redirectParam = params.get("redirect");
     const stateTarget = location?.state?.from;
-    const target = redirectParam || stateTarget;
+    const target = redirectParam || savedRedirect || stateTarget;
 
     // Validate that target is a safe relative internal route and not an auth loop
     if (
@@ -181,7 +266,6 @@ export function useLogin() {
 
   const handleCredentialRef = useRef(handleGoogleCredentialResponse);
   handleCredentialRef.current = handleGoogleCredentialResponse;
-  // isGoogleInitializedRef intentionally uses module-level flag (see top of file)
 
   // Mount and initialize Google Identity Services SDK
   useEffect(() => {
@@ -191,16 +275,43 @@ export function useLogin() {
     let script = null;
     let timeoutId;
 
-    const initGoogle = () => {
+    const initGoogle = async () => {
       if (!active || !window.google?.accounts?.id) return;
 
+      const isIOS = isIOSDevice();
+
       if (!_googleInitialized) {
-        window.google.accounts.id.initialize({
-          client_id: clientId,
-          callback: (res) => handleCredentialRef.current?.(res),
-          auto_select: false,
-        });
-        _googleInitialized = true;
+        if (isIOS) {
+          try {
+            const nonce = await getCachedGoogleNonce();
+            if (!active) return;
+            if (!nonce) {
+              logger.error("Failed to obtain nonce for iOS Google Sign-In redirect");
+              setGoogleLoadFailed(true);
+              return;
+            }
+
+            window.google.accounts.id.initialize({
+              client_id: clientId,
+              ux_mode: "redirect",
+              login_uri: getGoogleRedirectUri(),
+              nonce: nonce,
+              auto_select: false,
+            });
+            _googleInitialized = true;
+          } catch (e) {
+            logger.error("Failed to initialize Google in redirect mode on iOS:", e);
+            if (active) setGoogleLoadFailed(true);
+            return;
+          }
+        } else {
+          window.google.accounts.id.initialize({
+            client_id: clientId,
+            callback: (res) => handleCredentialRef.current?.(res),
+            auto_select: false,
+          });
+          _googleInitialized = true;
+        }
       }
 
       if (googleBtnRef.current) {
@@ -220,13 +331,16 @@ export function useLogin() {
           });
         } catch (e) {
           logger.error("Failed to render Google button:", e);
-          setGoogleLoadFailed(true);
+          if (active) setGoogleLoadFailed(true);
           return;
         }
       }
-      clearTimeout(timeoutId);
-      setGoogleLoadFailed(false);
-      setIsGoogleReady(true);
+
+      if (active) {
+        clearTimeout(timeoutId);
+        setGoogleLoadFailed(false);
+        setIsGoogleReady(true);
+      }
     };
 
     const failGoogle = () => {
@@ -267,6 +381,8 @@ export function useLogin() {
   }, [resetOpen, googleRoleOpen, googleLoadAttempt]);
 
   const retryGoogleLoad = () => {
+    resetGoogleNonceCache();
+    _googleInitialized = false;
     setGoogleLoadFailed(false);
     setGoogleLoadAttempt((attempt) => attempt + 1);
   };

@@ -3,7 +3,7 @@
  * personal user data, and detailed stack traces in production environments.
  */
 
-const isDev = import.meta.env.DEV;
+const isDev = Boolean(import.meta?.env?.DEV ?? (typeof process !== "undefined" && process.env?.NODE_ENV !== "production"));
 
 export const logger = {
   log: (...args) => {
