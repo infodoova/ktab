@@ -11,17 +11,6 @@ export function usePublicCoverImages(collection, count, placeholderCount, minimu
   useEffect(() => {
     let active = true;
     fetchPublicCoverImages(collection, count)
-      .then(async (covers) => {
-        if (!active || collection !== "top-reviewed" || covers.length >= minimumCount) return covers;
-        try {
-          const catalogCovers = await fetchPublicCoverImages("all", count);
-          return [...new Set([...covers, ...catalogCovers])].slice(0, count);
-        } catch (err) {
-          // Keep reviewed covers visible if only the supplemental request fails.
-          if (covers.length) return covers;
-          throw err;
-        }
-      })
       .then((covers) => {
         if (active) {
           setUrls(covers);

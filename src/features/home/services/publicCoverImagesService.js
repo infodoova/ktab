@@ -2,9 +2,7 @@ const API_BASE = (import.meta.env.VITE_API_URL || "/api/v1").replace(/\/$/, "");
 const pendingRequests = new Map();
 
 export function fetchPublicCoverImages(collection, count) {
-  const path = collection === "top-reviewed"
-    ? `/public/books/top-reviewed/covers?limit=${count}`
-    : `/public/books/cover-images?page=0&size=${count}`;
+  const path = `/public/books/cover-images?page=0&size=${count}`;
 
   // Share pending requests during Strict Mode's effect replay; signed URLs
   // are kept only by mounted consumers and refetched on the next visit.
@@ -22,7 +20,7 @@ export function fetchPublicCoverImages(collection, count) {
       throw error;
     }
     const envelope = await response.json();
-    const urls = collection === "top-reviewed" ? envelope.data : envelope.data?.content;
+    const urls = envelope.data?.content || envelope.data;
     if (envelope.success === false || !Array.isArray(urls)) {
       throw new Error("تعذر تحميل الأغلفة، حاول مرة أخرى لاحقًا.");
     }
