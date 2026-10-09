@@ -425,7 +425,9 @@ html, body {
 }
 
 body {
-  overflow-x: clip;
+  /* Avoid viewport overflow clipping in iPad Safari; keep vertical touch scrolling native. */
+  overflow-x: hidden;
+  overflow-y: auto;
   transition: background-color 0.3s ease;
 }
 

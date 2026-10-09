@@ -50,17 +50,25 @@ export function useNavbar({
     setUserMenuOpen(false);
   }, [location.pathname]);
 
-  // Freeze body scrolling & touch interactions when mobile nav drawer is open
+  // CSS hides the drawer at this breakpoint, so rotation must release its scroll lock too.
+  useEffect(() => {
+    const desktopQuery = window.matchMedia("(min-width: 768px)");
+    const closeDesktopDrawer = () => {
+      if (desktopQuery.matches) setMobileOpen(false);
+    };
+    closeDesktopDrawer();
+    desktopQuery.addEventListener("change", closeDesktopDrawer);
+    return () => desktopQuery.removeEventListener("change", closeDesktopDrawer);
+  }, [mobileOpen]);
+
+  // Lock the page while allowing native touch scrolling inside the drawer.
   useEffect(() => {
     if (mobileOpen) {
       const originalOverflow = document.body.style.overflow;
-      const originalTouchAction = document.body.style.touchAction;
       document.body.style.overflow = "hidden";
-      document.body.style.touchAction = "none";
 
       return () => {
         document.body.style.overflow = originalOverflow;
-        document.body.style.touchAction = originalTouchAction;
       };
     }
   }, [mobileOpen]);

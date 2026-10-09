@@ -195,7 +195,8 @@
   display: flex;
   justify-content: flex-start;
   direction: rtl; /* Docks drawer to the RIGHT */
-  touch-action: none;
+  /* A none value here would also block scrolling in the drawer's descendants. */
+  touch-action: auto;
 }
 
 @media (min-width: 768px) {
