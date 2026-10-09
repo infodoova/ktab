@@ -16,7 +16,7 @@ const {chromium,webkit}=require(path.join(root,'node_modules/playwright'));
  window.ended=0;window.prefetch=0;window.failures=[];window.sockets=[];
  const ended=()=>window.ended++;
  const prefetch=()=>window.prefetch++;
- const failed=e=>window.failures.push(e.message);
+ const failed=e=>window.failures.push(e);
  class Socket {
   static OPEN=1;static CLOSING=2;readyState=0;sent=[];
   constructor(){window.sockets.push(this);window.socket=this;setTimeout(()=>{if(this.readyState!==0)return;this.readyState=1;this.onopen?.()},0)}
@@ -97,7 +97,13 @@ const {chromium,webkit}=require(path.join(root,'node_modules/playwright'));
  await page.evaluate(()=>startResult);
  await page.evaluate(()=>socket.onmessage({data:JSON.stringify({type:'error',message:'simulated failure'})}));
  await page.waitForFunction(()=>!tts.isPlaying&&!tts.isLoading&&failures.length===1);
- assert(true,'Startup/server failure resets playback and reports an error');
+ assert(await page.evaluate(()=>failures[0].code==='TTS-SERVER'),'Server failure resets playback and identifies the failed stage');
+ await page.click('#play');
+ await page.evaluate(()=>startResult);
+ await page.evaluate(p=>tts.startPageStream(p),payload);
+ await page.evaluate(()=>socket.onmessage({data:JSON.stringify({type:'complete'})}));
+ await page.waitForFunction(()=>!tts.isPlaying&&!tts.isLoading&&failures.length===2);
+ assert(await page.evaluate(()=>failures[1].code==='TTS-NO-AUDIO'),'A server completion without audio reports the missing audio');
  await page.click('#play');
  await page.evaluate(()=>startResult);
  await page.evaluate(p=>tts.startPageStream(p),payload);

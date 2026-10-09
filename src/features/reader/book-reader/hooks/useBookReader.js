@@ -86,7 +86,6 @@ export function useBookReader() {
   const {
     currentPage,
     citationLoading,
-    totalPages: navTotalPages,
     generatedPagesRef,
     currentPageText,
     handleNextPage,
@@ -142,8 +141,17 @@ export function useBookReader() {
     totalPages: effectiveTotalPages,
   });
 
-  const handleNarrationError = useCallback(() => {
-    AlertToast("تعذر تشغيل القراءة الصوتية. اضغط تشغيل للمحاولة مرة أخرى.", "ERROR");
+  const handleNarrationError = useCallback((error) => {
+    const reasons = {
+      "TTS-CONNECTION": "تعذر الاتصال بخادم القراءة الصوتية",
+      "TTS-SERVER": "فشل الخادم في توليد القراءة الصوتية",
+      "TTS-NO-AUDIO": "لم يصل صوت من الخادم",
+      "TTS-AUDIO": "تعذر تشغيل الصوت على هذا الجهاز",
+      "TTS-PROTOCOL": "وصلت بيانات صوت غير صالحة",
+      "TTS-TIMEOUT": "استغرق تحميل القراءة الصوتية وقتًا طويلًا",
+    };
+    const code = Object.prototype.hasOwnProperty.call(reasons, error?.code) ? error.code : "TTS-UNKNOWN";
+    AlertToast(`${reasons[code] || "تعذر تشغيل القراءة الصوتية"} (${code})`, "ERROR");
   }, []);
 
   // 5. TTS narration integration
@@ -196,13 +204,10 @@ export function useBookReader() {
     handleBack();
   }, [stopReader, handleBack]);
 
-  // Keep actions ref updated for navigation callback
-  ttsActionsRef.current = {
-    isPlaying,
-    cancelStream,
-    togglePlay,
-    startPageStream,
-  };
+  // Navigation callbacks read the latest TTS actions after each commit.
+  useEffect(() => {
+    ttsActionsRef.current = { isPlaying, cancelStream, togglePlay, startPageStream };
+  }, [isPlaying, cancelStream, togglePlay, startPageStream]);
 
   const handleTogglePlay = useCallback(async () => {
     if (!isPlaying) {
@@ -265,7 +270,9 @@ export function useBookReader() {
     } else {
       try {
         navigator.mediaSession.playbackState = "paused";
-      } catch (_) {}
+      } catch {
+        // Older Safari versions can expose MediaSession without writable state.
+      }
     }
   }, [isPlaying, bookTitle, bookAuthor, handleTogglePlay, handleNextPage, handlePrevPage]);
 

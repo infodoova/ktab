@@ -23,11 +23,8 @@ export function VoiceSampleModal({
   const {
     isPillMode,
     setIsPillMode,
-    sentences,
-    activeSentenceIdx,
-    activeSentenceRef,
     handleScrubberClick,
-  } = useVoiceSampleModal({ book, progress, onSeek });
+  } = useVoiceSampleModal({ onSeek });
 
   if (!book) return null;
 
@@ -73,7 +70,7 @@ export function VoiceSampleModal({
                   />
                   <div className="er-pill-bar-text">
                     <h4 className="er-pill-bar-title">{book.title}</h4>
-                    <p className="er-pill-bar-author">{book.author}</p>
+                    {book.author && <p className="er-pill-bar-author">{book.author}</p>}
                   </div>
                 </div>
 
@@ -198,7 +195,7 @@ export function VoiceSampleModal({
                     />
                     <div className="er-fp-text-col">
                       <h4 className="er-fp-title">{book.title}</h4>
-                      <p className="er-fp-author">{book.author}</p>
+                      {book.author && <p className="er-fp-author">{book.author}</p>}
                     </div>
                   </div>
 
@@ -233,26 +230,14 @@ export function VoiceSampleModal({
                   </div>
                 </div>
 
-                {/* 2. Sentence-by-Sentence Editorial Read-Along Highlighting */}
-                <div className="er-fp-transcript-box">
-                  <p className="er-fp-transcript-text">
-                    {sentences.map((sentence, idx) => (
-                      <span
-                        key={idx}
-                        ref={idx === activeSentenceIdx ? activeSentenceRef : null}
-                        className={`er-fp-sentence ${
-                          idx === activeSentenceIdx
-                            ? "active-highlight"
-                            : idx < activeSentenceIdx
-                            ? "read-highlight"
-                            : "pending-highlight"
-                        }`}
-                      >
-                        {sentence}{" "}
-                      </span>
-                    ))}
-                  </p>
-                </div>
+                {/* 2. Book Audio Description Text */}
+                {Boolean(book.audioDescription || book.firstPageExcerpt) && (
+                  <div className="er-fp-transcript-box">
+                    <p className="er-fp-transcript-text">
+                      {book.audioDescription || book.firstPageExcerpt}
+                    </p>
+                  </div>
+                )}
 
                 {/* 3. Scrubber Bar & Times */}
                 <div className="er-fp-scrubber-section" dir="rtl">

@@ -252,7 +252,8 @@
 }
 
 .er-book-card-item:hover .er-modern-card-glass-dock,
-.er-book-card-item.revealed .er-modern-card-glass-dock {
+.er-book-card-item.revealed .er-modern-card-glass-dock,
+.er-book-card-item.er-center-card .er-modern-card-glass-dock {
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;

@@ -178,40 +178,7 @@
   color: var(--brand-black, #0a0a0a);
 }
 
-.er-fp-sentence {
-  display: inline;
-  padding: 3px 6px;
-  border-radius: 6px;
-  background-color: transparent;
-  box-shadow: none;
-  transition: 
-    background-color 0.22s cubic-bezier(0.2, 0.8, 0.2, 1),
-    color 0.18s ease,
-    box-shadow 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
-  box-decoration-break: clone;
-  -webkit-box-decoration-break: clone;
-}
 
-.er-fp-sentence.active-highlight {
-  background-color: var(--highlight-yellow-soft, #fef08a);
-  color: var(--brand-black, #0a0a0a);
-  font-weight: 700;
-  box-shadow: 0 1px 8px var(--highlight-yellow-glow, rgba(253, 224, 71, 0.35));
-}
-
-.er-fp-sentence.read-highlight {
-  color: var(--brand-black, #0a0a0a);
-  font-weight: 500;
-  background-color: transparent;
-  box-shadow: none;
-}
-
-.er-fp-sentence.pending-highlight {
-  color: var(--text-subtle, #94a3b8);
-  font-weight: 400;
-  background-color: transparent;
-  box-shadow: none;
-}
 
 /* 3. Scrubber Section */
 .er-fp-scrubber-section {

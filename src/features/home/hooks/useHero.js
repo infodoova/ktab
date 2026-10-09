@@ -1,16 +1,26 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { usePublicCoverImages } from "./usePublicCoverImages";
+import { useTopReviewedBooks } from "./useTopReviewedBooks";
+import { useVoiceSampleStore } from "./useVoiceSampleStore";
 
 /**
- * Fetches public covers and manages carousel gestures and 3D positioning.
+ * Fetches featured top-reviewed books, coordinates single audio playback,
+ * gestures, and fluid 3D physical deck positioning for the Hero showcase.
  */
 export function useHero() {
   const navigate = useNavigate();
-  const { books: fetchedBooks, isLoading, error, retry, refreshAfterImageError } = usePublicCoverImages("top-reviewed", 10, 5, 5);
+  const {
+    books: fetchedBooks,
+    isLoading,
+    error,
+    retry,
+    refreshAfterImageError,
+    refreshAfterAudioError,
+  } = useTopReviewedBooks(10, 5);
+
   const books = useMemo(() => {
     if (!fetchedBooks.length || fetchedBooks.length >= 5) return fetchedBooks;
-    // The carousel needs five cards for its center and two cards on each side.
+    // The carousel needs at least five cards for center and two flanking on each side.
     return Array.from({ length: 5 }, (_, index) => ({
       ...fetchedBooks[index % fetchedBooks.length],
       id: `hero-cover-${index}`,
@@ -79,8 +89,29 @@ export function useHero() {
     [nextBook, prevBook]
   );
 
-  // Audio preview is paused while the API supplies only cover URLs:
-  // useVoiceSampleStore.getState().openSample(book);
+  // Synchronous audio playback handler started directly in click event
+  const isAudioPlaying = useVoiceSampleStore((state) => state.isPlaying);
+  const activeAudioBook = useVoiceSampleStore((state) => state.activeBook);
+
+  const handlePlayAudio = useCallback(
+    (book) => {
+      const target = book || currentBook;
+      if (!target?.audioSrc) return;
+
+      const store = useVoiceSampleStore.getState();
+      const isTargetPlaying =
+        store.isPlaying &&
+        store.activeBook &&
+        (store.activeBook.bookId === target.bookId || store.activeBook.id === target.id);
+
+      if (isTargetPlaying) {
+        store.togglePlay();
+      } else {
+        store.openSample(target, { onError: refreshAfterAudioError });
+      }
+    },
+    [currentBook, refreshAfterAudioError]
+  );
 
   // Fluid 3D Apple-style Curved Arc Animation Calculations
   const animatedBooks = useMemo(() => {
@@ -195,6 +226,7 @@ export function useHero() {
     error,
     retry,
     refreshAfterImageError,
+    refreshAfterAudioError,
     animatedBooks,
     activeIndex,
     currentBook,
@@ -206,7 +238,11 @@ export function useHero() {
     toggleFlip,
     handleDragEnd,
     handleStartNow,
+    handlePlayAudio,
+    isAudioPlaying,
+    activeAudioBook,
   };
 }
 
 export default useHero;
+

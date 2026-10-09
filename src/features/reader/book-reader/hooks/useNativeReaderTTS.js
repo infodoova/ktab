@@ -60,20 +60,20 @@ export function useNativeReaderTTS({ enabled, onPageEnded, onPrefetchNextPage, o
     }
   }, []);
 
-  const fail = useCallback((error) => {
+  const fail = useCallback((error, code = "TTS-UNKNOWN") => {
     if (disposedRef.current) return;
-    console.error("iOS reader narration failed:", error);
+    console.error(`iOS reader narration failed (${code}):`, error);
     playingRef.current = false;
     cancelStream();
     disconnect();
     setIsPlaying(false);
-    callbacksRef.current.onError?.(error);
+    callbacksRef.current.onError?.({ code, message: error?.message || String(error) });
   }, [cancelStream, disconnect]);
 
   const startLoading = useCallback(() => {
     setIsLoading(true);
     clearTimeout(loadingTimerRef.current);
-    loadingTimerRef.current = setTimeout(() => fail(new Error("TTS synthesis timed out")), 60000);
+    loadingTimerRef.current = setTimeout(() => fail(new Error("TTS synthesis timed out"), "TTS-TIMEOUT"), 60000);
   }, [fail]);
 
   const updateProgress = useCallback((elapsed) => {
@@ -125,7 +125,7 @@ export function useNativeReaderTTS({ enabled, onPageEnded, onPrefetchNextPage, o
       await playerRef.current.playChunks(task.chunks, {
         onProgress: updateProgress,
         onError: (error) => {
-          if (lifecycle === lifecycleRef.current && task === currentTaskRef.current) fail(error);
+          if (lifecycle === lifecycleRef.current && task === currentTaskRef.current) fail(error, "TTS-AUDIO");
         },
         onEnded: () => {
           if (lifecycle !== lifecycleRef.current || task !== currentTaskRef.current || task.ended) return;
@@ -150,7 +150,9 @@ export function useNativeReaderTTS({ enabled, onPageEnded, onPrefetchNextPage, o
       // With no alignment, begin prefetch immediately rather than waiting forever.
       updateProgress(0);
     } catch (error) {
-      if (lifecycle === lifecycleRef.current && task === currentTaskRef.current) fail(error);
+      if (lifecycle === lifecycleRef.current && task === currentTaskRef.current) {
+        fail(error, task.chunks.length ? "TTS-AUDIO" : "TTS-NO-AUDIO");
+      }
     }
   }, [clearHighlight, fail, startLoop, stopLoop, updateProgress]);
 
@@ -167,14 +169,19 @@ export function useNativeReaderTTS({ enabled, onPageEnded, onPrefetchNextPage, o
         if (socketRef.current === socket) disconnect();
       }, 15000);
       socket.onopen = () => { clearTimeout(connectionTimerRef.current); resolve(socket); };
-      socket.onerror = () => reject(new Error("TTS WebSocket connection failed"));
+      socket.onerror = () => {
+        reject(new Error("TTS WebSocket connection failed"));
+        // Safari may report an error without a useful close event. A failed
+        // preconnection must not leave a rejected promise cached for Play.
+        if (socketRef.current === socket) disconnect();
+      };
       socket.onclose = () => {
         reject(new Error("TTS WebSocket closed"));
         if (socketRef.current !== socket) return;
         socketRef.current = null;
         connectionRef.current = null;
         clearTimeout(connectionTimerRef.current);
-        if (playingRef.current) fail(new Error("TTS WebSocket disconnected"));
+        if (playingRef.current) fail(new Error("TTS WebSocket disconnected"), "TTS-CONNECTION");
       };
     });
     connectionRef.current = connected;
@@ -184,7 +191,7 @@ export function useNativeReaderTTS({ enabled, onPageEnded, onPrefetchNextPage, o
         if (disposedRef.current || socketRef.current !== socket) return;
         if (typeof event.data === "string") {
           const message = safeJsonParse(event.data);
-          if (message?.type === "error") { fail(new Error(message.message || "TTS server error")); return; }
+          if (message?.type === "error") { fail(new Error(message.message || message.code || "TTS server error"), "TTS-SERVER"); return; }
           const task = receivingTaskRef.current;
           if (!task) return;
           if (message?.type === "alignment") task.alignments.push(message);
@@ -201,7 +208,7 @@ export function useNativeReaderTTS({ enabled, onPageEnded, onPrefetchNextPage, o
         if (!(data instanceof ArrayBuffer) || data.byteLength <= 8) throw new Error("Invalid TTS audio frame");
         // The first 8 bytes are the server sequence, not MP3 audio.
         task.chunks.push(data.slice(8));
-      }).catch(fail);
+      }).catch((error) => fail(error, "TTS-PROTOCOL"));
     };
     return connected;
   }, [disconnect, fail, playTask]);
@@ -226,7 +233,7 @@ export function useNativeReaderTTS({ enabled, onPageEnded, onPrefetchNextPage, o
     if (!enabled) return;
     const resume = () => {
       if (document.visibilityState === "visible" && playingRef.current) {
-        playerRef.current?.resume().catch(fail);
+        playerRef.current?.resume().catch((error) => fail(error, "TTS-AUDIO"));
         startLoop();
       }
     };
@@ -255,10 +262,15 @@ export function useNativeReaderTTS({ enabled, onPageEnded, onPrefetchNextPage, o
       playerRef.current ||= createNativeNarrationPlayer();
       // Prime THIS media element before any connection or synthesis await.
       playerRef.current.prime();
+    } catch (error) {
+      if (lifecycle === lifecycleRef.current) fail(error, "TTS-AUDIO");
+      return false;
+    }
+    try {
       await connect();
       return !disposedRef.current && playingRef.current && lifecycle === lifecycleRef.current;
     } catch (error) {
-      if (lifecycle === lifecycleRef.current) fail(error);
+      if (lifecycle === lifecycleRef.current) fail(error, "TTS-CONNECTION");
       return false;
     }
   }, [cancelStream, connect, disconnect, fail, startLoading]);
@@ -304,7 +316,7 @@ export function useNativeReaderTTS({ enabled, onPageEnded, onPrefetchNextPage, o
       const targetSocket = socketRef.current || socket;
       targetSocket.send(JSON.stringify(payload));
     } catch (error) {
-      if (lifecycle === lifecycleRef.current) fail(error);
+      if (lifecycle === lifecycleRef.current) fail(error, "TTS-CONNECTION");
     }
   }, [clearHighlight, connect, disconnect, fail, playTask, startLoading]);
 

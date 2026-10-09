@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { FAKE_SOUND_SAMPLE } from "@/fakedataorassets/testData";
 
 function formatTime(seconds) {
   if (isNaN(seconds) || seconds < 0) return "0:00";
@@ -57,6 +56,14 @@ export const useVoiceSampleStore = create((set, get) => {
         });
       });
 
+      audio.addEventListener("error", (e) => {
+        set({ isPlaying: false });
+        const errorHandler = get().activeErrorHandler;
+        if (typeof errorHandler === "function") {
+          errorHandler(e);
+        }
+      });
+
       audio.addEventListener("play", () => set({ isPlaying: true }));
       audio.addEventListener("pause", () => set({ isPlaying: false }));
     }
@@ -72,13 +79,15 @@ export const useVoiceSampleStore = create((set, get) => {
     currentTimeFormatted: "0:00",
     durationFormatted: "0:00",
     playbackRate: 1.0,
+    activeErrorHandler: null,
 
     /**
      * Open voice sample for a book.
      * Automatically stops and tears down any currently playing audio on the page.
+     * Starts playback synchronously for iPhone Safari compatibility.
      */
-    openSample: (book) => {
-      if (!book) return;
+    openSample: (book, options = {}) => {
+      if (!book || !book.audioSrc) return;
       const audio = getAudio();
       if (!audio) return;
 
@@ -91,16 +100,21 @@ export const useVoiceSampleStore = create((set, get) => {
         document.querySelectorAll("video").forEach((v) => {
           if (!v.muted) v.muted = true;
         });
-      } catch (err) {
+      } catch {
         // ignore DOM queries during SSR
       }
 
       // 3. Set new audio source
-      const targetSrc = book.audioSrc || FAKE_SOUND_SAMPLE;
+      const targetSrc = book.audioSrc;
       if (audio.src !== targetSrc) {
         audio.src = targetSrc;
         audio.load();
       }
+
+      const initialDuration =
+        book.audioDuration && !isNaN(book.audioDuration)
+          ? Number(book.audioDuration)
+          : 1;
 
       // 4. Update store state
       set({
@@ -108,15 +122,23 @@ export const useVoiceSampleStore = create((set, get) => {
         activeBook: book,
         isPlaying: true,
         currentTime: 0,
+        duration: initialDuration,
         currentTimeFormatted: "0:00",
+        durationFormatted: formatTime(book.audioDuration || 0),
         progress: 0,
+        activeErrorHandler: options?.onError || null,
       });
 
-      // 5. Start playback
+      // 5. Start playback synchronously inside click handler call stack
       audio
         .play()
         .then(() => set({ isPlaying: true }))
-        .catch(() => set({ isPlaying: false }));
+        .catch((err) => {
+          set({ isPlaying: false });
+          if (options?.onError) {
+            options.onError(err);
+          }
+        });
     },
 
     /**
@@ -134,6 +156,7 @@ export const useVoiceSampleStore = create((set, get) => {
         currentTime: 0,
         currentTimeFormatted: "0:00",
         progress: 0,
+        activeErrorHandler: null,
       });
     },
 
@@ -149,7 +172,9 @@ export const useVoiceSampleStore = create((set, get) => {
           document.querySelectorAll("video").forEach((v) => {
             if (!v.muted) v.muted = true;
           });
-        } catch (err) {}
+        } catch {
+          // ignore DOM queries during SSR
+        }
 
         audio
           .play()
