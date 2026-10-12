@@ -1,9 +1,9 @@
 export const SELECTABLES_LINKS = [
   {
-    id: "login",
-    title: "تسجيل الدخول",
+    id: "signup",
+    title: "إنشاء حساب",
     subtitle: "شهر مجاني للقرّاء وخصم 50% على 10 كتب للمؤلفين",
-    href: "/login",
+    href: "/signup",
     isExternal: false,
     iconType: "ticket",
     theme: "sunset",
