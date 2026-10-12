@@ -2213,6 +2213,11 @@
   transform: translateY(-50%) scale(0.95);
 }
 
+.ktab-mobile-slider-handle:focus-visible {
+  outline: 2px solid var(--brand-teal-deep);
+  outline-offset: 3px;
+}
+
 .ktab-mobile-slider-handle__chevron {
   display: flex;
   align-items: center;
@@ -2487,3 +2492,27 @@
   }
 }
 
+
+/* Keep the edge tab reachable with a thumb, including Safari safe-area layouts. */
+@media (max-width: 1023px), (any-pointer: coarse) {
+  .ktab-mobile-slider-handle {
+    width: 48px !important;
+    height: 68px !important;
+    right: -48px !important;
+    border-radius: 0 20px 20px 0 !important;
+    touch-action: manipulation;
+  }
+
+  .ktab-mobile-slider-handle__chevron svg {
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  .ktab-mobile-slider-drawer:not(.ktab-mobile-slider-drawer--open) {
+    transform: translateY(-50%) translateX(calc(-100% - max(12px, env(safe-area-inset-left, 12px))));
+  }
+
+  .ktab-mobile-slider-drawer--hidden {
+    transform: translateY(-50%) translateX(calc(-100% - 80px)) !important;
+  }
+}

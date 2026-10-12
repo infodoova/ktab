@@ -1,5 +1,8 @@
-import { useState, useEffect, useCallback } from "react";
-import { registerApi } from "@/core/api/authApi";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { registerApi, loginApi } from "@/core/api/authApi";
+import { useAuthStore } from "@/core/store/authStore";
+import { useAuthSession } from "./useAuthSession";
+import { completeSignupSession } from "../services/signupSession";
 import { AlertToast } from "@/components/myui/AlertToast";
 import { sanitizeText, sanitizeEmail } from "@/lib/sanitize";
 import {
@@ -31,6 +34,28 @@ export function useSignup() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [verifyOpen, setVerifyOpen] = useState(false);
+  const pendingSignup = useRef(null);
+  const { establishSession, navigateAfterAuth } = useAuthSession();
+
+  const handleVerified = async (verifiedProfile) => {
+    const pending = pendingSignup.current;
+    const authenticated = await completeSignupSession({
+      profile: verifiedProfile || pending?.profile,
+      credentials: pending?.credentials,
+      establishSession,
+      login: loginApi,
+    });
+    if (!authenticated) {
+      AlertToast("تم تأكيد بريدك، لكن تعذر إكمال تسجيل الدخول. اضغط تأكيد الرمز للمحاولة مجددًا.", "ERROR");
+      return false;
+    }
+
+    pendingSignup.current = null;
+    setForm(INITIAL_FORM_STATE);
+    AlertToast("تم تأكيد حسابك وتسجيل الدخول بنجاح", "SUCCESS");
+    navigateAfterAuth(useAuthStore.getState().user);
+    return true;
+  };
 
   // Prevent scroll leakage on auth pages
   useEffect(() => {
@@ -145,12 +170,18 @@ export function useSignup() {
         role: form.role,
       });
 
-      if (data.messageStatus !== "SUCCESS") {
+      if (!data.ok || data.messageStatus !== "SUCCESS") {
         AlertToast(data?.message || "فشل إنشاء الحساب", data?.messageStatus || "ERROR");
         return;
       }
 
       AlertToast(data?.message || "تم إنشاء الحساب بنجاح", "SUCCESS");
+      // Keep the profile and credentials in memory until verification completes.
+      // Do not publish an authenticated state before the OTP is accepted.
+      pendingSignup.current = {
+        profile: data.data,
+        credentials: { email: sanitizeEmail(form.email), password: form.password },
+      };
       setVerifyOpen(true);
     } catch (err) {
       logger.error("Registration error:", err);
@@ -176,6 +207,7 @@ export function useSignup() {
     verifyOpen,
     setVerifyOpen,
     handleSubmit,
+    handleVerified,
   };
 }
 

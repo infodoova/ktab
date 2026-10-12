@@ -249,53 +249,53 @@ export function usePageImageGen({
   useEffect(() => {
     if (!isOpen) return;
 
-    // Check if user already had text highlighted on the book page prior to opening the modal
-    const initialSel = window.getSelection();
-    if (initialSel && !initialSel.isCollapsed) {
-      let initialText = initialSel.toString().trim();
-      initialText = initialText.replace(/الصفحة\s*\d+/g, "").trim();
-      if (initialText && initialText.length >= 3) {
-        if (initialText.length > MAX_CONTEXT_CHARS) {
-          initialText = initialText.slice(0, MAX_CONTEXT_CHARS);
-        }
-        setContextText(initialText);
-        setIsUserSelected(true);
-      }
-    }
-
-    const captureSelection = () => {
-      const sel = window.getSelection();
-      if (!sel || sel.isCollapsed) return;
-
-      let text = sel.toString().trim();
-      // Strip any accidental page numbers or page labels
-      text = text.replace(/الصفحة\s*\d+/g, "").trim();
-      if (!text || text.length < 3) return;
-
-      const anchor = sel.anchorNode;
-      if (!anchor) return;
-
-      const el = anchor.nodeType === Node.TEXT_NODE ? anchor.parentElement : anchor;
-      const isFromBookOrExcerpt = el?.closest?.(
-        ".ktab-book-page__content-wrap, .ktab-book-page__text, .ktab-single-page, .ktab-img-excerpt-box, .ktab-3page-preview-sheet, .ktab-3page-section__text"
-      );
-
-      if (isFromBookOrExcerpt) {
-        if (text.length > MAX_CONTEXT_CHARS) {
-          text = text.slice(0, MAX_CONTEXT_CHARS);
-          AlertToast(`تم تقليص التحديد إلى الحد الأقصى (${MAX_CONTEXT_CHARS.toLocaleString()} حرف)`, "INFO");
-        }
-        setContextText(text);
-        setIsUserSelected(true);
-      }
+    let frame = null;
+    let lastCapturedText = "";
+    const sourceSelector = ".ktab-book-page__content-wrap, .ktab-book-page__text, .ktab-single-page, .ktab-img-excerpt-box, .ktab-3page-preview-sheet__body, .ktab-3page-section__text";
+    const getSource = (node) => {
+      const element = node?.nodeType === Node.TEXT_NODE ? node.parentElement : node;
+      return element?.closest?.(sourceSelector);
     };
 
-    document.addEventListener("mouseup", captureSelection);
-    document.addEventListener("touchend", captureSelection);
+    const captureSelection = () => {
+      const selection = window.getSelection();
+      if (!selection || selection.isCollapsed) {
+        lastCapturedText = "";
+        return;
+      }
+      // Both ends must belong to the reader, rather than toolbar labels or controls.
+      if (!getSource(selection.anchorNode) || !getSource(selection.focusNode)) return;
+      const rawText = selection.toString().replace(/الصفحة\s*\d+/g, "").trim();
+      if (rawText.length < 3) return;
+      const text = rawText.slice(0, MAX_CONTEXT_CHARS);
+      if (text === lastCapturedText) return;
+      lastCapturedText = text;
+      if (rawText.length > MAX_CONTEXT_CHARS) {
+        AlertToast(`تم تقليص التحديد إلى الحد الأقصى (${MAX_CONTEXT_CHARS.toLocaleString()} حرف)`, "INFO");
+      }
+      setContextText(text);
+      setIsUserSelected(true);
+    };
+
+    // Native mobile selection handles can move without a DOM touchend event.
+    // Wait a frame so Safari has updated the range, and coalesce drag updates.
+    const scheduleCapture = () => {
+      if (frame !== null) cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        frame = null;
+        captureSelection();
+      });
+    };
+    captureSelection();
+    document.addEventListener("selectionchange", scheduleCapture);
+    document.addEventListener("mouseup", scheduleCapture);
+    document.addEventListener("touchend", scheduleCapture, { passive: true });
 
     return () => {
-      document.removeEventListener("mouseup", captureSelection);
-      document.removeEventListener("touchend", captureSelection);
+      if (frame !== null) cancelAnimationFrame(frame);
+      document.removeEventListener("selectionchange", scheduleCapture);
+      document.removeEventListener("mouseup", scheduleCapture);
+      document.removeEventListener("touchend", scheduleCapture);
     };
   }, [isOpen]);
 

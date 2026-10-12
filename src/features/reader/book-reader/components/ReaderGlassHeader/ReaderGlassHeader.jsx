@@ -940,6 +940,7 @@ export function ReaderGlassHeader(props) {
                 setIsLeftDrawerOpen((prev) => !prev);
               }}
               aria-label={isLeftDrawerOpen ? "طي شريط الأدوات" : "فتح شريط الأدوات"}
+              aria-expanded={isLeftDrawerOpen}
               title={isLeftDrawerOpen ? "طي الأدوات" : "أدوات القارئ"}
             >
               <span className="ktab-mobile-slider-handle__chevron">

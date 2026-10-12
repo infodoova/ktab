@@ -37,6 +37,7 @@ export function SignupView() {
     verifyOpen,
     setVerifyOpen,
     handleSubmit,
+    handleVerified,
   } = useSignup();
 
   return (
@@ -272,6 +273,7 @@ export function SignupView() {
             inline={true}
             email={form.email}
             onClose={() => setVerifyOpen(false)}
+            onVerified={handleVerified}
           />
         )}
       </div>

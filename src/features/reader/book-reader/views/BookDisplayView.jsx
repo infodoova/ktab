@@ -6,7 +6,6 @@ import { FastTravelModal } from "../components/FastTravelModal";
 import { PageImageGenModal } from "../components/PageImageGenModal";
 import { BookSectionModal } from "../components/BookSectionModal";
 import { useBookReader } from "../hooks/useBookReader";
-import { ALLOW_RIGHT_CLICK } from "../constants/readerConstants";
 import { ErrorBoundary } from "@/components/common";
 import { AlertToast } from "@/components/myui/AlertToast";
 import "./BookDisplayView.css";
@@ -21,6 +20,7 @@ export function BookDisplayView() {
   const {
     handleBack,
     handleRootClick,
+    handleContextMenu,
     bookRef,
     bookTitle,
     bookAuthor,
@@ -90,9 +90,7 @@ export function BookDisplayView() {
         e.preventDefault();
         AlertToast("تم إيقاف النسخ لحماية حقوق نشر الكتاب", "INFO");
       }}
-      onContextMenu={(e) => {
-        if (!ALLOW_RIGHT_CLICK) e.preventDefault();
-      }}
+      onContextMenu={handleContextMenu}
     >
       {/* Hide floating dock and popovers completely during image generation to keep screen distraction-free */}
       {!isImageGenActive && (
@@ -198,7 +196,6 @@ export function BookDisplayView() {
                     AlertToast("النسخ غير متاح داخل القارئ", "WARNING");
                   }}
                   onCut={(e) => e.preventDefault()}
-                  onContextMenu={(e) => e.preventDefault()}
                   style={{ fontSize: `${fontSize}px` }}
                 >
                   {imageGenPages.map((item) => (

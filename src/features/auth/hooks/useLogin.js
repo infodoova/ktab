@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useAuthStore } from "@/core/store/authStore";
-import { tokenManager } from "@/core/services/tokenManager";
 import { loginApi, googleLoginApi, completeGoogleRegistrationApi } from "@/core/api/authApi";
 import { AlertToast } from "@/components/myui/AlertToast";
-import { getRoleDefaultRoute } from "@/core/constants/roles";
+import { useAuthSession } from "./useAuthSession";
 import { sanitizeEmail } from "@/lib/sanitize";
 import { validateEmail, validateLoginPassword } from "@/utils/validation";
 import logger from "@/lib/logger";
@@ -29,9 +28,8 @@ let _googleRedirectHandled = false;
  * redirect mode on iPhone/iPad).
  */
 export function useLogin() {
-  const navigate = useNavigate();
   const location = useLocation();
-  const setAuth = useAuthStore((state) => state.setAuth);
+  const { establishSession, navigateAfterAuth } = useAuthSession();
   const googleBtnRef = useRef(null);
 
   const [email, setEmail] = useState("");
@@ -128,49 +126,7 @@ export function useLogin() {
       // googleStatus === "error" or any unexpected value
       AlertToast("فشل تسجيل الدخول عبر Google. يرجى المحاولة مجددًا.", "ERROR");
     }
-  }, []);
-
-  const navigateAfterAuth = (user) => {
-    let savedRedirect = null;
-    try {
-      savedRedirect = sessionStorage.getItem("ktab_post_login_redirect");
-      sessionStorage.removeItem("ktab_post_login_redirect");
-    } catch {
-      // ignore
-    }
-
-    const params = new URLSearchParams(location.search || window.location.search);
-    const redirectParam = params.get("redirect");
-    const stateTarget = location?.state?.from;
-    const target = redirectParam || savedRedirect || stateTarget;
-
-    // Validate that target is a safe relative internal route and not an auth loop
-    if (
-      target &&
-      typeof target === "string" &&
-      target.startsWith("/") &&
-      !target.startsWith("/login") &&
-      !target.startsWith("/signup")
-    ) {
-      navigate(target, { replace: true });
-      return;
-    }
-
-    const destination = getRoleDefaultRoute(user?.role);
-    navigate(destination, { replace: true });
-  };
-
-  const establishSession = async (data) => {
-    if (data) setAuth(data);
-    // Some auth responses contain only a profile. Verify that the browser
-    // accepted the HttpOnly cookie before treating that as a signed-in session.
-    if (!useAuthStore.getState().token) {
-      await tokenManager.safeRefresh();
-    }
-    const state = useAuthStore.getState();
-    // A verified HttpOnly cookie session may have no JS-readable access token.
-    return Boolean(state.isAuthenticated && state.user);
-  };
+  }, [establishSession, navigateAfterAuth]);
 
   /**
    * Dispatches the Google ID token to the backend auth endpoint.

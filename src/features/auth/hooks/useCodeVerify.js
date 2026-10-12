@@ -7,12 +7,13 @@ import { validateVerificationCode, validateEmail } from "@/utils/validation";
 import logger from "@/lib/logger";
 
 /**
- * Hook managing email OTP verification, countdown timer, resend, and redirect to login.
+ * Manages OTP verification, resending, and the caller's post-verification action.
  */
-export function useCodeVerify({ email } = {}) {
+export function useCodeVerify({ email, onVerified } = {}) {
   const [code, setCode] = useState("");
   const [timer, setTimer] = useState(60);
   const [loading, setLoading] = useState(false);
+  const [verification, setVerification] = useState(null);
   const navigate = useNavigate();
 
   const cleanEmail = sanitizeEmail(email);
@@ -81,10 +82,19 @@ export function useCodeVerify({ email } = {}) {
     setLoading(true);
 
     try {
-      const data = await verifyEmailApi({ email: cleanEmail, code: cleanCode });
+      // A successful OTP is single-use. If session restoration fails, retry only
+      // the post-verification action rather than submitting that OTP again.
+      const data = verification || await verifyEmailApi({ email: cleanEmail, code: cleanCode });
 
-      if (data.messageStatus !== "SUCCESS") {
+      if (!data.ok || data.messageStatus !== "SUCCESS") {
         AlertToast(data?.message || "رمز التحقق غير صحيح", data?.messageStatus || "ERROR");
+        return;
+      }
+
+      setVerification(data);
+
+      if (onVerified) {
+        await onVerified(data.data);
         return;
       }
 
@@ -102,6 +112,11 @@ export function useCodeVerify({ email } = {}) {
     }
   };
 
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    if (code.length === 6 && !loading) handleVerify();
+  };
+
   return {
     code,
     setCode: handleSetCode,
@@ -110,6 +125,7 @@ export function useCodeVerify({ email } = {}) {
     loading,
     handleResend,
     handleVerify,
+    handleSubmit,
   };
 }
 

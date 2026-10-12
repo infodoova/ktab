@@ -101,6 +101,24 @@
 }
 
 /* Signature brand teal highlight styling when highlighting text */
+.ktab-book-display-root--image-gen-active,
+.ktab-book-display-root--image-gen-active .ktab-book-display-canvas,
+.ktab-book-display-root--image-gen-active .ktab-3page-preview-wrapper,
+.ktab-book-display-root--image-gen-active .ktab-3page-preview-sheet,
+.ktab-book-display-root--image-gen-active .ktab-3page-preview-sheet__body,
+.ktab-book-display-root--image-gen-active .ktab-3page-section,
+.ktab-book-display-root--image-gen-active .ktab-3page-section__text {
+  touch-action: auto;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.ktab-book-display-root--image-gen-active .ktab-3page-preview-sheet__body {
+  min-height: 0;
+  -webkit-touch-callout: default;
+  scroll-padding-block: 24px calc(140px + env(safe-area-inset-bottom, 0px));
+}
+
 .ktab-book-display-root--image-gen-active .ktab-book-page__text ::selection,
 .ktab-book-display-root--image-gen-active .ktab-3page-preview-sheet__body ::selection {
   background-color: var(--brand-teal-glow, rgba(93, 227, 186, 0.45)) !important;

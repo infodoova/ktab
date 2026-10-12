@@ -1,144 +1,89 @@
 import React from "react";
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSlot,
-  Button,
-} from "@/components/myui/forms";
-import { X, ArrowLeft } from "lucide-react";
+import { Link } from "react-router-dom";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/myui/forms";
+import { X, ArrowLeft, LoaderCircle } from "lucide-react";
+import logo from "@/assets/logo/logo.png";
 import { useCodeVerify } from "../../hooks/useCodeVerify";
+import "./CodeVerifyModal.css";
 
-/**
- * OTP Code Verification Component.
- * Supports inline rendering directly replacing the auth form (inline=true),
- * or modal overlay rendering (inline=false).
- *
- * @param {{ email: string, onClose?: () => void, inline?: boolean }} props
- */
-export function CodeVerifyModal({ email, onClose, inline = false }) {
+/** Renders email verification inside the signup panel or as a standalone overlay. */
+export function CodeVerifyModal({ email, onClose, onVerified, inline = false }) {
   const {
-    code,
-    setCode,
-    timer,
-    canResend,
-    loading,
-    handleResend,
-    handleVerify,
-  } = useCodeVerify({ email });
+    code, setCode, timer, canResend, loading,
+    handleResend, handleSubmit,
+  } = useCodeVerify({ email, onVerified });
 
   const content = (
-    <div
-      dir="rtl"
-      className={
-        inline
-          ? "w-full max-w-[460px] flex flex-col items-center text-center"
-          : "w-full max-w-md flex flex-col items-center text-center"
-      }
-    >
-      {/* Title */}
-      <h1 className="text-3xl font-black text-black mb-2 tracking-tight">
-        تأكيد البريد الإلكتروني
-      </h1>
+    <section dir="rtl" className="code-verify" aria-labelledby="code-verify-title">
+      <header className="code-verify-header">
+        <Link to="/" className="code-verify-logo-link" aria-label="الرئيسية">
+          <img src={logo} alt="كتاب" className="code-verify-logo" />
+        </Link>
+        <h1 id="code-verify-title" className="code-verify-title">تأكيد البريد الإلكتروني</h1>
+        <p id="code-verify-description" className="code-verify-description">
+          أرسلنا إليك رمزًا من 6 أرقام. أدخله لتفعيل حسابك.
+        </p>
+        <p className="code-verify-email" dir="ltr">{email}</p>
+      </header>
 
-      <p className="text-black/60 text-sm mb-8 max-w-xs sm:max-w-sm leading-relaxed">
-        أدخل رمز التحقق المكوّن من 6 أرقام والذي تم إرساله إلى{" "}
-        <span className="font-semibold text-black" dir="ltr">{email}</span>
-      </p>
-
-      {/* OTP Slots */}
-      <div dir="ltr" className="w-full flex justify-center mb-6">
-        <InputOTP maxLength={6} value={code} onChange={setCode}>
-          <InputOTPGroup className="flex gap-3">
-            {[0, 1, 2, 3, 4, 5].map((i) => (
-              <InputOTPSlot
-                key={i}
-                index={i}
-                className="
-                  !w-12 !h-14 text-xl
-                  font-bold text-center
-                  bg-white
-                  border border-black/15
-                  rounded-xl
-                  shadow-sm
-                  focus:border-black
-                "
-              />
-            ))}
-          </InputOTPGroup>
-        </InputOTP>
-      </div>
-
-      {/* Confirm Button */}
-      <Button
-        disabled={code.length < 6 || loading}
-        onClick={handleVerify}
-        className="
-          w-full h-12
-          text-base font-bold
-          text-black
-          rounded-xl
-          transition-all
-          hover:scale-[1.01]
-          active:scale-[0.99]
-          disabled:opacity-50
-          disabled:cursor-not-allowed
-        "
-        style={{ background: "var(--brand-teal, #5de3ba)" }}
-      >
-        <span>{loading ? "جاري التحقق..." : "تأكيد الرمز"}</span>
-        {!loading && <ArrowLeft className="w-4 mr-2" />}
-      </Button>
-
-      {/* Resend Link / Timer */}
-      <div className="mt-6 text-black/60 text-sm">
-        {canResend ? (
-          <span
-            onClick={handleResend}
-            className="font-semibold text-black hover:text-[var(--brand-teal-dark,#4ed4ab)] hover:underline cursor-pointer transition-colors"
+      <form className="code-verify-form" onSubmit={handleSubmit} aria-busy={loading}>
+        <div dir="ltr" className="code-verify-input-wrap">
+          <InputOTP
+            maxLength={6}
+            value={code}
+            onChange={setCode}
+            disabled={loading}
+            autoFocus
+            autoComplete="one-time-code"
+            inputMode="numeric"
+            aria-label="رمز التحقق المكوّن من 6 أرقام"
+            aria-describedby="code-verify-description"
+            containerClassName="code-verify-input"
           >
+            <InputOTPGroup className="code-verify-digits">
+              {[0, 1, 2, 3, 4, 5].map((index) => (
+                <InputOTPSlot key={index} index={index} className={`code-verify-digit${code[index] ? " is-filled" : ""}`} />
+              ))}
+            </InputOTPGroup>
+          </InputOTP>
+        </div>
+
+        <button type="submit" className="code-verify-submit" disabled={code.length < 6 || loading}>
+          <span>{loading ? "جاري التحقق..." : "تأكيد الرمز"}</span>
+          {loading ? <LoaderCircle size={18} className="code-verify-spinner" aria-hidden="true" /> : <ArrowLeft size={18} aria-hidden="true" />}
+        </button>
+      </form>
+
+      <div className="code-verify-help">
+        <p className="code-verify-hint">لم يصلك الرمز؟ تحقّق من البريد غير المرغوب فيه.</p>
+        {canResend ? (
+          <button type="button" onClick={handleResend} disabled={loading} className="code-verify-resend">
             إعادة إرسال الرمز
-          </span>
+          </button>
         ) : (
-          <span>
-            يمكنك إعادة الإرسال بعد{" "}
-            <span className="font-bold text-black">{timer}</span> ثانية
-          </span>
+          <p className="code-verify-countdown">
+            يمكنك إعادة الإرسال بعد <strong dir="ltr">{timer}</strong> ثانية
+          </p>
         )}
       </div>
 
-      {/* Back button if user made a typo in email */}
       {onClose && (
-        <button
-          type="button"
-          onClick={onClose}
-          className="mt-6 text-xs text-black/50 hover:text-[var(--brand-teal-dark,#4ed4ab)] transition-colors"
-        >
+        <button type="button" onClick={onClose} disabled={loading} className="code-verify-edit">
           تعديل البريد الإلكتروني أو البيانات
         </button>
       )}
-    </div>
+    </section>
   );
 
-  if (inline) {
-    return content;
-  }
+  if (inline) return content;
 
   return (
-    <div
-      dir="rtl"
-      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white px-4 py-8 font-sans"
-    >
-      {/* Close Button */}
+    <div dir="rtl" className="code-verify-overlay" role="dialog" aria-modal="true" aria-labelledby="code-verify-title">
       {onClose && (
-        <button
-          onClick={onClose}
-          className="absolute left-6 top-6 text-black/50 hover:text-black transition"
-          aria-label="إغلاق"
-        >
-          <X className="w-6 h-6" />
+        <button type="button" onClick={onClose} className="code-verify-close" aria-label="إغلاق">
+          <X size={22} />
         </button>
       )}
-
       {content}
     </div>
   );

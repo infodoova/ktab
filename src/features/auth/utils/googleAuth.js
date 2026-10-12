@@ -31,7 +31,7 @@ export function isIOSDevice(nav = (typeof navigator !== "undefined" ? navigator 
  * @returns {string}
  */
 export function getGoogleRedirectUri(
-  envApiUrl = import.meta?.env?.VITE_API_URL,
+  envApiUrl = import.meta.env?.VITE_API_URL,
   origin = (typeof window !== "undefined" ? window.location?.origin : "https://ktab.app")
 ) {
   const base = (envApiUrl || "/api/v1").replace(/\/$/, "");

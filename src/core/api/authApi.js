@@ -1,6 +1,6 @@
 import logger from "../../lib/logger.js";
 
-const API_BASE_URL = import.meta?.env?.VITE_API_URL || "";
+const API_BASE_URL = import.meta.env?.VITE_API_URL || "";
 
 const defaultHeaders = {
   "Content-Type": "application/json",

@@ -134,6 +134,7 @@ export function useBookReader() {
     handleToggleFullscreen,
     handleCanvasClick,
     handleRootClick,
+    handleContextMenu,
     handleBack,
   } = useReaderUIState({
     bookRef,
@@ -281,6 +282,7 @@ export function useBookReader() {
     navigate,
     handleBack: handleReaderBack,
     handleRootClick,
+    handleContextMenu,
     bookRef,
     bookTitle,
     bookAuthor,

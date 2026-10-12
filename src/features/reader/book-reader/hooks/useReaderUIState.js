@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useReaderPreferencesStore } from "@/core/store";
 import { AlertToast } from "@/components/myui/AlertToast";
+import { ALLOW_RIGHT_CLICK } from "../constants/readerConstants";
+import { useReaderContentProtection } from "./useReaderContentProtection";
 
 /**
  * Manages reader presentation state, modals, popovers, lock toggle,
@@ -14,6 +16,7 @@ import { AlertToast } from "@/components/myui/AlertToast";
  * @returns {Object} UI state, handlers, and popover controls
  */
 export function useReaderUIState({ bookRef, currentPage = 1, totalPages = 1 }) {
+  useReaderContentProtection();
   const navigate = useNavigate();
 
   const {
@@ -141,7 +144,7 @@ export function useReaderUIState({ bookRef, currentPage = 1, totalPages = 1 }) {
 
     document.body.style.overflow = "hidden";
     document.documentElement.style.overflow = "hidden";
-    document.body.style.touchAction = "none";
+    document.body.style.touchAction = isImageGenActive ? "auto" : "none";
 
     const themeBgMap = {
       "pure-white": "#f8fafc",
@@ -157,7 +160,17 @@ export function useReaderUIState({ bookRef, currentPage = 1, totalPages = 1 }) {
       document.documentElement.style.overflow = originalDocOverflow;
       document.body.style.touchAction = originalBodyTouch;
     };
-  }, [theme]);
+  }, [theme, isImageGenActive]);
+
+  const handleContextMenu = useCallback((event) => {
+    // Safari needs its native long-press selection. Android's cancelable menu
+    // can be suppressed to avoid Copy/Search actions while retaining the range.
+    const isPreview = isImageGenActive &&
+      event.target.closest?.(".ktab-3page-preview-sheet__body");
+    const isAndroid = /Android/i.test(navigator.userAgent);
+    const isTouchPreview = isPreview && !isAndroid && window.matchMedia("(any-pointer: coarse)").matches;
+    if ((!ALLOW_RIGHT_CLICK || isPreview) && !isTouchPreview) event.preventDefault();
+  }, [isImageGenActive]);
 
   const handleCanvasClick = useCallback(() => {
     if (activePopover) {
@@ -294,6 +307,7 @@ export function useReaderUIState({ bookRef, currentPage = 1, totalPages = 1 }) {
     handleToggleFullscreen,
     handleCanvasClick,
     handleRootClick,
+    handleContextMenu,
     handleBack,
   };
 }
