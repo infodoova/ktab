@@ -1,13 +1,13 @@
-/**
- * Selectables Public Destination Links Configuration.
- * 4 curated destinations with Apple-style colorful app gradients:
- * 1. Early Access (الوصول المبكر للمكتبات)
- * 2. Free Voucher (قسيمة شهر مجاني)
- * 3. Instagram Official Link (حساب إنستغرام)
- * 4. Main App Domain (منصة كتاب الرئيسية ktab.app)
- */
-
 export const SELECTABLES_LINKS = [
+  {
+    id: "login",
+    title: "تسجيل الدخول",
+    subtitle: "شهر مجاني للقرّاء وخصم 50% على 10 كتب للمؤلفين",
+    href: "/login",
+    isExternal: false,
+    iconType: "ticket",
+    theme: "sunset",
+  },
   {
     id: "early-access",
     title: "الوصول المبكر للمكتبات",

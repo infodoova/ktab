@@ -148,7 +148,9 @@ export default function SelectablesView() {
 
                 {/* Left side (RTL end): Subtle tag badge + new tab action arrow */}
                 <div className="ktab-selectables-section__action">
-                  <span className="ktab-selectables-section__badge">{item.badge}</span>
+                  {item.badge && (
+                    <span className="ktab-selectables-section__badge">{item.badge}</span>
+                  )}
                   <span className="ktab-selectables-section__arrow" aria-hidden="true">
                     <ArrowUpLeft size={19} strokeWidth={2.4} />
                   </span>
