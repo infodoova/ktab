@@ -86,7 +86,14 @@
   display: flex;
   flex-direction: column;
   gap: 2rem;
-  flex: 1;
+  flex: 1 0 auto;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* Sections must retain their content height when images and fonts finish loading. */
+.apple-book-details-container > * {
+  flex-shrink: 0;
 }
 
 /* --------------------------------------------------------------------------

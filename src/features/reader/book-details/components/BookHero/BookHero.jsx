@@ -29,8 +29,6 @@ export function BookHero({
     averageRating = 0,
     totalReviews = 0,
     coverImageUrl,
-    mainGenreName,
-    subGenreName,
   } = book;
 
   const numericRating = Number(averageRating) || 0;
@@ -59,131 +57,129 @@ export function BookHero({
         </div>
 
         {/* 2. Metadata, Details & Action Buttons Column */}
-        <div className="apple-book-hero__content">
-          <div className="apple-book-hero__text-meta">
-            {/* Book Title */}
-            <h1 className="apple-book-hero__title">{title}</h1>
+        <div className="apple-book-hero__text-meta">
+          {/* Book Title */}
+          <h1 className="apple-book-hero__title">{title}</h1>
 
-            {/* Author */}
-            <div className="apple-book-hero__author">
-              <span className="apple-book-hero__author-by">تأليف:</span>
-              <span className="apple-book-hero__author-name">{authorName}</span>
-            </div>
-
-            {/* Rating Summary (Stars + Rating Value + Reviews Count) */}
-            <div className="apple-book-hero__rating-row">
-              <div className="apple-book-hero__stars" aria-label={`التقييم ${numericRating.toFixed(1)} من 5`}>
-                {[1, 2, 3, 4, 5].map((starIndex) => (
-                  <Star
-                    key={starIndex}
-                    size={14}
-                    className={`apple-book-hero__star ${
-                      starIndex <= Math.round(numericRating) ? "is-filled" : ""
-                    }`}
-                  />
-                ))}
-              </div>
-              <span className="apple-book-hero__rating-score">
-                {numericRating > 0 ? numericRating.toFixed(1) : "جديد"}
-              </span>
-              <span className="apple-book-hero__rating-count">
-                ({reviewsCount})
-              </span>
-            </div>
+          {/* Author */}
+          <div className="apple-book-hero__author">
+            <span className="apple-book-hero__author-by">تأليف:</span>
+            <span className="apple-book-hero__author-name">{authorName}</span>
           </div>
 
-          {/* Primary Action Buttons: integrated beside cover on PC, full-width row on mobile */}
-          <div className="apple-book-hero__actions">
-            {/* Primary Read / Listen CTA */}
-            <button
-              type="button"
-              onClick={onStartReading}
-              className="apple-book-hero__btn apple-book-hero__btn--primary"
-              id="btn-start-reading"
-            >
-              <Play size={16} fill="currentColor" />
-              <span>{hasAudio ? "استمع واقرأ" : "ابدأ القراءة"}</span>
-            </button>
-
-            {/* Add to My Library / Favorite Toggle Button */}
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                onToggleAssign?.(e);
-              }}
-              disabled={isAssignLoading}
-              className={`apple-book-hero__btn apple-book-hero__btn--secondary ${
-                isAssigned ? "is-assigned" : ""
-              }`}
-              title={isAssigned ? "في مكتبتي (انقر للإزالة)" : "أضف إلى مكتبتي"}
-              aria-label={isAssigned ? "في مكتبتي" : "أضف إلى مكتبتي"}
-              id="btn-toggle-library"
-            >
-              {isAssignLoading ? (
-                <Loader2 size={17} className="apple-book-hero__btn-spinner" />
-              ) : (
-                <Bookmark
-                  size={17}
-                  fill={isAssigned ? "currentColor" : "none"}
-                  className="apple-book-hero__btn-icon"
-                />
-              )}
-              <span className="apple-book-hero__btn-text">
-                {isAssigned ? "في مكتبتي" : "أضف للمكتبة"}
-              </span>
-            </button>
-
-            {/* Review Action Button */}
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                onOpenReviewModal?.(e);
-              }}
-              disabled={isReviewLoading}
-              className={`apple-book-hero__btn apple-book-hero__btn--secondary ${
-                isReviewed ? "is-reviewed" : ""
-              }`}
-              title={isReviewed ? "تعديل تقييمك" : "أضف تقييمك لهذا العمل"}
-              aria-label={isReviewed ? "تعديل تقييمك" : "تقييم العمل"}
-              id="btn-open-review"
-            >
-              {isReviewLoading ? (
-                <Loader2 size={17} className="apple-book-hero__btn-spinner" />
-              ) : (
+          {/* Rating Summary (Stars + Rating Value + Reviews Count) */}
+          <div className="apple-book-hero__rating-row">
+            <div className="apple-book-hero__stars" aria-label={`التقييم ${numericRating.toFixed(1)} من 5`}>
+              {[1, 2, 3, 4, 5].map((starIndex) => (
                 <Star
-                  size={17}
-                  fill={isReviewed ? "#f59e0b" : "none"}
-                  color={isReviewed ? "#f59e0b" : "currentColor"}
-                  className="apple-book-hero__btn-icon"
+                  key={starIndex}
+                  size={14}
+                  className={`apple-book-hero__star ${
+                    starIndex <= Math.round(numericRating) ? "is-filled" : ""
+                  }`}
                 />
-              )}
-              <span className="apple-book-hero__btn-text">
-                {isReviewed ? "تعديل تقييمك" : "تقييم العمل"}
-              </span>
-            </button>
-
-
-            {/* Apple Share Button (Mobile Native / Desktop Dropdown) */}
-            <ShareMenu
-              bookId={id}
-              title={title}
-              authorName={authorName}
-              align="left"
-              direction="down"
-            >
-              <button
-                type="button"
-                className="apple-book-hero__icon-btn"
-                aria-label="مشاركة الكتاب"
-                title="مشاركة رابط الكتاب"
-                id="btn-share-book"
-              >
-                <Share size={17} />
-              </button>
-            </ShareMenu>
+              ))}
+            </div>
+            <span className="apple-book-hero__rating-score">
+              {numericRating > 0 ? numericRating.toFixed(1) : "جديد"}
+            </span>
+            <span className="apple-book-hero__rating-count">
+              ({reviewsCount})
+            </span>
           </div>
+        </div>
+
+        {/* Primary Action Buttons: integrated beside cover on PC, full-width row on mobile */}
+        <div className="apple-book-hero__actions">
+          {/* Primary Read / Listen CTA */}
+          <button
+            type="button"
+            onClick={onStartReading}
+            className="apple-book-hero__btn apple-book-hero__btn--primary"
+            id="btn-start-reading"
+          >
+            <Play size={16} fill="currentColor" />
+            <span>{hasAudio ? "استمع واقرأ" : "ابدأ القراءة"}</span>
+          </button>
+
+          {/* Add to My Library / Favorite Toggle Button */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              onToggleAssign?.(e);
+            }}
+            disabled={isAssignLoading}
+            className={`apple-book-hero__btn apple-book-hero__btn--secondary ${
+              isAssigned ? "is-assigned" : ""
+            }`}
+            title={isAssigned ? "في مكتبتي (انقر للإزالة)" : "أضف إلى مكتبتي"}
+            aria-label={isAssigned ? "في مكتبتي" : "أضف إلى مكتبتي"}
+            id="btn-toggle-library"
+          >
+            {isAssignLoading ? (
+              <Loader2 size={17} className="apple-book-hero__btn-spinner" />
+            ) : (
+              <Bookmark
+                size={17}
+                fill={isAssigned ? "currentColor" : "none"}
+                className="apple-book-hero__btn-icon"
+              />
+            )}
+            <span className="apple-book-hero__btn-text">
+              {isAssigned ? "في مكتبتي" : "أضف للمكتبة"}
+            </span>
+          </button>
+
+          {/* Review Action Button */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              onOpenReviewModal?.(e);
+            }}
+            disabled={isReviewLoading}
+            className={`apple-book-hero__btn apple-book-hero__btn--secondary ${
+              isReviewed ? "is-reviewed" : ""
+            }`}
+            title={isReviewed ? "تعديل تقييمك" : "أضف تقييمك لهذا العمل"}
+            aria-label={isReviewed ? "تعديل تقييمك" : "تقييم العمل"}
+            id="btn-open-review"
+          >
+            {isReviewLoading ? (
+              <Loader2 size={17} className="apple-book-hero__btn-spinner" />
+            ) : (
+              <Star
+                size={17}
+                fill={isReviewed ? "#f59e0b" : "none"}
+                color={isReviewed ? "#f59e0b" : "currentColor"}
+                className="apple-book-hero__btn-icon"
+              />
+            )}
+            <span className="apple-book-hero__btn-text">
+              {isReviewed ? "تعديل تقييمك" : "تقييم العمل"}
+            </span>
+          </button>
+
+
+          {/* Apple Share Button (Mobile Native / Desktop Dropdown) */}
+          <ShareMenu
+            bookId={id}
+            title={title}
+            authorName={authorName}
+            align="left"
+            direction="down"
+          >
+            <button
+              type="button"
+              className="apple-book-hero__icon-btn"
+              aria-label="مشاركة الكتاب"
+              title="مشاركة رابط الكتاب"
+              id="btn-share-book"
+            >
+              <Share size={17} />
+            </button>
+          </ShareMenu>
         </div>
       </div>
 
